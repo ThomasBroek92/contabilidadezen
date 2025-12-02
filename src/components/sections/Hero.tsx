@@ -2,18 +2,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, MessageCircle } from "lucide-react";
 import heroImage from "@/assets/hero-healthcare.jpg";
-
-const benefits = [
-  "Economia de até 50% em impostos de forma legal",
-  "Atendimento especializado para profissionais da saúde",
-  "100% digital: sem burocracia e sem filas",
-  "Consultoria tributária personalizada",
-  "Suporte humanizado por especialistas",
-];
-
+const benefits = ["Economia de até 50% em impostos de forma legal", "Atendimento especializado para profissionais da saúde", "100% digital: sem burocracia e sem filas", "Consultoria tributária personalizada", "Suporte humanizado por especialistas"];
 export function Hero() {
-  return (
-    <section className="relative overflow-hidden bg-gradient-hero py-16 lg:py-24">
+  return <section className="relative overflow-hidden bg-gradient-hero py-16 lg:py-24">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
@@ -37,12 +28,10 @@ export function Hero() {
 
             {/* Benefits List */}
             <ul className="space-y-3">
-              {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-center gap-3 text-foreground/80">
+              {benefits.map((benefit, index) => <li key={index} className="flex items-center gap-3 text-foreground/80">
                   <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0" />
                   <span>{benefit}</span>
-                </li>
-              ))}
+                </li>)}
             </ul>
 
             {/* CTAs */}
@@ -54,11 +43,7 @@ export function Hero() {
                 </Link>
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
-                <a
-                  href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde." target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-5 w-5" />
                   Fale pelo WhatsApp
                 </a>
@@ -85,13 +70,11 @@ export function Hero() {
           </div>
 
           {/* Image */}
-          <div className="relative lg:pl-8 animate-fade-up" style={{ animationDelay: "0.2s" }}>
+          <div className="relative lg:pl-8 animate-fade-up" style={{
+          animationDelay: "0.2s"
+        }}>
             <div className="relative rounded-2xl overflow-hidden shadow-card">
-              <img
-                src={heroImage}
-                alt="Profissionais da saúde"
-                className="w-full h-auto object-cover"
-              />
+              <img alt="Profissionais da saúde" src="/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png" className="w-full h-auto object-contain shadow-lg" />
               {/* Floating Card */}
               <div className="absolute bottom-6 left-6 right-6 bg-card/95 backdrop-blur rounded-xl p-4 shadow-soft">
                 <div className="flex items-center gap-4">
@@ -112,6 +95,5 @@ export function Hero() {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 }

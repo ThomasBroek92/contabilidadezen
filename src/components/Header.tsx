@@ -1,23 +1,34 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Phone, MessageCircle } from "lucide-react";
+import { Menu, X, MessageCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logoFull from "@/assets/logo-full.png";
 
 const navLinks = [
   { name: "Início", href: "/" },
-  { name: "Para Médicos", href: "/medicos" },
   { name: "Serviços", href: "/servicos" },
   { name: "Blog", href: "/blog" },
   { name: "Sobre", href: "/sobre" },
   { name: "Contato", href: "/contato" },
 ];
 
+const segmentosLinks = [
+  { name: "Contabilidade para Médicos", href: "/segmentos/contabilidade-para-medicos" },
+];
+
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSegmentosOpen, setIsSegmentosOpen] = useState(false);
   const location = useLocation();
 
   const isActive = (href: string) => location.pathname === href;
+  const isSegmentoActive = () => segmentosLinks.some(link => location.pathname === link.href);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -29,7 +40,47 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
+          {navLinks.slice(0, 2).map((link) => (
+            <Link
+              key={link.name}
+              to={link.href}
+              className={`text-sm font-medium transition-colors hover:text-secondary ${
+                isActive(link.href) ? "text-secondary" : "text-foreground/80"
+              }`}
+            >
+              {link.name}
+            </Link>
+          ))}
+          
+          {/* Segmentos Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-secondary ${
+                  isSegmentoActive() ? "text-secondary" : "text-foreground/80"
+                }`}
+              >
+                Segmentos
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-64 bg-card border-border">
+              {segmentosLinks.map((link) => (
+                <DropdownMenuItem key={link.href} asChild>
+                  <Link
+                    to={link.href}
+                    className={`w-full cursor-pointer ${
+                      isActive(link.href) ? "text-secondary" : ""
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          {navLinks.slice(2).map((link) => (
             <Link
               key={link.name}
               to={link.href}
@@ -73,7 +124,7 @@ export function Header() {
       {isMenuOpen && (
         <div className="lg:hidden border-t border-border bg-background animate-slide-up">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
-            {navLinks.map((link) => (
+            {navLinks.slice(0, 2).map((link) => (
               <Link
                 key={link.name}
                 to={link.href}
@@ -85,6 +136,49 @@ export function Header() {
                 {link.name}
               </Link>
             ))}
+            
+            {/* Mobile Segmentos Accordion */}
+            <div className="border-t border-border pt-2">
+              <button
+                onClick={() => setIsSegmentosOpen(!isSegmentosOpen)}
+                className={`flex items-center justify-between w-full text-base font-medium py-2 transition-colors ${
+                  isSegmentoActive() ? "text-secondary" : "text-foreground/80"
+                }`}
+              >
+                Segmentos
+                <ChevronDown className={`h-4 w-4 transition-transform ${isSegmentosOpen ? "rotate-180" : ""}`} />
+              </button>
+              {isSegmentosOpen && (
+                <div className="pl-4 space-y-2 pb-2">
+                  {segmentosLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className={`block text-sm py-2 transition-colors ${
+                        isActive(link.href) ? "text-secondary" : "text-muted-foreground"
+                      }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {navLinks.slice(2).map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                className={`text-base font-medium py-2 transition-colors ${
+                  isActive(link.href) ? "text-secondary" : "text-foreground/80"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {link.name}
+              </Link>
+            ))}
+            
             <div className="flex flex-col gap-3 pt-4 border-t border-border">
               <Button variant="whatsapp" asChild>
                 <a

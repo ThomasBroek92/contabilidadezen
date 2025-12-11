@@ -22,13 +22,19 @@ const segmentosLinks = [
   { name: "Contabilidade para Médicos", href: "/segmentos/contabilidade-para-medicos" },
 ];
 
+const conteudoLinks = [
+  { name: "Calculadora Salário PJ x CLT", href: "/conteudo/calculadora-pj-clt" },
+];
+
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSegmentosOpen, setIsSegmentosOpen] = useState(false);
+  const [isConteudoOpen, setIsConteudoOpen] = useState(false);
   const location = useLocation();
 
   const isActive = (href: string) => location.pathname === href;
   const isSegmentoActive = () => segmentosLinks.some(link => location.pathname === link.href);
+  const isConteudoActive = () => conteudoLinks.some(link => location.pathname === link.href);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -66,6 +72,34 @@ export function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-64 bg-card border-border">
               {segmentosLinks.map((link) => (
+                <DropdownMenuItem key={link.href} asChild>
+                  <Link
+                    to={link.href}
+                    className={`w-full cursor-pointer ${
+                      isActive(link.href) ? "text-secondary" : ""
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Conteúdo Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-secondary ${
+                  isConteudoActive() ? "text-secondary" : "text-foreground/80"
+                }`}
+              >
+                Conteúdo
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-64 bg-card border-border">
+              {conteudoLinks.map((link) => (
                 <DropdownMenuItem key={link.href} asChild>
                   <Link
                     to={link.href}
@@ -151,6 +185,35 @@ export function Header() {
               {isSegmentosOpen && (
                 <div className="pl-4 space-y-2 pb-2">
                   {segmentosLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className={`block text-sm py-2 transition-colors ${
+                        isActive(link.href) ? "text-secondary" : "text-muted-foreground"
+                      }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Conteúdo Accordion */}
+            <div className="border-t border-border pt-2">
+              <button
+                onClick={() => setIsConteudoOpen(!isConteudoOpen)}
+                className={`flex items-center justify-between w-full text-base font-medium py-2 transition-colors ${
+                  isConteudoActive() ? "text-secondary" : "text-foreground/80"
+                }`}
+              >
+                Conteúdo
+                <ChevronDown className={`h-4 w-4 transition-transform ${isConteudoOpen ? "rotate-180" : ""}`} />
+              </button>
+              {isConteudoOpen && (
+                <div className="pl-4 space-y-2 pb-2">
+                  {conteudoLinks.map((link) => (
                     <Link
                       key={link.href}
                       to={link.href}

@@ -139,8 +139,8 @@ export function Header() {
               WhatsApp
             </a>
           </Button>
-          <Button variant="zen" size="sm" asChild>
-            <Link to="/contato">Fale Conosco</Link>
+          <Button variant="hero" size="sm" asChild>
+            <Link to="/abrir-empresa">Abrir Empresa Grátis</Link>
           </Button>
         </div>
 
@@ -253,8 +253,8 @@ export function Header() {
                   WhatsApp
                 </a>
               </Button>
-              <Button variant="zen" asChild>
-                <Link to="/contato">Agendar Consulta Gratuita</Link>
+              <Button variant="hero" asChild>
+                <Link to="/abrir-empresa">Abrir Empresa Grátis</Link>
               </Button>
             </div>
           </nav>

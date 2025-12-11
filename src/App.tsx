@@ -12,6 +12,7 @@ import Blog from "./pages/Blog";
 import Contato from "./pages/Contato";
 import ContabilidadeMedicos from "./pages/segmentos/ContabilidadeMedicos";
 import CalculadoraPJCLT from "./pages/conteudo/CalculadoraPJCLT";
+import AbrirEmpresa from "./pages/AbrirEmpresa";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/contato" element={<Contato />} />
             <Route path="/segmentos/contabilidade-para-medicos" element={<ContabilidadeMedicos />} />
             <Route path="/conteudo/calculadora-pj-clt" element={<CalculadoraPJCLT />} />
+            <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

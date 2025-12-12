@@ -9,6 +9,7 @@ import { PsicologosProcess } from "@/components/segmentos/psicologos/PsicologosP
 import { PsicologosTestimonials } from "@/components/segmentos/psicologos/PsicologosTestimonials";
 import { PsicologosFAQ } from "@/components/segmentos/psicologos/PsicologosFAQ";
 import { PsicologosCTA } from "@/components/segmentos/psicologos/PsicologosCTA";
+import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxComparisonCalculator";
 
 export default function ContabilidadePsicologos() {
   return (
@@ -31,6 +32,7 @@ export default function ContabilidadePsicologos() {
       <main>
         <PsicologosHero />
         <PsicologosLeadForm />
+        <TaxComparisonCalculator profession="psicólogo" />
         <PsicologosProblems />
         <PsicologosBenefits />
         <PsicologosProcess />

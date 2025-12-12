@@ -11,6 +11,8 @@ import Sobre from "./pages/Sobre";
 import Blog from "./pages/Blog";
 import Contato from "./pages/Contato";
 import ContabilidadeMedicos from "./pages/segmentos/ContabilidadeMedicos";
+import ContabilidadeDentistas from "./pages/segmentos/ContabilidadeDentistas";
+import ContabilidadePsicologos from "./pages/segmentos/ContabilidadePsicologos";
 import CalculadoraPJCLT from "./pages/conteudo/CalculadoraPJCLT";
 import AbrirEmpresa from "./pages/AbrirEmpresa";
 import NotFound from "./pages/NotFound";
@@ -32,6 +34,8 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/contato" element={<Contato />} />
             <Route path="/segmentos/contabilidade-para-medicos" element={<ContabilidadeMedicos />} />
+            <Route path="/segmentos/contabilidade-para-dentistas" element={<ContabilidadeDentistas />} />
+            <Route path="/segmentos/contabilidade-para-psicologos" element={<ContabilidadePsicologos />} />
             <Route path="/conteudo/calculadora-pj-clt" element={<CalculadoraPJCLT />} />
             <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
             <Route path="*" element={<NotFound />} />

@@ -9,6 +9,7 @@ import { DentistasProcess } from "@/components/segmentos/dentistas/DentistasProc
 import { DentistasTestimonials } from "@/components/segmentos/dentistas/DentistasTestimonials";
 import { DentistasFAQ } from "@/components/segmentos/dentistas/DentistasFAQ";
 import { DentistasCTA } from "@/components/segmentos/dentistas/DentistasCTA";
+import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxComparisonCalculator";
 
 export default function ContabilidadeDentistas() {
   return (
@@ -31,6 +32,7 @@ export default function ContabilidadeDentistas() {
       <main>
         <DentistasHero />
         <DentistasLeadForm />
+        <TaxComparisonCalculator profession="dentista" />
         <DentistasProblems />
         <DentistasBenefits />
         <DentistasProcess />

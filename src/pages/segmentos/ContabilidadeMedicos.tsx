@@ -9,6 +9,7 @@ import { MedicosProcess } from "@/components/segmentos/medicos/MedicosProcess";
 import { MedicosTestimonials } from "@/components/segmentos/medicos/MedicosTestimonials";
 import { MedicosFAQ } from "@/components/segmentos/medicos/MedicosFAQ";
 import { MedicosCTA } from "@/components/segmentos/medicos/MedicosCTA";
+import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxComparisonCalculator";
 
 export default function ContabilidadeMedicos() {
   return (
@@ -31,6 +32,7 @@ export default function ContabilidadeMedicos() {
       <main>
         <MedicosHero />
         <MedicosLeadForm />
+        <TaxComparisonCalculator profession="médico" />
         <MedicosProblems />
         <MedicosBenefits />
         <MedicosProcess />

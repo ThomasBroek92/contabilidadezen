@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Calculator, TrendingDown, CheckCircle2, Lock, ArrowRight } from "lucide-react";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const leadSchema = z.object({
   nome: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
@@ -89,16 +90,35 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
 
     setIsSubmitting(true);
     
-    // Simulate API call - in production, save to database
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Dados enviados com sucesso!",
-      description: "Veja abaixo sua simulação de economia.",
-    });
-    
-    setIsSubmitting(false);
-    setShowResults(true);
+    try {
+      const economia = calcularEconomia();
+      const { error } = await supabase.from('leads').insert({
+        nome: result.data.nome,
+        email: result.data.email,
+        whatsapp: result.data.whatsapp,
+        segmento: profession,
+        fonte: 'calculadora_tributaria',
+        faturamento_mensal: parseFloat(faturamento),
+        economia_anual: economia?.economiaAnual || 0,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Dados enviados com sucesso!",
+        description: "Veja abaixo sua simulação de economia.",
+      });
+      
+      setShowResults(true);
+    } catch (error) {
+      toast({
+        title: "Erro ao enviar",
+        description: "Por favor, tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const economia = calcularEconomia();

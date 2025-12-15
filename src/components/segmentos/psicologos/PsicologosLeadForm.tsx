@@ -6,10 +6,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Send, CheckCircle2 } from "lucide-react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+
+const leadSchema = z.object({
+  nome: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
+  email: z.string().trim().email("E-mail inválido").max(255),
+  telefone: z.string().trim().min(10, "Telefone inválido").max(20),
+});
 
 export function PsicologosLeadForm() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
@@ -24,6 +33,7 @@ export function PsicologosLeadForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     
     if (!formData.aceitaPolitica) {
       toast({
@@ -34,27 +44,57 @@ export function PsicologosLeadForm() {
       return;
     }
 
+    const result = leadSchema.safeParse(formData);
+    
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     setIsSubmitting(true);
     
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const { error } = await supabase.from('leads').insert({
+        nome: result.data.nome,
+        email: result.data.email,
+        whatsapp: result.data.telefone,
+        segmento: 'psicologos',
+        fonte: 'lead_form',
+      });
+
+      if (error) throw error;
     
-    toast({
-      title: "Formulário enviado com sucesso!",
-      description: "Em breve um especialista entrará em contato.",
-    });
+      toast({
+        title: "Formulário enviado com sucesso!",
+        description: "Em breve um especialista entrará em contato.",
+      });
     
-    setIsSubmitting(false);
-    setFormData({
-      nome: "",
-      email: "",
-      telefone: "",
-      atividade: "",
-      tributacao: "",
-      faturamento: "",
-      cidadeEstado: "",
-      ehPsicologo: "",
-      aceitaPolitica: false,
-    });
+      setFormData({
+        nome: "",
+        email: "",
+        telefone: "",
+        atividade: "",
+        tributacao: "",
+        faturamento: "",
+        cidadeEstado: "",
+        ehPsicologo: "",
+        aceitaPolitica: false,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao enviar",
+        description: "Por favor, tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -80,8 +120,9 @@ export function PsicologosLeadForm() {
                     placeholder="Seu nome"
                     value={formData.nome}
                     onChange={(e) => setFormData({...formData, nome: e.target.value})}
-                    required
+                    className={errors.nome ? "border-destructive" : ""}
                   />
+                  {errors.nome && <p className="text-xs text-destructive">{errors.nome}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
@@ -91,8 +132,9 @@ export function PsicologosLeadForm() {
                     placeholder="seu@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    required
+                    className={errors.email ? "border-destructive" : ""}
                   />
+                  {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                 </div>
               </div>
               
@@ -103,8 +145,9 @@ export function PsicologosLeadForm() {
                   placeholder="(00) 00000-0000"
                   value={formData.telefone}
                   onChange={(e) => setFormData({...formData, telefone: e.target.value})}
-                  required
+                  className={errors.telefone ? "border-destructive" : ""}
                 />
+                {errors.telefone && <p className="text-xs text-destructive">{errors.telefone}</p>}
               </div>
               
               <div className="grid sm:grid-cols-2 gap-5">

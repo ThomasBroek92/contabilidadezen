@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useWhatsAppNotification } from "@/hooks/use-whatsapp-notification";
 import { Calculator, TrendingDown, CheckCircle2, Lock, ArrowRight } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +31,7 @@ const faixasFaturamento = [
 
 export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorProps) {
   const { toast } = useToast();
+  const { openWhatsAppNotification } = useWhatsAppNotification();
   const [showResults, setShowResults] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [faturamento, setFaturamento] = useState("");
@@ -103,6 +105,17 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
       });
       
       if (error) throw error;
+
+      // Trigger WhatsApp notification for team
+      openWhatsAppNotification({
+        nome: result.data.nome,
+        email: result.data.email,
+        whatsapp: result.data.whatsapp,
+        segmento: profession.charAt(0).toUpperCase() + profession.slice(1),
+        fonte: 'Calculadora Tributária',
+        faturamento: parseFloat(faturamento),
+        economia: economia?.economiaAnual,
+      });
       
       toast({
         title: "Dados enviados com sucesso!",

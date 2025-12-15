@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { useWhatsAppNotification } from "@/hooks/use-whatsapp-notification";
 import { Send, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +18,7 @@ const leadSchema = z.object({
 
 export function PsicologosLeadForm() {
   const { toast } = useToast();
+  const { openWhatsAppNotification } = useWhatsAppNotification();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
@@ -69,6 +71,15 @@ export function PsicologosLeadForm() {
       });
 
       if (error) throw error;
+
+      // Trigger WhatsApp notification for team
+      openWhatsAppNotification({
+        nome: result.data.nome,
+        email: result.data.email,
+        whatsapp: result.data.telefone,
+        segmento: 'Psicólogos',
+        fonte: 'Formulário de Lead',
+      });
     
       toast({
         title: "Formulário enviado com sucesso!",

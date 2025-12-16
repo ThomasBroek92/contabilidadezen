@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useWhatsAppNotification } from "@/hooks/use-whatsapp-notification";
+import { useHoneypot } from "@/hooks/use-honeypot";
 import { Send, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +20,7 @@ const leadSchema = z.object({
 export function PsicologosLeadForm() {
   const { toast } = useToast();
   const { openWhatsAppNotification } = useWhatsAppNotification();
+  const { isBot, honeypotProps, reset: resetHoneypot } = useHoneypot();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
@@ -36,6 +38,15 @@ export function PsicologosLeadForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+
+    // Bot protection - silently fail for bots
+    if (isBot()) {
+      toast({
+        title: "Formulário enviado com sucesso!",
+        description: "Em breve um especialista entrará em contato.",
+      });
+      return;
+    }
     
     if (!formData.aceitaPolitica) {
       toast({
@@ -86,6 +97,7 @@ export function PsicologosLeadForm() {
         description: "Em breve um especialista entrará em contato.",
       });
     
+      resetHoneypot();
       setFormData({
         nome: "",
         email: "",
@@ -260,8 +272,11 @@ export function PsicologosLeadForm() {
                   </a>
                 </Label>
               </div>
+
+              {/* Honeypot field for bot protection */}
+              <input {...honeypotProps} />
               
-              <Button 
+              <Button
                 type="submit" 
                 size="lg" 
                 className="w-full mt-4"

@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useWhatsAppNotification } from "@/hooks/use-whatsapp-notification";
+import { useHoneypot } from "@/hooks/use-honeypot";
 import { Calculator, TrendingDown, CheckCircle2, Lock, ArrowRight } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +33,7 @@ const faixasFaturamento = [
 export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorProps) {
   const { toast } = useToast();
   const { openWhatsAppNotification } = useWhatsAppNotification();
+  const { isBot, honeypotProps, reset: resetHoneypot } = useHoneypot();
   const [showResults, setShowResults] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [faturamento, setFaturamento] = useState("");
@@ -67,6 +69,15 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+
+    // Bot protection - silently fail for bots
+    if (isBot()) {
+      toast({
+        title: "Dados enviados com sucesso!",
+        description: "Veja abaixo sua simulação de economia.",
+      });
+      return;
+    }
 
     if (!faturamento) {
       toast({
@@ -122,6 +133,7 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
         description: "Veja abaixo sua simulação de economia.",
       });
       
+      resetHoneypot();
       setShowResults(true);
     } catch (error) {
       toast({
@@ -247,9 +259,12 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
                   </div>
                 </div>
 
+                {/* Honeypot field for bot protection */}
+                <input {...honeypotProps} />
+
                 <Button 
                   type="submit" 
-                  size="lg" 
+                  size="lg"
                   className="w-full"
                   disabled={isSubmitting}
                 >

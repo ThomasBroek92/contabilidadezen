@@ -17,6 +17,7 @@ import CalculadoraPJCLT from "./pages/conteudo/CalculadoraPJCLT";
 import AbrirEmpresa from "./pages/AbrirEmpresa";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

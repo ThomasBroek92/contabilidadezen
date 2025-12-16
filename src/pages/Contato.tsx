@@ -253,8 +253,12 @@ export default function Contato() {
 
                   <p className="text-xs text-muted-foreground">
                     Ao enviar este formulário, você concorda com nossa{" "}
-                    <a href="/privacidade" className="text-secondary hover:underline">
+                    <a href="/politica-de-privacidade" className="text-secondary hover:underline">
                       Política de Privacidade
+                    </a>{" "}
+                    e nossos{" "}
+                    <a href="/termos" className="text-secondary hover:underline">
+                      Termos de Uso
                     </a>
                     .
                   </p>

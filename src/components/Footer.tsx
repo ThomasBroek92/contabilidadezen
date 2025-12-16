@@ -130,7 +130,7 @@ export function Footer() {
             © {new Date().getFullYear()} Contabilidade Zen. Todos os direitos reservados.
           </p>
           <div className="flex gap-6">
-            <Link to="/privacidade" className="text-sm text-primary-foreground/60 hover:text-secondary transition-colors">
+            <Link to="/politica-de-privacidade" className="text-sm text-primary-foreground/60 hover:text-secondary transition-colors">
               Política de Privacidade
             </Link>
             <Link to="/termos" className="text-sm text-primary-foreground/60 hover:text-secondary transition-colors">

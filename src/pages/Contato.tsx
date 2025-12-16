@@ -23,6 +23,16 @@ import {
   ArrowRight
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useWhatsAppNotification } from "@/hooks/use-whatsapp-notification";
+import { useHoneypot } from "@/hooks/use-honeypot";
+import { z } from "zod";
+
+const leadSchema = z.object({
+  nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
+  email: z.string().email("E-mail inválido").max(255),
+  telefone: z.string().min(10, "Telefone inválido").max(20),
+});
 
 const contactInfo = [
   {
@@ -73,7 +83,10 @@ const professions = [
 
 export default function Contato() {
   const { toast } = useToast();
+  const { openWhatsAppNotification } = useWhatsAppNotification();
+  const { honeypotProps, isBot } = useHoneypot();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -85,25 +98,81 @@ export default function Contato() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    // Bot protection
+    if (isBot()) {
+      toast({
+        title: "Erro",
+        description: "Formulário inválido.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate form data
+    const validation = leadSchema.safeParse({
+      nome: formData.name,
+      email: formData.email,
+      telefone: formData.phone,
+    });
+
+    if (!validation.success) {
+      const fieldErrors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const { error } = await supabase.from("leads").insert({
+        nome: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        whatsapp: formData.phone.trim(),
+        segmento: formData.profession || "Contato Geral",
+        fonte: `Formulário de Contato - ${formData.service || "Não especificado"}`,
+      });
 
-    toast({
-      title: "Mensagem enviada com sucesso!",
-      description: "Nossa equipe entrará em contato em breve.",
-    });
+      if (error) throw error;
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      profession: "",
-      service: "",
-      message: "",
-    });
-    setIsSubmitting(false);
+      // Send WhatsApp notification
+      openWhatsAppNotification({
+        nome: formData.name,
+        whatsapp: formData.phone,
+        email: formData.email,
+        segmento: formData.profession || "Contato Geral",
+        fonte: `Formulário de Contato${formData.message ? ` - Msg: ${formData.message.substring(0, 50)}` : ""}`,
+      });
+
+      toast({
+        title: "Mensagem enviada com sucesso!",
+        description: "Nossa equipe entrará em contato em breve.",
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        profession: "",
+        service: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("Erro ao enviar formulário:", error);
+      toast({
+        title: "Erro ao enviar",
+        description: "Por favor, tente novamente ou entre em contato pelo WhatsApp.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -239,6 +308,9 @@ export default function Contato() {
                       className="mt-2"
                     />
                   </div>
+
+                  {/* Honeypot field for bot protection */}
+                  <input {...honeypotProps} />
 
                   <Button 
                     type="submit" 

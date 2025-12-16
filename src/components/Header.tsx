@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, MessageCircle, ChevronDown } from "lucide-react";
+import { Menu, X, MessageCircle, ChevronDown, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -131,6 +131,16 @@ export function Header() {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
+          <Button variant="outline" size="sm" asChild>
+            <a
+              href="https://agenda.contabilidadezen.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Calendar className="h-4 w-4" />
+              Agenda Zen
+            </a>
+          </Button>
           <Button variant="whatsapp" size="sm" asChild>
             <a
               href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde."
@@ -245,6 +255,16 @@ export function Header() {
             ))}
             
             <div className="flex flex-col gap-3 pt-4 border-t border-border">
+              <Button variant="outline" asChild>
+                <a
+                  href="https://agenda.contabilidadezen.com.br"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Calendar className="h-4 w-4" />
+                  Agenda Zen
+                </a>
+              </Button>
               <Button variant="whatsapp" asChild>
                 <a
                   href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde."

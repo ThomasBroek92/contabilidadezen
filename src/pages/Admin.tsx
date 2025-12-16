@@ -7,10 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3 } from 'lucide-react';
 import logoFull from '@/assets/logo-full.png';
 import { UserRolesManager } from '@/components/admin/UserRolesManager';
 import { LeadsTable } from '@/components/admin/LeadsTable';
+import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -115,8 +116,14 @@ export default function Admin() {
             </CardContent>
           </Card>
         ) : (
-          <Tabs defaultValue={canViewLeads() ? 'leads' : 'users'} className="space-y-4">
+          <Tabs defaultValue={isAdmin() ? 'analytics' : canViewLeads() ? 'leads' : 'users'} className="space-y-4">
             <TabsList>
+              {isAdmin() && (
+                <TabsTrigger value="analytics" className="gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Analytics
+                </TabsTrigger>
+              )}
               {canViewLeads() && (
                 <TabsTrigger value="leads" className="gap-2">
                   <FileText className="h-4 w-4" />
@@ -130,6 +137,12 @@ export default function Admin() {
                 </TabsTrigger>
               )}
             </TabsList>
+
+            {isAdmin() && (
+              <TabsContent value="analytics">
+                <AnalyticsDashboard />
+              </TabsContent>
+            )}
 
             {canViewLeads() && (
               <TabsContent value="leads">

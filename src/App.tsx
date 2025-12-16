@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { CookieConsent } from "@/components/CookieConsent";
 import Index from "./pages/Index";
 import Medicos from "./pages/Medicos";
 import Servicos from "./pages/Servicos";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/termos" element={<Termos />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <CookieConsent />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

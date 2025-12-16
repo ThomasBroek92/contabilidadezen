@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Cookie, X } from "lucide-react";
+import { initializeGA } from "@/hooks/use-analytics";
 
 const COOKIE_CONSENT_KEY = "cookie-consent-accepted";
 
@@ -9,10 +10,16 @@ export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // Check if user has already made a choice
     const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+    
+    // If user already accepted, initialize GA
+    if (consent === "true") {
+      initializeGA();
+      return;
+    }
+    
+    // If no choice made yet, show banner
     if (consent === null) {
-      // Small delay to avoid showing immediately on page load
       const timer = setTimeout(() => setShowBanner(true), 1000);
       return () => clearTimeout(timer);
     }
@@ -20,6 +27,7 @@ export function CookieConsent() {
 
   const handleAccept = () => {
     localStorage.setItem(COOKIE_CONSENT_KEY, "true");
+    initializeGA();
     setShowBanner(false);
   };
 
@@ -33,7 +41,7 @@ export function CookieConsent() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 animate-in slide-in-from-bottom-5 duration-300">
       <div className="container mx-auto">
-        <div className="bg-card border border-border rounded-xl shadow-lg p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center gap-4">
+        <div className="bg-card border border-border rounded-xl shadow-lg p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center gap-4 relative">
           <div className="flex items-start gap-3 flex-1">
             <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
               <Cookie className="h-5 w-5 text-secondary" />
@@ -41,8 +49,8 @@ export function CookieConsent() {
             <div className="space-y-1">
               <h3 className="font-semibold text-foreground">Utilizamos cookies</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Nosso site utiliza cookies essenciais para funcionamento e autenticação. 
-                Ao continuar navegando, você concorda com nossa{" "}
+                Nosso site utiliza cookies para análise de tráfego e melhoria da experiência. 
+                Ao aceitar, você concorda com nossa{" "}
                 <Link 
                   to="/politica-de-privacidade" 
                   className="text-secondary hover:underline"

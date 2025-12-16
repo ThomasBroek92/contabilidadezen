@@ -143,7 +143,7 @@ export function Header() {
           </Button>
           <Button variant="whatsapp" size="sm" asChild>
             <a
-              href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde."
+              href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde."
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -267,7 +267,7 @@ export function Header() {
               </Button>
               <Button variant="whatsapp" asChild>
                 <a
-                  href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde."
+                  href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde."
                   target="_blank"
                   rel="noopener noreferrer"
                 >

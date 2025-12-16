@@ -43,7 +43,7 @@ export function Hero() {
                 </Link>
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
-                <a href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde." target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde." target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-5 w-5" />
                   Fale pelo WhatsApp
                 </a>

@@ -45,7 +45,7 @@ export function MedicosCTA() {
               asChild
             >
               <a 
-                href="https://wa.me/5511999999999?text=Olá! Sou médico e gostaria de saber mais sobre contabilidade especializada."
+                href="https://wa.me/5519974158342?text=Olá! Sou médico e gostaria de saber mais sobre contabilidade especializada."
                 target="_blank"
                 rel="noopener noreferrer"
               >

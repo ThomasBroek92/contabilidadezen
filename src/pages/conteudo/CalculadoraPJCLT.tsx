@@ -585,7 +585,7 @@ export default function CalculadoraPJCLT() {
                       </Button>
                       <Button variant="zen-outline" size="lg" asChild>
                         <a
-                          href="https://wa.me/5511999999999?text=Olá! Usei a calculadora PJ x CLT e gostaria de uma análise personalizada."
+                          href="https://wa.me/5519974158342?text=Olá! Usei a calculadora PJ x CLT e gostaria de uma análise personalizada."
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -1064,7 +1064,7 @@ export default function CalculadoraPJCLT() {
               </Button>
               <Button variant="outline" size="lg" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10" asChild>
                 <a
-                  href="https://wa.me/5511999999999"
+                  href="https://wa.me/5519974158342"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

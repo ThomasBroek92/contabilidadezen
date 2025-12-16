@@ -1,6 +1,6 @@
 // WhatsApp notification hook for lead capture
 // Configure your team's WhatsApp number here
-const TEAM_WHATSAPP_NUMBER = "5511999999999"; // Replace with your actual number
+const TEAM_WHATSAPP_NUMBER = "5519974158342";
 
 interface LeadData {
   nome: string;

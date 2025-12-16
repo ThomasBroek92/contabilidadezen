@@ -96,7 +96,7 @@ export default function Medicos() {
                   </Button>
                   <Button variant="whatsapp" size="xl" asChild>
                     <a
-                      href="https://wa.me/5511999999999?text=Olá! Sou médico e gostaria de saber mais sobre contabilidade especializada."
+                      href="https://wa.me/5519974158342?text=Olá! Sou médico e gostaria de saber mais sobre contabilidade especializada."
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -249,7 +249,7 @@ export default function Medicos() {
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
                 <a
-                  href="https://wa.me/5511999999999?text=Olá! Sou médico e gostaria de agendar uma consulta gratuita."
+                  href="https://wa.me/5519974158342?text=Olá! Sou médico e gostaria de agendar uma consulta gratuita."
                   target="_blank"
                   rel="noopener noreferrer"
                 >

@@ -84,7 +84,7 @@ export function FAQ() {
                 </Button>
                 <Button variant="whatsapp" asChild>
                   <a
-                    href="https://wa.me/5511999999999?text=Olá! Tenho uma dúvida sobre contabilidade para profissionais da saúde."
+                    href="https://wa.me/5519974158342?text=Olá! Tenho uma dúvida sobre contabilidade para profissionais da saúde."
                     target="_blank"
                     rel="noopener noreferrer"
                   >

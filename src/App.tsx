@@ -15,6 +15,8 @@ import ContabilidadeDentistas from "./pages/segmentos/ContabilidadeDentistas";
 import ContabilidadePsicologos from "./pages/segmentos/ContabilidadePsicologos";
 import CalculadoraPJCLT from "./pages/conteudo/CalculadoraPJCLT";
 import AbrirEmpresa from "./pages/AbrirEmpresa";
+import Auth from "./pages/Auth";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
             <Route path="/segmentos/contabilidade-para-psicologos" element={<ContabilidadePsicologos />} />
             <Route path="/conteudo/calculadora-pj-clt" element={<CalculadoraPJCLT />} />
             <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -38,8 +38,8 @@ const contactInfo = [
   {
     icon: Phone,
     title: "Telefone",
-    value: "(11) 99999-9999",
-    href: "tel:+5511999999999",
+    value: "(19) 97415-8342",
+    href: "tel:+5519974158342",
   },
   {
     icon: Mail,
@@ -347,7 +347,7 @@ export default function Contato() {
                   <div className="space-y-4">
                     <Button variant="whatsapp" size="lg" className="w-full" asChild>
                       <a
-                        href="https://wa.me/5511999999999?text=Olá! Gostaria de agendar uma consulta gratuita sobre contabilidade."
+                        href="https://wa.me/5519974158342?text=Olá! Gostaria de agendar uma consulta gratuita sobre contabilidade."
                         target="_blank"
                         rel="noopener noreferrer"
                       >

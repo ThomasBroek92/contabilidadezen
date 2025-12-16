@@ -389,7 +389,7 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
                     asChild
                   >
                     <a
-                      href={`https://wa.me/5511999999999?text=${encodeURIComponent(`Olá! Sou ${profession} e fiz a simulação no site. Gostaria de saber mais sobre como economizar impostos.`)}`}
+                      href={`https://wa.me/5519974158342?text=${encodeURIComponent(`Olá! Sou ${profession} e fiz a simulação no site. Gostaria de saber mais sobre como economizar impostos.`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

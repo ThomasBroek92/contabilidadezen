@@ -152,8 +152,8 @@ export default function PoliticaPrivacidade() {
                     </a>
                   </p>
                   <p className="text-muted-foreground">
-                    Telefone: <a href="tel:+5511999999999" className="text-secondary hover:underline">
-                      (11) 99999-9999
+                    Telefone: <a href="tel:+5519974158342" className="text-secondary hover:underline">
+                      (19) 97415-8342
                     </a>
                   </p>
                 </div>
@@ -181,8 +181,8 @@ export default function PoliticaPrivacidade() {
                     </a>
                   </li>
                   <li>
-                    WhatsApp: <a href="https://wa.me/5511999999999" className="text-secondary hover:underline">
-                      (11) 99999-9999
+                    WhatsApp: <a href="https://wa.me/5519974158342" className="text-secondary hover:underline">
+                      (19) 97415-8342
                     </a>
                   </li>
                 </ul>

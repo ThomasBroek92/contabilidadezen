@@ -40,7 +40,7 @@ export function AbrirEmpresaCTA() {
               asChild
             >
               <a
-                href="https://wa.me/5511999999999?text=Olá! Gostaria de abrir minha empresa com a Contabilidade Zen."
+                href="https://wa.me/5519974158342?text=Olá! Gostaria de abrir minha empresa com a Contabilidade Zen."
                 target="_blank"
                 rel="noopener noreferrer"
               >

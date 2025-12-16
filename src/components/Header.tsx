@@ -133,7 +133,7 @@ export function Header() {
         <div className="hidden lg:flex items-center gap-3">
           <Button variant="outline" size="sm" asChild>
             <a
-              href="https://agenda.contabilidadezen.com.br"
+              href="https://agendacontabilidadezen.lovable.app"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -257,7 +257,7 @@ export function Header() {
             <div className="flex flex-col gap-3 pt-4 border-t border-border">
               <Button variant="outline" asChild>
                 <a
-                  href="https://agenda.contabilidadezen.com.br"
+                  href="https://agendacontabilidadezen.lovable.app"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

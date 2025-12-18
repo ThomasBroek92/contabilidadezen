@@ -2,9 +2,23 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Calendar, Clock, ArrowRight, Search } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  category: string;
+  read_time_minutes: number | null;
+  published_at: string | null;
+  created_at: string;
+}
 
 const categories = [
   "Todos",
@@ -13,95 +27,45 @@ const categories = [
   "Dicas",
   "Abertura de Empresa",
   "Gestão Financeira",
-];
-
-const posts = [
-  {
-    title: "Guia Completo: Como Médico PJ Pode Pagar Menos Impostos Legalmente",
-    excerpt: "Descubra as estratégias legais para reduzir sua carga tributária como médico pessoa jurídica, incluindo Fator R, regime tributário e planejamento fiscal completo.",
-    category: "Impostos",
-    readTime: "8 min",
-    date: "28 Nov 2024",
-    slug: "guia-medico-pj-impostos",
-    featured: true,
-  },
-  {
-    title: "Simples Nacional vs Lucro Presumido: Qual o Melhor para Dentistas?",
-    excerpt: "Entenda as diferenças entre os regimes tributários e descubra qual é o mais vantajoso para seu consultório odontológico baseado no seu faturamento.",
-    category: "Regime Tributário",
-    readTime: "6 min",
-    date: "25 Nov 2024",
-    slug: "simples-lucro-presumido-dentistas",
-    featured: false,
-  },
-  {
-    title: "5 Erros Fiscais que Profissionais da Saúde Não Podem Cometer",
-    excerpt: "Conheça os erros mais comuns que médicos, dentistas e psicólogos cometem e como evitá-los para não ter problemas com o fisco.",
-    category: "Dicas",
-    readTime: "5 min",
-    date: "22 Nov 2024",
-    slug: "erros-fiscais-profissionais-saude",
-    featured: false,
-  },
-  {
-    title: "O que é Fator R e Como Ele Pode Reduzir Seus Impostos",
-    excerpt: "Entenda o conceito de Fator R, como ele funciona no Simples Nacional e como otimizá-lo para pagar apenas 6% de impostos.",
-    category: "Impostos",
-    readTime: "7 min",
-    date: "18 Nov 2024",
-    slug: "fator-r-reducao-impostos",
-    featured: false,
-  },
-  {
-    title: "Passo a Passo: Como Abrir Empresa Médica em 2024",
-    excerpt: "Tutorial completo para abrir sua empresa médica, desde a escolha do tipo societário até o registro no CRM.",
-    category: "Abertura de Empresa",
-    readTime: "10 min",
-    date: "15 Nov 2024",
-    slug: "como-abrir-empresa-medica",
-    featured: false,
-  },
-  {
-    title: "Gestão Financeira para Clínicas: O Guia Definitivo",
-    excerpt: "Aprenda a organizar as finanças da sua clínica, controlar custos e aumentar a lucratividade do seu negócio na área da saúde.",
-    category: "Gestão Financeira",
-    readTime: "12 min",
-    date: "12 Nov 2024",
-    slug: "gestao-financeira-clinicas",
-    featured: false,
-  },
-  {
-    title: "DMED: Tudo que Médicos Precisam Saber Sobre Esta Declaração",
-    excerpt: "Guia completo sobre a Declaração de Serviços Médicos (DMED), quem deve entregar, prazos e como evitar multas.",
-    category: "Impostos",
-    readTime: "6 min",
-    date: "8 Nov 2024",
-    slug: "dmed-declaracao-servicos-medicos",
-    featured: false,
-  },
-  {
-    title: "Psicólogo PJ: Vale a Pena Abrir Empresa?",
-    excerpt: "Análise completa para psicólogos sobre quando vale a pena abrir uma empresa e quanto podem economizar em impostos.",
-    category: "Abertura de Empresa",
-    readTime: "7 min",
-    date: "5 Nov 2024",
-    slug: "psicologo-pj-abrir-empresa",
-    featured: false,
-  },
+  "Contabilidade",
+  "Legislação",
 ];
 
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, slug, excerpt, category, read_time_minutes, published_at, created_at')
+        .eq('status', 'published')
+        .order('published_at', { ascending: false });
+
+      if (error) throw error;
+      setPosts((data as BlogPost[]) || []);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredPosts = posts.filter((post) => {
     const matchesCategory = selectedCategory === "Todos" || post.category === selectedCategory;
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
+      post.excerpt?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const featuredPost = posts.find((p) => p.featured);
+  const featuredPost = filteredPosts[0];
 
   return (
     <div className="min-h-screen bg-background">
@@ -123,7 +87,11 @@ export default function Blog() {
         </section>
 
         {/* Featured Post */}
-        {featuredPost && (
+        {loading ? (
+          <div className="py-12 flex justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : featuredPost && (
           <section className="py-12 bg-background">
             <div className="container mx-auto px-4">
               <div className="bg-card rounded-2xl overflow-hidden border border-border hover:shadow-card transition-all">
@@ -143,11 +111,11 @@ export default function Blog() {
                   <div className="flex items-center gap-6 flex-wrap">
                     <span className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      {featuredPost.date}
+                      {format(new Date(featuredPost.published_at || featuredPost.created_at), "dd MMM yyyy", { locale: ptBR })}
                     </span>
                     <span className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="h-4 w-4" />
-                      {featuredPost.readTime}
+                      {featuredPost.read_time_minutes || 5} min
                     </span>
                     <Button variant="zen" size="sm" asChild>
                       <Link to={`/blog/${featuredPost.slug}`}>
@@ -201,9 +169,9 @@ export default function Blog() {
         <section className="py-12 lg:py-16 bg-background">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {filteredPosts.filter(p => !p.featured).map((post, index) => (
+              {filteredPosts.slice(1).map((post) => (
                 <article
-                  key={index}
+                  key={post.id}
                   className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-secondary/50 hover:shadow-card transition-all"
                 >
                   <div className="h-2 bg-gradient-to-r from-zen-teal to-zen-blue"></div>
@@ -215,7 +183,7 @@ export default function Blog() {
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        {post.readTime}
+                        {post.read_time_minutes || 5} min
                       </span>
                     </div>
 
@@ -232,7 +200,7 @@ export default function Blog() {
                     <div className="flex items-center justify-between pt-4 border-t border-border">
                       <span className="text-sm text-muted-foreground flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
-                        {post.date}
+                        {format(new Date(post.published_at || post.created_at), "dd MMM yyyy", { locale: ptBR })}
                       </span>
                       <Link
                         to={`/blog/${post.slug}`}
@@ -247,7 +215,7 @@ export default function Blog() {
               ))}
             </div>
 
-            {filteredPosts.length === 0 && (
+            {filteredPosts.length === 0 && !loading && (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">Nenhum artigo encontrado.</p>
               </div>

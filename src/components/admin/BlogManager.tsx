@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { MarkdownEditor } from '@/components/blog/MarkdownEditor';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -612,14 +613,11 @@ export function BlogManager() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="content">Conteúdo *</Label>
-                <Textarea
-                  id="content"
+                <Label>Conteúdo * (Markdown)</Label>
+                <MarkdownEditor
                   value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  placeholder="Escreva o conteúdo completo do post aqui..."
-                  rows={15}
-                  className="font-mono text-sm"
+                  onChange={(value) => setFormData({ ...formData, content: value })}
+                  placeholder="Escreva o conteúdo do post usando Markdown..."
                 />
                 <p className="text-xs text-muted-foreground">
                   Tempo estimado de leitura: {calculateReadTime(formData.content)} min

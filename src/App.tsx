@@ -12,6 +12,7 @@ import Medicos from "./pages/Medicos";
 import Servicos from "./pages/Servicos";
 import Sobre from "./pages/Sobre";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import Contato from "./pages/Contato";
 import ContabilidadeMedicos from "./pages/segmentos/ContabilidadeMedicos";
 import ContabilidadeDentistas from "./pages/segmentos/ContabilidadeDentistas";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/sobre" element={<Sobre />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/contato" element={<Contato />} />
             <Route path="/segmentos/contabilidade-para-medicos" element={<ContabilidadeMedicos />} />
             <Route path="/segmentos/contabilidade-para-dentistas" element={<ContabilidadeDentistas />} />

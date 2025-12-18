@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          category: string
+          content: string
+          created_at: string
+          excerpt: string | null
+          featured_image_url: string | null
+          id: string
+          meta_description: string | null
+          meta_keywords: string[] | null
+          meta_title: string | null
+          published_at: string | null
+          read_time_minutes: number | null
+          scheduled_for: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          published_at?: string | null
+          read_time_minutes?: number | null
+          scheduled_for?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          published_at?: string | null
+          read_time_minutes?: number | null
+          scheduled_for?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string
@@ -77,6 +137,7 @@ export type Database = {
     }
     Functions: {
       can_view_leads: { Args: { _user_id: string }; Returns: boolean }
+      generate_blog_slug: { Args: { title: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -84,6 +145,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      publish_scheduled_posts: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "sales_manager" | "sales_rep"

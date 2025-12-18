@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, Edit, Trash2, Eye, Calendar, Clock, 
   FileText, Send, CalendarClock, Loader2, Search,
-  CheckCircle, AlertCircle
+  CheckCircle, AlertCircle, ImagePlus, X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -71,6 +71,7 @@ const initialFormData = {
   excerpt: '',
   content: '',
   category: 'Dicas',
+  featured_image_url: '',
   meta_title: '',
   meta_description: '',
   meta_keywords: '',
@@ -82,6 +83,7 @@ export function BlogManager() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [deletePostId, setDeletePostId] = useState<string | null>(null);
@@ -132,6 +134,69 @@ export function BlogManager() {
     return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Arquivo inválido',
+        description: 'Por favor, selecione uma imagem.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Arquivo muito grande',
+        description: 'A imagem deve ter no máximo 5MB.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `covers/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, featured_image_url: publicUrl });
+
+      toast({
+        title: 'Imagem enviada!',
+        description: 'A imagem de capa foi carregada com sucesso.',
+      });
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: 'Erro ao enviar imagem',
+        description: error.message || 'Não foi possível enviar a imagem.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData({ ...formData, featured_image_url: '' });
+  };
+
   const handleOpenDialog = (post?: BlogPost) => {
     if (post) {
       setEditingPost(post);
@@ -140,6 +205,7 @@ export function BlogManager() {
         excerpt: post.excerpt || '',
         content: post.content,
         category: post.category,
+        featured_image_url: post.featured_image_url || '',
         meta_title: post.meta_title || '',
         meta_description: post.meta_description || '',
         meta_keywords: post.meta_keywords?.join(', ') || '',
@@ -198,6 +264,7 @@ export function BlogManager() {
         excerpt: formData.excerpt || null,
         content: formData.content,
         category: formData.category,
+        featured_image_url: formData.featured_image_url || null,
         meta_title: formData.meta_title || formData.title,
         meta_description: formData.meta_description || formData.excerpt || formData.title,
         meta_keywords: keywords.length > 0 ? keywords : null,
@@ -413,6 +480,15 @@ export function BlogManager() {
                   key={post.id}
                   className="flex flex-col md:flex-row gap-4 p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors"
                 >
+                  {post.featured_image_url && (
+                    <div className="w-full md:w-32 h-24 flex-shrink-0">
+                      <img
+                        src={post.featured_image_url}
+                        alt={post.title}
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       {getStatusBadge(post.status)}
@@ -548,6 +624,51 @@ export function BlogManager() {
                 <p className="text-xs text-muted-foreground">
                   Tempo estimado de leitura: {calculateReadTime(formData.content)} min
                 </p>
+              </div>
+              {/* Image Upload */}
+              <div className="space-y-2">
+                <Label>Imagem de Capa</Label>
+                {formData.featured_image_url ? (
+                  <div className="relative">
+                    <img
+                      src={formData.featured_image_url}
+                      alt="Preview"
+                      className="w-full h-48 object-cover rounded-lg border border-border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/30 transition-colors">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      {uploadingImage ? (
+                        <Loader2 className="h-10 w-10 animate-spin text-muted-foreground mb-2" />
+                      ) : (
+                        <ImagePlus className="h-10 w-10 text-muted-foreground mb-2" />
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        {uploadingImage ? 'Enviando...' : 'Clique para enviar uma imagem'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        PNG, JPG ou WebP (máx. 5MB)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                    />
+                  </label>
+                )}
               </div>
             </TabsContent>
 

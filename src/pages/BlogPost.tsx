@@ -10,6 +10,7 @@ import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, Loader2 } from 'lucide-
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
 
 interface BlogPost {
   id: string;
@@ -251,43 +252,7 @@ export default function BlogPost() {
         {/* Article Content */}
         <article className="py-12 lg:py-16">
           <div className="container mx-auto px-4 max-w-4xl">
-            <div 
-              className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-secondary prose-strong:text-foreground"
-              style={{ whiteSpace: 'pre-wrap' }}
-            >
-              {post.content.split('\n\n').map((paragraph, index) => {
-                if (paragraph.startsWith('# ')) {
-                  return <h2 key={index} className="text-2xl font-bold mt-8 mb-4 text-foreground">{paragraph.slice(2)}</h2>;
-                }
-                if (paragraph.startsWith('## ')) {
-                  return <h3 key={index} className="text-xl font-semibold mt-6 mb-3 text-foreground">{paragraph.slice(3)}</h3>;
-                }
-                if (paragraph.startsWith('### ')) {
-                  return <h4 key={index} className="text-lg font-semibold mt-4 mb-2 text-foreground">{paragraph.slice(4)}</h4>;
-                }
-                if (paragraph.startsWith('- ')) {
-                  const items = paragraph.split('\n').filter(line => line.startsWith('- '));
-                  return (
-                    <ul key={index} className="list-disc pl-6 my-4 space-y-2">
-                      {items.map((item, i) => (
-                        <li key={i} className="text-muted-foreground">{item.slice(2)}</li>
-                      ))}
-                    </ul>
-                  );
-                }
-                if (paragraph.match(/^\d+\. /)) {
-                  const items = paragraph.split('\n').filter(line => line.match(/^\d+\. /));
-                  return (
-                    <ol key={index} className="list-decimal pl-6 my-4 space-y-2">
-                      {items.map((item, i) => (
-                        <li key={i} className="text-muted-foreground">{item.replace(/^\d+\. /, '')}</li>
-                      ))}
-                    </ol>
-                  );
-                }
-                return <p key={index} className="text-muted-foreground mb-4 leading-relaxed">{paragraph}</p>;
-              })}
-            </div>
+            <MarkdownRenderer content={post.content} />
 
             {/* Tags */}
             {post.meta_keywords && post.meta_keywords.length > 0 && (

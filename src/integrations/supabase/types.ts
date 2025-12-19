@@ -74,6 +74,53 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_topics: {
+        Row: {
+          category: string
+          created_at: string | null
+          error_message: string | null
+          generated_post_id: string | null
+          id: string
+          scheduled_date: string
+          search_query: string | null
+          status: string
+          topic: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string | null
+          error_message?: string | null
+          generated_post_id?: string | null
+          id?: string
+          scheduled_date: string
+          search_query?: string | null
+          status?: string
+          topic: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          error_message?: string | null
+          generated_post_id?: string | null
+          id?: string
+          scheduled_date?: string
+          search_query?: string | null
+          status?: string
+          topic?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_topics_generated_post_id_fkey"
+            columns: ["generated_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_interactions: {
         Row: {
           created_at: string

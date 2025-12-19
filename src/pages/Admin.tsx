@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenSquare } from 'lucide-react';
 import logoFull from '@/assets/logo-full.png';
 import { UserRolesManager } from '@/components/admin/UserRolesManager';
-import { LeadsTable } from '@/components/admin/LeadsTable';
+import { CRMPage } from '@/components/crm/CRMPage';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { BlogManager } from '@/components/admin/BlogManager';
 
@@ -159,7 +159,7 @@ export default function Admin() {
 
             {canViewLeads() && (
               <TabsContent value="leads">
-                <LeadsTable />
+                <CRMPage />
               </TabsContent>
             )}
 

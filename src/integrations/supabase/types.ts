@@ -74,38 +74,171 @@ export type Database = {
         }
         Relationships: []
       }
-      leads: {
+      lead_interactions: {
         Row: {
           created_at: string
-          economia_anual: number | null
-          email: string
-          faturamento_mensal: number | null
-          fonte: string
+          data_interacao: string
+          descricao: string
+          duracao_minutos: number | null
           id: string
-          nome: string
-          segmento: string
-          whatsapp: string
+          lead_id: string
+          resultado: string | null
+          tipo: Database["public"]["Enums"]["interaction_type"]
+          user_id: string | null
         }
         Insert: {
           created_at?: string
-          economia_anual?: number | null
-          email: string
-          faturamento_mensal?: number | null
-          fonte: string
+          data_interacao?: string
+          descricao: string
+          duracao_minutos?: number | null
           id?: string
-          nome: string
-          segmento: string
-          whatsapp: string
+          lead_id: string
+          resultado?: string | null
+          tipo: Database["public"]["Enums"]["interaction_type"]
+          user_id?: string | null
         }
         Update: {
           created_at?: string
+          data_interacao?: string
+          descricao?: string
+          duracao_minutos?: number | null
+          id?: string
+          lead_id?: string
+          resultado?: string | null
+          tipo?: Database["public"]["Enums"]["interaction_type"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_interactions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_tasks: {
+        Row: {
+          concluida: boolean | null
+          created_at: string
+          data_vencimento: string
+          descricao: string | null
+          id: string
+          lead_id: string
+          prioridade: string | null
+          titulo: string
+          user_id: string | null
+        }
+        Insert: {
+          concluida?: boolean | null
+          created_at?: string
+          data_vencimento: string
+          descricao?: string | null
+          id?: string
+          lead_id: string
+          prioridade?: string | null
+          titulo: string
+          user_id?: string | null
+        }
+        Update: {
+          concluida?: boolean | null
+          created_at?: string
+          data_vencimento?: string
+          descricao?: string | null
+          id?: string
+          lead_id?: string
+          prioridade?: string | null
+          titulo?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          cargo: string | null
+          consentimento_lgpd: boolean | null
+          created_at: string
+          data_consentimento: string | null
+          data_proximo_followup: string | null
+          data_ultimo_contato: string | null
+          economia_anual: number | null
+          email: string
+          empresa: string | null
+          faturamento_mensal: number | null
+          fonte: string
+          gmv_total: number | null
+          id: string
+          media_compra_mensal: number | null
+          nome: string
+          origem: Database["public"]["Enums"]["lead_origin"] | null
+          pipeline_stage: Database["public"]["Enums"]["pipeline_stage"] | null
+          probabilidade_fechamento: number | null
+          qtd_compras: number | null
+          responsavel_id: string | null
+          segmento: string
+          updated_at: string | null
+          valor_negocio: number | null
+          whatsapp: string
+        }
+        Insert: {
+          cargo?: string | null
+          consentimento_lgpd?: boolean | null
+          created_at?: string
+          data_consentimento?: string | null
+          data_proximo_followup?: string | null
+          data_ultimo_contato?: string | null
+          economia_anual?: number | null
+          email: string
+          empresa?: string | null
+          faturamento_mensal?: number | null
+          fonte: string
+          gmv_total?: number | null
+          id?: string
+          media_compra_mensal?: number | null
+          nome: string
+          origem?: Database["public"]["Enums"]["lead_origin"] | null
+          pipeline_stage?: Database["public"]["Enums"]["pipeline_stage"] | null
+          probabilidade_fechamento?: number | null
+          qtd_compras?: number | null
+          responsavel_id?: string | null
+          segmento: string
+          updated_at?: string | null
+          valor_negocio?: number | null
+          whatsapp: string
+        }
+        Update: {
+          cargo?: string | null
+          consentimento_lgpd?: boolean | null
+          created_at?: string
+          data_consentimento?: string | null
+          data_proximo_followup?: string | null
+          data_ultimo_contato?: string | null
           economia_anual?: number | null
           email?: string
+          empresa?: string | null
           faturamento_mensal?: number | null
           fonte?: string
+          gmv_total?: number | null
           id?: string
+          media_compra_mensal?: number | null
           nome?: string
+          origem?: Database["public"]["Enums"]["lead_origin"] | null
+          pipeline_stage?: Database["public"]["Enums"]["pipeline_stage"] | null
+          probabilidade_fechamento?: number | null
+          qtd_compras?: number | null
+          responsavel_id?: string | null
           segmento?: string
+          updated_at?: string | null
+          valor_negocio?: number | null
           whatsapp?: string
         }
         Relationships: []
@@ -149,6 +282,20 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "sales_manager" | "sales_rep"
+      interaction_type:
+        | "chamada"
+        | "reuniao"
+        | "email"
+        | "whatsapp"
+        | "anotacao"
+      lead_origin: "inbound" | "outbound" | "indicacao" | "evento" | "outro"
+      pipeline_stage:
+        | "primeiro_contato"
+        | "qualificacao"
+        | "proposta"
+        | "negociacao"
+        | "fechamento"
+        | "perdido"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -277,6 +424,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "sales_manager", "sales_rep"],
+      interaction_type: ["chamada", "reuniao", "email", "whatsapp", "anotacao"],
+      lead_origin: ["inbound", "outbound", "indicacao", "evento", "outro"],
+      pipeline_stage: [
+        "primeiro_contato",
+        "qualificacao",
+        "proposta",
+        "negociacao",
+        "fechamento",
+        "perdido",
+      ],
     },
   },
 } as const

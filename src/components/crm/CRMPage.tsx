@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CRMDashboard } from './CRMDashboard';
 import { CRMKanban } from './CRMKanban';
 import { LeadDetail } from './LeadDetail';
 import { LeadsTable } from './LeadsTableEnhanced';
-import { LayoutDashboard, Kanban, Table2, Bell } from 'lucide-react';
+import { FollowUpEngine } from './FollowUpEngine';
+import { AlertsDashboard } from './AlertsDashboard';
+import { LayoutDashboard, Kanban, Table2, Bell, Zap } from 'lucide-react';
 
 export function CRMPage() {
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
@@ -36,23 +37,39 @@ export function CRMPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <LayoutDashboard className="h-4 w-4" />
-            Dashboard
+            <span className="hidden sm:inline">Dashboard</span>
+          </TabsTrigger>
+          <TabsTrigger value="alerts" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span className="hidden sm:inline">Alertas</span>
+          </TabsTrigger>
+          <TabsTrigger value="followup" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            <span className="hidden sm:inline">Follow-up</span>
           </TabsTrigger>
           <TabsTrigger value="kanban" className="flex items-center gap-2">
             <Kanban className="h-4 w-4" />
-            Pipeline
+            <span className="hidden sm:inline">Pipeline</span>
           </TabsTrigger>
           <TabsTrigger value="table" className="flex items-center gap-2">
             <Table2 className="h-4 w-4" />
-            Lista
+            <span className="hidden sm:inline">Lista</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="mt-6">
           <CRMDashboard />
+        </TabsContent>
+
+        <TabsContent value="alerts" className="mt-6">
+          <AlertsDashboard onSelectLead={handleSelectLead} />
+        </TabsContent>
+
+        <TabsContent value="followup" className="mt-6">
+          <FollowUpEngine onSelectLead={handleSelectLead} />
         </TabsContent>
 
         <TabsContent value="kanban" className="mt-6">

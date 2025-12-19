@@ -86,16 +86,30 @@ export function LeadsTable() {
     );
   };
 
+  // Sanitize cell to prevent CSV formula injection attacks
+  const sanitizeCell = (cell: string | number | null | undefined): string => {
+    if (cell === null || cell === undefined) return '';
+    const cellStr = String(cell);
+    
+    // Prepend single quote to cells starting with dangerous characters
+    // This prevents Excel from interpreting them as formulas
+    if (/^[=+\-@\t\r]/.test(cellStr)) {
+      return `'${cellStr}`;
+    }
+    
+    return cellStr;
+  };
+
   const exportToCSV = () => {
     const headers = ['Nome', 'Email', 'WhatsApp', 'Segmento', 'Fonte', 'Faturamento Mensal', 'Economia Anual', 'Data'];
     const rows = filteredLeads.map((lead) => [
-      lead.nome,
-      lead.email,
-      lead.whatsapp,
-      lead.segmento,
-      lead.fonte,
-      lead.faturamento_mensal?.toString() || '',
-      lead.economia_anual?.toString() || '',
+      sanitizeCell(lead.nome),
+      sanitizeCell(lead.email),
+      sanitizeCell(lead.whatsapp),
+      sanitizeCell(lead.segmento),
+      sanitizeCell(lead.fonte),
+      sanitizeCell(lead.faturamento_mensal),
+      sanitizeCell(lead.economia_anual),
       format(new Date(lead.created_at), 'dd/MM/yyyy HH:mm'),
     ]);
 

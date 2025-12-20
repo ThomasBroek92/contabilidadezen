@@ -20,57 +20,96 @@ export type Database = {
           category: string
           content: string
           created_at: string
+          ctr: number | null
+          editorial_status:
+            | Database["public"]["Enums"]["editorial_status"]
+            | null
+          etapa_funil: Database["public"]["Enums"]["funnel_stage"] | null
           excerpt: string | null
           featured_image_url: string | null
           id: string
+          leads_gerados: number | null
           meta_description: string | null
           meta_keywords: string[] | null
           meta_title: string | null
+          objetivo: Database["public"]["Enums"]["content_objective"] | null
+          persona_alvo: string | null
           published_at: string | null
           read_time_minutes: number | null
+          responsavel_editor_id: string | null
+          responsavel_redator_id: string | null
+          responsavel_revisor_id: string | null
+          roi: number | null
           scheduled_for: string | null
           slug: string
           status: string
           title: string
           updated_at: string
+          views: number | null
         }
         Insert: {
           author_id?: string | null
           category?: string
           content: string
           created_at?: string
+          ctr?: number | null
+          editorial_status?:
+            | Database["public"]["Enums"]["editorial_status"]
+            | null
+          etapa_funil?: Database["public"]["Enums"]["funnel_stage"] | null
           excerpt?: string | null
           featured_image_url?: string | null
           id?: string
+          leads_gerados?: number | null
           meta_description?: string | null
           meta_keywords?: string[] | null
           meta_title?: string | null
+          objetivo?: Database["public"]["Enums"]["content_objective"] | null
+          persona_alvo?: string | null
           published_at?: string | null
           read_time_minutes?: number | null
+          responsavel_editor_id?: string | null
+          responsavel_redator_id?: string | null
+          responsavel_revisor_id?: string | null
+          roi?: number | null
           scheduled_for?: string | null
           slug: string
           status?: string
           title: string
           updated_at?: string
+          views?: number | null
         }
         Update: {
           author_id?: string | null
           category?: string
           content?: string
           created_at?: string
+          ctr?: number | null
+          editorial_status?:
+            | Database["public"]["Enums"]["editorial_status"]
+            | null
+          etapa_funil?: Database["public"]["Enums"]["funnel_stage"] | null
           excerpt?: string | null
           featured_image_url?: string | null
           id?: string
+          leads_gerados?: number | null
           meta_description?: string | null
           meta_keywords?: string[] | null
           meta_title?: string | null
+          objetivo?: Database["public"]["Enums"]["content_objective"] | null
+          persona_alvo?: string | null
           published_at?: string | null
           read_time_minutes?: number | null
+          responsavel_editor_id?: string | null
+          responsavel_redator_id?: string | null
+          responsavel_revisor_id?: string | null
+          roi?: number | null
           scheduled_for?: string | null
           slug?: string
           status?: string
           title?: string
           updated_at?: string
+          views?: number | null
         }
         Relationships: []
       }
@@ -329,6 +368,14 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "sales_manager" | "sales_rep"
+      content_objective: "trafego" | "leads" | "autoridade"
+      editorial_status:
+        | "draft"
+        | "writing"
+        | "review"
+        | "scheduled"
+        | "published"
+      funnel_stage: "topo" | "meio" | "fundo"
       interaction_type:
         | "chamada"
         | "reuniao"
@@ -471,6 +518,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "sales_manager", "sales_rep"],
+      content_objective: ["trafego", "leads", "autoridade"],
+      editorial_status: [
+        "draft",
+        "writing",
+        "review",
+        "scheduled",
+        "published",
+      ],
+      funnel_stage: ["topo", "meio", "fundo"],
       interaction_type: ["chamada", "reuniao", "email", "whatsapp", "anotacao"],
       lead_origin: ["inbound", "outbound", "indicacao", "evento", "outro"],
       pipeline_stage: [

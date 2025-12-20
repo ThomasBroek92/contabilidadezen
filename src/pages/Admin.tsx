@@ -7,13 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenSquare, Sparkles } from 'lucide-react';
+import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenSquare, Sparkles, CalendarDays } from 'lucide-react';
 import logoFull from '@/assets/logo-full.png';
 import { UserRolesManager } from '@/components/admin/UserRolesManager';
 import { CRMPage } from '@/components/crm/CRMPage';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { BlogManager } from '@/components/admin/BlogManager';
 import { BlogTopicsManager } from '@/components/admin/BlogTopicsManager';
+import { EditorialManager } from '@/components/admin/editorial/EditorialManager';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -138,6 +139,12 @@ export default function Admin() {
                   IA Blog
                 </TabsTrigger>
               )}
+              {isAdmin() && (
+                <TabsTrigger value="editorial" className="gap-2">
+                  <CalendarDays className="h-4 w-4" />
+                  Editorial
+                </TabsTrigger>
+              )}
               {canViewLeads() && (
                 <TabsTrigger value="leads" className="gap-2">
                   <FileText className="h-4 w-4" />
@@ -167,6 +174,12 @@ export default function Admin() {
             {isAdmin() && (
               <TabsContent value="ai-blog">
                 <BlogTopicsManager />
+              </TabsContent>
+            )}
+
+            {isAdmin() && (
+              <TabsContent value="editorial">
+                <EditorialManager />
               </TabsContent>
             )}
 

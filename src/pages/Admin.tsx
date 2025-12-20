@@ -1,19 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, AppRole } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenSquare, Sparkles, CalendarDays } from 'lucide-react';
+import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, CalendarDays } from 'lucide-react';
 import logoFull from '@/assets/logo-full.png';
 import { UserRolesManager } from '@/components/admin/UserRolesManager';
 import { CRMPage } from '@/components/crm/CRMPage';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
-import { BlogManager } from '@/components/admin/BlogManager';
-import { BlogTopicsManager } from '@/components/admin/BlogTopicsManager';
 import { EditorialManager } from '@/components/admin/editorial/EditorialManager';
 
 export default function Admin() {
@@ -65,7 +62,6 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
       <header className="bg-background border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -83,7 +79,6 @@ export default function Admin() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Role Info */}
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -96,25 +91,22 @@ export default function Admin() {
           </CardHeader>
           <CardContent>
             {roles.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {roles.map(getRoleBadge)}
-              </div>
+              <div className="flex flex-wrap gap-2">{roles.map(getRoleBadge)}</div>
             ) : (
               <p className="text-muted-foreground text-sm">
-                Você ainda não possui nenhuma role atribuída. Entre em contato com um administrador.
+                Você ainda não possui nenhuma role atribuída.
               </p>
             )}
           </CardContent>
         </Card>
 
-        {/* Main Content */}
         {roles.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">Acesso Restrito</h3>
               <p className="text-muted-foreground">
-                Você precisa de uma role atribuída por um administrador para acessar as funcionalidades do sistema.
+                Você precisa de uma role atribuída por um administrador.
               </p>
             </CardContent>
           </Card>
@@ -125,18 +117,6 @@ export default function Admin() {
                 <TabsTrigger value="analytics" className="gap-2">
                   <BarChart3 className="h-4 w-4" />
                   Analytics
-                </TabsTrigger>
-              )}
-              {isAdmin() && (
-                <TabsTrigger value="blog" className="gap-2">
-                  <PenSquare className="h-4 w-4" />
-                  Blog
-                </TabsTrigger>
-              )}
-              {isAdmin() && (
-                <TabsTrigger value="ai-blog" className="gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  IA Blog
                 </TabsTrigger>
               )}
               {isAdmin() && (
@@ -154,7 +134,7 @@ export default function Admin() {
               {isAdmin() && (
                 <TabsTrigger value="users" className="gap-2">
                   <Users className="h-4 w-4" />
-                  Gerenciar Usuários
+                  Usuários
                 </TabsTrigger>
               )}
             </TabsList>
@@ -162,18 +142,6 @@ export default function Admin() {
             {isAdmin() && (
               <TabsContent value="analytics">
                 <AnalyticsDashboard />
-              </TabsContent>
-            )}
-
-            {isAdmin() && (
-              <TabsContent value="blog">
-                <BlogManager />
-              </TabsContent>
-            )}
-
-            {isAdmin() && (
-              <TabsContent value="ai-blog">
-                <BlogTopicsManager />
               </TabsContent>
             )}
 

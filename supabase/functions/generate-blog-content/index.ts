@@ -45,24 +45,130 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Check if manual topic_id was provided
+    // Parse request body
     const body = await req.json().catch(() => ({}));
     const manualTopicId = body?.topic_id;
+    const inlineMode = body?.inline === true;
+    const inlineTopic = body?.topic;
+    const inlineCategory = body?.category || 'Dicas';
 
+    // INLINE MODE: Generate content directly without saving to blog_topics
+    if (inlineMode && inlineTopic) {
+      console.log(`Inline generation for topic: ${inlineTopic}`);
+
+      const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'sonar-pro',
+          messages: [
+            {
+              role: 'system',
+              content: `Você é um especialista em contabilidade para profissionais de saúde no Brasil (médicos, dentistas, psicólogos). 
+Escreva artigos de blog informativos, práticos e otimizados para SEO.
+Use linguagem profissional mas acessível.
+Sempre cite legislação brasileira relevante quando aplicável.
+Estruture o conteúdo com headers H2 e H3 em Markdown.`
+            },
+            {
+              role: 'user',
+              content: `Escreva um artigo de blog completo sobre: "${inlineTopic}"
+
+Categoria: ${inlineCategory}
+
+IMPORTANTE: Retorne EXATAMENTE neste formato JSON (sem markdown code blocks):
+{
+  "title": "Título otimizado para SEO (máximo 60 caracteres)",
+  "excerpt": "Resumo de 2-3 frases (máximo 160 caracteres)",
+  "content": "Conteúdo completo em Markdown (1000-1500 palavras) com H2 e H3 headers, listas, exemplos práticos",
+  "meta_description": "Meta description para SEO (máximo 160 caracteres)",
+  "meta_keywords": ["palavra-chave1", "palavra-chave2", "palavra-chave3"]
+}`
+            }
+          ],
+          search_domain_filter: [
+            'gov.br',
+            'receita.fazenda.gov.br',
+            'cfc.org.br',
+            'contabeis.com.br',
+            'planalto.gov.br'
+          ],
+          search_recency_filter: 'year',
+        }),
+      });
+
+      if (!perplexityResponse.ok) {
+        const errorText = await perplexityResponse.text();
+        console.error('Perplexity API error:', perplexityResponse.status, errorText);
+        throw new Error(`Perplexity API error: ${perplexityResponse.status}`);
+      }
+
+      const perplexityData: PerplexityResponse = await perplexityResponse.json();
+      const rawContent = perplexityData.choices[0]?.message?.content;
+
+      if (!rawContent) {
+        throw new Error('No content returned from Perplexity');
+      }
+
+      // Parse JSON response
+      let parsedContent;
+      try {
+        const cleanContent = rawContent
+          .replace(/```json\n?/g, '')
+          .replace(/```\n?/g, '')
+          .trim();
+        parsedContent = JSON.parse(cleanContent);
+      } catch {
+        parsedContent = {
+          title: inlineTopic,
+          excerpt: rawContent.substring(0, 160),
+          content: rawContent,
+          meta_description: rawContent.substring(0, 160),
+          meta_keywords: [inlineCategory.toLowerCase()]
+        };
+      }
+
+      // Add citations if available
+      let finalContent = parsedContent.content;
+      if (perplexityData.citations && perplexityData.citations.length > 0) {
+        finalContent += '\n\n---\n\n## Fontes\n\n';
+        perplexityData.citations.forEach((citation, index) => {
+          finalContent += `${index + 1}. ${citation}\n`;
+        });
+      }
+
+      console.log('Inline generation successful');
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          title: parsedContent.title,
+          excerpt: parsedContent.excerpt,
+          content: finalContent,
+          meta_description: parsedContent.meta_description,
+          meta_keywords: parsedContent.meta_keywords,
+          citations: perplexityData.citations || [],
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // STANDARD MODE: Process topics from database
     let query = supabase
       .from('blog_topics')
       .select('*')
       .eq('status', 'pending');
 
     if (manualTopicId) {
-      // Manual generation for specific topic
       query = supabase
         .from('blog_topics')
         .select('*')
         .eq('id', manualTopicId)
         .in('status', ['pending', 'failed']);
     } else {
-      // Automatic: only topics with scheduled_date <= now
       query = query.lte('scheduled_date', new Date().toISOString());
     }
 
@@ -88,7 +194,6 @@ serve(async (req) => {
     for (const topic of topics as BlogTopic[]) {
       console.log(`Processing topic: ${topic.topic}`);
 
-      // Update status to generating
       await supabase
         .from('blog_topics')
         .update({ status: 'generating', updated_at: new Date().toISOString() })
@@ -97,7 +202,6 @@ serve(async (req) => {
       try {
         const searchQuery = topic.search_query || topic.topic;
 
-        // Call Perplexity API with sonar-pro for deep research
         const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
           method: 'POST',
           headers: {
@@ -155,18 +259,15 @@ IMPORTANTE: Retorne EXATAMENTE neste formato JSON (sem markdown code blocks):
 
         console.log('Raw Perplexity response:', rawContent.substring(0, 500));
 
-        // Parse JSON response
         let parsedContent;
         try {
-          // Remove markdown code blocks if present
           const cleanContent = rawContent
             .replace(/```json\n?/g, '')
             .replace(/```\n?/g, '')
             .trim();
           parsedContent = JSON.parse(cleanContent);
-        } catch (parseError) {
+        } catch {
           console.error('Failed to parse JSON, using fallback extraction');
-          // Fallback: extract what we can
           parsedContent = {
             title: topic.topic,
             excerpt: rawContent.substring(0, 160),
@@ -176,7 +277,6 @@ IMPORTANTE: Retorne EXATAMENTE neste formato JSON (sem markdown code blocks):
           };
         }
 
-        // Generate slug from title
         const slug = parsedContent.title
           .toLowerCase()
           .normalize('NFD')
@@ -185,7 +285,6 @@ IMPORTANTE: Retorne EXATAMENTE neste formato JSON (sem markdown code blocks):
           .replace(/\s+/g, '-')
           .substring(0, 100);
 
-        // Add citations if available
         let finalContent = parsedContent.content;
         if (perplexityData.citations && perplexityData.citations.length > 0) {
           finalContent += '\n\n---\n\n## Fontes\n\n';
@@ -194,7 +293,6 @@ IMPORTANTE: Retorne EXATAMENTE neste formato JSON (sem markdown code blocks):
           });
         }
 
-        // Insert blog post as draft
         const { data: newPost, error: insertError } = await supabase
           .from('blog_posts')
           .insert({
@@ -204,6 +302,7 @@ IMPORTANTE: Retorne EXATAMENTE neste formato JSON (sem markdown code blocks):
             content: finalContent,
             category: topic.category,
             status: 'draft',
+            editorial_status: 'draft',
             meta_title: parsedContent.title,
             meta_description: parsedContent.meta_description,
             meta_keywords: parsedContent.meta_keywords,
@@ -217,7 +316,6 @@ IMPORTANTE: Retorne EXATAMENTE neste formato JSON (sem markdown code blocks):
           throw insertError;
         }
 
-        // Update topic status
         await supabase
           .from('blog_topics')
           .update({

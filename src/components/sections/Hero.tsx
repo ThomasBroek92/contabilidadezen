@@ -53,7 +53,7 @@ export function Hero() {
             {/* Social Proof */}
             <div className="flex items-center gap-6 pt-4 flex-wrap">
               <div className="flex items-center gap-2">
-                <span className="text-3xl font-bold text-secondary">500+</span>
+                <span className="text-3xl font-bold text-secondary">100+</span>
                 <span className="text-sm text-muted-foreground">Clientes<br />atendidos</span>
               </div>
               <div className="w-px h-12 bg-border"></div>

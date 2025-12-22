@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, MessageCircle } from "lucide-react";
 import heroImage from "@/assets/hero-healthcare.jpg";
-const benefits = ["Economia de até 50% em impostos de forma legal", "Atendimento especializado para profissionais da saúde", "100% digital: sem burocracia e sem filas", "Consultoria tributária personalizada", "Suporte humanizado por especialistas"];
+const benefits = ["Economia de impostos de forma legal", "Atendimento especializado para profissionais da saúde", "100% digital: sem burocracia e sem filas", "Consultoria tributária personalizada", "Suporte humanizado por especialistas"];
 export function Hero() {
   return <section className="relative overflow-hidden bg-gradient-hero py-16 lg:py-24">
       <div className="container mx-auto px-4">

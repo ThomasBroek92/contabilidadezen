@@ -51,7 +51,11 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-8">
-          {navLinks.slice(0, 2).map(link => {})}
+          {navLinks.slice(0, 2).map(link => (
+            <Link key={link.name} to={link.href} className={`text-sm font-medium transition-colors hover:text-secondary ${isActive(link.href) ? "text-secondary" : "text-foreground/80"}`}>
+              {link.name}
+            </Link>
+          ))}
           
           {/* Segmentos Dropdown */}
           <DropdownMenu>

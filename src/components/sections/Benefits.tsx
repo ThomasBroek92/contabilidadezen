@@ -11,7 +11,7 @@ const benefits = [
   {
     icon: TrendingDown,
     title: "Redução Legal de Impostos",
-    description: "Economia de até 50% em tributos através de planejamento tributário especializado para profissionais da saúde.",
+    description: "Economia de tributos através de planejamento tributário especializado para profissionais da saúde.",
   },
   {
     icon: Shield,

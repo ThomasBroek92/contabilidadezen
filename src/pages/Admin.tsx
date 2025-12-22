@@ -6,12 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, CalendarDays } from 'lucide-react';
+import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, CalendarDays, Sparkles } from 'lucide-react';
 import logoFull from '@/assets/logo-full.png';
 import { UserRolesManager } from '@/components/admin/UserRolesManager';
 import { CRMPage } from '@/components/crm/CRMPage';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { EditorialManager } from '@/components/admin/editorial/EditorialManager';
+import { GEOManager } from '@/components/admin/geo/GEOManager';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -125,6 +126,12 @@ export default function Admin() {
                   Editorial
                 </TabsTrigger>
               )}
+              {isAdmin() && (
+                <TabsTrigger value="geo" className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  GEO
+                </TabsTrigger>
+              )}
               {canViewLeads() && (
                 <TabsTrigger value="leads" className="gap-2">
                   <FileText className="h-4 w-4" />
@@ -148,6 +155,12 @@ export default function Admin() {
             {isAdmin() && (
               <TabsContent value="editorial">
                 <EditorialManager />
+              </TabsContent>
+            )}
+
+            {isAdmin() && (
+              <TabsContent value="geo">
+                <GEOManager />
               </TabsContent>
             )}
 

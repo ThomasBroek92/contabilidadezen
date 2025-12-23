@@ -28,6 +28,14 @@ export interface BlogPost {
   ctr: number;
   leads_gerados: number;
   roi: number;
+  // GEO fields
+  geo_score: number | null;
+  expert_quotes: unknown[] | null;
+  statistics: unknown[] | null;
+  authority_citations: string[] | null;
+  auto_published: boolean | null;
+  freshness_date: string | null;
+  faq_schema: unknown | null;
 }
 
 export interface BlogTopic {

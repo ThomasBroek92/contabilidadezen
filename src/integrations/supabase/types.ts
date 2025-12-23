@@ -16,7 +16,10 @@ export type Database = {
     Tables: {
       blog_posts: {
         Row: {
+          answer_first_validated: boolean | null
           author_id: string | null
+          authority_citations: string[] | null
+          auto_published: boolean | null
           category: string
           content: string
           created_at: string
@@ -26,7 +29,11 @@ export type Database = {
             | null
           etapa_funil: Database["public"]["Enums"]["funnel_stage"] | null
           excerpt: string | null
+          expert_quotes: Json | null
+          faq_schema: Json | null
           featured_image_url: string | null
+          freshness_date: string | null
+          geo_score: number | null
           id: string
           leads_gerados: number | null
           meta_description: string | null
@@ -42,13 +49,17 @@ export type Database = {
           roi: number | null
           scheduled_for: string | null
           slug: string
+          statistics: Json | null
           status: string
           title: string
           updated_at: string
           views: number | null
         }
         Insert: {
+          answer_first_validated?: boolean | null
           author_id?: string | null
+          authority_citations?: string[] | null
+          auto_published?: boolean | null
           category?: string
           content: string
           created_at?: string
@@ -58,7 +69,11 @@ export type Database = {
             | null
           etapa_funil?: Database["public"]["Enums"]["funnel_stage"] | null
           excerpt?: string | null
+          expert_quotes?: Json | null
+          faq_schema?: Json | null
           featured_image_url?: string | null
+          freshness_date?: string | null
+          geo_score?: number | null
           id?: string
           leads_gerados?: number | null
           meta_description?: string | null
@@ -74,13 +89,17 @@ export type Database = {
           roi?: number | null
           scheduled_for?: string | null
           slug: string
+          statistics?: Json | null
           status?: string
           title: string
           updated_at?: string
           views?: number | null
         }
         Update: {
+          answer_first_validated?: boolean | null
           author_id?: string | null
+          authority_citations?: string[] | null
+          auto_published?: boolean | null
           category?: string
           content?: string
           created_at?: string
@@ -90,7 +109,11 @@ export type Database = {
             | null
           etapa_funil?: Database["public"]["Enums"]["funnel_stage"] | null
           excerpt?: string | null
+          expert_quotes?: Json | null
+          faq_schema?: Json | null
           featured_image_url?: string | null
+          freshness_date?: string | null
+          geo_score?: number | null
           id?: string
           leads_gerados?: number | null
           meta_description?: string | null
@@ -106,6 +129,7 @@ export type Database = {
           roi?: number | null
           scheduled_for?: string | null
           slug?: string
+          statistics?: Json | null
           status?: string
           title?: string
           updated_at?: string
@@ -159,6 +183,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      geo_settings: {
+        Row: {
+          auto_suggest_frequency: string | null
+          brand_authority_keywords: string[] | null
+          brand_name: string | null
+          brand_statistics: Json | null
+          created_at: string | null
+          id: string
+          min_geo_score_publish: number | null
+          preferred_expert_types: string[] | null
+          target_personas: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          auto_suggest_frequency?: string | null
+          brand_authority_keywords?: string[] | null
+          brand_name?: string | null
+          brand_statistics?: Json | null
+          created_at?: string | null
+          id?: string
+          min_geo_score_publish?: number | null
+          preferred_expert_types?: string[] | null
+          target_personas?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          auto_suggest_frequency?: string | null
+          brand_authority_keywords?: string[] | null
+          brand_name?: string | null
+          brand_statistics?: Json | null
+          created_at?: string | null
+          id?: string
+          min_geo_score_publish?: number | null
+          preferred_expert_types?: string[] | null
+          target_personas?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       lead_interactions: {
         Row: {

@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-blog-content]
 verify_jwt = false
+
+[functions.suggest-geo-topics]
+verify_jwt = false

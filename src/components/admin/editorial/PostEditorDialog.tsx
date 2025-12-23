@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Send, ImagePlus, X, Sparkles, Wand2 } from 'lucide-react';
+import { Loader2, FileText, Send, ImagePlus, X, Sparkles, Wand2, Save } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { MarkdownEditor } from '@/components/blog/MarkdownEditor';
 import { BlogPost, CATEGORIES, FUNNEL_STAGES, OBJECTIVES } from './useEditorialData';
@@ -20,9 +20,10 @@ interface PostEditorDialogProps {
   onOpenChange: (open: boolean) => void;
   editingPost: BlogPost | null;
   onSave: () => void;
+  initialDate?: Date; // Para criar post com data pré-selecionada do calendário
 }
 
-const initialFormData = {
+const getInitialFormData = () => ({
   title: '',
   excerpt: '',
   content: '',
@@ -36,37 +37,56 @@ const initialFormData = {
   persona_alvo: '',
   etapa_funil: 'topo',
   objetivo: 'trafego',
-};
+});
 
-export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: PostEditorDialogProps) {
-  const [formData, setFormData] = useState(initialFormData);
+export function PostEditorDialog({ open, onOpenChange, editingPost, onSave, initialDate }: PostEditorDialogProps) {
+  const [formData, setFormData] = useState(getInitialFormData());
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [generatingAI, setGeneratingAI] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { toast } = useToast();
 
-  // Initialize form when editing
-  useState(() => {
-    if (editingPost) {
-      setFormData({
-        title: editingPost.title,
-        excerpt: editingPost.excerpt || '',
-        content: editingPost.content,
-        category: editingPost.category,
-        featured_image_url: editingPost.featured_image_url || '',
-        meta_title: editingPost.meta_title || '',
-        meta_description: editingPost.meta_description || '',
-        meta_keywords: editingPost.meta_keywords?.join(', ') || '',
-        status: editingPost.status,
-        scheduled_for: editingPost.scheduled_for ? new Date(editingPost.scheduled_for).toISOString().slice(0, 16) : '',
-        persona_alvo: editingPost.persona_alvo || '',
-        etapa_funil: editingPost.etapa_funil || 'topo',
-        objetivo: editingPost.objetivo || 'trafego',
-      });
-    } else {
-      setFormData(initialFormData);
+  // CORRIGIDO: Usar useEffect para inicializar o formulário quando editingPost mudar
+  useEffect(() => {
+    if (open) {
+      if (editingPost) {
+        setFormData({
+          title: editingPost.title || '',
+          excerpt: editingPost.excerpt || '',
+          content: editingPost.content || '',
+          category: editingPost.category || 'Dicas',
+          featured_image_url: editingPost.featured_image_url || '',
+          meta_title: editingPost.meta_title || '',
+          meta_description: editingPost.meta_description || '',
+          meta_keywords: editingPost.meta_keywords?.join(', ') || '',
+          status: editingPost.status as PostStatus || 'draft',
+          scheduled_for: editingPost.scheduled_for 
+            ? new Date(editingPost.scheduled_for).toISOString().slice(0, 16) 
+            : '',
+          persona_alvo: editingPost.persona_alvo || '',
+          etapa_funil: editingPost.etapa_funil || 'topo',
+          objetivo: editingPost.objetivo || 'trafego',
+        });
+      } else {
+        // Novo post - resetar formulário
+        const initial = getInitialFormData();
+        // Se tiver data inicial do calendário, pré-preencher
+        if (initialDate) {
+          initial.scheduled_for = initialDate.toISOString().slice(0, 16);
+          initial.status = 'scheduled';
+        }
+        setFormData(initial);
+      }
+      setHasUnsavedChanges(false);
     }
-  });
+  }, [open, editingPost, initialDate]);
+
+  // Rastrear alterações não salvas
+  const handleFieldChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setHasUnsavedChanges(true);
+  };
 
   const generateSlug = (title: string): string => {
     return title
@@ -109,7 +129,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage.from('blog-images').getPublicUrl(filePath);
-      setFormData({ ...formData, featured_image_url: publicUrl });
+      handleFieldChange('featured_image_url', publicUrl);
       toast({ title: 'Imagem enviada!' });
     } catch (error: any) {
       toast({ title: 'Erro ao enviar imagem', description: error.message, variant: 'destructive' });
@@ -137,14 +157,22 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
       if (error) throw error;
 
       if (data?.content) {
-        setFormData({
+        // Atualizar dados do formulário com conteúdo gerado
+        const newFormData = {
           ...formData,
+          title: data.title || formData.title,
           content: data.content,
           excerpt: data.excerpt || formData.excerpt,
           meta_description: data.meta_description || formData.meta_description,
           meta_keywords: data.meta_keywords?.join(', ') || formData.meta_keywords,
+        };
+        setFormData(newFormData);
+        setHasUnsavedChanges(true);
+        
+        toast({ 
+          title: 'Conteúdo gerado com IA!', 
+          description: 'Revise e salve o rascunho para não perder o conteúdo.' 
         });
-        toast({ title: 'Conteúdo gerado com IA!', description: 'Revise e edite conforme necessário.' });
       }
     } catch (error: any) {
       toast({ title: 'Erro ao gerar conteúdo', description: error.message, variant: 'destructive' });
@@ -161,7 +189,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
 
     setSaving(true);
     try {
-      const slug = editingPost?.slug || generateSlug(formData.title);
+      const slug = editingPost?.slug || `${generateSlug(formData.title)}-${Date.now()}`;
       const readTime = calculateReadTime(formData.content);
       const keywords = formData.meta_keywords.split(',').map(k => k.trim()).filter(Boolean);
 
@@ -202,6 +230,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
         persona_alvo: formData.persona_alvo || null,
         etapa_funil: formData.etapa_funil as FunnelStageType,
         objetivo: formData.objetivo as ObjectiveType,
+        updated_at: new Date().toISOString(),
       };
 
       if (editingPost) {
@@ -214,6 +243,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
         toast({ title: 'Post criado!', description: publishNow ? 'Publicado com sucesso.' : 'Salvo como rascunho.' });
       }
 
+      setHasUnsavedChanges(false);
       onOpenChange(false);
       onSave();
     } catch (error: any) {
@@ -224,7 +254,12 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
   };
 
   const handleClose = () => {
-    setFormData(initialFormData);
+    if (hasUnsavedChanges) {
+      const confirmClose = window.confirm('Você tem alterações não salvas. Deseja sair mesmo assim?');
+      if (!confirmClose) return;
+    }
+    setFormData(getInitialFormData());
+    setHasUnsavedChanges(false);
     onOpenChange(false);
   };
 
@@ -232,7 +267,14 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editingPost ? 'Editar Post' : 'Novo Post'}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            {editingPost ? 'Editar Post' : 'Novo Post'}
+            {hasUnsavedChanges && (
+              <span className="text-xs bg-amber-500/20 text-amber-700 px-2 py-1 rounded">
+                Não salvo
+              </span>
+            )}
+          </DialogTitle>
           <DialogDescription>
             {editingPost ? 'Edite as informações do post.' : 'Crie um novo post para o blog.'}
           </DialogDescription>
@@ -252,7 +294,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => handleFieldChange('title', e.target.value)}
                   placeholder="Digite o título do post"
                   className="flex-1"
                 />
@@ -272,7 +314,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="category">Categoria</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                <Select value={formData.category} onValueChange={(value) => handleFieldChange('category', value)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map((cat) => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
@@ -286,7 +328,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
               <Textarea
                 id="excerpt"
                 value={formData.excerpt}
-                onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                onChange={(e) => handleFieldChange('excerpt', e.target.value)}
                 placeholder="Breve resumo do post"
                 rows={2}
               />
@@ -296,7 +338,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
               <Label>Conteúdo * (Markdown)</Label>
               <MarkdownEditor
                 value={formData.content}
-                onChange={(value) => setFormData({ ...formData, content: value })}
+                onChange={(value) => handleFieldChange('content', value)}
                 placeholder="Escreva o conteúdo usando Markdown..."
               />
               <p className="text-xs text-muted-foreground">
@@ -310,7 +352,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
               {formData.featured_image_url ? (
                 <div className="relative">
                   <img src={formData.featured_image_url} alt="Preview" className="w-full h-40 object-cover rounded-lg border" />
-                  <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => setFormData({ ...formData, featured_image_url: '' })}>
+                  <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={() => handleFieldChange('featured_image_url', '')}>
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
@@ -339,7 +381,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
                   <Input
                     id="persona"
                     value={formData.persona_alvo}
-                    onChange={(e) => setFormData({ ...formData, persona_alvo: e.target.value })}
+                    onChange={(e) => handleFieldChange('persona_alvo', e.target.value)}
                     placeholder="Ex: Médicos recém-formados, Dentistas com clínica própria..."
                   />
                 </div>
@@ -347,7 +389,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Etapa do Funil</Label>
-                    <Select value={formData.etapa_funil} onValueChange={(value) => setFormData({ ...formData, etapa_funil: value })}>
+                    <Select value={formData.etapa_funil} onValueChange={(value) => handleFieldChange('etapa_funil', value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {FUNNEL_STAGES.map((stage) => <SelectItem key={stage.value} value={stage.value}>{stage.label}</SelectItem>)}
@@ -357,7 +399,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
 
                   <div className="space-y-2">
                     <Label>Objetivo</Label>
-                    <Select value={formData.objetivo} onValueChange={(value) => setFormData({ ...formData, objetivo: value })}>
+                    <Select value={formData.objetivo} onValueChange={(value) => handleFieldChange('objetivo', value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {OBJECTIVES.map((obj) => <SelectItem key={obj.value} value={obj.value}>{obj.label}</SelectItem>)}
@@ -381,7 +423,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
                   <Input
                     id="meta_title"
                     value={formData.meta_title}
-                    onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                    onChange={(e) => handleFieldChange('meta_title', e.target.value)}
                     placeholder="Título SEO (máx. 60 caracteres)"
                     maxLength={60}
                   />
@@ -393,7 +435,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
                   <Textarea
                     id="meta_description"
                     value={formData.meta_description}
-                    onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
+                    onChange={(e) => handleFieldChange('meta_description', e.target.value)}
                     placeholder="Descrição SEO (máx. 160 caracteres)"
                     maxLength={160}
                     rows={2}
@@ -406,7 +448,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
                   <Input
                     id="meta_keywords"
                     value={formData.meta_keywords}
-                    onChange={(e) => setFormData({ ...formData, meta_keywords: e.target.value })}
+                    onChange={(e) => handleFieldChange('meta_keywords', e.target.value)}
                     placeholder="Separe por vírgulas"
                   />
                 </div>
@@ -420,7 +462,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Status</Label>
-                  <Select value={formData.status} onValueChange={(value: PostStatus) => setFormData({ ...formData, status: value })}>
+                  <Select value={formData.status} onValueChange={(value: PostStatus) => handleFieldChange('status', value)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="draft">Rascunho</SelectItem>
@@ -437,7 +479,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
                       id="scheduled_for"
                       type="datetime-local"
                       value={formData.scheduled_for}
-                      onChange={(e) => setFormData({ ...formData, scheduled_for: e.target.value })}
+                      onChange={(e) => handleFieldChange('scheduled_for', e.target.value)}
                     />
                   </div>
                 )}
@@ -449,8 +491,8 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave }: Po
         <div className="flex flex-col-reverse sm:flex-row gap-2 mt-6">
           <Button variant="outline" onClick={handleClose} className="flex-1">Cancelar</Button>
           <Button variant="outline" onClick={() => handleSubmit(false)} disabled={saving} className="flex-1 gap-2">
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-            Salvar
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Salvar Rascunho
           </Button>
           <Button onClick={() => handleSubmit(true)} disabled={saving} className="flex-1 gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}

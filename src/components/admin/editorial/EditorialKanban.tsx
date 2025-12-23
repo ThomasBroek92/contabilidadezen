@@ -3,56 +3,51 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, GripVertical, Eye, Edit, Calendar } from 'lucide-react';
+import { Loader2, GripVertical, Eye, Edit, Calendar, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  status: string;
-  editorial_status: string;
-  scheduled_for: string | null;
-  published_at: string | null;
-  etapa_funil: string;
-  objetivo: string;
-  category: string;
-  persona_alvo: string | null;
-}
+import { BlogPost } from './useEditorialData';
 
 type KanbanColumn = 'draft' | 'writing' | 'review' | 'scheduled' | 'published';
 
-const COLUMNS: { id: KanbanColumn; title: string; color: string }[] = [
-  { id: 'draft', title: 'Rascunho', color: 'bg-muted' },
-  { id: 'writing', title: 'Em Redação', color: 'bg-orange-500/20' },
-  { id: 'review', title: 'Em Revisão', color: 'bg-yellow-500/20' },
-  { id: 'scheduled', title: 'Agendado', color: 'bg-blue-500/20' },
-  { id: 'published', title: 'Publicado', color: 'bg-green-500/20' },
+const COLUMNS: { id: KanbanColumn; title: string; color: string; description: string }[] = [
+  { id: 'draft', title: 'Rascunho', color: 'bg-muted', description: 'Posts salvos ou gerados' },
+  { id: 'writing', title: 'Em Redação', color: 'bg-orange-500/20', description: 'Em edição ativa' },
+  { id: 'review', title: 'Em Revisão', color: 'bg-yellow-500/20', description: 'Aguardando aprovação' },
+  { id: 'scheduled', title: 'Agendado', color: 'bg-blue-500/20', description: 'Publicação programada' },
+  { id: 'published', title: 'Publicado', color: 'bg-green-500/20', description: 'Disponível no blog' },
 ];
 
 interface EditorialKanbanProps {
   onEditPost?: (post: BlogPost) => void;
   onViewPost?: (post: BlogPost) => void;
+  posts?: BlogPost[];
+  onRefresh?: () => void;
 }
 
-export function EditorialKanban({ onEditPost, onViewPost }: EditorialKanbanProps) {
+export function EditorialKanban({ onEditPost, onViewPost, posts: externalPosts, onRefresh }: EditorialKanbanProps) {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [draggedPost, setDraggedPost] = useState<BlogPost | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    if (externalPosts) {
+      setPosts(externalPosts);
+      setLoading(false);
+    } else {
+      fetchPosts();
+    }
+  }, [externalPosts]);
 
   const fetchPosts = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('blog_posts')
-      .select('id, title, slug, status, editorial_status, scheduled_for, published_at, etapa_funil, objetivo, category, persona_alvo')
+      .select('*')
       .order('updated_at', { ascending: false });
 
     if (error) {
@@ -62,7 +57,7 @@ export function EditorialKanban({ onEditPost, onViewPost }: EditorialKanbanProps
         variant: 'destructive',
       });
     } else {
-      setPosts(data || []);
+      setPosts((data as BlogPost[]) || []);
     }
     setLoading(false);
   };
@@ -87,6 +82,8 @@ export function EditorialKanban({ onEditPost, onViewPost }: EditorialKanbanProps
       return;
     }
 
+    setUpdatingId(draggedPost.id);
+
     // Update local state optimistically
     const updatedPosts = posts.map((p) =>
       p.id === draggedPost.id ? { ...p, editorial_status: targetColumn } : p
@@ -96,6 +93,7 @@ export function EditorialKanban({ onEditPost, onViewPost }: EditorialKanbanProps
     // Update in database
     const updateData: Record<string, unknown> = {
       editorial_status: targetColumn,
+      updated_at: new Date().toISOString(),
     };
 
     // Sync with legacy status field
@@ -120,15 +118,21 @@ export function EditorialKanban({ onEditPost, onViewPost }: EditorialKanbanProps
         variant: 'destructive',
       });
       // Revert optimistic update
-      fetchPosts();
+      if (externalPosts) {
+        setPosts(externalPosts);
+      } else {
+        fetchPosts();
+      }
     } else {
       toast({
         title: 'Status atualizado',
         description: `Post movido para "${COLUMNS.find((c) => c.id === targetColumn)?.title}"`,
       });
+      onRefresh?.();
     }
 
     setDraggedPost(null);
+    setUpdatingId(null);
   };
 
   const mapStatusToEditorial = (status: string): KanbanColumn => {
@@ -149,30 +153,11 @@ export function EditorialKanban({ onEditPost, onViewPost }: EditorialKanbanProps
     });
   };
 
-  const getFunnelBadge = (etapa: string) => {
-    switch (etapa) {
-      case 'topo':
-        return <Badge variant="outline" className="text-xs">Topo</Badge>;
-      case 'meio':
-        return <Badge variant="secondary" className="text-xs">Meio</Badge>;
-      case 'fundo':
-        return <Badge className="text-xs">Fundo</Badge>;
-      default:
-        return null;
-    }
-  };
-
-  const getObjectiveBadge = (objetivo: string) => {
-    switch (objetivo) {
-      case 'trafego':
-        return <Badge variant="outline" className="text-xs">🚀 Tráfego</Badge>;
-      case 'leads':
-        return <Badge variant="outline" className="text-xs">📧 Leads</Badge>;
-      case 'autoridade':
-        return <Badge variant="outline" className="text-xs">👑 Autoridade</Badge>;
-      default:
-        return null;
-    }
+  const getGeoScoreColor = (score: number | null) => {
+    if (!score) return 'bg-muted text-muted-foreground';
+    if (score >= 80) return 'bg-green-500/20 text-green-700';
+    if (score >= 60) return 'bg-yellow-500/20 text-yellow-700';
+    return 'bg-red-500/20 text-red-700';
   };
 
   if (loading) {
@@ -184,97 +169,122 @@ export function EditorialKanban({ onEditPost, onViewPost }: EditorialKanbanProps
   }
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4">
-      {COLUMNS.map((column) => {
-        const columnPosts = getPostsForColumn(column.id);
-        return (
-          <Card
-            key={column.id}
-            className={`flex-shrink-0 w-[300px] ${column.color}`}
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, column.id)}
-          >
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center justify-between">
-                {column.title}
-                <Badge variant="secondary" className="ml-2">
-                  {columnPosts.length}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[500px] pr-2">
-                <div className="space-y-2">
-                  {columnPosts.map((post) => (
-                    <Card
-                      key={post.id}
-                      className="cursor-grab active:cursor-grabbing bg-background"
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, post)}
-                    >
-                      <CardContent className="p-3">
-                        <div className="flex items-start gap-2">
-                          <GripVertical className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm line-clamp-2 mb-2">
-                              {post.title}
-                            </p>
-                            <div className="flex flex-wrap gap-1 mb-2">
-                              <Badge variant="outline" className="text-xs">
-                                {post.category}
-                              </Badge>
-                              {getFunnelBadge(post.etapa_funil)}
-                              {getObjectiveBadge(post.objetivo)}
-                            </div>
-                            {post.scheduled_for && (
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <Calendar className="h-3 w-3" />
-                                {format(new Date(post.scheduled_for), "dd/MM 'às' HH:mm", {
-                                  locale: ptBR,
-                                })}
-                              </div>
-                            )}
-                            {post.persona_alvo && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                👤 {post.persona_alvo}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Arraste os posts entre as colunas para atualizar o status
+        </p>
+        <Badge variant="outline">{posts.length} posts</Badge>
+      </div>
+      
+      <div className="flex gap-4 overflow-x-auto pb-4">
+        {COLUMNS.map((column) => {
+          const columnPosts = getPostsForColumn(column.id);
+          return (
+            <Card
+              key={column.id}
+              className={`flex-shrink-0 w-[280px] ${column.color}`}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, column.id)}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center justify-between">
+                  <div>
+                    <span>{column.title}</span>
+                    <p className="text-xs font-normal text-muted-foreground mt-0.5">
+                      {column.description}
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="ml-2">
+                    {columnPosts.length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[450px] pr-2">
+                  <div className="space-y-2">
+                    {columnPosts.map((post) => (
+                      <Card
+                        key={post.id}
+                        className={`cursor-grab active:cursor-grabbing bg-background transition-all ${
+                          updatingId === post.id ? 'opacity-50' : ''
+                        } ${draggedPost?.id === post.id ? 'ring-2 ring-primary' : ''}`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, post)}
+                      >
+                        <CardContent className="p-3">
+                          <div className="flex items-start gap-2">
+                            <GripVertical className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm line-clamp-2 mb-2">
+                                {post.title}
                               </p>
-                            )}
+                              
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {post.category}
+                                </Badge>
+                                {post.geo_score !== null && post.geo_score !== undefined && (
+                                  <Badge className={`text-xs gap-1 ${getGeoScoreColor(post.geo_score)}`}>
+                                    <TrendingUp className="h-3 w-3" />
+                                    {post.geo_score}
+                                  </Badge>
+                                )}
+                              </div>
+                              
+                              {post.scheduled_for && (
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Calendar className="h-3 w-3" />
+                                  {format(new Date(post.scheduled_for), "dd/MM 'às' HH:mm", {
+                                    locale: ptBR,
+                                  })}
+                                </div>
+                              )}
+                              
+                              {post.auto_published && (
+                                <Badge className="text-xs mt-1 bg-purple-500/20 text-purple-700">
+                                  🤖 Auto-publicado
+                                </Badge>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex gap-1 mt-2 pt-2 border-t">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs flex-1"
-                            onClick={() => onViewPost?.(post)}
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            Ver
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs flex-1"
-                            onClick={() => onEditPost?.(post)}
-                          >
-                            <Edit className="h-3 w-3 mr-1" />
-                            Editar
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                  {columnPosts.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground text-sm">
-                      Nenhum post
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        );
-      })}
+                          
+                          <div className="flex gap-1 mt-2 pt-2 border-t">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs flex-1"
+                              onClick={() => onViewPost?.(post)}
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              Ver
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs flex-1"
+                              onClick={() => onEditPost?.(post)}
+                            >
+                              <Edit className="h-3 w-3 mr-1" />
+                              Editar
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    {columnPosts.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground text-sm">
+                        <p>Nenhum post</p>
+                        <p className="text-xs mt-1">Arraste posts para cá</p>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }

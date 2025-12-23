@@ -31,7 +31,6 @@ import {
   Lightbulb,
   Settings,
   Quote,
-  ExternalLink,
   Check,
   Target,
   PenTool
@@ -45,6 +44,7 @@ import { EditorialKanban } from './editorial/EditorialKanban';
 import { PostEditorDialog } from './editorial/PostEditorDialog';
 import { TopicDialog } from './editorial/TopicDialog';
 import { useEditorialData, BlogPost, BlogTopic } from './editorial/useEditorialData';
+import { GEOAnalyticsDashboard } from './GEOAnalyticsDashboard';
 
 // Tipos
 interface GEOSettings {
@@ -834,117 +834,7 @@ export function ContentStudio() {
 
         {/* MÉTRICAS */}
         <TabsContent value="analytics" className="mt-6">
-          <div className="space-y-6">
-            {/* KPIs Avançados */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Score GEO Médio</p>
-                      <p className="text-3xl font-bold">{stats.avgGeoScore}</p>
-                    </div>
-                    <div className={`p-3 rounded-full ${stats.avgGeoScore >= 80 ? 'bg-green-500/10' : stats.avgGeoScore >= 60 ? 'bg-yellow-500/10' : 'bg-red-500/10'}`}>
-                      <TrendingUp className={`h-6 w-6 ${getGEOScoreColor(stats.avgGeoScore)}`} />
-                    </div>
-                  </div>
-                  <Progress value={stats.avgGeoScore} className="mt-3" />
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Posts Score 80+</p>
-                      <p className="text-3xl font-bold">{stats.highScorePosts}</p>
-                    </div>
-                    <div className="p-3 rounded-full bg-green-500/10">
-                      <CheckCircle className="h-6 w-6 text-green-600" />
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {stats.total > 0 ? Math.round((stats.highScorePosts / stats.total) * 100) : 0}% do total
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Taxa de Publicação</p>
-                      <p className="text-3xl font-bold">{stats.total > 0 ? Math.round((stats.published / stats.total) * 100) : 0}%</p>
-                    </div>
-                    <div className="p-3 rounded-full bg-primary/10">
-                      <Target className="h-6 w-6 text-primary" />
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {stats.published} de {stats.total} posts
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Fila Ativa</p>
-                      <p className="text-3xl font-bold">{stats.queueSize}</p>
-                    </div>
-                    <div className="p-3 rounded-full bg-amber-500/10">
-                      <Clock className="h-6 w-6 text-amber-600" />
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    tópicos para geração
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Top Posts por Score */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Top Posts por Score GEO
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {posts
-                    .sort((a, b) => (b.geo_score || 0) - (a.geo_score || 0))
-                    .slice(0, 5)
-                    .map((post, index) => (
-                      <div key={post.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            index === 0 ? 'bg-amber-500 text-white' : 
-                            index === 1 ? 'bg-slate-400 text-white' : 
-                            index === 2 ? 'bg-amber-700 text-white' : 
-                            'bg-primary/10 text-primary'
-                          }`}>
-                            {index + 1}
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm line-clamp-1">{post.title}</p>
-                            <div className="flex gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">{post.category}</Badge>
-                              {getStatusBadge(post.status)}
-                            </div>
-                          </div>
-                        </div>
-                        <div className={`text-2xl font-bold ${getGEOScoreColor(post.geo_score)}`}>
-                          {post.geo_score || 0}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <GEOAnalyticsDashboard posts={posts} stats={stats} getGEOScoreColor={getGEOScoreColor} getStatusBadge={getStatusBadge} />
         </TabsContent>
       </Tabs>
 

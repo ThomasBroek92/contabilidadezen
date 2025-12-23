@@ -44,6 +44,7 @@ import { EditorialCalendar } from './editorial/EditorialCalendar';
 import { EditorialKanban } from './editorial/EditorialKanban';
 import { PostEditorDialog } from './editorial/PostEditorDialog';
 import { TopicDialog } from './editorial/TopicDialog';
+import { BatchGenerationDialog } from './editorial/BatchGenerationDialog';
 import { useEditorialData, BlogPost, BlogTopic } from './editorial/useEditorialData';
 import { GEOAnalyticsDashboard } from './GEOAnalyticsDashboard';
 
@@ -73,6 +74,7 @@ export function ContentStudio() {
   const [activeView, setActiveView] = useState<'overview' | 'create' | 'manage' | 'calendar' | 'kanban' | 'analytics'>('overview');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
   const [topicDialogOpen, setTopicDialogOpen] = useState(false);
+  const [batchDialogOpen, setBatchDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [editingTopic, setEditingTopic] = useState<BlogTopic | null>(null);
   const [deletePostId, setDeletePostId] = useState<string | null>(null);
@@ -440,6 +442,18 @@ export function ContentStudio() {
                   <div className="text-left">
                     <p className="font-medium">Agendar Tópico IA</p>
                     <p className="text-xs text-muted-foreground">Adicione à fila de geração automática</p>
+                  </div>
+                </Button>
+
+                <Button 
+                  onClick={() => setBatchDialogOpen(true)}
+                  className="w-full justify-start gap-3 h-12 bg-primary/10 border-primary/30 hover:bg-primary/20"
+                  variant="outline"
+                >
+                  <Layers className="h-5 w-5 text-primary" />
+                  <div className="text-left">
+                    <p className="font-medium text-primary">Gerar em Lote</p>
+                    <p className="text-xs text-muted-foreground">Múltiplos posts com datas sequenciais</p>
                   </div>
                 </Button>
               </CardContent>
@@ -879,6 +893,11 @@ export function ContentStudio() {
         onOpenChange={setTopicDialogOpen} 
         editingTopic={editingTopic} 
         onSave={fetchTopics} 
+      />
+      <BatchGenerationDialog
+        open={batchDialogOpen}
+        onOpenChange={setBatchDialogOpen}
+        onComplete={fetchAll}
       />
 
       {/* Delete Confirmations */}

@@ -186,38 +186,98 @@ export type Database = {
       }
       geo_settings: {
         Row: {
+          ai_custom_instructions: string | null
+          ai_tone: string | null
+          answer_first_format: boolean | null
+          auto_generate_faq: boolean | null
           auto_suggest_frequency: string | null
           brand_authority_keywords: string[] | null
           brand_name: string | null
           brand_statistics: Json | null
+          content_length_max: number | null
+          content_length_min: number | null
           created_at: string | null
+          expert_quotes_enabled: boolean | null
+          external_linking_enabled: boolean | null
+          faq_count: number | null
+          freshness_signals_enabled: boolean | null
           id: string
+          internal_linking_enabled: boolean | null
+          max_external_links: number | null
+          max_internal_links: number | null
+          min_external_links: number | null
           min_geo_score_publish: number | null
+          min_internal_links: number | null
+          preferred_citation_sources: string[] | null
           preferred_expert_types: string[] | null
+          reading_level: string | null
+          seo_meta_auto_generate: boolean | null
+          statistics_citations_enabled: boolean | null
+          structured_data_enabled: boolean | null
           target_personas: string[] | null
           updated_at: string | null
         }
         Insert: {
+          ai_custom_instructions?: string | null
+          ai_tone?: string | null
+          answer_first_format?: boolean | null
+          auto_generate_faq?: boolean | null
           auto_suggest_frequency?: string | null
           brand_authority_keywords?: string[] | null
           brand_name?: string | null
           brand_statistics?: Json | null
+          content_length_max?: number | null
+          content_length_min?: number | null
           created_at?: string | null
+          expert_quotes_enabled?: boolean | null
+          external_linking_enabled?: boolean | null
+          faq_count?: number | null
+          freshness_signals_enabled?: boolean | null
           id?: string
+          internal_linking_enabled?: boolean | null
+          max_external_links?: number | null
+          max_internal_links?: number | null
+          min_external_links?: number | null
           min_geo_score_publish?: number | null
+          min_internal_links?: number | null
+          preferred_citation_sources?: string[] | null
           preferred_expert_types?: string[] | null
+          reading_level?: string | null
+          seo_meta_auto_generate?: boolean | null
+          statistics_citations_enabled?: boolean | null
+          structured_data_enabled?: boolean | null
           target_personas?: string[] | null
           updated_at?: string | null
         }
         Update: {
+          ai_custom_instructions?: string | null
+          ai_tone?: string | null
+          answer_first_format?: boolean | null
+          auto_generate_faq?: boolean | null
           auto_suggest_frequency?: string | null
           brand_authority_keywords?: string[] | null
           brand_name?: string | null
           brand_statistics?: Json | null
+          content_length_max?: number | null
+          content_length_min?: number | null
           created_at?: string | null
+          expert_quotes_enabled?: boolean | null
+          external_linking_enabled?: boolean | null
+          faq_count?: number | null
+          freshness_signals_enabled?: boolean | null
           id?: string
+          internal_linking_enabled?: boolean | null
+          max_external_links?: number | null
+          max_internal_links?: number | null
+          min_external_links?: number | null
           min_geo_score_publish?: number | null
+          min_internal_links?: number | null
+          preferred_citation_sources?: string[] | null
           preferred_expert_types?: string[] | null
+          reading_level?: string | null
+          seo_meta_auto_generate?: boolean | null
+          statistics_citations_enabled?: boolean | null
+          structured_data_enabled?: boolean | null
           target_personas?: string[] | null
           updated_at?: string | null
         }

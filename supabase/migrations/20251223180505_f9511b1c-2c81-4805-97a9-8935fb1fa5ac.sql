@@ -1,0 +1,22 @@
+-- Add content configuration fields to geo_settings table
+ALTER TABLE public.geo_settings 
+ADD COLUMN IF NOT EXISTS ai_tone TEXT DEFAULT 'profissional e educativo',
+ADD COLUMN IF NOT EXISTS ai_custom_instructions TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS auto_generate_faq BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS faq_count INTEGER DEFAULT 5,
+ADD COLUMN IF NOT EXISTS internal_linking_enabled BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS min_internal_links INTEGER DEFAULT 3,
+ADD COLUMN IF NOT EXISTS max_internal_links INTEGER DEFAULT 7,
+ADD COLUMN IF NOT EXISTS external_linking_enabled BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS min_external_links INTEGER DEFAULT 2,
+ADD COLUMN IF NOT EXISTS max_external_links INTEGER DEFAULT 5,
+ADD COLUMN IF NOT EXISTS preferred_citation_sources TEXT[] DEFAULT ARRAY['gov.br', 'planalto.gov.br', 'receita.fazenda.gov.br', 'cfc.org.br'],
+ADD COLUMN IF NOT EXISTS seo_meta_auto_generate BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS structured_data_enabled BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS freshness_signals_enabled BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS answer_first_format BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS expert_quotes_enabled BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS statistics_citations_enabled BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS content_length_min INTEGER DEFAULT 1500,
+ADD COLUMN IF NOT EXISTS content_length_max INTEGER DEFAULT 3000,
+ADD COLUMN IF NOT EXISTS reading_level TEXT DEFAULT 'intermediário';

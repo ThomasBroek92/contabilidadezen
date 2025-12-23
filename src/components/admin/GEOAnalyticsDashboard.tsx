@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   TrendingUp, 
   CheckCircle, 
@@ -12,9 +13,10 @@ import {
   ExternalLink,
   Award,
   Zap,
-  Calendar
+  Calendar,
+  HelpCircle
 } from 'lucide-react';
-import { format, subDays, startOfMonth, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, subMonths, isSameDay, isSameWeek, isSameMonth } from 'date-fns';
+import { format, subDays, eachDayOfInterval, eachWeekOfInterval, subMonths, isSameDay, isSameWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
   LineChart, 
@@ -22,7 +24,7 @@ import {
   XAxis, 
   YAxis, 
   CartesianGrid, 
-  Tooltip, 
+  Tooltip as RechartsTooltip, 
   ResponsiveContainer, 
   AreaChart, 
   Area,
@@ -60,6 +62,23 @@ const COLORS = {
   blue: '#3b82f6',
   purple: '#a855f7',
 };
+
+// Componente de ajuda com tooltip
+function HelpTooltip({ content }: { content: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button className="ml-1 inline-flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted p-0.5 transition-colors">
+          <HelpCircle className="h-3.5 w-3.5" />
+          <span className="sr-only">Ajuda</span>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-[280px] text-sm">
+        <p>{content}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatusBadge }: GEOAnalyticsDashboardProps) {
   // Dados de evolução temporal
@@ -184,6 +203,7 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
   };
 
   return (
+    <TooltipProvider delayDuration={200}>
     <div className="space-y-6">
       {/* KPIs Avançados */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -191,7 +211,10 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Score GEO Médio</p>
+                <p className="text-sm text-muted-foreground flex items-center">
+                  Score GEO Médio
+                  <HelpTooltip content="Média dos scores de otimização para IA de todos os posts. Quanto maior (ideal ≥80), mais chances de ser citado por ChatGPT, Perplexity e Google AI." />
+                </p>
                 <p className="text-3xl font-bold">{stats.avgGeoScore}</p>
               </div>
               <div className={`p-3 rounded-full ${stats.avgGeoScore >= 80 ? 'bg-green-500/10' : stats.avgGeoScore >= 60 ? 'bg-yellow-500/10' : 'bg-red-500/10'}`}>
@@ -206,7 +229,10 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Posts Score 80+</p>
+                <p className="text-sm text-muted-foreground flex items-center">
+                  Posts Score 80+
+                  <HelpTooltip content="Quantidade de posts com score excelente (≥80). Esses posts têm alta probabilidade de serem citados por motores de IA e são elegíveis para auto-publicação." />
+                </p>
                 <p className="text-3xl font-bold">{stats.highScorePosts}</p>
               </div>
               <div className="p-3 rounded-full bg-green-500/10">
@@ -223,7 +249,10 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Taxa de Publicação</p>
+                <p className="text-sm text-muted-foreground flex items-center">
+                  Taxa de Publicação
+                  <HelpTooltip content="Percentual de posts que foram publicados em relação ao total criado. Uma taxa alta indica um bom fluxo editorial com poucos rascunhos parados." />
+                </p>
                 <p className="text-3xl font-bold">{stats.total > 0 ? Math.round((stats.published / stats.total) * 100) : 0}%</p>
               </div>
               <div className="p-3 rounded-full bg-primary/10">
@@ -240,7 +269,10 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Fila Ativa</p>
+                <p className="text-sm text-muted-foreground flex items-center">
+                  Fila Ativa
+                  <HelpTooltip content="Tópicos aguardando geração automática de conteúdo pela IA. A geração ocorre diariamente às 9h UTC com pesquisa via Perplexity." />
+                </p>
                 <p className="text-3xl font-bold">{stats.queueSize}</p>
               </div>
               <div className="p-3 rounded-full bg-amber-500/10">
@@ -264,7 +296,10 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
               </div>
               <div>
                 <p className="text-2xl font-bold">{citationStats.totalCitations}</p>
-                <p className="text-xs text-muted-foreground">Citações de Especialistas</p>
+                <p className="text-xs text-muted-foreground flex items-center">
+                  Citações de Especialistas
+                  <HelpTooltip content="Falas de especialistas (contadores, advogados, consultores) incluídas nos posts. Citações de autoridades aumentam a credibilidade e chance de ser referenciado por IAs." />
+                </p>
               </div>
             </div>
           </CardContent>
@@ -278,7 +313,10 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
               </div>
               <div>
                 <p className="text-2xl font-bold">{citationStats.totalStats}</p>
-                <p className="text-xs text-muted-foreground">Estatísticas Incluídas</p>
+                <p className="text-xs text-muted-foreground flex items-center">
+                  Estatísticas Incluídas
+                  <HelpTooltip content="Dados numéricos com fontes oficiais (IBGE, Receita Federal, CFM). Estatísticas verificáveis tornam o conteúdo mais confiável para motores de IA." />
+                </p>
               </div>
             </div>
           </CardContent>
@@ -292,7 +330,10 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
               </div>
               <div>
                 <p className="text-2xl font-bold">{citationStats.totalSources}</p>
-                <p className="text-xs text-muted-foreground">Fontes Autoritativas</p>
+                <p className="text-xs text-muted-foreground flex items-center">
+                  Fontes Autoritativas
+                  <HelpTooltip content="Links para fontes oficiais e confiáveis citadas nos posts. Referenciar fontes de autoridade melhora o E-E-A-T (experiência, especialização, autoridade, confiabilidade)." />
+                </p>
               </div>
             </div>
           </CardContent>
@@ -306,7 +347,10 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
               </div>
               <div>
                 <p className="text-2xl font-bold">{citationStats.autoPublished}</p>
-                <p className="text-xs text-muted-foreground">Auto-Publicados</p>
+                <p className="text-xs text-muted-foreground flex items-center">
+                  Auto-Publicados
+                  <HelpTooltip content="Posts que atingiram o score mínimo GEO e foram publicados automaticamente sem revisão manual. Indica eficiência do sistema de geração de conteúdo." />
+                </p>
               </div>
             </div>
           </CardContent>
@@ -321,6 +365,7 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
               Evolução do Score GEO
+              <HelpTooltip content="Mostra a evolução da média do score GEO ao longo das semanas. Uma tendência de alta indica melhoria na qualidade do conteúdo para otimização em IA." />
             </CardTitle>
             <CardDescription>Média semanal nos últimos 3 meses</CardDescription>
           </CardHeader>
@@ -344,7 +389,7 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
                   tick={{ fontSize: 11 }}
                   className="text-muted-foreground"
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <RechartsTooltip content={<CustomTooltip />} />
                 <Area 
                   type="monotone" 
                   dataKey="score" 
@@ -372,6 +417,7 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
             <CardTitle className="text-lg flex items-center gap-2">
               <Award className="h-5 w-5 text-amber-500" />
               Distribuição de Scores
+              <HelpTooltip content="Divide os posts em 4 faixas de qualidade. O ideal é ter a maioria dos posts nas faixas 'Bom' (60-79) e 'Excelente' (80-100)." />
             </CardTitle>
             <CardDescription>Classificação de qualidade GEO</CardDescription>
           </CardHeader>
@@ -386,13 +432,13 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
                   outerRadius={100}
                   paddingAngle={4}
                   dataKey="count"
-                  label={({ label, count, percent }) => count > 0 ? `${label}: ${count}` : ''}
+                  label={({ label, count }) => count > 0 ? `${label}: ${count}` : ''}
                 >
                   {scoreDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <RechartsTooltip />
                 <Legend 
                   formatter={(value, entry: any) => (
                     <span className="text-sm">{entry.payload.label} ({entry.payload.range})</span>
@@ -410,6 +456,7 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
           <CardTitle className="text-lg flex items-center gap-2">
             <Calendar className="h-5 w-5 text-blue-500" />
             Produção e Citações por Semana
+            <HelpTooltip content="Acompanhe o volume de produção de conteúdo e a quantidade de citações de especialistas por semana. Mais citações = maior autoridade do conteúdo." />
           </CardTitle>
           <CardDescription>Volume de posts e citações de especialistas</CardDescription>
         </CardHeader>
@@ -426,7 +473,7 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
                 tick={{ fontSize: 11 }}
                 className="text-muted-foreground"
               />
-              <Tooltip content={<CustomTooltip />} />
+              <RechartsTooltip content={<CustomTooltip />} />
               <Legend />
               <Bar 
                 dataKey="posts" 
@@ -449,12 +496,15 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Score Médio por Categoria</CardTitle>
+            <CardTitle className="text-lg flex items-center gap-2">
+              Score Médio por Categoria
+              <HelpTooltip content="Compare o desempenho GEO entre diferentes categorias de conteúdo. Identifique quais tipos de conteúdo têm melhor otimização e quais precisam de atenção." />
+            </CardTitle>
             <CardDescription>Desempenho GEO por tipo de conteúdo</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {categoryData.slice(0, 6).map((cat, index) => (
+              {categoryData.slice(0, 6).map((cat) => (
                 <div key={cat.name} className="flex items-center gap-4">
                   <div className="w-24 text-sm font-medium truncate">{cat.name}</div>
                   <div className="flex-1">
@@ -487,6 +537,7 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
               Top Posts por Score GEO
+              <HelpTooltip content="Os 5 posts com maior score GEO. Estes são seus melhores conteúdos para serem citados por IAs como ChatGPT e Perplexity." />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -523,5 +574,6 @@ export function GEOAnalyticsDashboard({ posts, stats, getGEOScoreColor, getStatu
         </Card>
       </div>
     </div>
+    </TooltipProvider>
   );
 }

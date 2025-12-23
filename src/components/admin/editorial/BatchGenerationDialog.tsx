@@ -27,7 +27,8 @@ import {
   ClipboardPaste,
   CalendarClock,
   Repeat,
-  X
+  X,
+  Download
 } from 'lucide-react';
 import { format, addDays, nextDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -134,6 +135,66 @@ export function BatchGenerationDialog({ open, onOpenChange, onComplete }: BatchG
       .filter(line => line.length > 0 && !line.startsWith('#') && !line.startsWith('//'));
   };
 
+  // Download CSV Template
+  const downloadCSVTemplate = () => {
+    const csvContent = `topico,categoria
+# INSTRUÇÕES: Preencha os tópicos abaixo, um por linha
+# - A coluna "topico" é obrigatória
+# - A coluna "categoria" é opcional (usa a selecionada na interface se vazia)
+# - Categorias disponíveis: ${CATEGORIES.join(', ')}
+# - Linhas começando com # são ignoradas
+# - Remova estas linhas de instrução antes de importar
+#
+# EXEMPLOS:
+Como abrir empresa médica em 2025,Legislação
+Tributação para dentistas autônomos: guia completo,Tributação
+IRPF para psicólogos: o que declarar em 2025,Dicas
+Simples Nacional vs Lucro Presumido para médicos,Tributação
+Pró-labore para profissionais de saúde: quanto definir,Dicas
+Como reduzir impostos como fisioterapeuta PJ,Tributação
+Abertura de CNPJ para nutricionistas: passo a passo,Legislação
+Contabilidade digital para clínicas: vantagens,Dicas
+Deduções fiscais para dentistas: guia completo,Tributação
+Planejamento tributário para consultórios médicos,Tributação`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'template_topicos_blog.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({ title: 'Template baixado!', description: 'Preencha e importe o arquivo CSV.' });
+  };
+
+  // Parse CSV with categories
+  const parseCSVWithCategories = (content: string): { topic: string; category: string }[] => {
+    const lines = content.split('\n');
+    const results: { topic: string; category: string }[] = [];
+    
+    for (const line of lines) {
+      // Skip comments and empty lines
+      if (line.trim().startsWith('#') || line.trim().length === 0) continue;
+      
+      // Skip header line
+      if (line.toLowerCase().includes('topico') && line.toLowerCase().includes('categoria')) continue;
+      
+      const parts = line.split(',');
+      const topic = parts[0]?.replace(/^["']|["']$/g, '').trim();
+      const category = parts[1]?.replace(/^["']|["']$/g, '').trim();
+      
+      if (topic && topic.length > 0) {
+        results.push({
+          topic,
+          category: CATEGORIES.includes(category) ? category : importCategory
+        });
+      }
+    }
+    
+    return results;
+  };
+
   const importFromText = () => {
     const parsedTopics = parseTopicsFromText(pastedText);
     if (parsedTopics.length === 0) {
@@ -165,41 +226,54 @@ export function BatchGenerationDialog({ open, onOpenChange, onComplete }: BatchG
     const reader = new FileReader();
     reader.onload = (event) => {
       const content = event.target?.result as string;
-      let parsedTopics: string[] = [];
-
+      
       if (file.name.endsWith('.csv')) {
-        // Parse CSV - assume one topic per line or first column
-        const lines = content.split('\n');
-        parsedTopics = lines
-          .map(line => {
-            const parts = line.split(',');
-            return parts[0]?.replace(/^["']|["']$/g, '').trim();
-          })
-          .filter(topic => topic && topic.length > 0 && !topic.toLowerCase().includes('topic'));
+        // Parse CSV with category support
+        const parsedData = parseCSVWithCategories(content);
+        
+        if (parsedData.length === 0) {
+          toast({ title: 'Nenhum tópico encontrado no arquivo', variant: 'destructive' });
+          return;
+        }
+
+        const base = topics.length > 0 
+          ? addDays(topics[topics.length - 1].scheduledDate, intervalDays)
+          : new Date(startDate);
+
+        const newTopics: BatchTopic[] = parsedData.map((item, i) => ({
+          id: crypto.randomUUID(),
+          topic: item.topic,
+          category: item.category,
+          scheduledDate: addDays(base, i * intervalDays),
+          status: 'pending'
+        }));
+
+        setTopics([...topics, ...newTopics]);
+        toast({ title: `${parsedData.length} tópicos importados do CSV` });
       } else {
         // Plain text - one topic per line
-        parsedTopics = parseTopicsFromText(content);
+        const parsedTopics = parseTopicsFromText(content);
+        
+        if (parsedTopics.length === 0) {
+          toast({ title: 'Nenhum tópico encontrado no arquivo', variant: 'destructive' });
+          return;
+        }
+
+        const base = topics.length > 0 
+          ? addDays(topics[topics.length - 1].scheduledDate, intervalDays)
+          : new Date(startDate);
+
+        const newTopics: BatchTopic[] = parsedTopics.map((topic, i) => ({
+          id: crypto.randomUUID(),
+          topic,
+          category: importCategory,
+          scheduledDate: addDays(base, i * intervalDays),
+          status: 'pending'
+        }));
+
+        setTopics([...topics, ...newTopics]);
+        toast({ title: `${parsedTopics.length} tópicos importados` });
       }
-
-      if (parsedTopics.length === 0) {
-        toast({ title: 'Nenhum tópico encontrado no arquivo', variant: 'destructive' });
-        return;
-      }
-
-      const base = topics.length > 0 
-        ? addDays(topics[topics.length - 1].scheduledDate, intervalDays)
-        : new Date(startDate);
-
-      const newTopics: BatchTopic[] = parsedTopics.map((topic, i) => ({
-        id: crypto.randomUUID(),
-        topic,
-        category: importCategory,
-        scheduledDate: addDays(base, i * intervalDays),
-        status: 'pending'
-      }));
-
-      setTopics([...topics, ...newTopics]);
-      toast({ title: `${parsedTopics.length} tópicos importados do arquivo` });
     };
     reader.readAsText(file);
     
@@ -631,11 +705,31 @@ export function BatchGenerationDialog({ open, onOpenChange, onComplete }: BatchG
           <TabsContent value="import" className="flex-1 overflow-hidden flex flex-col gap-4 mt-4">
             <Card>
               <CardContent className="pt-4 space-y-4">
+                {/* Download Template */}
+                <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/20">
+                  <div className="space-y-1">
+                    <Label className="text-base font-medium flex items-center gap-2">
+                      <Download className="h-4 w-4 text-primary" />
+                      Baixar Template CSV
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Template estruturado com exemplos e instruções
+                    </p>
+                  </div>
+                  <Button 
+                    variant="default" 
+                    onClick={downloadCSVTemplate}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Baixar Template
+                  </Button>
+                </div>
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <Label className="text-base font-medium">Importar de Arquivo</Label>
                     <p className="text-sm text-muted-foreground">
-                      CSV ou TXT com um tópico por linha
+                      CSV (com categorias) ou TXT (um tópico por linha)
                     </p>
                   </div>
                   <div className="flex gap-2">

@@ -33,9 +33,10 @@ import {
   Quote,
   Check,
   Target,
-  PenTool
+  PenTool,
+  Layers
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -821,14 +822,25 @@ export function ContentStudio() {
 
         {/* CALENDÁRIO */}
         <TabsContent value="calendar" className="mt-6">
-          <EditorialCalendar onPostClick={(post) => handleOpenPostDialog(post as BlogPost)} />
+          <EditorialCalendar 
+            posts={posts}
+            topics={topics}
+            onPostClick={(post) => handleOpenPostDialog(post as BlogPost)}
+            onCreatePost={(date) => {
+              setEditingPost(null);
+              setPostDialogOpen(true);
+            }}
+            onScheduleTopic={(date) => handleOpenTopicDialog()}
+          />
         </TabsContent>
 
         {/* KANBAN */}
         <TabsContent value="kanban" className="mt-6">
           <EditorialKanban 
+            posts={posts}
             onEditPost={(post) => handleOpenPostDialog(post as BlogPost)} 
-            onViewPost={(post) => window.open(`/blog/${post.slug}`, '_blank')} 
+            onViewPost={(post) => window.open(`/blog/${post.slug}`, '_blank')}
+            onRefresh={fetchAll}
           />
         </TabsContent>
 

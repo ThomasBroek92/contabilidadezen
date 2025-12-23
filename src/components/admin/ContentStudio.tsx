@@ -46,6 +46,7 @@ import { PostEditorDialog } from './editorial/PostEditorDialog';
 import { TopicDialog } from './editorial/TopicDialog';
 import { BatchGenerationDialog } from './editorial/BatchGenerationDialog';
 import { RecurringSchedulesManager } from './editorial/RecurringSchedulesManager';
+import { ContentSettingsTab } from './editorial/ContentSettingsTab';
 import { useEditorialData, BlogPost, BlogTopic } from './editorial/useEditorialData';
 import { GEOAnalyticsDashboard } from './GEOAnalyticsDashboard';
 
@@ -72,7 +73,7 @@ export function ContentStudio() {
   const { posts, topics, loading, fetchPosts, fetchTopics, fetchAll } = useEditorialData();
   
   // Estados de UI
-  const [activeView, setActiveView] = useState<'overview' | 'create' | 'manage' | 'calendar' | 'kanban' | 'analytics'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'create' | 'manage' | 'calendar' | 'kanban' | 'analytics' | 'settings'>('overview');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
   const [topicDialogOpen, setTopicDialogOpen] = useState(false);
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);
@@ -365,7 +366,7 @@ export function ContentStudio() {
 
       {/* Navegação simplificada com ícones claros */}
       <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)}>
-        <TabsList className="grid w-full grid-cols-6 h-12">
+        <TabsList className="grid w-full grid-cols-7 h-12">
           <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Lightbulb className="h-4 w-4" />
             <span className="hidden md:inline">Visão Geral</span>
@@ -389,6 +390,10 @@ export function ContentStudio() {
           <TabsTrigger value="analytics" className="gap-2">
             <BarChart3 className="h-4 w-4" />
             <span className="hidden md:inline">Métricas</span>
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="gap-2">
+            <Settings className="h-4 w-4" />
+            <span className="hidden md:inline">Configurações</span>
           </TabsTrigger>
         </TabsList>
 
@@ -865,6 +870,11 @@ export function ContentStudio() {
         {/* MÉTRICAS */}
         <TabsContent value="analytics" className="mt-6">
           <GEOAnalyticsDashboard posts={posts} stats={stats} getGEOScoreColor={getGEOScoreColor} getStatusBadge={getStatusBadge} />
+        </TabsContent>
+
+        {/* CONFIGURAÇÕES */}
+        <TabsContent value="settings" className="mt-6">
+          <ContentSettingsTab />
         </TabsContent>
       </Tabs>
 

@@ -392,6 +392,57 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_schedules: {
+        Row: {
+          auto_publish: boolean
+          categories: string[]
+          created_at: string
+          day_of_week: number
+          id: string
+          is_active: boolean
+          last_run_at: string | null
+          min_geo_score: number
+          name: string
+          next_run_at: string | null
+          time_of_day: string
+          topic_templates: string[]
+          topics_per_run: number
+          updated_at: string
+        }
+        Insert: {
+          auto_publish?: boolean
+          categories?: string[]
+          created_at?: string
+          day_of_week: number
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          min_geo_score?: number
+          name: string
+          next_run_at?: string | null
+          time_of_day?: string
+          topic_templates?: string[]
+          topics_per_run?: number
+          updated_at?: string
+        }
+        Update: {
+          auto_publish?: boolean
+          categories?: string[]
+          created_at?: string
+          day_of_week?: number
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          min_geo_score?: number
+          name?: string
+          next_run_at?: string | null
+          time_of_day?: string
+          topic_templates?: string[]
+          topics_per_run?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

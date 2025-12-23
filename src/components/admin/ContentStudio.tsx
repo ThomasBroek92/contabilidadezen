@@ -45,6 +45,7 @@ import { EditorialKanban } from './editorial/EditorialKanban';
 import { PostEditorDialog } from './editorial/PostEditorDialog';
 import { TopicDialog } from './editorial/TopicDialog';
 import { BatchGenerationDialog } from './editorial/BatchGenerationDialog';
+import { RecurringSchedulesManager } from './editorial/RecurringSchedulesManager';
 import { useEditorialData, BlogPost, BlogTopic } from './editorial/useEditorialData';
 import { GEOAnalyticsDashboard } from './GEOAnalyticsDashboard';
 
@@ -599,6 +600,9 @@ export function ContentStudio() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Agendamentos Recorrentes */}
+          <RecurringSchedulesManager />
         </TabsContent>
 
         {/* GERAR COM IA */}

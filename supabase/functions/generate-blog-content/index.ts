@@ -15,6 +15,14 @@ interface BlogTopic {
   status: string;
 }
 
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  category: string;
+}
+
 interface PerplexityResponse {
   choices: Array<{
     message: {
@@ -44,13 +52,68 @@ interface FAQItem {
   answer: string;
 }
 
-interface GEOSettings {
+interface ContentSettings {
+  // Basic GEO settings
   min_geo_score_publish: number;
   brand_name: string;
   brand_authority_keywords: string[];
   target_personas: string[];
   brand_statistics: Statistic[];
+  // AI Configuration
+  ai_tone: string;
+  ai_custom_instructions: string;
+  reading_level: string;
+  content_length_min: number;
+  content_length_max: number;
+  // FAQ Settings
+  auto_generate_faq: boolean;
+  faq_count: number;
+  // Internal Linking
+  internal_linking_enabled: boolean;
+  min_internal_links: number;
+  max_internal_links: number;
+  // External Linking
+  external_linking_enabled: boolean;
+  min_external_links: number;
+  max_external_links: number;
+  preferred_citation_sources: string[];
+  // SEO Settings
+  seo_meta_auto_generate: boolean;
+  structured_data_enabled: boolean;
+  freshness_signals_enabled: boolean;
+  // GEO Features
+  answer_first_format: boolean;
+  expert_quotes_enabled: boolean;
+  statistics_citations_enabled: boolean;
 }
+
+const DEFAULT_SETTINGS: ContentSettings = {
+  min_geo_score_publish: 80,
+  brand_name: 'Contabilidade Zona Sul',
+  brand_authority_keywords: [],
+  target_personas: ['médicos', 'dentistas', 'psicólogos'],
+  brand_statistics: [],
+  ai_tone: 'profissional e educativo',
+  ai_custom_instructions: '',
+  reading_level: 'intermediário',
+  content_length_min: 1500,
+  content_length_max: 3000,
+  auto_generate_faq: true,
+  faq_count: 5,
+  internal_linking_enabled: true,
+  min_internal_links: 3,
+  max_internal_links: 7,
+  external_linking_enabled: true,
+  min_external_links: 2,
+  max_external_links: 5,
+  preferred_citation_sources: ['gov.br', 'planalto.gov.br', 'receita.fazenda.gov.br', 'cfc.org.br'],
+  seo_meta_auto_generate: true,
+  structured_data_enabled: true,
+  freshness_signals_enabled: true,
+  answer_first_format: true,
+  expert_quotes_enabled: true,
+  statistics_citations_enabled: true,
+};
 
 // Função para calcular GEO Score
 function calculateGEOScore(
@@ -58,36 +121,55 @@ function calculateGEOScore(
   expertQuotes: ExpertQuote[],
   statistics: Statistic[],
   faqSchema: FAQItem[],
-  authorityCitations: string[]
+  authorityCitations: string[],
+  internalLinks: number,
+  settings: ContentSettings
 ): number {
   let score = 0;
 
   // Answer-First (20 pontos) - Verifica se responde nas primeiras 50 palavras
-  const firstParagraph = content.split('\n\n')[0] || '';
-  const firstWords = firstParagraph.split(/\s+/).slice(0, 50).join(' ');
-  const hasAnswerFirst = firstWords.length > 100 && !firstWords.includes('Neste artigo') && !firstWords.includes('Vamos explorar');
-  if (hasAnswerFirst) score += 20;
+  if (settings.answer_first_format) {
+    const firstParagraph = content.split('\n\n')[0] || '';
+    const firstWords = firstParagraph.split(/\s+/).slice(0, 50).join(' ');
+    const hasAnswerFirst = firstWords.length > 100 && !firstWords.includes('Neste artigo') && !firstWords.includes('Vamos explorar');
+    if (hasAnswerFirst) score += 20;
+  }
 
   // Estatísticas (20 pontos, 4 pontos cada até 5)
-  score += Math.min(statistics.length * 4, 20);
+  if (settings.statistics_citations_enabled) {
+    score += Math.min(statistics.length * 4, 20);
+  }
 
   // Citações de Especialistas (20 pontos, 5 pontos cada até 4)
-  score += Math.min(expertQuotes.length * 5, 20);
+  if (settings.expert_quotes_enabled) {
+    score += Math.min(expertQuotes.length * 5, 20);
+  }
 
   // FAQ com Schema (15 pontos)
-  if (faqSchema && faqSchema.length >= 5) score += 15;
-  else if (faqSchema && faqSchema.length >= 3) score += 10;
+  if (settings.auto_generate_faq && faqSchema) {
+    if (faqSchema.length >= 5) score += 15;
+    else if (faqSchema.length >= 3) score += 10;
+  }
 
   // Fontes Autoritativas (15 pontos)
-  const authorityDomains = ['gov.br', 'cfc.org', 'cfm.org', 'cro.org', 'crp.org', 'receita.fazenda'];
-  const authoritySources = authorityCitations.filter(c => 
-    authorityDomains.some(domain => c.toLowerCase().includes(domain))
-  );
-  score += Math.min(authoritySources.length * 3, 15);
+  if (settings.external_linking_enabled) {
+    const authorityDomains = ['gov.br', 'cfc.org', 'cfm.org', 'cro.org', 'crp.org', 'receita.fazenda'];
+    const authoritySources = authorityCitations.filter(c => 
+      authorityDomains.some(domain => c.toLowerCase().includes(domain))
+    );
+    score += Math.min(authoritySources.length * 3, 15);
+  }
 
-  // Freshness - menção a 2025 ou data atual (10 pontos)
-  const currentYear = new Date().getFullYear().toString();
-  if (content.includes(currentYear) || content.toLowerCase().includes('atualizado')) score += 10;
+  // Links Internos (5 pontos extras)
+  if (settings.internal_linking_enabled && internalLinks >= settings.min_internal_links) {
+    score += 5;
+  }
+
+  // Freshness - menção a 2025 ou data atual (5 pontos)
+  if (settings.freshness_signals_enabled) {
+    const currentYear = new Date().getFullYear().toString();
+    if (content.includes(currentYear) || content.toLowerCase().includes('atualizado')) score += 5;
+  }
 
   return Math.min(score, 100);
 }
@@ -108,12 +190,71 @@ function generateFAQSchema(faqs: FAQItem[]): object {
   };
 }
 
+// Buscar posts existentes para links internos
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fetchExistingPosts(
+  supabase: any,
+  category: string,
+  limit: number
+): Promise<BlogPost[]> {
+  const { data: posts } = await supabase
+    .from('blog_posts')
+    .select('id, title, slug, content, category')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+    .limit(limit * 2);
+  
+  return (posts as BlogPost[]) || [];
+}
+
+// Gerar links internos relevantes
+function generateInternalLinks(
+  existingPosts: BlogPost[],
+  topic: string,
+  minLinks: number,
+  maxLinks: number
+): { markdown: string; count: number } {
+  if (existingPosts.length === 0) {
+    return { markdown: '', count: 0 };
+  }
+
+  // Selecionar posts relacionados (simplificado - por categoria ou keywords)
+  const topicWords = topic.toLowerCase().split(/\s+/);
+  const relevantPosts = existingPosts
+    .filter(post => {
+      const postWords = post.title.toLowerCase();
+      return topicWords.some(word => postWords.includes(word));
+    })
+    .slice(0, maxLinks);
+
+  // Se não encontrou posts relacionados, pegar os mais recentes
+  const postsToLink = relevantPosts.length >= minLinks 
+    ? relevantPosts 
+    : existingPosts.slice(0, minLinks);
+
+  if (postsToLink.length === 0) {
+    return { markdown: '', count: 0 };
+  }
+
+  const links = postsToLink.map(post => 
+    `- [${post.title}](/blog/${post.slug})`
+  ).join('\n');
+
+  return {
+    markdown: `\n\n---\n\n## Leia Também\n\n${links}`,
+    count: postsToLink.length
+  };
+}
+
 // Buscar citações de especialistas via Perplexity
 async function fetchExpertQuotes(
   topic: string,
   personas: string[],
-  apiKey: string
+  apiKey: string,
+  enabled: boolean
 ): Promise<ExpertQuote[]> {
+  if (!enabled) return [];
+  
   console.log('Fetching expert quotes for:', topic);
   
   try {
@@ -170,8 +311,12 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
 // Buscar estatísticas atualizadas via Perplexity
 async function fetchStatistics(
   topic: string,
-  apiKey: string
+  apiKey: string,
+  enabled: boolean,
+  preferredSources: string[]
 ): Promise<Statistic[]> {
+  if (!enabled) return [];
+  
   console.log('Fetching statistics for:', topic);
   
   try {
@@ -203,7 +348,7 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
 }`
         }],
         search_recency_filter: 'year',
-        search_domain_filter: ['gov.br', 'ibge.gov.br', 'cfm.org.br', 'cfc.org.br']
+        search_domain_filter: preferredSources.length > 0 ? preferredSources : undefined
       }),
     });
 
@@ -238,16 +383,65 @@ interface ParsedContent {
   faqs: FAQItem[];
 }
 
+// Construir prompt do sistema baseado nas configurações
+function buildSystemPrompt(settings: ContentSettings): string {
+  const currentDate = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  
+  let prompt = `Você é um especialista em contabilidade para profissionais de saúde no Brasil.
+Escreva conteúdo otimizado para GEO (Generative Engine Optimization) - ou seja, conteúdo que será citado por ChatGPT, Perplexity, Google AI.
+
+TOM DE VOZ: ${settings.ai_tone}
+NÍVEL DE LEITURA: ${settings.reading_level}
+TAMANHO: Entre ${settings.content_length_min} e ${settings.content_length_max} palavras.
+
+REGRAS OBRIGATÓRIAS:`;
+
+  if (settings.answer_first_format) {
+    prompt += `
+1. ANSWER-FIRST: Comece DIRETAMENTE com a resposta principal nas primeiras 50 palavras. NÃO use "Neste artigo vamos explorar..." ou introduções genéricas.`;
+  }
+
+  if (settings.statistics_citations_enabled) {
+    prompt += `
+2. Use dados quantitativos com fontes sempre que possível.`;
+  }
+
+  if (settings.expert_quotes_enabled) {
+    prompt += `
+3. Inclua citações de especialistas formatadas como blockquotes.`;
+  }
+
+  if (settings.auto_generate_faq) {
+    prompt += `
+4. Termine com seção FAQ de ${settings.faq_count} perguntas frequentes.`;
+  }
+
+  if (settings.freshness_signals_enabled) {
+    prompt += `
+5. Adicione rodapé com "Última atualização: ${currentDate}" e "Revisado por: Equipe ${settings.brand_name}".`;
+  }
+
+  if (settings.ai_custom_instructions) {
+    prompt += `
+
+INSTRUÇÕES ADICIONAIS:
+${settings.ai_custom_instructions}`;
+  }
+
+  return prompt;
+}
+
 // Gerar conteúdo otimizado para GEO
 async function generateGEOContent(
   topic: string,
   category: string,
   expertQuotes: ExpertQuote[],
   statistics: Statistic[],
-  brandName: string,
+  settings: ContentSettings,
   apiKey: string
 ): Promise<{ parsedContent: ParsedContent; faqs: FAQItem[]; citations: string[] }> {
   console.log('Generating GEO-optimized content for:', topic);
+  console.log('Using settings - Tone:', settings.ai_tone, '| Reading level:', settings.reading_level);
   
   // Formatar estatísticas para o prompt
   const statsText = statistics.length > 0 
@@ -259,7 +453,7 @@ async function generateGEOContent(
     ? expertQuotes.map(q => `- "${q.quote}" — ${q.author}, ${q.title}`).join('\n')
     : '';
 
-  const currentDate = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  const systemPrompt = buildSystemPrompt(settings);
 
   const response = await fetch('https://api.perplexity.ai/chat/completions', {
     method: 'POST',
@@ -272,15 +466,7 @@ async function generateGEOContent(
       messages: [
         {
           role: 'system',
-          content: `Você é um especialista em contabilidade para profissionais de saúde no Brasil.
-Escreva conteúdo otimizado para GEO (Generative Engine Optimization) - ou seja, conteúdo que será citado por ChatGPT, Perplexity, Google AI.
-
-REGRAS OBRIGATÓRIAS:
-1. ANSWER-FIRST: Comece DIRETAMENTE com a resposta principal nas primeiras 50 palavras. NÃO use "Neste artigo vamos explorar..." ou introduções genéricas.
-2. Use dados quantitativos com fontes sempre que possível.
-3. Inclua citações de especialistas formatadas como blockquotes.
-4. Termine com seção FAQ de 5-7 perguntas frequentes.
-5. Adicione rodapé com "Última atualização: ${currentDate}" e "Revisado por: Equipe ${brandName}".`
+          content: systemPrompt
         },
         {
           role: 'user',
@@ -304,14 +490,9 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown code blocks):
 }`
         }
       ],
-      search_domain_filter: [
-        'gov.br',
-        'receita.fazenda.gov.br',
-        'cfc.org.br',
-        'cfm.org.br',
-        'contabeis.com.br',
-        'planalto.gov.br'
-      ],
+      search_domain_filter: settings.preferred_citation_sources.length > 0 
+        ? settings.preferred_citation_sources 
+        : ['gov.br', 'receita.fazenda.gov.br', 'cfc.org.br', 'cfm.org.br', 'contabeis.com.br', 'planalto.gov.br'],
       search_recency_filter: 'year',
     }),
   });
@@ -327,6 +508,12 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown code blocks):
   try {
     const cleanContent = rawContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const parsed = JSON.parse(cleanContent);
+    
+    // Limitar FAQs ao número configurado
+    const limitedFaqs = settings.auto_generate_faq 
+      ? (parsed.faqs || []).slice(0, settings.faq_count)
+      : [];
+    
     return {
       parsedContent: {
         title: parsed.title || topic,
@@ -334,10 +521,12 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown code blocks):
         content: parsed.content || rawContent,
         meta_description: parsed.meta_description || rawContent.substring(0, 160),
         meta_keywords: parsed.meta_keywords || [category.toLowerCase()],
-        faqs: parsed.faqs || []
+        faqs: limitedFaqs
       },
-      faqs: parsed.faqs || [],
-      citations
+      faqs: limitedFaqs,
+      citations: settings.external_linking_enabled 
+        ? citations.slice(0, settings.max_external_links)
+        : []
     };
   } catch {
     return {
@@ -350,7 +539,7 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown code blocks):
         faqs: []
       },
       faqs: [],
-      citations
+      citations: []
     };
   }
 }
@@ -375,27 +564,33 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Buscar configurações GEO
-    const { data: geoSettings } = await supabase
+    // Buscar configurações completas
+    const { data: geoSettingsData } = await supabase
       .from('geo_settings')
       .select('*')
       .limit(1)
       .single();
 
-    const settings: GEOSettings = geoSettings || {
-      min_geo_score_publish: 80,
-      brand_name: 'Contabilidade Zona Sul',
-      brand_authority_keywords: [],
-      target_personas: ['médicos', 'dentistas', 'psicólogos'],
-      brand_statistics: []
+    const settings: ContentSettings = {
+      ...DEFAULT_SETTINGS,
+      ...(geoSettingsData || {})
     };
+
+    console.log('Loaded content settings:', {
+      ai_tone: settings.ai_tone,
+      reading_level: settings.reading_level,
+      auto_generate_faq: settings.auto_generate_faq,
+      faq_count: settings.faq_count,
+      internal_linking_enabled: settings.internal_linking_enabled,
+      external_linking_enabled: settings.external_linking_enabled,
+    });
 
     const body = await req.json().catch(() => ({}));
     const manualTopicId = body?.topic_id;
     const inlineMode = body?.inline === true;
     const inlineTopic = body?.topic;
     const inlineCategory = body?.category || 'Dicas';
-    const enableGEO = body?.enable_geo !== false; // GEO habilitado por padrão
+    const enableGEO = body?.enable_geo !== false;
 
     // INLINE MODE com GEO
     if (inlineMode && inlineTopic) {
@@ -405,13 +600,11 @@ serve(async (req) => {
       let statistics: Statistic[] = [];
 
       if (enableGEO) {
-        // Buscar citações e estatísticas em paralelo
         [expertQuotes, statistics] = await Promise.all([
-          fetchExpertQuotes(inlineTopic, settings.target_personas, PERPLEXITY_API_KEY),
-          fetchStatistics(inlineTopic, PERPLEXITY_API_KEY)
+          fetchExpertQuotes(inlineTopic, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled),
+          fetchStatistics(inlineTopic, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources)
         ]);
 
-        // Adicionar estatísticas da marca se houver
         if (settings.brand_statistics && settings.brand_statistics.length > 0) {
           statistics = [...settings.brand_statistics, ...statistics];
         }
@@ -422,15 +615,15 @@ serve(async (req) => {
         inlineCategory,
         expertQuotes,
         statistics,
-        settings.brand_name,
+        settings,
         PERPLEXITY_API_KEY
       );
 
-      // Montar conteúdo final com seção de fontes
+      // Montar conteúdo final
       let finalContent = parsedContent.content;
 
       // Adicionar seção FAQ formatada
-      if (faqs.length > 0) {
+      if (settings.auto_generate_faq && faqs.length > 0) {
         finalContent += '\n\n---\n\n## Perguntas Frequentes (FAQ)\n\n';
         faqs.forEach((faq: FAQItem) => {
           finalContent += `### ${faq.question}\n\n${faq.answer}\n\n`;
@@ -438,11 +631,27 @@ serve(async (req) => {
       }
 
       // Adicionar fontes
-      if (citations.length > 0) {
+      if (settings.external_linking_enabled && citations.length > 0) {
         finalContent += '\n\n---\n\n## Fontes e Referências\n\n';
         citations.forEach((citation, index) => {
           finalContent += `${index + 1}. ${citation}\n`;
         });
+      }
+
+      // Buscar e adicionar links internos
+      let internalLinksCount = 0;
+      if (settings.internal_linking_enabled) {
+        const existingPosts = await fetchExistingPosts(supabase, inlineCategory, settings.max_internal_links);
+        const internalLinks = generateInternalLinks(
+          existingPosts,
+          inlineTopic,
+          settings.min_internal_links,
+          settings.max_internal_links
+        );
+        if (internalLinks.markdown) {
+          finalContent += internalLinks.markdown;
+          internalLinksCount = internalLinks.count;
+        }
       }
 
       // Calcular GEO Score
@@ -451,10 +660,14 @@ serve(async (req) => {
         expertQuotes,
         statistics,
         faqs,
-        citations
+        citations,
+        internalLinksCount,
+        settings
       );
 
-      const faqSchema = faqs.length > 0 ? generateFAQSchema(faqs) : null;
+      const faqSchema = settings.structured_data_enabled && faqs.length > 0 
+        ? generateFAQSchema(faqs) 
+        : null;
 
       console.log(`Inline GEO generation successful. Score: ${geoScore}`);
 
@@ -471,7 +684,8 @@ serve(async (req) => {
           expert_quotes: expertQuotes,
           statistics,
           faq_schema: faqSchema,
-          answer_first_validated: geoScore >= 20
+          answer_first_validated: geoScore >= 20,
+          internal_links_count: internalLinksCount
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -510,6 +724,11 @@ serve(async (req) => {
 
     console.log(`Processing ${topics.length} topic(s) with GEO optimization`);
 
+    // Buscar posts existentes uma vez para links internos
+    const existingPosts = settings.internal_linking_enabled 
+      ? await fetchExistingPosts(supabase, '', settings.max_internal_links * 2)
+      : [];
+
     const results: Array<{ 
       topicId: string; 
       success: boolean; 
@@ -532,8 +751,8 @@ serve(async (req) => {
 
         // Buscar citações e estatísticas em paralelo
         const [expertQuotes, statistics] = await Promise.all([
-          fetchExpertQuotes(searchQuery, settings.target_personas, PERPLEXITY_API_KEY),
-          fetchStatistics(searchQuery, PERPLEXITY_API_KEY)
+          fetchExpertQuotes(searchQuery, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled),
+          fetchStatistics(searchQuery, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources)
         ]);
 
         // Adicionar estatísticas da marca
@@ -547,25 +766,40 @@ serve(async (req) => {
           topic.category,
           expertQuotes,
           allStatistics,
-          settings.brand_name,
+          settings,
           PERPLEXITY_API_KEY
         );
 
         // Montar conteúdo final
         let finalContent = parsedContent.content;
 
-        if (faqs.length > 0) {
+        if (settings.auto_generate_faq && faqs.length > 0) {
           finalContent += '\n\n---\n\n## Perguntas Frequentes (FAQ)\n\n';
           faqs.forEach((faq: FAQItem) => {
             finalContent += `### ${faq.question}\n\n${faq.answer}\n\n`;
           });
         }
 
-        if (citations.length > 0) {
+        if (settings.external_linking_enabled && citations.length > 0) {
           finalContent += '\n\n---\n\n## Fontes e Referências\n\n';
           citations.forEach((citation, index) => {
             finalContent += `${index + 1}. ${citation}\n`;
           });
+        }
+
+        // Adicionar links internos
+        let internalLinksCount = 0;
+        if (settings.internal_linking_enabled && existingPosts.length > 0) {
+          const internalLinks = generateInternalLinks(
+            existingPosts,
+            topic.topic,
+            settings.min_internal_links,
+            settings.max_internal_links
+          );
+          if (internalLinks.markdown) {
+            finalContent += internalLinks.markdown;
+            internalLinksCount = internalLinks.count;
+          }
         }
 
         // Calcular GEO Score
@@ -574,10 +808,14 @@ serve(async (req) => {
           expertQuotes,
           allStatistics,
           faqs,
-          citations
+          citations,
+          internalLinksCount,
+          settings
         );
 
-        const faqSchema = faqs.length > 0 ? generateFAQSchema(faqs) : null;
+        const faqSchema = settings.structured_data_enabled && faqs.length > 0 
+          ? generateFAQSchema(faqs) 
+          : null;
 
         // Determinar se deve auto-publicar
         const shouldAutoPublish = geoScore >= settings.min_geo_score_publish;

@@ -6,13 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, CalendarDays, Sparkles } from 'lucide-react';
+import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenTool } from 'lucide-react';
 import logoFull from '@/assets/logo-full.png';
 import { UserRolesManager } from '@/components/admin/UserRolesManager';
 import { CRMPage } from '@/components/crm/CRMPage';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
-import { EditorialManager } from '@/components/admin/editorial/EditorialManager';
-import { GEOManager } from '@/components/admin/geo/GEOManager';
+import { ContentStudio } from '@/components/admin/ContentStudio';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -121,15 +120,9 @@ export default function Admin() {
                 </TabsTrigger>
               )}
               {isAdmin() && (
-                <TabsTrigger value="editorial" className="gap-2">
-                  <CalendarDays className="h-4 w-4" />
-                  Editorial
-                </TabsTrigger>
-              )}
-              {isAdmin() && (
-                <TabsTrigger value="geo" className="gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  GEO
+                <TabsTrigger value="content" className="gap-2">
+                  <PenTool className="h-4 w-4" />
+                  Conteúdo
                 </TabsTrigger>
               )}
               {canViewLeads() && (
@@ -153,14 +146,8 @@ export default function Admin() {
             )}
 
             {isAdmin() && (
-              <TabsContent value="editorial">
-                <EditorialManager />
-              </TabsContent>
-            )}
-
-            {isAdmin() && (
-              <TabsContent value="geo">
-                <GEOManager />
+              <TabsContent value="content">
+                <ContentStudio />
               </TabsContent>
             )}
 

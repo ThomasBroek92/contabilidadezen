@@ -1,12 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BarChart2, FileSearch, Code, Award, Globe, Sparkles } from 'lucide-react';
+import { BarChart2, FileSearch, Code, Award, Globe, Sparkles, Zap } from 'lucide-react';
 import { CitationDashboard } from './CitationDashboard';
 import { ContentAuditor } from './ContentAuditor';
 import { SchemaGenerator } from './SchemaGenerator';
 import { AuthorityOptimizer } from './AuthorityOptimizer';
 import { AIBrowserSimulator } from './AIBrowserSimulator';
+import { BlogGEODashboard } from './BlogGEODashboard';
 
 export function GEOManager() {
   return (
@@ -48,8 +49,12 @@ export function GEOManager() {
       </Card>
 
       {/* Main Tabs */}
-      <Tabs defaultValue="citations" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+      <Tabs defaultValue="unified" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="unified" className="gap-2">
+            <Zap className="h-4 w-4" />
+            <span className="hidden md:inline">Blog + GEO</span>
+          </TabsTrigger>
           <TabsTrigger value="citations" className="gap-2">
             <BarChart2 className="h-4 w-4" />
             <span className="hidden md:inline">Citações</span>
@@ -71,6 +76,10 @@ export function GEOManager() {
             <span className="hidden md:inline">Simulador</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="unified">
+          <BlogGEODashboard />
+        </TabsContent>
 
         <TabsContent value="citations">
           <CitationDashboard />

@@ -5,14 +5,35 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, Loader2 } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, Loader2, Quote, BarChart2, ExternalLink, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
 
-interface BlogPost {
+interface ExpertQuote {
+  quote: string;
+  author: string;
+  title: string;
+  source_url?: string;
+}
+
+interface Statistic {
+  value: string;
+  description: string;
+  source: string;
+  source_url?: string;
+  year?: string;
+}
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface BlogPostData {
   id: string;
   title: string;
   slug: string;
@@ -27,6 +48,12 @@ interface BlogPost {
   meta_keywords: string[] | null;
   read_time_minutes: number | null;
   created_at: string;
+  geo_score: number | null;
+  expert_quotes: ExpertQuote[] | null;
+  statistics: Statistic[] | null;
+  authority_citations: string[] | null;
+  faq_schema: { mainEntity: FAQItem[] } | null;
+  freshness_date: string | null;
 }
 
 interface RelatedPost {
@@ -42,7 +69,7 @@ export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [post, setPost] = useState<BlogPostData | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +95,7 @@ export default function BlogPost() {
         return;
       }
 
-      setPost(data as BlogPost);
+      setPost(data as unknown as BlogPostData);
 
       // Fetch related posts
       const { data: related } = await supabase
@@ -107,28 +134,31 @@ export default function BlogPost() {
     }
   };
 
-  // Generate JSON-LD structured data for SEO
+  // Generate JSON-LD structured data for SEO (Article + FAQPage)
   const generateStructuredData = () => {
     if (!post) return null;
 
-    return {
+    const schemas: object[] = [];
+
+    // Article Schema
+    schemas.push({
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
       headline: post.title,
       description: post.meta_description || post.excerpt || post.title,
       datePublished: post.published_at || post.created_at,
-      dateModified: post.published_at || post.created_at,
+      dateModified: post.freshness_date || post.published_at || post.created_at,
       author: {
         '@type': 'Organization',
-        name: 'Contabilidade Zen',
-        url: 'https://contabilidadezen.com.br',
+        name: 'Contabilidade Zona Sul',
+        url: 'https://contabilidadezonasul.com.br',
       },
       publisher: {
         '@type': 'Organization',
-        name: 'Contabilidade Zen',
+        name: 'Contabilidade Zona Sul',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://contabilidadezen.com.br/logo.png',
+          url: 'https://contabilidadezonasul.com.br/logo.png',
         },
       },
       mainEntityOfPage: {
@@ -139,7 +169,25 @@ export default function BlogPost() {
       articleSection: post.category,
       wordCount: post.content.split(/\s+/).length,
       timeRequired: `PT${post.read_time_minutes || 5}M`,
-    };
+    });
+
+    // FAQPage Schema (if FAQ data exists)
+    if (post.faq_schema?.mainEntity && post.faq_schema.mainEntity.length > 0) {
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: post.faq_schema.mainEntity.map((item: FAQItem) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer,
+          },
+        })),
+      });
+    }
+
+    return schemas;
   };
 
   if (loading) {
@@ -155,11 +203,14 @@ export default function BlogPost() {
   }
 
   const structuredData = generateStructuredData();
+  const expertQuotes = post.expert_quotes || [];
+  const statistics = post.statistics || [];
+  const authorityCitations = post.authority_citations || [];
 
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>{post.meta_title || post.title} | Blog Contabilidade Zen</title>
+        <title>{post.meta_title || post.title} | Blog Contabilidade Zona Sul</title>
         <meta name="description" content={post.meta_description || post.excerpt || post.title} />
         {post.meta_keywords && (
           <meta name="keywords" content={post.meta_keywords.join(', ')} />
@@ -169,16 +220,17 @@ export default function BlogPost() {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={window.location.href} />
         <meta property="article:published_time" content={post.published_at || post.created_at} />
+        <meta property="article:modified_time" content={post.freshness_date || post.published_at || post.created_at} />
         <meta property="article:section" content={post.category} />
         {post.meta_keywords?.map((keyword, i) => (
           <meta key={i} property="article:tag" content={keyword} />
         ))}
         <link rel="canonical" href={window.location.href} />
-        {structuredData && (
-          <script type="application/ld+json">
-            {JSON.stringify(structuredData)}
+        {structuredData && structuredData.map((schema, i) => (
+          <script key={i} type="application/ld+json">
+            {JSON.stringify(schema)}
           </script>
-        )}
+        ))}
       </Helmet>
 
       <Header />
@@ -221,6 +273,12 @@ export default function BlogPost() {
                 <Clock className="h-4 w-4" />
                 {post.read_time_minutes || 5} min de leitura
               </span>
+              {post.geo_score && post.geo_score >= 80 && (
+                <Badge variant="outline" className="gap-1 text-green-600 border-green-500/30">
+                  <BarChart2 className="h-3 w-3" />
+                  GEO {post.geo_score}
+                </Badge>
+              )}
             </div>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
@@ -239,6 +297,12 @@ export default function BlogPost() {
                   <Calendar className="h-4 w-4" />
                   {format(new Date(post.published_at || post.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                 </span>
+                {post.freshness_date && (
+                  <span className="flex items-center gap-2 text-primary">
+                    <RefreshCw className="h-4 w-4" />
+                    Atualizado em {format(new Date(post.freshness_date), "MMMM 'de' yyyy", { locale: ptBR })}
+                  </span>
+                )}
               </div>
 
               <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
@@ -249,10 +313,100 @@ export default function BlogPost() {
           </div>
         </header>
 
+        {/* Key Statistics Highlight (GEO-friendly) */}
+        {statistics.length > 0 && (
+          <section className="py-8 bg-primary/5 border-y border-primary/10">
+            <div className="container mx-auto px-4 max-w-4xl">
+              <h2 className="text-sm font-semibold text-primary mb-4 flex items-center gap-2">
+                <BarChart2 className="h-4 w-4" />
+                Dados em Destaque
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {statistics.slice(0, 3).map((stat, index) => (
+                  <Card key={index} className="bg-background/50 border-primary/20">
+                    <CardContent className="pt-4">
+                      <p className="text-2xl font-bold text-primary">{stat.value}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{stat.description}</p>
+                      <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                        <ExternalLink className="h-3 w-3" />
+                        {stat.source} {stat.year && `(${stat.year})`}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Article Content */}
         <article className="py-12 lg:py-16">
           <div className="container mx-auto px-4 max-w-4xl">
             <MarkdownRenderer content={post.content} />
+
+            {/* Expert Quotes Section (GEO-friendly) */}
+            {expertQuotes.length > 0 && (
+              <div className="mt-12 pt-8 border-t border-border">
+                <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+                  <Quote className="h-5 w-5 text-primary" />
+                  O que dizem os especialistas
+                </h3>
+                <div className="space-y-6">
+                  {expertQuotes.map((quote, index) => (
+                    <blockquote 
+                      key={index}
+                      className="border-l-4 border-primary pl-6 py-4 bg-muted/30 rounded-r-lg"
+                      itemScope 
+                      itemType="https://schema.org/Quotation"
+                    >
+                      <p 
+                        className="text-lg italic text-foreground mb-3"
+                        itemProp="text"
+                      >
+                        "{quote.quote}"
+                      </p>
+                      <footer className="flex items-center gap-2">
+                        <cite 
+                          className="text-sm font-medium text-foreground not-italic"
+                          itemProp="author"
+                          itemScope
+                          itemType="https://schema.org/Person"
+                        >
+                          <span itemProp="name">{quote.author}</span>
+                        </cite>
+                        <span className="text-muted-foreground">—</span>
+                        <span className="text-sm text-muted-foreground">{quote.title}</span>
+                      </footer>
+                    </blockquote>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sources Section (GEO-friendly) */}
+            {authorityCitations.length > 0 && (
+              <div className="mt-12 pt-8 border-t border-border">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
+                  <ExternalLink className="h-4 w-4" />
+                  Fontes e Referências
+                </h3>
+                <ul className="space-y-2 text-sm">
+                  {authorityCitations.map((citation, index) => (
+                    <li key={index} className="text-muted-foreground hover:text-foreground transition-colors">
+                      <a 
+                        href={citation} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-start gap-2"
+                      >
+                        <span className="text-primary">{index + 1}.</span>
+                        <span className="break-all">{citation}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Tags */}
             {post.meta_keywords && post.meta_keywords.length > 0 && (
@@ -267,6 +421,17 @@ export default function BlogPost() {
                 </div>
               </div>
             )}
+
+            {/* Freshness Footer (GEO-friendly) */}
+            <div className="mt-12 pt-8 border-t border-border text-center">
+              <p className="text-sm text-muted-foreground">
+                <strong>Última atualização:</strong>{' '}
+                {format(new Date(post.freshness_date || post.published_at || post.created_at), "MMMM 'de' yyyy", { locale: ptBR })}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Revisado por: <strong>Equipe Contabilidade Zona Sul</strong>
+              </p>
+            </div>
           </div>
         </article>
 

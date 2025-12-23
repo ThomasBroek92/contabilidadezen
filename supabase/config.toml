@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.suggest-geo-topics]
 verify_jwt = false
+
+[functions.execute-recurring-schedules]
+verify_jwt = false

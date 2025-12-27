@@ -56,6 +56,12 @@ interface ContentSettings {
   answer_first_format: boolean;
   expert_quotes_enabled: boolean;
   statistics_citations_enabled: boolean;
+  // Expert Quote Settings
+  auto_expert_quotes_enabled: boolean;
+  expert_name: string;
+  expert_title: string;
+  expert_company: string;
+  expert_bio: string;
   // Content Quality
   content_length_min: number;
   content_length_max: number;
@@ -131,6 +137,11 @@ export function ContentSettingsTab() {
         answer_first_format: settings.answer_first_format,
         expert_quotes_enabled: settings.expert_quotes_enabled,
         statistics_citations_enabled: settings.statistics_citations_enabled,
+        auto_expert_quotes_enabled: settings.auto_expert_quotes_enabled,
+        expert_name: settings.expert_name,
+        expert_title: settings.expert_title,
+        expert_company: settings.expert_company,
+        expert_bio: settings.expert_bio,
         content_length_min: settings.content_length_min,
         content_length_max: settings.content_length_max,
         reading_level: settings.reading_level,
@@ -517,15 +528,81 @@ export function ContentSettingsTab() {
               <div className="space-y-0.5">
                 <Label className="flex items-center gap-2">
                   <Quote className="h-4 w-4" />
-                  Citações de Especialistas
+                  Citações de Especialistas Externos
                 </Label>
-                <p className="text-xs text-muted-foreground">Inclui citações de especialistas no conteúdo</p>
+                <p className="text-xs text-muted-foreground">Busca citações de especialistas via pesquisa</p>
               </div>
               <Switch
                 checked={settings.expert_quotes_enabled ?? true}
                 onCheckedChange={(v) => updateSetting('expert_quotes_enabled', v)}
               />
             </div>
+
+            <Separator />
+
+            {/* Auto Expert Quotes Section */}
+            <div className="space-y-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="flex items-center gap-2">
+                    <Quote className="h-4 w-4 text-primary" />
+                    Citações do Especialista Interno
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Gera automaticamente citações do contador especialista da empresa
+                  </p>
+                </div>
+                <Switch
+                  checked={settings.auto_expert_quotes_enabled ?? true}
+                  onCheckedChange={(v) => updateSetting('auto_expert_quotes_enabled', v)}
+                />
+              </div>
+
+              {settings.auto_expert_quotes_enabled && (
+                <div className="space-y-4 pt-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Nome do Especialista</Label>
+                      <Input
+                        value={settings.expert_name || ''}
+                        onChange={(e) => updateSetting('expert_name', e.target.value)}
+                        placeholder="Ex: Thomas Broek"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Cargo/Título</Label>
+                      <Input
+                        value={settings.expert_title || ''}
+                        onChange={(e) => updateSetting('expert_title', e.target.value)}
+                        placeholder="Ex: Contador Especialista"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Empresa</Label>
+                    <Input
+                      value={settings.expert_company || ''}
+                      onChange={(e) => updateSetting('expert_company', e.target.value)}
+                      placeholder="Ex: Contabilidade Zen"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Biografia/Credenciais</Label>
+                    <Textarea
+                      value={settings.expert_bio || ''}
+                      onChange={(e) => updateSetting('expert_bio', e.target.value)}
+                      placeholder="Ex: Contador especializado em tributação para profissionais da saúde, com mais de 15 anos de experiência..."
+                      className="min-h-[80px]"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Essas credenciais serão usadas para gerar citações contextuais e relevantes
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Separator />
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">

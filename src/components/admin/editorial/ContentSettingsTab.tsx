@@ -62,6 +62,10 @@ interface ContentSettings {
   expert_title: string;
   expert_company: string;
   expert_bio: string;
+  // External Citation Filters
+  exclude_competitor_quotes: boolean;
+  excluded_citation_keywords: string[];
+  allowed_external_sources: string[];
   // Content Quality
   content_length_min: number;
   content_length_max: number;
@@ -94,6 +98,8 @@ export function ContentSettingsTab() {
   const [newSource, setNewSource] = useState('');
   const [newPersona, setNewPersona] = useState('');
   const [newKeyword, setNewKeyword] = useState('');
+  const [newExcludedKeyword, setNewExcludedKeyword] = useState('');
+  const [newAllowedSource, setNewAllowedSource] = useState('');
 
   useEffect(() => {
     fetchSettings();
@@ -142,6 +148,9 @@ export function ContentSettingsTab() {
         expert_title: settings.expert_title,
         expert_company: settings.expert_company,
         expert_bio: settings.expert_bio,
+        exclude_competitor_quotes: settings.exclude_competitor_quotes,
+        excluded_citation_keywords: settings.excluded_citation_keywords,
+        allowed_external_sources: settings.allowed_external_sources,
         content_length_min: settings.content_length_min,
         content_length_max: settings.content_length_max,
         reading_level: settings.reading_level,
@@ -166,7 +175,7 @@ export function ContentSettingsTab() {
     }
   };
 
-  const addToArray = (key: 'preferred_citation_sources' | 'target_personas' | 'brand_authority_keywords', value: string) => {
+  const addToArray = (key: 'preferred_citation_sources' | 'target_personas' | 'brand_authority_keywords' | 'excluded_citation_keywords' | 'allowed_external_sources', value: string) => {
     if (settings && value.trim()) {
       const currentArray = settings[key] || [];
       if (!currentArray.includes(value.trim())) {
@@ -175,7 +184,7 @@ export function ContentSettingsTab() {
     }
   };
 
-  const removeFromArray = (key: 'preferred_citation_sources' | 'target_personas' | 'brand_authority_keywords', value: string) => {
+  const removeFromArray = (key: 'preferred_citation_sources' | 'target_personas' | 'brand_authority_keywords' | 'excluded_citation_keywords' | 'allowed_external_sources', value: string) => {
     if (settings) {
       updateSetting(key, (settings[key] || []).filter(item => item !== value));
     }
@@ -537,6 +546,105 @@ export function ContentSettingsTab() {
                 onCheckedChange={(v) => updateSetting('expert_quotes_enabled', v)}
               />
             </div>
+
+            {settings.expert_quotes_enabled && (
+              <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Excluir Concorrentes</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Bloqueia citações de outros contadores e contabilidades
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings.exclude_competitor_quotes ?? true}
+                    onCheckedChange={(v) => updateSetting('exclude_competitor_quotes', v)}
+                  />
+                </div>
+
+                {settings.exclude_competitor_quotes && (
+                  <div className="space-y-2">
+                    <Label>Palavras-chave Bloqueadas</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newExcludedKeyword}
+                        onChange={(e) => setNewExcludedKeyword(e.target.value)}
+                        placeholder="Ex: contabilidade online"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            addToArray('excluded_citation_keywords', newExcludedKeyword);
+                            setNewExcludedKeyword('');
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          addToArray('excluded_citation_keywords', newExcludedKeyword);
+                          setNewExcludedKeyword('');
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {(settings.excluded_citation_keywords || []).map((keyword) => (
+                        <Badge key={keyword} variant="destructive" className="gap-1">
+                          {keyword}
+                          <button onClick={() => removeFromArray('excluded_citation_keywords', keyword)}>
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Citações contendo essas palavras serão ignoradas
+                    </p>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label>Fontes Externas Permitidas</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={newAllowedSource}
+                      onChange={(e) => setNewAllowedSource(e.target.value)}
+                      placeholder="Ex: crefito.org.br"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          addToArray('allowed_external_sources', newAllowedSource);
+                          setNewAllowedSource('');
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        addToArray('allowed_external_sources', newAllowedSource);
+                        setNewAllowedSource('');
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {(settings.allowed_external_sources || []).map((source) => (
+                      <Badge key={source} variant="secondary" className="gap-1">
+                        {source}
+                        <button onClick={() => removeFromArray('allowed_external_sources', source)}>
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Apenas fontes governamentais e órgãos de classe (gov.br, CFC, CFM, CRO, CRP, CREFITO, etc.)
+                  </p>
+                </div>
+              </div>
+            )}
 
             <Separator />
 

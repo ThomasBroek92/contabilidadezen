@@ -256,6 +256,7 @@ export type Database = {
         Row: {
           ai_custom_instructions: string | null
           ai_tone: string | null
+          allowed_external_sources: string[] | null
           answer_first_format: boolean | null
           auto_expert_quotes_enabled: boolean | null
           auto_generate_faq: boolean | null
@@ -266,6 +267,8 @@ export type Database = {
           content_length_max: number | null
           content_length_min: number | null
           created_at: string | null
+          exclude_competitor_quotes: boolean | null
+          excluded_citation_keywords: string[] | null
           expert_bio: string | null
           expert_company: string | null
           expert_name: string | null
@@ -293,6 +296,7 @@ export type Database = {
         Insert: {
           ai_custom_instructions?: string | null
           ai_tone?: string | null
+          allowed_external_sources?: string[] | null
           answer_first_format?: boolean | null
           auto_expert_quotes_enabled?: boolean | null
           auto_generate_faq?: boolean | null
@@ -303,6 +307,8 @@ export type Database = {
           content_length_max?: number | null
           content_length_min?: number | null
           created_at?: string | null
+          exclude_competitor_quotes?: boolean | null
+          excluded_citation_keywords?: string[] | null
           expert_bio?: string | null
           expert_company?: string | null
           expert_name?: string | null
@@ -330,6 +336,7 @@ export type Database = {
         Update: {
           ai_custom_instructions?: string | null
           ai_tone?: string | null
+          allowed_external_sources?: string[] | null
           answer_first_format?: boolean | null
           auto_expert_quotes_enabled?: boolean | null
           auto_generate_faq?: boolean | null
@@ -340,6 +347,8 @@ export type Database = {
           content_length_max?: number | null
           content_length_min?: number | null
           created_at?: string | null
+          exclude_competitor_quotes?: boolean | null
+          excluded_citation_keywords?: string[] | null
           expert_bio?: string | null
           expert_company?: string | null
           expert_name?: string | null

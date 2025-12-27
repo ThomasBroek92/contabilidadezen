@@ -257,6 +257,7 @@ export type Database = {
           ai_custom_instructions: string | null
           ai_tone: string | null
           answer_first_format: boolean | null
+          auto_expert_quotes_enabled: boolean | null
           auto_generate_faq: boolean | null
           auto_suggest_frequency: string | null
           brand_authority_keywords: string[] | null
@@ -265,7 +266,11 @@ export type Database = {
           content_length_max: number | null
           content_length_min: number | null
           created_at: string | null
+          expert_bio: string | null
+          expert_company: string | null
+          expert_name: string | null
           expert_quotes_enabled: boolean | null
+          expert_title: string | null
           external_linking_enabled: boolean | null
           faq_count: number | null
           freshness_signals_enabled: boolean | null
@@ -289,6 +294,7 @@ export type Database = {
           ai_custom_instructions?: string | null
           ai_tone?: string | null
           answer_first_format?: boolean | null
+          auto_expert_quotes_enabled?: boolean | null
           auto_generate_faq?: boolean | null
           auto_suggest_frequency?: string | null
           brand_authority_keywords?: string[] | null
@@ -297,7 +303,11 @@ export type Database = {
           content_length_max?: number | null
           content_length_min?: number | null
           created_at?: string | null
+          expert_bio?: string | null
+          expert_company?: string | null
+          expert_name?: string | null
           expert_quotes_enabled?: boolean | null
+          expert_title?: string | null
           external_linking_enabled?: boolean | null
           faq_count?: number | null
           freshness_signals_enabled?: boolean | null
@@ -321,6 +331,7 @@ export type Database = {
           ai_custom_instructions?: string | null
           ai_tone?: string | null
           answer_first_format?: boolean | null
+          auto_expert_quotes_enabled?: boolean | null
           auto_generate_faq?: boolean | null
           auto_suggest_frequency?: string | null
           brand_authority_keywords?: string[] | null
@@ -329,7 +340,11 @@ export type Database = {
           content_length_max?: number | null
           content_length_min?: number | null
           created_at?: string | null
+          expert_bio?: string | null
+          expert_company?: string | null
+          expert_name?: string | null
           expert_quotes_enabled?: boolean | null
+          expert_title?: string | null
           external_linking_enabled?: boolean | null
           faq_count?: number | null
           freshness_signals_enabled?: boolean | null

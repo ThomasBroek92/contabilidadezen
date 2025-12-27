@@ -85,11 +85,17 @@ interface ContentSettings {
   answer_first_format: boolean;
   expert_quotes_enabled: boolean;
   statistics_citations_enabled: boolean;
+  // Expert Quote Settings
+  auto_expert_quotes_enabled: boolean;
+  expert_name: string;
+  expert_title: string;
+  expert_company: string;
+  expert_bio: string;
 }
 
 const DEFAULT_SETTINGS: ContentSettings = {
   min_geo_score_publish: 80,
-  brand_name: 'Contabilidade Zona Sul',
+  brand_name: 'Contabilidade Zen',
   brand_authority_keywords: [],
   target_personas: ['médicos', 'dentistas', 'psicólogos'],
   brand_statistics: [],
@@ -113,6 +119,11 @@ const DEFAULT_SETTINGS: ContentSettings = {
   answer_first_format: true,
   expert_quotes_enabled: true,
   statistics_citations_enabled: true,
+  auto_expert_quotes_enabled: true,
+  expert_name: 'Thomas Broek',
+  expert_title: 'Contador Especialista',
+  expert_company: 'Contabilidade Zen',
+  expert_bio: 'Contador especializado em tributação para profissionais da saúde, com mais de 15 anos de experiência em planejamento tributário e abertura de empresas para médicos, dentistas e psicólogos.',
 };
 
 // Função para calcular GEO Score
@@ -374,6 +385,80 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
   }
 }
 
+// Gerar citação automática do especialista interno
+async function generateInternalExpertQuote(
+  topic: string,
+  settings: ContentSettings,
+  apiKey: string
+): Promise<ExpertQuote | null> {
+  if (!settings.auto_expert_quotes_enabled) return null;
+  
+  console.log('Generating internal expert quote for:', topic);
+  console.log('Expert:', settings.expert_name, '-', settings.expert_title, 'at', settings.expert_company);
+  
+  try {
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'sonar',
+        messages: [{
+          role: 'system',
+          content: `Você é ${settings.expert_name}, ${settings.expert_title} da ${settings.expert_company}. 
+${settings.expert_bio}
+
+Sua tarefa é criar uma citação profissional e relevante sobre o tema solicitado. 
+A citação deve:
+- Ser prática e útil para profissionais da saúde
+- Demonstrar expertise e conhecimento técnico
+- Oferecer uma dica ou insight valioso
+- Ser concisa (2-3 frases)
+- Ter tom consultivo e empático`
+        }, {
+          role: 'user',
+          content: `Crie uma citação profissional sua sobre o tema: "${topic}"
+
+A citação deve trazer uma perspectiva prática ou dica valiosa baseada na sua experiência como contador especializado em profissionais da saúde.
+
+RETORNE APENAS JSON válido neste formato (sem markdown):
+{
+  "quote": "texto da citação aqui"
+}`
+        }],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Internal expert quote API error:', response.status);
+      return null;
+    }
+
+    const data: PerplexityResponse = await response.json();
+    const content = data.choices[0]?.message?.content || '';
+    
+    try {
+      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const parsed = JSON.parse(cleanContent);
+      
+      return {
+        quote: parsed.quote,
+        author: settings.expert_name,
+        title: `${settings.expert_title} - ${settings.expert_company}`,
+        source_url: ''
+      };
+    } catch {
+      console.error('Failed to parse internal expert quote JSON');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error generating internal expert quote:', error);
+    return null;
+  }
+}
+
 interface ParsedContent {
   title: string;
   excerpt: string;
@@ -600,10 +685,15 @@ serve(async (req) => {
       let statistics: Statistic[] = [];
 
       if (enableGEO) {
-        [expertQuotes, statistics] = await Promise.all([
+        const [externalQuotes, statsData, internalQuote] = await Promise.all([
           fetchExpertQuotes(inlineTopic, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled),
-          fetchStatistics(inlineTopic, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources)
+          fetchStatistics(inlineTopic, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources),
+          generateInternalExpertQuote(inlineTopic, settings, PERPLEXITY_API_KEY)
         ]);
+
+        // Priorizar citação do especialista interno
+        expertQuotes = internalQuote ? [internalQuote, ...externalQuotes] : externalQuotes;
+        statistics = statsData;
 
         if (settings.brand_statistics && settings.brand_statistics.length > 0) {
           statistics = [...settings.brand_statistics, ...statistics];
@@ -749,11 +839,15 @@ serve(async (req) => {
       try {
         const searchQuery = topic.search_query || topic.topic;
 
-        // Buscar citações e estatísticas em paralelo
-        const [expertQuotes, statistics] = await Promise.all([
+        // Buscar citações, estatísticas e citação interna em paralelo
+        const [externalQuotes, statistics, internalQuote] = await Promise.all([
           fetchExpertQuotes(searchQuery, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled),
-          fetchStatistics(searchQuery, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources)
+          fetchStatistics(searchQuery, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources),
+          generateInternalExpertQuote(searchQuery, settings, PERPLEXITY_API_KEY)
         ]);
+
+        // Priorizar citação do especialista interno
+        const expertQuotes = internalQuote ? [internalQuote, ...externalQuotes] : externalQuotes;
 
         // Adicionar estatísticas da marca
         const allStatistics = settings.brand_statistics 

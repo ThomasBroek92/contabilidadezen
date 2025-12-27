@@ -184,6 +184,74 @@ export type Database = {
           },
         ]
       }
+      cadence_steps: {
+        Row: {
+          cadence_id: string
+          created_at: string | null
+          day_offset: number
+          id: string
+          priority: string | null
+          task_description: string | null
+          task_title: string
+          task_type: string | null
+        }
+        Insert: {
+          cadence_id: string
+          created_at?: string | null
+          day_offset: number
+          id?: string
+          priority?: string | null
+          task_description?: string | null
+          task_title: string
+          task_type?: string | null
+        }
+        Update: {
+          cadence_id?: string
+          created_at?: string | null
+          day_offset?: number
+          id?: string
+          priority?: string | null
+          task_description?: string | null
+          task_title?: string
+          task_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cadence_steps_cadence_id_fkey"
+            columns: ["cadence_id"]
+            isOneToOne: false
+            referencedRelation: "cadence_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cadence_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       geo_settings: {
         Row: {
           ai_custom_instructions: string | null

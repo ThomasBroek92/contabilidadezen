@@ -6,7 +6,8 @@ import { LeadDetail } from './LeadDetail';
 import { LeadsTable } from './LeadsTableEnhanced';
 import { FollowUpEngine } from './FollowUpEngine';
 import { AlertsDashboard } from './AlertsDashboard';
-import { LayoutDashboard, Kanban, Table2, Bell, Zap } from 'lucide-react';
+import { CadenceManager } from './CadenceManager';
+import { LayoutDashboard, Kanban, Table2, Bell, Zap, Settings } from 'lucide-react';
 
 export function CRMPage() {
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
@@ -37,7 +38,7 @@ export function CRMPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex">
+        <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-flex">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <LayoutDashboard className="h-4 w-4" />
             <span className="hidden sm:inline">Dashboard</span>
@@ -57,6 +58,10 @@ export function CRMPage() {
           <TabsTrigger value="table" className="flex items-center gap-2">
             <Table2 className="h-4 w-4" />
             <span className="hidden sm:inline">Lista</span>
+          </TabsTrigger>
+          <TabsTrigger value="cadences" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">Cadências</span>
           </TabsTrigger>
         </TabsList>
 
@@ -78,6 +83,10 @@ export function CRMPage() {
 
         <TabsContent value="table" className="mt-6">
           <LeadsTable onSelectLead={handleSelectLead} />
+        </TabsContent>
+
+        <TabsContent value="cadences" className="mt-6">
+          <CadenceManager />
         </TabsContent>
       </Tabs>
 

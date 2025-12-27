@@ -91,6 +91,10 @@ interface ContentSettings {
   expert_title: string;
   expert_company: string;
   expert_bio: string;
+  // External Citation Filters
+  exclude_competitor_quotes: boolean;
+  excluded_citation_keywords: string[];
+  allowed_external_sources: string[];
 }
 
 const DEFAULT_SETTINGS: ContentSettings = {
@@ -124,6 +128,9 @@ const DEFAULT_SETTINGS: ContentSettings = {
   expert_title: 'Contador Especialista',
   expert_company: 'Contabilidade Zen',
   expert_bio: 'Contador especializado em tributação para profissionais da saúde, com mais de 15 anos de experiência em planejamento tributário e abertura de empresas para médicos, dentistas e psicólogos.',
+  exclude_competitor_quotes: true,
+  excluded_citation_keywords: ['contabilidade digital', 'contador online', 'escritório contábil', 'contabilidade online'],
+  allowed_external_sources: ['gov.br', 'cfc.org.br', 'cfm.org.br', 'cro.org.br', 'crp.org.br', 'crefito.org.br', 'receita.fazenda.gov.br', 'planalto.gov.br', 'ibge.gov.br', 'ans.gov.br', 'anvisa.gov.br'],
 };
 
 // Função para calcular GEO Score
@@ -257,16 +264,63 @@ function generateInternalLinks(
   };
 }
 
+// Filtrar citações baseado nas configurações de exclusão
+function filterExpertQuotes(
+  quotes: ExpertQuote[],
+  settings: ContentSettings
+): ExpertQuote[] {
+  if (!settings.exclude_competitor_quotes) return quotes;
+  
+  const excludedKeywords = settings.excluded_citation_keywords || [];
+  const allowedSources = settings.allowed_external_sources || [];
+  
+  return quotes.filter(quote => {
+    // Verificar se a citação contém palavras-chave bloqueadas
+    const quoteText = `${quote.quote} ${quote.author} ${quote.title}`.toLowerCase();
+    const hasBlockedKeyword = excludedKeywords.some(keyword => 
+      quoteText.includes(keyword.toLowerCase())
+    );
+    
+    if (hasBlockedKeyword) {
+      console.log(`Blocked quote from ${quote.author}: contains excluded keyword`);
+      return false;
+    }
+    
+    // Se tem URL, verificar se é de fonte permitida
+    if (quote.source_url) {
+      const isAllowedSource = allowedSources.some(source => 
+        quote.source_url.toLowerCase().includes(source.toLowerCase())
+      );
+      
+      // Se não é de fonte permitida E contém termos de contabilidade, bloquear
+      if (!isAllowedSource && (
+        quoteText.includes('contador') || 
+        quoteText.includes('contabilidade') ||
+        quoteText.includes('escritório')
+      )) {
+        console.log(`Blocked quote from ${quote.author}: not from allowed source and contains accounting terms`);
+        return false;
+      }
+    }
+    
+    return true;
+  });
+}
+
 // Buscar citações de especialistas via Perplexity
 async function fetchExpertQuotes(
   topic: string,
   personas: string[],
   apiKey: string,
-  enabled: boolean
+  enabled: boolean,
+  settings: ContentSettings
 ): Promise<ExpertQuote[]> {
   if (!enabled) return [];
   
   console.log('Fetching expert quotes for:', topic);
+  
+  // Usar fontes permitidas para a pesquisa
+  const allowedSources = settings.allowed_external_sources || [];
   
   try {
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -279,7 +333,19 @@ async function fetchExpertQuotes(
         model: 'sonar',
         messages: [{
           role: 'user',
-          content: `Encontre 3-5 citações reais de especialistas brasileiros (contadores, advogados tributaristas, consultores de ${personas.join(', ')}) sobre o tema: "${topic}".
+          content: `Encontre 3-5 citações de especialistas brasileiros sobre o tema: "${topic}".
+
+IMPORTANTE: Busque citações apenas de:
+- Órgãos governamentais (gov.br, Receita Federal)
+- Conselhos profissionais (CFM, CFC, CRO, CRP, CREFITO)
+- Associações de classe
+- Advogados tributaristas
+- Consultores de ${personas.join(', ')}
+
+NÃO inclua citações de:
+- Contadores de outras empresas
+- Contabilidades digitais ou online
+- Escritórios contábeis concorrentes
 
 RETORNE APENAS JSON válido neste formato (sem markdown):
 {
@@ -287,13 +353,14 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
     {
       "quote": "texto exato da citação entre aspas",
       "author": "Nome Completo do Especialista",
-      "title": "Cargo/Credencial (ex: Contador, CRC-SP)",
+      "title": "Cargo/Credencial (ex: Presidente do CFM, Advogado Tributarista)",
       "source_url": "URL da fonte original"
     }
   ]
 }`
         }],
         search_recency_filter: 'year',
+        search_domain_filter: allowedSources.length > 0 ? allowedSources : undefined,
       }),
     });
 
@@ -308,7 +375,10 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const parsed = JSON.parse(cleanContent);
-      return parsed.expert_quotes || [];
+      const quotes = parsed.expert_quotes || [];
+      
+      // Aplicar filtros adicionais
+      return filterExpertQuotes(quotes, settings);
     } catch {
       console.error('Failed to parse expert quotes JSON');
       return [];
@@ -686,7 +756,7 @@ serve(async (req) => {
 
       if (enableGEO) {
         const [externalQuotes, statsData, internalQuote] = await Promise.all([
-          fetchExpertQuotes(inlineTopic, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled),
+          fetchExpertQuotes(inlineTopic, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled, settings),
           fetchStatistics(inlineTopic, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources),
           generateInternalExpertQuote(inlineTopic, settings, PERPLEXITY_API_KEY)
         ]);
@@ -841,7 +911,7 @@ serve(async (req) => {
 
         // Buscar citações, estatísticas e citação interna em paralelo
         const [externalQuotes, statistics, internalQuote] = await Promise.all([
-          fetchExpertQuotes(searchQuery, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled),
+          fetchExpertQuotes(searchQuery, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled, settings),
           fetchStatistics(searchQuery, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources),
           generateInternalExpertQuote(searchQuery, settings, PERPLEXITY_API_KEY)
         ]);

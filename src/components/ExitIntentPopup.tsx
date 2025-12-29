@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MessageCircle, Phone, X } from "lucide-react";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { toast } from "sonner";
+import supportImage from "@/assets/exit-intent-support.jpg";
 
 const cidades = [
   "São Paulo",
@@ -110,7 +111,7 @@ export function ExitIntentPopup() {
         
         <div className="grid md:grid-cols-2">
           {/* Left side */}
-          <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-8 flex flex-col justify-center">
+          <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-8 flex flex-col justify-center relative overflow-hidden">
             <h2 className="text-2xl font-bold text-primary mb-4">
               Ficou com alguma dúvida?
             </h2>
@@ -118,10 +119,13 @@ export function ExitIntentPopup() {
               Preencha as informações ao lado que em breve entraremos em contato com você.
             </p>
             <div className="relative w-48 h-48 mx-auto">
-              <div className="absolute inset-0 bg-primary/20 rounded-full" />
-              <div className="absolute inset-2 bg-gradient-to-br from-primary/30 to-transparent rounded-full" />
-              <div className="absolute inset-4 bg-muted rounded-full flex items-center justify-center">
-                <MessageCircle className="w-16 h-16 text-primary" />
+              <div className="absolute -inset-2 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full" />
+              <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-primary/20">
+                <img 
+                  src={supportImage} 
+                  alt="Atendimento Contabilidade Zen" 
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

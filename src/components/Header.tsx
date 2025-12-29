@@ -33,6 +33,9 @@ const segmentosLinks = [{
 const conteudoLinks = [{
   name: "Calculadora Salário PJ x CLT",
   href: "/conteudo/calculadora-pj-clt"
+}, {
+  name: "Gerador de RPA",
+  href: "/conteudo/gerador-rpa"
 }];
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

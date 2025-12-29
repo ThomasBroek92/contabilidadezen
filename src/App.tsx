@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { CookieConsent } from "@/components/CookieConsent";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
+import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import Index from "./pages/Index";
 import Medicos from "./pages/Medicos";
 import Servicos from "./pages/Servicos";
@@ -58,6 +59,7 @@ const App = () => (
           <AnalyticsTracker />
           <CookieConsent />
           <FloatingWhatsApp />
+          <ExitIntentPopup />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

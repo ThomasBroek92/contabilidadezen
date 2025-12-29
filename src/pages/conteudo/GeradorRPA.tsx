@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { FileText, Calculator, AlertTriangle, User, Building2, Download, RefreshCw, Printer } from "lucide-react";
 import jsPDF from "jspdf";
+import logoFull from "@/assets/logo-full.png";
 
 // Tabela IRRF 2025
 const IRRF_TABLE_2025 = [
@@ -210,13 +211,13 @@ export default function GeradorRPA() {
     window.print();
   };
 
-  const exportarPDF = () => {
+  const exportarPDF = async () => {
     if (!resultado) return;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 20;
-    let y = 20;
+    let y = 15;
 
     // Helper function for text
     const addText = (text: string, x: number, yPos: number, options?: { fontSize?: number; fontStyle?: "normal" | "bold"; align?: "left" | "center" | "right" }) => {
@@ -230,6 +231,29 @@ export default function GeradorRPA() {
         doc.text(text, x, yPos);
       }
     };
+
+    // Add Logo
+    try {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject();
+        img.src = logoFull;
+      });
+      
+      // Calculate logo dimensions (max height 15mm, maintain aspect ratio)
+      const maxHeight = 15;
+      const aspectRatio = img.width / img.height;
+      const logoHeight = maxHeight;
+      const logoWidth = logoHeight * aspectRatio;
+      
+      doc.addImage(img, "PNG", margin, y, logoWidth, logoHeight);
+      y += logoHeight + 5;
+    } catch {
+      // If logo fails to load, just continue without it
+      y += 5;
+    }
 
     // Title
     addText("RECIBO DE PAGAMENTO A AUTÔNOMO - RPA", margin, y, { fontSize: 16, fontStyle: "bold", align: "center" });

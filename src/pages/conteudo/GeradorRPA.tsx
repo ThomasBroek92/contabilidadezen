@@ -10,7 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { FileText, Calculator, AlertTriangle, User, Building2, Download, RefreshCw } from "lucide-react";
+import { FileText, Calculator, AlertTriangle, User, Building2, Download, RefreshCw, Printer } from "lucide-react";
+import jsPDF from "jspdf";
 
 // Tabela IRRF 2025
 const IRRF_TABLE_2025 = [
@@ -207,6 +208,124 @@ export default function GeradorRPA() {
 
   const imprimirRPA = () => {
     window.print();
+  };
+
+  const exportarPDF = () => {
+    if (!resultado) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    let y = 20;
+
+    // Helper function for text
+    const addText = (text: string, x: number, yPos: number, options?: { fontSize?: number; fontStyle?: "normal" | "bold"; align?: "left" | "center" | "right" }) => {
+      doc.setFontSize(options?.fontSize || 10);
+      doc.setFont("helvetica", options?.fontStyle || "normal");
+      if (options?.align === "center") {
+        doc.text(text, pageWidth / 2, yPos, { align: "center" });
+      } else if (options?.align === "right") {
+        doc.text(text, pageWidth - margin, yPos, { align: "right" });
+      } else {
+        doc.text(text, x, yPos);
+      }
+    };
+
+    // Title
+    addText("RECIBO DE PAGAMENTO A AUTÔNOMO - RPA", margin, y, { fontSize: 16, fontStyle: "bold", align: "center" });
+    y += 8;
+    addText(`Data de Emissão: ${new Date(dataEmissao).toLocaleDateString("pt-BR")}`, margin, y, { fontSize: 10, align: "center" });
+    y += 15;
+
+    // Contratante Section
+    doc.setDrawColor(200);
+    doc.rect(margin, y, pageWidth - 2 * margin, 35);
+    y += 8;
+    addText("CONTRATANTE (PAGADOR)", margin + 5, y, { fontSize: 11, fontStyle: "bold" });
+    y += 7;
+    addText(`Razão Social: ${contratante.razaoSocial}`, margin + 5, y);
+    y += 6;
+    addText(`CNPJ: ${contratante.cnpj}`, margin + 5, y);
+    if (contratante.endereco) {
+      y += 6;
+      addText(`Endereço: ${contratante.endereco}`, margin + 5, y);
+    }
+    y += 20;
+
+    // Prestador Section
+    doc.rect(margin, y, pageWidth - 2 * margin, 50);
+    y += 8;
+    addText("PRESTADOR (RECEBEDOR)", margin + 5, y, { fontSize: 11, fontStyle: "bold" });
+    y += 7;
+    addText(`Nome: ${prestador.nome}`, margin + 5, y);
+    y += 6;
+    addText(`CPF: ${prestador.cpf}`, margin + 5, y);
+    if (prestador.nit) {
+      y += 6;
+      addText(`NIT/PIS: ${prestador.nit}`, margin + 5, y);
+    }
+    y += 6;
+    addText(`Telefone: ${prestador.telefone}`, margin + 5, y);
+    y += 6;
+    addText(`E-mail: ${prestador.email}`, margin + 5, y);
+    if (prestador.endereco) {
+      y += 6;
+      addText(`Endereço: ${prestador.endereco}`, margin + 5, y);
+    }
+    y += 20;
+
+    // Serviço Section
+    const descricaoLines = doc.splitTextToSize(servico.descricao, pageWidth - 2 * margin - 10);
+    const servicoHeight = Math.max(25, descricaoLines.length * 5 + 15);
+    doc.rect(margin, y, pageWidth - 2 * margin, servicoHeight);
+    y += 8;
+    addText("DESCRIÇÃO DO SERVIÇO", margin + 5, y, { fontSize: 11, fontStyle: "bold" });
+    y += 7;
+    doc.setFontSize(10);
+    doc.text(descricaoLines, margin + 5, y);
+    y += servicoHeight - 5;
+
+    // Valores Section
+    doc.rect(margin, y, pageWidth - 2 * margin, 55);
+    y += 8;
+    addText("VALORES E DESCONTOS", margin + 5, y, { fontSize: 11, fontStyle: "bold" });
+    y += 10;
+
+    const addValueRow = (label: string, value: string, isNegative?: boolean, isBold?: boolean) => {
+      addText(label, margin + 5, y, { fontStyle: isBold ? "bold" : "normal" });
+      addText(value, margin, y, { align: "right", fontStyle: isBold ? "bold" : "normal" });
+      y += 7;
+    };
+
+    addValueRow("Valor Bruto do Serviço", formatCurrency(resultado.valorBruto));
+    addValueRow("(-) INSS (11%)", formatCurrency(resultado.inss), true);
+    addValueRow("(-) IRRF", formatCurrency(resultado.irrf), true);
+    addValueRow(`(-) ISS (${servico.aliquotaISS}%)`, formatCurrency(resultado.iss), true);
+    y += 3;
+    doc.setLineWidth(0.5);
+    doc.line(margin + 5, y, pageWidth - margin - 5, y);
+    y += 7;
+    addValueRow("VALOR LÍQUIDO A RECEBER", formatCurrency(resultado.valorLiquido), false, true);
+    y += 25;
+
+    // Assinaturas
+    const sigY = y + 10;
+    doc.line(margin + 10, sigY, margin + 70, sigY);
+    addText("Assinatura do Contratante", margin + 15, sigY + 5, { fontSize: 9 });
+    
+    doc.line(pageWidth - margin - 70, sigY, pageWidth - margin - 10, sigY);
+    addText("Assinatura do Prestador", pageWidth - margin - 65, sigY + 5, { fontSize: 9 });
+
+    // Footer
+    y = doc.internal.pageSize.getHeight() - 15;
+    doc.setFontSize(8);
+    doc.setTextColor(128);
+    doc.text("Documento gerado por Contabilidade Zen - www.contabilidadezen.com.br", pageWidth / 2, y, { align: "center" });
+
+    // Save
+    const fileName = `RPA_${prestador.nome.replace(/\s+/g, "_")}_${new Date(dataEmissao).toISOString().split("T")[0]}.pdf`;
+    doc.save(fileName);
+    toast.success("PDF exportado com sucesso!");
   };
 
   const resetarFormulario = () => {
@@ -621,9 +740,13 @@ export default function GeradorRPA() {
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Novo RPA
                   </Button>
-                  <Button onClick={imprimirRPA}>
+                  <Button variant="outline" onClick={imprimirRPA}>
+                    <Printer className="w-4 h-4 mr-2" />
+                    Imprimir
+                  </Button>
+                  <Button onClick={exportarPDF}>
                     <Download className="w-4 h-4 mr-2" />
-                    Imprimir / Salvar PDF
+                    Exportar PDF
                   </Button>
                 </div>
               </div>

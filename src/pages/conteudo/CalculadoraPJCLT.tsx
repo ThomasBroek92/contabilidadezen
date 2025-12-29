@@ -31,6 +31,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useLeadCapture } from "@/hooks/use-lead-capture";
+import { toast } from "sonner";
 
 // Tabela INSS 2024
 const INSS_FAIXAS = [
@@ -107,6 +109,25 @@ export default function CalculadoraPJCLT() {
   const [outrosBeneficios, setOutrosBeneficios] = useState("");
   const [resultado, setResultado] = useState<ResultadoCalculo | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  
+  // Lead capture fields
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const { saveLead, leadSaved } = useLeadCapture();
+
+  const formatPhone = (value: string): string => {
+    const numbers = value.replace(/\D/g, "").slice(0, 11);
+    if (numbers.length <= 10) {
+      return numbers
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+    return numbers
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{5})(\d)/, "$1-$2");
+  };
 
   const parseCurrency = (value: string): number => {
     if (!value) return 0;
@@ -243,8 +264,37 @@ export default function CalculadoraPJCLT() {
         percentualAumento,
       });
       
+      // Show lead capture form after calculation
+      setShowLeadForm(true);
       setIsCalculating(false);
     }, 800);
+  };
+
+  const handleLeadSubmit = async () => {
+    if (!nome.trim() || !email.trim() || !telefone.trim()) {
+      toast.error("Preencha todos os campos para receber a análise");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      toast.error("Informe um e-mail válido");
+      return;
+    }
+
+    const salario = parseCurrency(salarioBruto);
+    const saved = await saveLead({
+      nome: nome.trim(),
+      email: email.trim(),
+      whatsapp: telefone.trim(),
+      segmento: "PJ x CLT",
+      fonte: "Calculadora PJ x CLT",
+      faturamento_mensal: salario,
+      economia_anual: resultado?.diferencaAnual,
+    });
+
+    if (saved) {
+      toast.success("Dados salvos! Entraremos em contato em breve.");
+    }
   };
 
   return (
@@ -567,32 +617,76 @@ export default function CalculadoraPJCLT() {
                     </div>
                   </div>
 
-                  {/* CTA */}
-                  <div className="bg-card rounded-2xl border border-border p-6 lg:p-8 text-center">
-                    <h3 className="text-xl font-bold mb-3">
-                      Quer saber se vale a pena migrar para PJ?
+                  {/* Lead Capture CTA */}
+                  <div className="bg-card rounded-2xl border-2 border-secondary p-6 lg:p-8">
+                    <h3 className="text-xl font-bold mb-3 text-center">
+                      {leadSaved ? "Obrigado! Entraremos em contato." : "Quer uma análise personalizada gratuita?"}
                     </h3>
-                    <p className="text-muted-foreground mb-6">
-                      Nossos especialistas em contabilidade para profissionais da saúde podem ajudar você 
-                      a tomar a melhor decisão com uma análise personalizada.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button variant="zen" size="lg" asChild>
-                        <Link to="/contato">
-                          Falar com especialista
-                          <ArrowRight className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button variant="zen-outline" size="lg" asChild>
-                        <a
-                          href="https://wa.me/5519974158342?text=Olá! Usei a calculadora PJ x CLT e gostaria de uma análise personalizada."
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          WhatsApp
-                        </a>
-                      </Button>
-                    </div>
+                    
+                    {!leadSaved ? (
+                      <>
+                        <p className="text-muted-foreground mb-6 text-center">
+                          Deixe seus dados e nossos especialistas farão uma análise completa do seu caso.
+                        </p>
+                        <div className="grid md:grid-cols-3 gap-4 mb-6">
+                          <div className="space-y-2">
+                            <Label htmlFor="nome">Seu nome *</Label>
+                            <Input
+                              id="nome"
+                              value={nome}
+                              onChange={(e) => setNome(e.target.value)}
+                              placeholder="Nome completo"
+                              className="bg-background"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="email">E-mail *</Label>
+                            <Input
+                              id="email"
+                              type="email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="seu@email.com"
+                              className="bg-background"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="telefone">WhatsApp *</Label>
+                            <Input
+                              id="telefone"
+                              value={telefone}
+                              onChange={(e) => setTelefone(formatPhone(e.target.value))}
+                              placeholder="(00) 00000-0000"
+                              className="bg-background"
+                            />
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <Button variant="zen" size="lg" onClick={handleLeadSubmit}>
+                            Quero análise gratuita
+                            <ArrowRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center">
+                        <CheckCircle className="h-12 w-12 text-secondary mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-4">
+                          Em breve um especialista entrará em contato para discutir seu caso.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                          <Button variant="zen-outline" size="lg" asChild>
+                            <a
+                              href={`https://wa.me/5519974158342?text=Olá! Usei a calculadora PJ x CLT. Meu salário é ${salarioBruto} e gostaria de uma análise personalizada.`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Falar agora no WhatsApp
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { FileText, Calculator, AlertTriangle, User, Building2, Download, RefreshCw, Printer } from "lucide-react";
 import jsPDF from "jspdf";
 import logoFull from "@/assets/logo-full.png";
+import { useLeadCapture } from "@/hooks/use-lead-capture";
 
 // Tabela IRRF 2025
 const IRRF_TABLE_2025 = [
@@ -81,6 +82,22 @@ export default function GeradorRPA() {
   });
   const [resultado, setResultado] = useState<ResultadoRPA | null>(null);
   const [dataEmissao, setDataEmissao] = useState(new Date().toISOString().split("T")[0]);
+  
+  const { saveLead } = useLeadCapture();
+
+  // Save lead when step 1 is completed (prestador data collected)
+  useEffect(() => {
+    if (step === 2 && prestador.nome && prestador.email && prestador.telefone) {
+      saveLead({
+        nome: prestador.nome,
+        email: prestador.email,
+        whatsapp: prestador.telefone,
+        segmento: "RPA - Autônomo",
+        fonte: "Gerador de RPA",
+        faturamento_mensal: servico.valorBruto > 0 ? servico.valorBruto : undefined,
+      });
+    }
+  }, [step]);
 
   const formatCurrency = (value: number): string => {
     return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

@@ -47,7 +47,6 @@ interface DadosContratante {
 interface DadosServico {
   descricao: string;
   valorBruto: number;
-  aliquotaISS: number;
 }
 
 interface ResultadoRPA {
@@ -55,7 +54,6 @@ interface ResultadoRPA {
   inss: number;
   baseIRRF: number;
   irrf: number;
-  iss: number;
   totalDescontos: number;
   valorLiquido: number;
 }
@@ -78,7 +76,6 @@ export default function GeradorRPA() {
   const [servico, setServico] = useState<DadosServico>({
     descricao: "",
     valorBruto: 0,
-    aliquotaISS: 5,
   });
   const [resultado, setResultado] = useState<ResultadoRPA | null>(null);
   const [dataEmissao, setDataEmissao] = useState(new Date().toISOString().split("T")[0]);
@@ -147,17 +144,12 @@ export default function GeradorRPA() {
     return 0;
   };
 
-  const calcularISS = (valorBruto: number, aliquota: number): number => {
-    return valorBruto * (aliquota / 100);
-  };
-
   const calcularRPA = () => {
     const valorBruto = servico.valorBruto;
     const inss = calcularINSS(valorBruto);
     const baseIRRF = valorBruto - inss;
     const irrf = calcularIRRF(baseIRRF);
-    const iss = calcularISS(valorBruto, servico.aliquotaISS);
-    const totalDescontos = inss + irrf + iss;
+    const totalDescontos = inss + irrf;
     const valorLiquido = valorBruto - totalDescontos;
 
     setResultado({
@@ -165,7 +157,6 @@ export default function GeradorRPA() {
       inss,
       baseIRRF,
       irrf,
-      iss,
       totalDescontos,
       valorLiquido,
     });
@@ -341,7 +332,6 @@ export default function GeradorRPA() {
     addValueRow("Valor Bruto do Serviço", formatCurrency(resultado.valorBruto));
     addValueRow("(-) INSS (11%)", formatCurrency(resultado.inss), true);
     addValueRow("(-) IRRF", formatCurrency(resultado.irrf), true);
-    addValueRow(`(-) ISS (${servico.aliquotaISS}%)`, formatCurrency(resultado.iss), true);
     y += 3;
     doc.setLineWidth(0.5);
     doc.line(margin + 5, y, pageWidth - margin - 5, y);
@@ -372,7 +362,7 @@ export default function GeradorRPA() {
   const resetarFormulario = () => {
     setPrestador({ nome: "", cpf: "", nit: "", endereco: "", telefone: "", email: "" });
     setContratante({ razaoSocial: "", cnpj: "", endereco: "" });
-    setServico({ descricao: "", valorBruto: 0, aliquotaISS: 5 });
+    setServico({ descricao: "", valorBruto: 0 });
     setResultado(null);
     setStep(1);
     toast.success("Formulário resetado com sucesso!");
@@ -613,22 +603,6 @@ export default function GeradorRPA() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="aliquota-iss">Alíquota ISS (%)</Label>
-                      <Input
-                        id="aliquota-iss"
-                        type="number"
-                        min="0"
-                        max="5"
-                        step="0.5"
-                        value={servico.aliquotaISS}
-                        onChange={(e) => setServico({ ...servico, aliquotaISS: parseFloat(e.target.value) || 0 })}
-                        placeholder="2 a 5%"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Consulte a alíquota do seu município (geralmente entre 2% e 5%)
-                      </p>
-                    </div>
-                    <div>
                       <Label htmlFor="data-emissao">Data de Emissão</Label>
                       <Input
                         id="data-emissao"
@@ -677,10 +651,6 @@ export default function GeradorRPA() {
                           <span>IRRF:</span>
                           <span>- {formatCurrency(resultado.irrf)}</span>
                         </div>
-                        <div className="flex justify-between text-destructive">
-                          <span>ISS ({servico.aliquotaISS}%):</span>
-                          <span>- {formatCurrency(resultado.iss)}</span>
-                        </div>
                         <Separator />
                         <div className="flex justify-between font-semibold text-lg">
                           <span>Valor Líquido:</span>
@@ -692,7 +662,6 @@ export default function GeradorRPA() {
                         <ul className="text-sm text-muted-foreground space-y-1">
                           <li>• INSS: 11% sobre valor bruto (teto R$ 8.157,41)</li>
                           <li>• IRRF: Tabela progressiva sobre base (após INSS)</li>
-                          <li>• ISS: Alíquota municipal sobre valor bruto</li>
                           <li>• Isenção IRRF até R$ 2.259,20</li>
                         </ul>
                       </div>
@@ -746,10 +715,6 @@ export default function GeradorRPA() {
                           <tr className="border-b">
                             <td className="py-2">(-) IRRF</td>
                             <td className="py-2 text-right text-destructive">{formatCurrency(resultado.irrf)}</td>
-                          </tr>
-                          <tr className="border-b">
-                            <td className="py-2">(-) ISS ({servico.aliquotaISS}%)</td>
-                            <td className="py-2 text-right text-destructive">{formatCurrency(resultado.iss)}</td>
                           </tr>
                           <tr className="font-bold text-lg">
                             <td className="py-3">VALOR LÍQUIDO A RECEBER</td>

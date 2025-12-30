@@ -278,6 +278,69 @@ export default function CalculadoraPJCLT() {
     }
   };
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Quanto custa abrir uma empresa PJ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Na Contabilidade Zen, a abertura de empresa para profissionais da saúde é gratuita! Você só paga a mensalidade da contabilidade a partir de R$ 297,90/mês. Os únicos custos iniciais são taxas governamentais (aproximadamente R$ 200-400), que variam conforme o estado e município."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quanto tempo leva para abrir a empresa?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "O processo completo leva em média 7 a 15 dias úteis, dependendo da prefeitura e do conselho profissional da sua área. CNPJ: 1-3 dias úteis, Inscrição Municipal: 3-7 dias úteis, Alvará de Funcionamento: 3-10 dias úteis."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quais documentos preciso para abrir uma empresa PJ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Você vai precisar de: RG e CPF, Comprovante de residência atualizado, Registro no conselho profissional (CRM, CRO, CRP, etc.) e Certificado digital."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "O que é o Fator R e como me beneficia?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "O Fator R é um cálculo que permite que profissionais de serviços (como médicos, dentistas e psicólogos) paguem impostos muito menores no Simples Nacional. Se a folha de pagamento for igual ou maior que 28% do faturamento, você é tributado pelo Anexo III (a partir de 6%) ao invés do Anexo V (a partir de 15,5%)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Posso continuar atendendo nos mesmos lugares sendo PJ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sim! Ao abrir sua empresa PJ, você continua atendendo exatamente onde já atende. A diferença é que agora você emite nota fiscal pela sua empresa. Ter CNPJ pode abrir mais portas: muitos hospitais e convênios preferem contratar profissionais PJ."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "E a aposentadoria? Como fica o INSS sendo PJ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Você continua contribuindo para o INSS através do pró-labore, que é a retirada mensal obrigatória do sócio. Isso garante todos os benefícios previdenciários: aposentadoria, auxílio-doença, licença-maternidade e pensão por morte."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Preciso de contador? O que a contabilidade faz?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sim, toda empresa precisa de um contador responsável. A contabilidade cuida de: abertura e regularização da empresa, cálculo e pagamento de impostos, emissão de guias, declarações obrigatórias, planejamento tributário e suporte para dúvidas fiscais."
+        }
+      }
+    ]
+  };
+
   return (
     <TooltipProvider>
       <Helmet>
@@ -290,6 +353,9 @@ export default function CalculadoraPJCLT() {
           name="keywords"
           content="calculadora pj x autonomo, economia pj, simples nacional, abrir empresa, contabilidade para médicos, reduzir impostos"
         />
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
+        </script>
       </Helmet>
 
       <Header />

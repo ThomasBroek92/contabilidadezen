@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.execute-recurring-schedules]
 verify_jwt = false
+
+[functions.optimize-content]
+verify_jwt = false

@@ -75,17 +75,14 @@ const PLANOS_ZEN = [
 ];
 
 interface ResultadoCalculo {
-  // CLT
-  salarioBrutoCLT: number;
+  // Autônomo
+  salarioBrutoAutonomo: number;
   inss: number;
   irrf: number;
-  salarioLiquidoCLT: number;
-  fgts: number;
-  ferias: number;
-  decimoTerceiro: number;
+  salarioLiquidoAutonomo: number;
   beneficiosTotais: number;
-  totalAnualCLT: number;
-  totalMensalEquivalenteCLT: number;
+  totalAnualAutonomo: number;
+  totalMensalEquivalenteAutonomo: number;
   
   // PJ
   faturamentoPJ: number;
@@ -95,10 +92,10 @@ interface ResultadoCalculo {
   salarioLiquidoPJ: number;
   totalAnualPJ: number;
   
-  // Comparação
-  diferencaMensal: number;
-  diferencaAnual: number;
-  percentualAumento: number;
+  // Comparação - economia ao migrar para PJ
+  economiaMensal: number;
+  economiaAnual: number;
+  percentualEconomia: number;
 }
 
 export default function CalculadoraPJCLT() {
@@ -201,67 +198,51 @@ export default function CalculadoraPJCLT() {
         return;
       }
 
-      // Cálculos CLT
+      // Cálculos Autônomo (sem empresa)
       const inss = calcularINSS(salario);
       const irrf = calcularIRRF(salario, inss);
-      const salarioLiquidoCLT = salario - inss - irrf;
-      const fgts = salario * 0.08;
-      
-      // Férias + 1/3 (líquido)
-      const feriasBase = salario * 1.3333;
-      const inssFerias = calcularINSS(feriasBase);
-      const irrfFerias = calcularIRRF(feriasBase, inssFerias);
-      const feriasLiquido = (feriasBase - inssFerias - irrfFerias) / 12;
-      
-      // 13º salário (líquido)
-      const decimoTerceiroLiquido = salarioLiquidoCLT / 12;
+      const salarioLiquidoAutonomo = salario - inss - irrf;
       
       const beneficiosTotais = vr + vt + ps + outros;
       
-      const totalMensalEquivalenteCLT = salarioLiquidoCLT + fgts + feriasLiquido + decimoTerceiroLiquido + beneficiosTotais;
-      const totalAnualCLT = totalMensalEquivalenteCLT * 12;
+      const totalMensalEquivalenteAutonomo = salarioLiquidoAutonomo + beneficiosTotais;
+      const totalAnualAutonomo = totalMensalEquivalenteAutonomo * 12;
 
-      // Cálculos PJ
-      // Para equiparar CLT, o faturamento PJ precisa ser calculado
+      // Cálculos PJ - com mesmo faturamento bruto
       // Usamos Simples Nacional com alíquota efetiva de ~6% (Fator R aplicável para serviços de saúde)
       const aliquotaSimples = 0.06;
       const proLabore = 1412; // 1 salário mínimo
       const inssPJ = proLabore * 0.11;
       const contabilidade = PLANOS_ZEN[0].price;
       
-      // Faturamento necessário para equivaler ao CLT
-      // Faturamento - Impostos - INSS - Contabilidade = Total CLT equivalente
-      // Faturamento * (1 - aliquota) - INSS - Contabilidade = Total CLT
-      const faturamentoNecessario = (totalMensalEquivalenteCLT + inssPJ + contabilidade) / (1 - aliquotaSimples);
-      
-      const impostosPJ = faturamentoNecessario * aliquotaSimples;
-      const salarioLiquidoPJ = faturamentoNecessario - impostosPJ - inssPJ - contabilidade;
+      // Faturamento PJ = mesmo valor bruto do autônomo
+      const faturamentoPJ = salario;
+      const impostosPJ = faturamentoPJ * aliquotaSimples;
+      const salarioLiquidoPJ = faturamentoPJ - impostosPJ - inssPJ - contabilidade + beneficiosTotais;
       const totalAnualPJ = salarioLiquidoPJ * 12;
 
-      const diferencaMensal = salarioLiquidoPJ - totalMensalEquivalenteCLT;
-      const diferencaAnual = totalAnualPJ - totalAnualCLT;
-      const percentualAumento = ((faturamentoNecessario / salario) - 1) * 100;
+      // Economia ao migrar para PJ
+      const economiaMensal = salarioLiquidoPJ - totalMensalEquivalenteAutonomo;
+      const economiaAnual = totalAnualPJ - totalAnualAutonomo;
+      const percentualEconomia = ((salarioLiquidoPJ / totalMensalEquivalenteAutonomo) - 1) * 100;
 
       setResultado({
-        salarioBrutoCLT: salario,
+        salarioBrutoAutonomo: salario,
         inss,
         irrf,
-        salarioLiquidoCLT,
-        fgts,
-        ferias: feriasLiquido,
-        decimoTerceiro: decimoTerceiroLiquido,
+        salarioLiquidoAutonomo,
         beneficiosTotais,
-        totalAnualCLT,
-        totalMensalEquivalenteCLT,
-        faturamentoPJ: faturamentoNecessario,
+        totalAnualAutonomo,
+        totalMensalEquivalenteAutonomo,
+        faturamentoPJ,
         impostosPJ,
         inssPJ,
         contabilidade,
         salarioLiquidoPJ,
         totalAnualPJ,
-        diferencaMensal,
-        diferencaAnual,
-        percentualAumento,
+        economiaMensal,
+        economiaAnual,
+        percentualEconomia,
       });
       
       // Show lead capture form after calculation
@@ -286,10 +267,10 @@ export default function CalculadoraPJCLT() {
       nome: nome.trim(),
       email: email.trim(),
       whatsapp: telefone.trim(),
-      segmento: "PJ x CLT",
-      fonte: "Calculadora PJ x CLT",
+      segmento: "PJ x Autônomo",
+      fonte: "Calculadora PJ x Autônomo",
       faturamento_mensal: salario,
-      economia_anual: resultado?.diferencaAnual,
+      economia_anual: resultado?.economiaAnual,
     });
 
     if (saved) {
@@ -300,14 +281,14 @@ export default function CalculadoraPJCLT() {
   return (
     <TooltipProvider>
       <Helmet>
-        <title>Calculadora Salário PJ x CLT | Contabilidade Zen</title>
+        <title>Calculadora PJ x Autônomo | Economize sendo PJ | Contabilidade Zen</title>
         <meta
           name="description"
-          content="Compare seu salário CLT com PJ e descubra quanto você precisa ganhar como Pessoa Jurídica para manter o mesmo padrão. Calculadora gratuita e precisa."
+          content="Descubra quanto você pode economizar migrando de Autônomo para PJ. Calculadora gratuita mostra a economia real com impostos reduzidos no Simples Nacional."
         />
         <meta
           name="keywords"
-          content="calculadora pj x clt, salário pj, salário clt, comparar pj clt, quanto ganhar pj, contabilidade para médicos"
+          content="calculadora pj x autonomo, economia pj, simples nacional, abrir empresa, contabilidade para médicos, reduzir impostos"
         />
       </Helmet>
 
@@ -332,15 +313,14 @@ export default function CalculadoraPJCLT() {
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               <div>
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-                  Calculadora salário PJ x CLT
+                  Calculadora PJ x Autônomo
                   <span className="text-secondary">.</span>
                 </h1>
                 <p className="text-lg text-muted-foreground">
-                  A calculadora PJ x CLT é uma ferramenta que compara de forma simples os 
-                  impostos, benefícios e contribuições de cada regime, ajudando você a entender 
-                  quanto precisaria ganhar como PJ para manter os ganhos equilibrados. Além disso, 
-                  a ferramenta também calcula o salário líquido em cada regime, mostrando claramente 
-                  as diferenças e ajudando você a tomar decisões financeiras mais assertivas.
+                  Descubra <strong className="text-secondary">quanto você pode economizar</strong> migrando de 
+                  autônomo para PJ. Nossa calculadora mostra a diferença real entre pagar impostos como 
+                  pessoa física (até 27,5% de IR) e como PJ no Simples Nacional (a partir de 6%). 
+                  Profissionais da saúde podem economizar <strong>milhares de reais por ano</strong> abrindo uma empresa!
                 </p>
               </div>
               <div className="hidden lg:block">
@@ -370,13 +350,13 @@ export default function CalculadoraPJCLT() {
                 )}
 
                 <h2 className="text-xl font-semibold text-center mb-8">
-                  Preencha as informações abaixo com seus dados CLT:
+                  Informe seus rendimentos atuais como autônomo:
                 </h2>
 
                 <div className="grid md:grid-cols-3 gap-4 mb-6">
                   <div className="space-y-2">
                     <Label htmlFor="salario" className="font-medium">
-                      Salário mensal bruto:
+                      Faturamento mensal bruto:
                     </Label>
                     <Input
                       id="salario"
@@ -493,67 +473,70 @@ export default function CalculadoraPJCLT() {
                 <div className="mt-8 space-y-8 animate-fade-in">
                   {/* Summary Card */}
                   <div className="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-2xl border border-secondary/20 p-6 lg:p-8">
+                    {/* Highlight savings banner */}
+                    {resultado.economiaMensal > 0 && (
+                      <div className="bg-secondary text-secondary-foreground rounded-xl p-4 mb-6 text-center">
+                        <p className="text-lg font-bold">
+                          🎉 Sendo PJ você economiza {formatCurrency(resultado.economiaMensal)}/mês
+                        </p>
+                        <p className="text-sm opacity-90">
+                          Isso equivale a {formatCurrency(resultado.economiaAnual)} por ano!
+                        </p>
+                      </div>
+                    )}
+
                     <h3 className="text-2xl font-bold text-center mb-6">
                       Resultado da Comparação
                     </h3>
                     
                     <div className="grid md:grid-cols-2 gap-6">
-                      {/* CLT Box */}
-                      <div className="bg-card rounded-xl p-6 border border-border">
+                      {/* Autônomo Box */}
+                      <div className="bg-card rounded-xl p-6 border border-border opacity-75">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                            <User className="h-6 w-6 text-primary" />
+                          <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                            <User className="h-6 w-6 text-muted-foreground" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-lg">CLT</h4>
+                            <h4 className="font-semibold text-lg">Autônomo</h4>
                             <p className="text-sm text-muted-foreground">Pessoa Física</p>
                           </div>
                         </div>
                         
                         <div className="space-y-3">
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Salário Bruto:</span>
-                            <span className="font-medium">{formatCurrency(resultado.salarioBrutoCLT)}</span>
+                            <span className="text-muted-foreground">Faturamento Bruto:</span>
+                            <span className="font-medium">{formatCurrency(resultado.salarioBrutoAutonomo)}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">INSS:</span>
+                            <span className="text-muted-foreground">INSS (até 14%):</span>
                             <span className="font-medium text-destructive">-{formatCurrency(resultado.inss)}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">IRRF:</span>
+                            <span className="text-muted-foreground">IRRF (até 27,5%):</span>
                             <span className="font-medium text-destructive">-{formatCurrency(resultado.irrf)}</span>
                           </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Salário Líquido:</span>
-                            <span className="font-medium">{formatCurrency(resultado.salarioLiquidoCLT)}</span>
-                          </div>
-                          <hr className="border-border" />
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">FGTS (8%):</span>
-                            <span className="font-medium text-secondary">+{formatCurrency(resultado.fgts)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Férias + 1/3 (proporcional):</span>
-                            <span className="font-medium text-secondary">+{formatCurrency(resultado.ferias)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">13º (proporcional):</span>
-                            <span className="font-medium text-secondary">+{formatCurrency(resultado.decimoTerceiro)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Benefícios:</span>
-                            <span className="font-medium text-secondary">+{formatCurrency(resultado.beneficiosTotais)}</span>
-                          </div>
+                          {resultado.beneficiosTotais > 0 && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Benefícios informados:</span>
+                              <span className="font-medium text-secondary">+{formatCurrency(resultado.beneficiosTotais)}</span>
+                            </div>
+                          )}
                           <hr className="border-border" />
                           <div className="flex justify-between font-bold">
-                            <span>Total Equivalente/mês:</span>
-                            <span className="text-primary">{formatCurrency(resultado.totalMensalEquivalenteCLT)}</span>
+                            <span>Total Líquido/mês:</span>
+                            <span className="text-muted-foreground">{formatCurrency(resultado.totalMensalEquivalenteAutonomo)}</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* PJ Box */}
-                      <div className="bg-card rounded-xl p-6 border-2 border-secondary">
+                      {/* PJ Box - Highlighted */}
+                      <div className="bg-card rounded-xl p-6 border-2 border-secondary shadow-glow relative">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                          <span className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-xs font-semibold">
+                            <TrendingUp className="h-3 w-3" />
+                            Recomendado
+                          </span>
+                        </div>
                         <div className="flex items-center gap-3 mb-4">
                           <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
                             <Building2 className="h-6 w-6 text-secondary" />
@@ -566,53 +549,61 @@ export default function CalculadoraPJCLT() {
                         
                         <div className="space-y-3">
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Faturamento Necessário:</span>
+                            <span className="text-muted-foreground">Mesmo Faturamento:</span>
                             <span className="font-bold text-secondary">{formatCurrency(resultado.faturamentoPJ)}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Impostos (~6%):</span>
+                            <span className="text-muted-foreground">Impostos Simples (~6%):</span>
                             <span className="font-medium text-destructive">-{formatCurrency(resultado.impostosPJ)}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">INSS (pró-labore):</span>
+                            <span className="text-muted-foreground">INSS (pró-labore mínimo):</span>
                             <span className="font-medium text-destructive">-{formatCurrency(resultado.inssPJ)}</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Contabilidade:</span>
                             <span className="font-medium text-destructive">-{formatCurrency(resultado.contabilidade)}</span>
                           </div>
+                          {resultado.beneficiosTotais > 0 && (
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Benefícios informados:</span>
+                              <span className="font-medium text-secondary">+{formatCurrency(resultado.beneficiosTotais)}</span>
+                            </div>
+                          )}
                           <hr className="border-border" />
                           <div className="flex justify-between font-bold">
-                            <span>Salário Líquido PJ:</span>
+                            <span>Total Líquido PJ:</span>
                             <span className="text-secondary">{formatCurrency(resultado.salarioLiquidoPJ)}</span>
                           </div>
                         </div>
 
-                        <div className="mt-6 p-4 bg-secondary/10 rounded-lg">
-                          <p className="text-sm text-center">
-                            Para equiparar ao CLT, você precisa faturar{" "}
-                            <span className="font-bold text-secondary">
-                              {resultado.percentualAumento.toFixed(0)}% a mais
-                            </span>{" "}
-                            que seu salário bruto atual.
-                          </p>
-                        </div>
+                        {resultado.economiaMensal > 0 && (
+                          <div className="mt-6 p-4 bg-secondary/10 rounded-lg">
+                            <p className="text-sm text-center">
+                              Você ganha{" "}
+                              <span className="font-bold text-secondary">
+                                {resultado.percentualEconomia.toFixed(0)}% a mais
+                              </span>{" "}
+                              sendo PJ com o mesmo faturamento!
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Annual Comparison */}
                     <div className="mt-8 grid md:grid-cols-3 gap-4">
                       <div className="bg-card rounded-xl p-4 text-center border border-border">
-                        <p className="text-sm text-muted-foreground mb-1">Total Anual CLT</p>
-                        <p className="text-xl font-bold">{formatCurrency(resultado.totalAnualCLT)}</p>
+                        <p className="text-sm text-muted-foreground mb-1">Total Anual Autônomo</p>
+                        <p className="text-xl font-bold text-muted-foreground">{formatCurrency(resultado.totalAnualAutonomo)}</p>
                       </div>
                       <div className="bg-card rounded-xl p-4 text-center border-2 border-secondary">
                         <p className="text-sm text-muted-foreground mb-1">Total Anual PJ</p>
                         <p className="text-xl font-bold text-secondary">{formatCurrency(resultado.totalAnualPJ)}</p>
                       </div>
-                      <div className="bg-card rounded-xl p-4 text-center border border-border">
-                        <p className="text-sm text-muted-foreground mb-1">Aumento Necessário</p>
-                        <p className="text-xl font-bold text-primary">+{resultado.percentualAumento.toFixed(0)}%</p>
+                      <div className="bg-secondary rounded-xl p-4 text-center">
+                        <p className="text-sm text-secondary-foreground/80 mb-1">Sua Economia Anual</p>
+                        <p className="text-xl font-bold text-secondary-foreground">+{formatCurrency(resultado.economiaAnual)}</p>
                       </div>
                     </div>
                   </div>
@@ -677,7 +668,7 @@ export default function CalculadoraPJCLT() {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                           <Button variant="zen-outline" size="lg" asChild>
                             <a
-                              href={`https://wa.me/5519974158342?text=Olá! Usei a calculadora PJ x CLT. Meu salário é ${salarioBruto} e gostaria de uma análise personalizada.`}
+                              href={`https://wa.me/5519974158342?text=Olá! Usei a calculadora PJ x Autônomo. Meu faturamento é ${salarioBruto} e gostaria de saber como economizar sendo PJ.`}
                               target="_blank"
                               rel="noopener noreferrer"
                             >
@@ -699,88 +690,88 @@ export default function CalculadoraPJCLT() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-bold mb-8">
-                Como calcular o salário PJ<span className="text-secondary">.</span>
+                Por que ser PJ vale a pena<span className="text-secondary">?</span>
               </h2>
               
               <div className="prose prose-lg max-w-none">
                 <p className="text-muted-foreground mb-6">
-                  Para calcular o salário PJ é necessário entender primeiro como calcular o seu salário 
-                  líquido CLT, somando os benefícios típicos dessa modalidade. O cálculo do salário CLT 
-                  envolve os seguintes passos:
+                  Profissionais autônomos pagam impostos altíssimos como pessoa física (INSS de até 14% + IRRF de até 27,5%). 
+                  Ao abrir uma empresa no Simples Nacional, especialmente com o benefício do Fator R, 
+                  você pode reduzir drasticamente essa carga tributária:
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
-                  <div className="bg-card rounded-xl p-6 border border-border">
+                  <div className="bg-card rounded-xl p-6 border border-border opacity-75">
                     <h4 className="font-semibold mb-4 flex items-center gap-2">
-                      <User className="h-5 w-5 text-primary" />
-                      Cálculo CLT
+                      <User className="h-5 w-5 text-muted-foreground" />
+                      Autônomo (Pessoa Física)
                     </h4>
-                    <ol className="space-y-3 text-sm">
+                    <ul className="space-y-3 text-sm">
                       <li className="flex gap-3">
-                        <span className="font-bold text-primary">1.</span>
-                        <span><strong>Salário líquido CLT:</strong> considere o seu salário líquido mensal (já descontados os impostos)</span>
+                        <span className="text-destructive">✗</span>
+                        <span><strong>INSS progressivo:</strong> até 14% do rendimento bruto</span>
                       </li>
                       <li className="flex gap-3">
-                        <span className="font-bold text-primary">2.</span>
-                        <span><strong>Férias + ⅓:</strong> adicione 33,33% sobre o valor do salário bruto, desconte os impostos e divida por 12</span>
+                        <span className="text-destructive">✗</span>
+                        <span><strong>IRRF progressivo:</strong> até 27,5% sobre o lucro</span>
                       </li>
                       <li className="flex gap-3">
-                        <span className="font-bold text-primary">3.</span>
-                        <span><strong>13º salário:</strong> divida o seu salário líquido mensal por 12</span>
+                        <span className="text-destructive">✗</span>
+                        <span><strong>Carnê-leão:</strong> obrigação de pagar mensalmente</span>
                       </li>
                       <li className="flex gap-3">
-                        <span className="font-bold text-primary">4.</span>
-                        <span><strong>FGTS:</strong> adicione 8% sobre o valor do salário bruto</span>
+                        <span className="text-destructive">✗</span>
+                        <span><strong>Menor credibilidade:</strong> clientes preferem NF de empresa</span>
                       </li>
-                      <li className="flex gap-3">
-                        <span className="font-bold text-primary">5.</span>
-                        <span><strong>Benefícios:</strong> some os benefícios de alimentação, saúde e outros</span>
-                      </li>
-                    </ol>
+                    </ul>
                   </div>
 
-                  <div className="bg-card rounded-xl p-6 border border-border">
+                  <div className="bg-card rounded-xl p-6 border-2 border-secondary">
                     <h4 className="font-semibold mb-4 flex items-center gap-2">
                       <Building2 className="h-5 w-5 text-secondary" />
-                      Cálculo PJ
+                      PJ (Pessoa Jurídica)
                     </h4>
-                    <ol className="space-y-3 text-sm">
+                    <ul className="space-y-3 text-sm">
                       <li className="flex gap-3">
-                        <span className="font-bold text-secondary">1.</span>
-                        <span><strong>Imposto da empresa:</strong> desconte de 6% a 33% do faturamento (dependendo do regime tributário)</span>
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span><strong>Impostos reduzidos:</strong> a partir de 6% no Simples Nacional</span>
                       </li>
                       <li className="flex gap-3">
-                        <span className="font-bold text-secondary">2.</span>
-                        <span><strong>INSS:</strong> desconte 11% sobre o valor do pró-labore</span>
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span><strong>Fator R:</strong> profissionais de saúde podem pagar menos ainda</span>
                       </li>
                       <li className="flex gap-3">
-                        <span className="font-bold text-secondary">3.</span>
-                        <span><strong>Contabilidade:</strong> desconte o custo mensal com contabilidade</span>
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span><strong>Nota Fiscal:</strong> mais credibilidade com clientes e convênios</span>
                       </li>
-                    </ol>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span><strong>Conta PJ:</strong> acesso a linhas de crédito melhores</span>
+                      </li>
+                    </ul>
 
                     <div className="mt-6 p-4 bg-secondary/10 rounded-lg">
                       <p className="text-sm">
-                        💡 Para profissionais de saúde, aplicamos o <strong>Fator R</strong> que pode 
-                        reduzir significativamente os impostos no Simples Nacional!
+                        💡 Com o <strong>Fator R</strong>, profissionais da saúde podem ter alíquota 
+                        inicial de apenas <strong>6%</strong> sobre o faturamento!
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-primary/5 rounded-xl p-6 border border-primary/20">
-                  <p className="text-muted-foreground">
-                    Na prática, para que a remuneração de um <strong>PJ</strong> seja equivalente ao que 
-                    você receberia como <strong>CLT</strong> é necessário que o salário bruto PJ seja, 
-                    em média, de <strong>20% a 50% maior</strong> do que o salário bruto CLT.
+                <div className="bg-secondary/10 rounded-xl p-6 border border-secondary/20">
+                  <p className="text-foreground font-medium">
+                    ✅ Na prática, profissionais que faturam <strong>R$ 15.000/mês</strong> como autônomo 
+                    podem economizar <strong>mais de R$ 2.000/mês</strong> ao migrar para PJ. 
+                    Isso representa <strong>mais de R$ 24.000/ano</strong> no seu bolso!
                   </p>
                 </div>
               </div>
 
               <div className="mt-8 text-center">
                 <Button variant="zen" size="lg" asChild>
-                  <Link to="/contato">
-                    Quero ser PJ
+                  <Link to="/abrir-empresa">
+                    Quero abrir minha empresa
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -794,95 +785,74 @@ export default function CalculadoraPJCLT() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-bold mb-8">
-                Principais diferenças entre PJ e CLT<span className="text-secondary">.</span>
+                Vantagens de ser PJ<span className="text-secondary">.</span>
               </h2>
 
               <p className="text-muted-foreground mb-8">
-                A principal diferença entre CLT e PJ é que, no modelo CLT, você tem acesso a férias, 
-                13º salário, FGTS e outros benefícios oferecidos pela empresa, porém, o salário líquido 
-                acaba sendo menor por conta dos descontos de INSS e IRRF. Já como PJ, o valor que você 
-                recebe é maior, mas não tem os mesmos benefícios e ainda precisa cuidar do pagamento dos 
-                seus próprios impostos.
+                Migrar de autônomo para PJ não é apenas sobre economia de impostos. 
+                Você ganha mais credibilidade, acesso a melhores oportunidades de negócio 
+                e pode escalar seus rendimentos de forma profissional.
               </p>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* PJ Card */}
-                <div className="bg-secondary/5 rounded-xl p-6 border border-secondary/20">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
-                      <Building2 className="h-6 w-6 text-secondary" />
-                    </div>
-                    <h3 className="text-xl font-bold">PJ</h3>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="bg-secondary/5 rounded-xl p-6 border border-secondary/20 text-center">
+                  <div className="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <DollarSign className="h-8 w-8 text-secondary" />
                   </div>
-                  <ul className="space-y-4">
-                    <li className="flex gap-3">
-                      <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>Remuneração sem descontos:</strong> o salário é pago integralmente, mas 
-                        o PJ é responsável por pagar seus próprios impostos
-                      </span>
-                    </li>
-                    <li className="flex gap-3">
-                      <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>Direitos trabalhistas:</strong> o PJ não possui os benefícios trabalhistas 
-                        garantidos pela CLT, a menos que sejam acordados contratualmente
-                      </span>
-                    </li>
-                    <li className="flex gap-3">
-                      <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>Flexibilidade de horário:</strong> pode estipular sua própria agenda de trabalho
-                      </span>
-                    </li>
-                    <li className="flex gap-3">
-                      <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>Maior liberdade:</strong> pode prestar serviços para diversos empregadores 
-                        ao mesmo tempo
-                      </span>
-                    </li>
-                  </ul>
+                  <h3 className="font-bold mb-2">Economia Real</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Pague menos impostos legalmente. Alíquota de 6% vs até 27,5% como autônomo.
+                  </p>
                 </div>
 
-                {/* CLT Card */}
-                <div className="bg-primary/5 rounded-xl p-6 border border-primary/20">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                      <User className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-bold">CLT</h3>
+                <div className="bg-secondary/5 rounded-xl p-6 border border-secondary/20 text-center">
+                  <div className="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FileText className="h-8 w-8 text-secondary" />
                   </div>
-                  <ul className="space-y-4">
-                    <li className="flex gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>Benefícios garantidos:</strong> férias, 13º salário, FGTS, vale-transporte 
-                        e vale-refeição (dependendo do contrato)
-                      </span>
-                    </li>
-                    <li className="flex gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>Descontos obrigatórios:</strong> o salário sofre descontos de INSS e 
-                        Imposto de Renda, reduzindo o valor líquido
-                      </span>
-                    </li>
-                    <li className="flex gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>Jornada definida:</strong> precisa cumprir a jornada de trabalho 
-                        estabelecida por lei
-                      </span>
-                    </li>
-                    <li className="flex gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm">
-                        <strong>Segurança:</strong> oferece mais segurança e direitos trabalhistas, 
-                        mas menor flexibilidade
-                      </span>
-                    </li>
-                  </ul>
+                  <h3 className="font-bold mb-2">Nota Fiscal</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Emita NF para hospitais, clínicas e convênios. Mais credibilidade profissional.
+                  </p>
+                </div>
+
+                <div className="bg-secondary/5 rounded-xl p-6 border border-secondary/20 text-center">
+                  <div className="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp className="h-8 w-8 text-secondary" />
+                  </div>
+                  <h3 className="font-bold mb-2">Crescimento</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Acesso a crédito empresarial, conta PJ e possibilidade de contratar funcionários.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 bg-card rounded-xl p-6 border-2 border-secondary">
+                <h3 className="font-bold mb-4 text-center">Por que profissionais da saúde escolhem o PJ?</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="flex gap-3">
+                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Fator R reduz impostos para serviços de saúde</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Atendimento em múltiplos locais sem restrições</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Flexibilidade para definir sua agenda</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Aposentadoria garantida via pró-labore</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Reinvestimento do dinheiro economizado</span>
+                  </div>
+                  <div className="flex gap-3">
+                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Contabilidade especializada cuida de tudo</span>
+                  </div>
                 </div>
               </div>
             </div>

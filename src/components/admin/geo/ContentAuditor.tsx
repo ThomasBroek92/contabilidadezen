@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, CheckCircle, FileText, Lightbulb, Wand2, Loader2, Sparkles, Copy, RotateCcw } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertCircle, CheckCircle, FileText, Lightbulb, Wand2, Loader2, Sparkles, Copy, RotateCcw, Save, FileDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  slug: string;
+  status: string;
+}
 
 interface AuditResult {
   score: number;
@@ -23,8 +32,69 @@ export function ContentAuditor() {
   const [content, setContent] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [result, setResult] = useState<AuditResult | null>(null);
   const [optimizedContent, setOptimizedContent] = useState<string | null>(null);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+
+  useEffect(() => {
+    fetchBlogPosts();
+  }, []);
+
+  const fetchBlogPosts = async () => {
+    setIsLoadingPosts(true);
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, content, slug, status')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBlogPosts(data || []);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setIsLoadingPosts(false);
+    }
+  };
+
+  const handleSelectPost = (postId: string) => {
+    const post = blogPosts.find(p => p.id === postId);
+    if (post) {
+      setSelectedPostId(postId);
+      setContent(post.content);
+      setResult(null);
+      setOptimizedContent(null);
+      toast({ title: 'Post carregado', description: `"${post.title}" foi carregado para análise.` });
+    }
+  };
+
+  const handleSaveToPost = async () => {
+    if (!selectedPostId || !optimizedContent) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .update({ content: optimizedContent, updated_at: new Date().toISOString() })
+        .eq('id', selectedPostId);
+
+      if (error) throw error;
+
+      toast({ title: 'Salvo com sucesso!', description: 'O conteúdo otimizado foi aplicado ao post.' });
+      setContent(optimizedContent);
+      setOptimizedContent(null);
+      setResult(null);
+      fetchBlogPosts();
+    } catch (error) {
+      console.error('Error saving:', error);
+      toast({ title: 'Erro ao salvar', description: 'Não foi possível salvar o conteúdo.', variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const analyzeContent = () => {
     setIsAnalyzing(true);
@@ -200,8 +270,44 @@ export function ContentAuditor() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Post Selector */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1">
+              <Select value={selectedPostId || ''} onValueChange={handleSelectPost}>
+                <SelectTrigger>
+                  <SelectValue placeholder={isLoadingPosts ? "Carregando posts..." : "Selecione um post existente (opcional)"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {blogPosts.map((post) => (
+                    <SelectItem key={post.id} value={post.id}>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={post.status === 'published' ? 'default' : 'secondary'} className="text-xs">
+                          {post.status === 'published' ? 'Pub' : post.status === 'draft' ? 'Rasc' : 'Agend'}
+                        </Badge>
+                        <span className="truncate max-w-[300px]">{post.title}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {selectedPostId && (
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSelectedPostId(null);
+                  setContent('');
+                  setResult(null);
+                  setOptimizedContent(null);
+                }}
+              >
+                Limpar Seleção
+              </Button>
+            )}
+          </div>
+
           <Textarea
-            placeholder="Cole aqui o conteúdo da página que deseja analisar..."
+            placeholder="Cole aqui o conteúdo da página que deseja analisar ou selecione um post acima..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="min-h-[200px]"
@@ -279,15 +385,30 @@ export function ContentAuditor() {
                     <CheckCircle className="h-5 w-5" />
                     Conteúdo Otimizado
                   </CardTitle>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={handleCopyOptimized}>
                       <Copy className="h-4 w-4 mr-2" />
                       Copiar
                     </Button>
-                    <Button size="sm" onClick={handleUseOptimized}>
+                    <Button variant="outline" size="sm" onClick={handleUseOptimized}>
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Usar e Reanalisar
                     </Button>
+                    {selectedPostId && (
+                      <Button size="sm" onClick={handleSaveToPost} disabled={isSaving}>
+                        {isSaving ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Salvando...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-4 w-4 mr-2" />
+                            Salvar no Post
+                          </>
+                        )}
+                      </Button>
+                    )}
                   </div>
                 </div>
                 <CardDescription>

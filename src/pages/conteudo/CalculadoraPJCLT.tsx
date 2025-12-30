@@ -859,139 +859,182 @@ export default function CalculadoraPJCLT() {
           </div>
         </section>
 
-        {/* Information Accordions */}
+        {/* FAQ Section - Abertura de Empresa PJ */}
         <section className="py-12 lg:py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold mb-8">
-                Outras informações importantes<span className="text-secondary">.</span>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                Dúvidas frequentes sobre abertura de empresa PJ<span className="text-secondary">.</span>
               </h2>
+              <p className="text-muted-foreground mb-8">
+                Tudo o que você precisa saber para migrar de autônomo para PJ e começar a economizar.
+              </p>
 
               <Accordion type="single" collapsible className="space-y-4">
-                <AccordionItem value="contratacao" className="bg-card rounded-xl border border-border px-6">
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">Como é feita a contratação PJ e CLT?</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold mb-3 text-secondary">PJ</h4>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                          <li>• Abrir uma empresa (CNPJ)</li>
-                          <li>• Contrato de prestação de serviços</li>
-                          <li>• Sem registro em carteira</li>
-                          <li>• Responsabilidade pelos próprios impostos</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3 text-primary">CLT</h4>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                          <li>• Vínculo empregatício formal</li>
-                          <li>• Assinatura da carteira de trabalho</li>
-                          <li>• Direitos trabalhistas garantidos</li>
-                          <li>• Jornada de 44 horas semanais</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="obrigacoes" className="bg-card rounded-xl border border-border px-6">
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">Quais são as principais obrigações?</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold mb-3 text-secondary">PJ</h4>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                          <li>• Abrir um CNPJ</li>
-                          <li>• Contratar escritório de contabilidade</li>
-                          <li>• Emitir notas fiscais</li>
-                          <li>• Pagar impostos mensalmente</li>
-                          <li>• Cumprir o contrato acordado</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3 text-primary">CLT</h4>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                          <li>• Cumprir jornada de trabalho</li>
-                          <li>• Obedecer normas internas</li>
-                          <li>• Fazer exames médicos periódicos</li>
-                          <li>• Não faltar sem justificativa</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="direitos" className="bg-card rounded-xl border border-border px-6">
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">Quais são os principais direitos?</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold mb-3 text-secondary">PJ</h4>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                          <li>• Benefícios previdenciários via pró-labore</li>
-                          <li>• Emitir NF para diversos clientes</li>
-                          <li>• Liberdade para negociar condições</li>
-                          <li>• Autonomia na rotina de trabalho</li>
-                          <li>• Pode contratar funcionários</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3 text-primary">CLT</h4>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                          <li>• Férias remuneradas</li>
-                          <li>• Adicional por hora extra</li>
-                          <li>• Licença-maternidade/paternidade</li>
-                          <li>• Seguro-desemprego</li>
-                          <li>• 13º salário</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="descontos" className="bg-card rounded-xl border border-border px-6">
+                <AccordionItem value="quanto-custa" className="bg-card rounded-xl border border-border px-6">
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-3">
                       <DollarSign className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">Quais são os descontos?</span>
+                      <span className="font-semibold">Quanto custa abrir uma empresa PJ?</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="pt-2 pb-4">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold mb-3 text-secondary">PJ</h4>
-                        <p className="text-sm text-muted-foreground">
-                          O valor recebido pelos serviços prestados não sofre nenhum desconto legal. 
-                          O contratante paga somente o valor combinado em contrato. Porém, o pagamento 
-                          dos impostos fica por conta do próprio PJ.
-                        </p>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3 text-primary">CLT</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Os descontos podem ser facultativos (vale-transporte, plano de saúde) ou 
-                          obrigatórios por lei (INSS e IRRF), que são abatidos do salário bruto.
-                        </p>
-                      </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Na Contabilidade Zen, a abertura de empresa para profissionais da saúde é <strong className="text-secondary">gratuita</strong>! 
+                      Você só paga a mensalidade da contabilidade a partir de R$ 297,90/mês.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Os únicos custos iniciais são taxas governamentais (aproximadamente R$ 200-400), que variam conforme 
+                      o estado e município. Nós cuidamos de toda a burocracia para você.
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="quanto-tempo" className="bg-card rounded-xl border border-border px-6">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="h-5 w-5 text-secondary" />
+                      <span className="font-semibold">Quanto tempo leva para abrir a empresa?</span>
                     </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      O processo completo leva em média <strong className="text-secondary">7 a 15 dias úteis</strong>, dependendo 
+                      da prefeitura e do conselho profissional da sua área.
+                    </p>
+                    <ul className="text-sm text-muted-foreground space-y-2">
+                      <li>• <strong>CNPJ:</strong> 1-3 dias úteis</li>
+                      <li>• <strong>Inscrição Municipal:</strong> 3-7 dias úteis</li>
+                      <li>• <strong>Alvará de Funcionamento:</strong> 3-10 dias úteis</li>
+                      <li>• <strong>Registro no Conselho:</strong> varia por categoria</li>
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="documentos" className="bg-card rounded-xl border border-border px-6">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-secondary" />
+                      <span className="font-semibold">Quais documentos preciso para abrir?</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      A documentação é simples. Você vai precisar de:
+                    </p>
+                    <ul className="text-sm text-muted-foreground space-y-2">
+                      <li>• RG e CPF</li>
+                      <li>• Comprovante de residência atualizado</li>
+                      <li>• Registro no conselho profissional (CRM, CRO, CRP, etc.)</li>
+                      <li>• Certificado digital (nós orientamos como obter)</li>
+                    </ul>
+                    <p className="text-sm text-muted-foreground mt-3">
+                      Nossa equipe te guia em cada etapa do processo!
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="fator-r" className="bg-card rounded-xl border border-border px-6">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="h-5 w-5 text-secondary" />
+                      <span className="font-semibold">O que é o Fator R e como me beneficia?</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      O Fator R é um cálculo que permite que profissionais de serviços (como médicos, dentistas e psicólogos) 
+                      paguem <strong className="text-secondary">impostos muito menores</strong> no Simples Nacional.
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Se a folha de pagamento (pró-labore + funcionários) for igual ou maior que 28% do faturamento, 
+                      você é tributado pelo Anexo III (a partir de 6%) ao invés do Anexo V (a partir de 15,5%).
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Nós fazemos o planejamento tributário para você sempre pagar o menor imposto possível!
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="posso-continuar" className="bg-card rounded-xl border border-border px-6">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <Building2 className="h-5 w-5 text-secondary" />
+                      <span className="font-semibold">Posso continuar atendendo nos mesmos lugares?</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      <strong className="text-secondary">Sim!</strong> Ao abrir sua empresa PJ, você continua atendendo exatamente 
+                      onde já atende. A diferença é que agora você emite nota fiscal pela sua empresa.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Na verdade, ter CNPJ pode abrir mais portas: muitos hospitais e convênios preferem 
+                      contratar profissionais PJ, e você pode atender em quantos locais quiser.
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="aposentadoria" className="bg-card rounded-xl border border-border px-6">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <User className="h-5 w-5 text-secondary" />
+                      <span className="font-semibold">E a aposentadoria? Como fica o INSS?</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Você continua contribuindo para o INSS através do <strong>pró-labore</strong>, que é a 
+                      retirada mensal obrigatória do sócio. Isso garante todos os benefícios previdenciários:
+                    </p>
+                    <ul className="text-sm text-muted-foreground space-y-2">
+                      <li>• Aposentadoria</li>
+                      <li>• Auxílio-doença</li>
+                      <li>• Licença-maternidade</li>
+                      <li>• Pensão por morte</li>
+                    </ul>
+                    <p className="text-sm text-muted-foreground mt-3">
+                      A vantagem é que você pode definir o valor do pró-labore de forma estratégica, 
+                      pagando menos INSS que como autônomo.
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="contabilidade" className="bg-card rounded-xl border border-border px-6">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-secondary" />
+                      <span className="font-semibold">Preciso de contador? O que a contabilidade faz?</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Sim, toda empresa precisa de um contador responsável. A boa notícia é que a contabilidade 
+                      cuida de <strong className="text-secondary">tudo</strong> para você:
+                    </p>
+                    <ul className="text-sm text-muted-foreground space-y-2">
+                      <li>• Abertura e regularização da empresa</li>
+                      <li>• Cálculo e pagamento de impostos</li>
+                      <li>• Emissão de guias (DAS, INSS, etc.)</li>
+                      <li>• Declarações obrigatórias</li>
+                      <li>• Planejamento tributário para pagar menos</li>
+                      <li>• Suporte para dúvidas fiscais</li>
+                    </ul>
+                    <p className="text-sm text-muted-foreground mt-3">
+                      Você foca no que faz de melhor: atender seus pacientes. Nós cuidamos do resto!
+                    </p>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
+
+              <div className="mt-8 text-center">
+                <Button variant="zen" size="lg" asChild>
+                  <Link to="/abrir-empresa">
+                    Quero abrir minha empresa agora
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>

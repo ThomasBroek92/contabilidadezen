@@ -267,6 +267,13 @@ export type Database = {
           content_length_max: number | null
           content_length_min: number | null
           created_at: string | null
+          cta_button_text: string | null
+          cta_description: string | null
+          cta_enabled: boolean | null
+          cta_position: string | null
+          cta_title: string | null
+          cta_type: string | null
+          cta_whatsapp_message: string | null
           exclude_competitor_quotes: boolean | null
           excluded_citation_keywords: string[] | null
           expert_bio: string | null
@@ -279,6 +286,8 @@ export type Database = {
           freshness_signals_enabled: boolean | null
           id: string
           internal_linking_enabled: boolean | null
+          lead_form_description: string | null
+          lead_form_title: string | null
           max_external_links: number | null
           max_internal_links: number | null
           min_external_links: number | null
@@ -288,6 +297,9 @@ export type Database = {
           preferred_expert_types: string[] | null
           reading_level: string | null
           seo_meta_auto_generate: boolean | null
+          show_lead_form: boolean | null
+          show_pj_comparison: boolean | null
+          show_tax_calculator: boolean | null
           statistics_citations_enabled: boolean | null
           structured_data_enabled: boolean | null
           target_personas: string[] | null
@@ -307,6 +319,13 @@ export type Database = {
           content_length_max?: number | null
           content_length_min?: number | null
           created_at?: string | null
+          cta_button_text?: string | null
+          cta_description?: string | null
+          cta_enabled?: boolean | null
+          cta_position?: string | null
+          cta_title?: string | null
+          cta_type?: string | null
+          cta_whatsapp_message?: string | null
           exclude_competitor_quotes?: boolean | null
           excluded_citation_keywords?: string[] | null
           expert_bio?: string | null
@@ -319,6 +338,8 @@ export type Database = {
           freshness_signals_enabled?: boolean | null
           id?: string
           internal_linking_enabled?: boolean | null
+          lead_form_description?: string | null
+          lead_form_title?: string | null
           max_external_links?: number | null
           max_internal_links?: number | null
           min_external_links?: number | null
@@ -328,6 +349,9 @@ export type Database = {
           preferred_expert_types?: string[] | null
           reading_level?: string | null
           seo_meta_auto_generate?: boolean | null
+          show_lead_form?: boolean | null
+          show_pj_comparison?: boolean | null
+          show_tax_calculator?: boolean | null
           statistics_citations_enabled?: boolean | null
           structured_data_enabled?: boolean | null
           target_personas?: string[] | null
@@ -347,6 +371,13 @@ export type Database = {
           content_length_max?: number | null
           content_length_min?: number | null
           created_at?: string | null
+          cta_button_text?: string | null
+          cta_description?: string | null
+          cta_enabled?: boolean | null
+          cta_position?: string | null
+          cta_title?: string | null
+          cta_type?: string | null
+          cta_whatsapp_message?: string | null
           exclude_competitor_quotes?: boolean | null
           excluded_citation_keywords?: string[] | null
           expert_bio?: string | null
@@ -359,6 +390,8 @@ export type Database = {
           freshness_signals_enabled?: boolean | null
           id?: string
           internal_linking_enabled?: boolean | null
+          lead_form_description?: string | null
+          lead_form_title?: string | null
           max_external_links?: number | null
           max_internal_links?: number | null
           min_external_links?: number | null
@@ -368,6 +401,9 @@ export type Database = {
           preferred_expert_types?: string[] | null
           reading_level?: string | null
           seo_meta_auto_generate?: boolean | null
+          show_lead_form?: boolean | null
+          show_pj_comparison?: boolean | null
+          show_tax_calculator?: boolean | null
           statistics_citations_enabled?: boolean | null
           structured_data_enabled?: boolean | null
           target_personas?: string[] | null

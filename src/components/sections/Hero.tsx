@@ -74,7 +74,15 @@ export function Hero() {
           animationDelay: "0.2s"
         }}>
             <div className="relative rounded-2xl overflow-hidden shadow-card">
-              <img alt="Profissionais da saúde" src="/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png" className="w-full h-auto object-contain shadow-lg" />
+              <img 
+                alt="Profissionais da saúde" 
+                src="/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png" 
+                className="w-full h-auto object-contain shadow-lg"
+                width={600}
+                height={900}
+                fetchPriority="high"
+                decoding="async"
+              />
               {/* Floating Card */}
               <div className="absolute bottom-6 left-6 right-6 bg-card/95 backdrop-blur rounded-xl p-4 shadow-soft">
                 <div className="flex items-center gap-4">

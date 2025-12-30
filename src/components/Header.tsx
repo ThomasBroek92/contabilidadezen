@@ -52,7 +52,15 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:h-20">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img src={logoFull} alt="Contabilidade Zen" className="h-10 lg:h-12 w-auto" />
+          <img 
+            src={logoFull} 
+            alt="Contabilidade Zen" 
+            className="h-10 lg:h-12 w-auto" 
+            width={240}
+            height={48}
+            loading="eager"
+            decoding="async"
+          />
         </Link>
 
         {/* Desktop Navigation */}

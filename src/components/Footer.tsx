@@ -9,7 +9,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Logo e Descrição */}
           <div className="space-y-4">
-            <img src={logoFull} alt="Contabilidade Zen" className="h-12 w-auto brightness-0 invert" />
+            <img 
+              src={logoFull} 
+              alt="Contabilidade Zen" 
+              className="h-12 w-auto brightness-0 invert" 
+              width={240}
+              height={48}
+              loading="lazy"
+              decoding="async"
+            />
             <p className="text-primary-foreground/80 text-sm leading-relaxed">
               Contabilidade especializada para profissionais da saúde. 
               Você cuida da saúde dos seus pacientes, nós cuidamos da saúde financeira do seu negócio.

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { 
   Calculator, 
   TrendingDown, 
@@ -19,9 +20,32 @@ import {
   AlertCircle,
   ArrowRight,
   Info,
-  Phone
+  Phone,
+  Lock,
+  Loader2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLeadCapture } from '@/hooks/use-lead-capture';
+import { toast } from 'sonner';
+import { z } from 'zod';
+
+const SEGMENTOS = [
+  { value: 'medico', label: 'Médico(a)' },
+  { value: 'psicologo', label: 'Psicólogo(a)' },
+  { value: 'nutricionista', label: 'Nutricionista' },
+  { value: 'terapeuta', label: 'Terapeuta' },
+  { value: 'saude_outros', label: 'Outro profissional da saúde' },
+  { value: 'outros', label: 'Outros' },
+];
+
+const leadFormSchema = z.object({
+  nome: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres').max(100),
+  whatsapp: z.string().min(10, 'WhatsApp inválido').max(20),
+  email: z.string().email('E-mail inválido').max(255),
+  temEmpresa: z.enum(['sim', 'nao']),
+  segmento: z.string().min(1, 'Selecione um segmento'),
+  segmentoOutro: z.string().optional(),
+});
 
 // Tabelas do Simples Nacional 2024
 const ANEXO_3 = [
@@ -63,6 +87,20 @@ const TETO_INSS = 7786.02;
 const INSS_AUTONOMO_ALIQUOTA = 20; // 20% sobre faturamento até o teto
 
 export default function ComparativoTributario() {
+  // Lead capture state
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [formData, setFormData] = useState({
+    nome: '',
+    whatsapp: '',
+    email: '',
+    temEmpresa: '' as 'sim' | 'nao' | '',
+    segmento: '',
+    segmentoOutro: '',
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { saveLead, isSaving } = useLeadCapture();
+
+  // Calculator state
   const [faturamentoMensal, setFaturamentoMensal] = useState(25000);
   const [folhaPagamento, setFolhaPagamento] = useState(6200);
   const [despesasMensal, setDespesasMensal] = useState(0);
@@ -207,6 +245,56 @@ export default function ComparativoTributario() {
     return value.toFixed(2) + '%';
   };
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormErrors({});
+
+    // Validate with zod
+    const dataToValidate = {
+      ...formData,
+      segmentoOutro: formData.segmento === 'outros' ? formData.segmentoOutro : undefined,
+    };
+
+    const result = leadFormSchema.safeParse(dataToValidate);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        if (err.path[0]) {
+          errors[err.path[0] as string] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      return;
+    }
+
+    // Validate segmentoOutro if segmento is "outros"
+    if (formData.segmento === 'outros' && !formData.segmentoOutro?.trim()) {
+      setFormErrors({ segmentoOutro: 'Por favor, especifique seu segmento' });
+      return;
+    }
+
+    const segmentoFinal = formData.segmento === 'outros' 
+      ? `Outros: ${formData.segmentoOutro}` 
+      : SEGMENTOS.find(s => s.value === formData.segmento)?.label || formData.segmento;
+
+    const success = await saveLead({
+      nome: formData.nome,
+      email: formData.email,
+      whatsapp: formData.whatsapp,
+      segmento: segmentoFinal,
+      fonte: 'Comparativo Tributário',
+      empresa: formData.temEmpresa === 'sim' ? 'Empresa já aberta' : 'Sem empresa aberta',
+      cargo: segmentoFinal,
+    });
+
+    if (success) {
+      toast.success('Dados enviados com sucesso! Liberando acesso...');
+      setIsUnlocked(true);
+    } else {
+      toast.error('Ocorreu um erro. Tente novamente.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
@@ -238,7 +326,139 @@ export default function ComparativoTributario() {
           </div>
         </section>
 
-        {/* Calculator */}
+        {/* Lead Capture Gate */}
+        {!isUnlocked ? (
+          <section className="py-12 lg:py-16">
+            <div className="container mx-auto px-4">
+              <div className="max-w-xl mx-auto">
+                <Card className="border-2 border-primary/20">
+                  <CardHeader className="text-center">
+                    <div className="mx-auto mb-4 p-4 bg-primary/10 rounded-full w-fit">
+                      <Lock className="h-8 w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-2xl">Acesse o Comparativo Tributário</CardTitle>
+                    <CardDescription className="text-base">
+                      Preencha seus dados para liberar acesso completo à ferramenta de comparação de regimes tributários.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleFormSubmit} className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="nome">Nome completo *</Label>
+                        <Input
+                          id="nome"
+                          placeholder="Seu nome completo"
+                          value={formData.nome}
+                          onChange={(e) => setFormData(prev => ({ ...prev, nome: e.target.value }))}
+                          className={formErrors.nome ? 'border-destructive' : ''}
+                        />
+                        {formErrors.nome && <p className="text-sm text-destructive">{formErrors.nome}</p>}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="whatsapp">WhatsApp *</Label>
+                        <Input
+                          id="whatsapp"
+                          placeholder="(11) 99999-9999"
+                          value={formData.whatsapp}
+                          onChange={(e) => setFormData(prev => ({ ...prev, whatsapp: e.target.value }))}
+                          className={formErrors.whatsapp ? 'border-destructive' : ''}
+                        />
+                        {formErrors.whatsapp && <p className="text-sm text-destructive">{formErrors.whatsapp}</p>}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="email">E-mail *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="seu@email.com"
+                          value={formData.email}
+                          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                          className={formErrors.email ? 'border-destructive' : ''}
+                        />
+                        {formErrors.email && <p className="text-sm text-destructive">{formErrors.email}</p>}
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label>Você já tem empresa aberta? *</Label>
+                        <RadioGroup
+                          value={formData.temEmpresa}
+                          onValueChange={(value) => setFormData(prev => ({ ...prev, temEmpresa: value as 'sim' | 'nao' }))}
+                          className="flex gap-6"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="sim" id="empresa-sim" />
+                            <Label htmlFor="empresa-sim" className="font-normal cursor-pointer">Sim</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="nao" id="empresa-nao" />
+                            <Label htmlFor="empresa-nao" className="font-normal cursor-pointer">Não</Label>
+                          </div>
+                        </RadioGroup>
+                        {formErrors.temEmpresa && <p className="text-sm text-destructive">{formErrors.temEmpresa}</p>}
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label>Qual seu segmento de atuação? *</Label>
+                        <RadioGroup
+                          value={formData.segmento}
+                          onValueChange={(value) => setFormData(prev => ({ ...prev, segmento: value }))}
+                          className="grid grid-cols-2 gap-3"
+                        >
+                          {SEGMENTOS.map((seg) => (
+                            <div key={seg.value} className="flex items-center space-x-2">
+                              <RadioGroupItem value={seg.value} id={`seg-${seg.value}`} />
+                              <Label htmlFor={`seg-${seg.value}`} className="font-normal cursor-pointer">{seg.label}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                        {formErrors.segmento && <p className="text-sm text-destructive">{formErrors.segmento}</p>}
+                      </div>
+
+                      {formData.segmento === 'outros' && (
+                        <div className="space-y-2">
+                          <Label htmlFor="segmentoOutro">Especifique seu segmento *</Label>
+                          <Input
+                            id="segmentoOutro"
+                            placeholder="Ex: Advogado, Engenheiro, etc."
+                            value={formData.segmentoOutro}
+                            onChange={(e) => setFormData(prev => ({ ...prev, segmentoOutro: e.target.value }))}
+                            className={formErrors.segmentoOutro ? 'border-destructive' : ''}
+                          />
+                          {formErrors.segmentoOutro && <p className="text-sm text-destructive">{formErrors.segmentoOutro}</p>}
+                        </div>
+                      )}
+
+                      <Button type="submit" className="w-full" size="lg" disabled={isSaving}>
+                        {isSaving ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="mr-2 h-4 w-4" />
+                            Liberar Acesso ao Comparativo
+                          </>
+                        )}
+                      </Button>
+
+                      <p className="text-xs text-center text-muted-foreground">
+                        Ao continuar, você concorda com nossa{' '}
+                        <Link to="/politica-privacidade" className="underline hover:text-primary">
+                          Política de Privacidade
+                        </Link>
+                        .
+                      </p>
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
+        ) : (
+        /* Calculator */
         <section className="py-12 lg:py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
@@ -787,6 +1007,7 @@ export default function ComparativoTributario() {
             </div>
           </div>
         </section>
+        )}
       </main>
 
       <Footer />

@@ -26,7 +26,12 @@ import {
   BookOpen,
   Zap,
   Plus,
-  X
+  X,
+  MessageSquare,
+  Calculator,
+  FileText,
+  Users,
+  Phone
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -75,7 +80,34 @@ interface ContentSettings {
   target_personas: string[];
   brand_authority_keywords: string[];
   min_geo_score_publish: number;
+  // CTA and Interaction Settings
+  cta_enabled: boolean;
+  cta_type: string;
+  cta_title: string;
+  cta_description: string;
+  cta_button_text: string;
+  cta_whatsapp_message: string;
+  show_tax_calculator: boolean;
+  show_pj_comparison: boolean;
+  show_lead_form: boolean;
+  lead_form_title: string;
+  lead_form_description: string;
+  cta_position: string;
 }
+
+const CTA_TYPE_OPTIONS = [
+  { value: 'consultoria_gratuita', label: 'Consultoria Gratuita', description: 'Agendar uma conversa com especialista' },
+  { value: 'whatsapp', label: 'WhatsApp Direto', description: 'Link direto para WhatsApp' },
+  { value: 'formulario', label: 'Formulário de Contato', description: 'Formulário para captura de leads' },
+  { value: 'calculadora', label: 'Calculadora Tributária', description: 'Ferramenta interativa de cálculo' },
+];
+
+const CTA_POSITION_OPTIONS = [
+  { value: 'after_content', label: 'Após o Conteúdo', description: 'CTA aparece no final do post' },
+  { value: 'mid_content', label: 'Meio do Conteúdo', description: 'CTA inserido no meio do artigo' },
+  { value: 'sidebar', label: 'Barra Lateral', description: 'CTA fixo na lateral (se disponível)' },
+  { value: 'both', label: 'Meio e Final', description: 'CTA aparece no meio e no final' },
+];
 
 const AI_TONE_OPTIONS = [
   { value: 'profissional e educativo', label: 'Profissional e Educativo', description: 'Tom formal, didático e confiável' },
@@ -158,6 +190,19 @@ export function ContentSettingsTab() {
         target_personas: settings.target_personas,
         brand_authority_keywords: settings.brand_authority_keywords,
         min_geo_score_publish: settings.min_geo_score_publish,
+        // CTA Settings
+        cta_enabled: settings.cta_enabled,
+        cta_type: settings.cta_type,
+        cta_title: settings.cta_title,
+        cta_description: settings.cta_description,
+        cta_button_text: settings.cta_button_text,
+        cta_whatsapp_message: settings.cta_whatsapp_message,
+        show_tax_calculator: settings.show_tax_calculator,
+        show_pj_comparison: settings.show_pj_comparison,
+        show_lead_form: settings.show_lead_form,
+        lead_form_title: settings.lead_form_title,
+        lead_form_description: settings.lead_form_description,
+        cta_position: settings.cta_position,
       } as Record<string, unknown>)
       .eq('id', settings.id);
 
@@ -864,6 +909,211 @@ export function ContentSettingsTab() {
                 ))}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* CTA and Interaction Settings */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <MessageSquare className="h-5 w-5 text-primary" />
+              CTAs e Pontos de Interação
+            </CardTitle>
+            <CardDescription>Configure os call-to-actions e ferramentas interativas nos posts do blog</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Main CTA Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Ativar CTAs nos Posts</Label>
+                <p className="text-xs text-muted-foreground">Adiciona chamadas para ação em todos os posts do blog</p>
+              </div>
+              <Switch
+                checked={settings.cta_enabled ?? true}
+                onCheckedChange={(v) => updateSetting('cta_enabled', v)}
+              />
+            </div>
+
+            {settings.cta_enabled && (
+              <>
+                <Separator />
+
+                {/* CTA Configuration */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Tipo de CTA Principal</Label>
+                    <Select value={settings.cta_type || 'consultoria_gratuita'} onValueChange={(v) => updateSetting('cta_type', v)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CTA_TYPE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            <div>
+                              <p className="font-medium">{option.label}</p>
+                              <p className="text-xs text-muted-foreground">{option.description}</p>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Posição do CTA</Label>
+                    <Select value={settings.cta_position || 'after_content'} onValueChange={(v) => updateSetting('cta_position', v)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a posição" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CTA_POSITION_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            <div>
+                              <p className="font-medium">{option.label}</p>
+                              <p className="text-xs text-muted-foreground">{option.description}</p>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
+                  <div className="space-y-2">
+                    <Label>Título do CTA</Label>
+                    <Input
+                      value={settings.cta_title || ''}
+                      onChange={(e) => updateSetting('cta_title', e.target.value)}
+                      placeholder="Ex: Fale com um Especialista"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Descrição do CTA</Label>
+                    <Textarea
+                      value={settings.cta_description || ''}
+                      onChange={(e) => updateSetting('cta_description', e.target.value)}
+                      placeholder="Ex: Agende uma consultoria gratuita e tire todas as suas dúvidas..."
+                      className="min-h-[80px]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Texto do Botão</Label>
+                      <Input
+                        value={settings.cta_button_text || ''}
+                        onChange={(e) => updateSetting('cta_button_text', e.target.value)}
+                        placeholder="Ex: Agendar Consultoria Gratuita"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        Mensagem do WhatsApp
+                      </Label>
+                      <Input
+                        value={settings.cta_whatsapp_message || ''}
+                        onChange={(e) => updateSetting('cta_whatsapp_message', e.target.value)}
+                        placeholder="Ex: Olá! Vi o artigo no blog..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Interactive Tools */}
+                <div className="space-y-4">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Calculator className="h-4 w-4 text-primary" />
+                    Ferramentas Interativas nos Posts
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <Label className="flex items-center gap-2">
+                            <Calculator className="h-4 w-4" />
+                            Calculadora Tributária
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Comparativo de impostos entre regimes
+                          </p>
+                        </div>
+                        <Switch
+                          checked={settings.show_tax_calculator ?? true}
+                          onCheckedChange={(v) => updateSetting('show_tax_calculator', v)}
+                        />
+                      </div>
+                    </Card>
+
+                    <Card className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <Label className="flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            Comparativo PJ x Autônomo
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Mostra vantagens de abrir empresa
+                          </p>
+                        </div>
+                        <Switch
+                          checked={settings.show_pj_comparison ?? true}
+                          onCheckedChange={(v) => updateSetting('show_pj_comparison', v)}
+                        />
+                      </div>
+                    </Card>
+
+                    <Card className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <Label className="flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            Formulário de Lead
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Captura leads diretamente no post
+                          </p>
+                        </div>
+                        <Switch
+                          checked={settings.show_lead_form ?? true}
+                          onCheckedChange={(v) => updateSetting('show_lead_form', v)}
+                        />
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+
+                {settings.show_lead_form && (
+                  <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
+                    <h4 className="font-medium">Configuração do Formulário de Lead</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Título do Formulário</Label>
+                        <Input
+                          value={settings.lead_form_title || ''}
+                          onChange={(e) => updateSetting('lead_form_title', e.target.value)}
+                          placeholder="Ex: Receba uma Análise Personalizada"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Descrição do Formulário</Label>
+                        <Input
+                          value={settings.lead_form_description || ''}
+                          onChange={(e) => updateSetting('lead_form_description', e.target.value)}
+                          placeholder="Ex: Preencha o formulário e receba gratuitamente..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

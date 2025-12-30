@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
+import { BlogCTASection } from '@/components/blog/BlogCTASection';
 
 interface ExpertQuote {
   quote: string;
@@ -344,6 +345,9 @@ export default function BlogPost() {
           <div className="container mx-auto px-4 max-w-4xl">
             <MarkdownRenderer content={post.content} />
 
+            {/* Mid-Content CTA */}
+            <BlogCTASection position="mid" postTitle={post.title} />
+
             {/* Expert Quotes Section (GEO-friendly) */}
             {expertQuotes.length > 0 && (
               <div className="mt-12 pt-8 border-t border-border">
@@ -432,6 +436,9 @@ export default function BlogPost() {
                 Revisado por: <strong>Equipe Contabilidade Zona Sul</strong>
               </p>
             </div>
+
+            {/* End-Content CTA */}
+            <BlogCTASection position="end" postTitle={post.title} />
           </div>
         </article>
 

@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, CheckCircle, FileText, Lightbulb, Wand2, Loader2 } from 'lucide-react';
+import { AlertCircle, CheckCircle, FileText, Lightbulb, Wand2, Loader2, Sparkles, Copy, RotateCcw } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuditResult {
   score: number;
@@ -17,12 +19,16 @@ interface AuditResult {
 }
 
 export function ContentAuditor() {
+  const { toast } = useToast();
   const [content, setContent] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const [result, setResult] = useState<AuditResult | null>(null);
+  const [optimizedContent, setOptimizedContent] = useState<string | null>(null);
 
   const analyzeContent = () => {
     setIsAnalyzing(true);
+    setOptimizedContent(null);
     
     // Simulated analysis
     setTimeout(() => {
@@ -48,6 +54,7 @@ export function ContentAuditor() {
       // Check word count
       if (words.length < 300) {
         issues.push({ type: 'warning', message: `Conteúdo curto (${words.length} palavras). Recomendado: 800-1500 palavras` });
+        suggestions.push('Expanda o conteúdo para 800-1500 palavras para melhor cobertura do tema');
         score -= 10;
       }
 
@@ -74,8 +81,11 @@ export function ContentAuditor() {
       // Check for expert citations
       const hasQuotes = content.includes('"') || content.includes('segundo') || content.includes('de acordo com');
       if (!hasQuotes) {
+        issues.push({ type: 'warning', message: 'Sem citações de especialistas detectadas' });
         suggestions.push('Inclua citações de especialistas ou fontes reconhecidas');
         score -= 10;
+      } else {
+        issues.push({ type: 'success', message: 'Citações de especialistas presentes' });
       }
 
       // Check for freshness signals
@@ -84,6 +94,8 @@ export function ContentAuditor() {
         issues.push({ type: 'warning', message: 'Sem sinais de "freshness" (data de atualização)' });
         suggestions.push('Adicione "Última atualização: [data]" para sinalizar conteúdo atual');
         score -= 10;
+      } else {
+        issues.push({ type: 'success', message: 'Sinais de freshness presentes' });
       }
 
       setResult({
@@ -99,11 +111,81 @@ export function ContentAuditor() {
     }, 1500);
   };
 
+  const handleOptimizeContent = async () => {
+    if (!result || !content) return;
+
+    setIsOptimizing(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('optimize-content', {
+        body: { 
+          content,
+          issues: result.issues,
+          suggestions: result.suggestions
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.optimizedContent) {
+        setOptimizedContent(data.optimizedContent);
+        toast({ 
+          title: 'Conteúdo otimizado!', 
+          description: `Tamanho original: ${data.originalLength} → Novo: ${data.newLength} caracteres` 
+        });
+      } else {
+        toast({ title: 'Erro ao otimizar', description: 'Nenhum conteúdo gerado.', variant: 'destructive' });
+      }
+    } catch (error: any) {
+      console.error('Optimization error:', error);
+      
+      if (error?.message?.includes('429') || error?.status === 429) {
+        toast({ 
+          title: 'Limite de taxa excedido', 
+          description: 'Aguarde um momento e tente novamente.', 
+          variant: 'destructive' 
+        });
+      } else if (error?.message?.includes('402') || error?.status === 402) {
+        toast({ 
+          title: 'Créditos insuficientes', 
+          description: 'Adicione créditos em Configurações → Workspace → Usage.', 
+          variant: 'destructive' 
+        });
+      } else {
+        toast({ 
+          title: 'Erro ao otimizar', 
+          description: 'Por favor, tente novamente.', 
+          variant: 'destructive' 
+        });
+      }
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
+
+  const handleCopyOptimized = () => {
+    if (optimizedContent) {
+      navigator.clipboard.writeText(optimizedContent);
+      toast({ title: 'Copiado!', description: 'Conteúdo otimizado copiado para a área de transferência.' });
+    }
+  };
+
+  const handleUseOptimized = () => {
+    if (optimizedContent) {
+      setContent(optimizedContent);
+      setOptimizedContent(null);
+      setResult(null);
+      toast({ title: 'Conteúdo aplicado!', description: 'Analise novamente para verificar a pontuação.' });
+    }
+  };
+
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-amber-600';
     return 'text-red-600';
   };
+
+  const hasIssues = result && result.issues.some(i => i.type !== 'success');
 
   return (
     <div className="space-y-6">
@@ -124,28 +206,52 @@ export function ContentAuditor() {
             onChange={(e) => setContent(e.target.value)}
             className="min-h-[200px]"
           />
-          <Button onClick={analyzeContent} disabled={!content.trim() || isAnalyzing}>
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Analisando...
-              </>
-            ) : (
-              <>
-                <Wand2 className="h-4 w-4 mr-2" />
-                Analisar Conteúdo
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={analyzeContent} disabled={!content.trim() || isAnalyzing}>
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Analisando...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="h-4 w-4 mr-2" />
+                  Analisar Conteúdo
+                </>
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
       {result && (
         <>
-          {/* Score Card */}
+          {/* Score Card with Fix Button */}
           <Card>
             <CardHeader>
-              <CardTitle>Pontuação GEO</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Pontuação GEO</CardTitle>
+                {hasIssues && (
+                  <Button 
+                    onClick={handleOptimizeContent} 
+                    disabled={isOptimizing}
+                    className="gap-2"
+                    variant={result.score < 60 ? 'destructive' : 'default'}
+                  >
+                    {isOptimizing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Otimizando...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Corrigir Automaticamente com IA
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-6">
@@ -157,12 +263,44 @@ export function ContentAuditor() {
                   <p className="text-sm text-muted-foreground mt-2">
                     {result.score >= 80 ? 'Excelente! Conteúdo bem otimizado para IA.' :
                      result.score >= 60 ? 'Bom, mas há oportunidades de melhoria.' :
-                     'Precisa de otimização significativa.'}
+                     'Precisa de otimização significativa. Use o botão "Corrigir Automaticamente" acima.'}
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Optimized Content Result */}
+          {optimizedContent && (
+            <Card className="border-green-500/30 bg-green-500/5">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-green-700">
+                    <CheckCircle className="h-5 w-5" />
+                    Conteúdo Otimizado
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handleCopyOptimized}>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copiar
+                    </Button>
+                    <Button size="sm" onClick={handleUseOptimized}>
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      Usar e Reanalisar
+                    </Button>
+                  </div>
+                </div>
+                <CardDescription>
+                  O conteúdo foi reescrito para melhorar a pontuação GEO. Revise e faça ajustes se necessário.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-background rounded-lg border p-4 max-h-[400px] overflow-y-auto">
+                  <pre className="whitespace-pre-wrap text-sm font-mono">{optimizedContent}</pre>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Issues */}
           <Card>
@@ -200,6 +338,9 @@ export function ContentAuditor() {
                   <Lightbulb className="h-5 w-5 text-amber-500" />
                   Sugestões de Otimização
                 </CardTitle>
+                <CardDescription>
+                  {hasIssues && 'Clique em "Corrigir Automaticamente com IA" para aplicar todas as correções de uma vez.'}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">

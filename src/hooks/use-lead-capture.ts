@@ -10,6 +10,8 @@ interface LeadData {
   fonte: string;
   faturamento_mensal?: number;
   economia_anual?: number;
+  empresa?: string;
+  cargo?: string;
 }
 
 export function useLeadCapture() {
@@ -24,7 +26,7 @@ export function useLeadCapture() {
     setIsSaving(true);
     
     try {
-      const { error } = await supabase
+      const { data: insertedLead, error } = await supabase
         .from("leads")
         .insert({
           nome: data.nome.trim(),
@@ -34,9 +36,13 @@ export function useLeadCapture() {
           fonte: data.fonte,
           faturamento_mensal: data.faturamento_mensal,
           economia_anual: data.economia_anual,
+          empresa: data.empresa,
+          cargo: data.cargo,
           consentimento_lgpd: true,
           data_consentimento: new Date().toISOString(),
-        });
+        })
+        .select('id')
+        .single();
 
       if (error) {
         // Don't show error for rate limiting - just silently fail
@@ -46,6 +52,18 @@ export function useLeadCapture() {
         }
         console.error("Error saving lead:", error);
         return false;
+      }
+
+      // Create automatic interaction log for Exit Intent leads
+      if (insertedLead && data.fonte.toLowerCase().includes('exit intent')) {
+        await supabase
+          .from("lead_interactions")
+          .insert({
+            lead_id: insertedLead.id,
+            tipo: 'anotacao',
+            descricao: `Lead capturado via Exit Intent Pop-up. Fonte: ${data.fonte}. Segmento: ${data.segmento || 'Não informado'}. ${data.empresa ? `Cidade: ${data.empresa}.` : ''} ${data.cargo ? `Atividade: ${data.cargo}.` : ''}`.trim(),
+            resultado: 'Lead novo - aguardando primeiro contato',
+          });
       }
 
       setLeadSaved(true);

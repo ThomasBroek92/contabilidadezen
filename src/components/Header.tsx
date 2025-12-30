@@ -34,6 +34,9 @@ const conteudoLinks = [{
   name: "Calculadora Salário PJ x CLT",
   href: "/conteudo/calculadora-pj-clt"
 }, {
+  name: "Comparativo Tributário",
+  href: "/conteudo/comparativo-tributario"
+}, {
   name: "Gerador de RPA",
   href: "/conteudo/gerador-rpa"
 }];

@@ -6,7 +6,39 @@ import { AbrirEmpresaComparison } from "@/components/abrir-empresa/AbrirEmpresaC
 import { AbrirEmpresaPricing } from "@/components/abrir-empresa/AbrirEmpresaPricing";
 import { AbrirEmpresaBenefits } from "@/components/abrir-empresa/AbrirEmpresaBenefits";
 import { AbrirEmpresaTimeline } from "@/components/abrir-empresa/AbrirEmpresaTimeline";
+import { AbrirEmpresaLeadForm } from "@/components/abrir-empresa/AbrirEmpresaLeadForm";
 import { AbrirEmpresaCTA } from "@/components/abrir-empresa/AbrirEmpresaCTA";
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Quanto custa abrir uma empresa PJ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Na Contabilidade Zen, a abertura de empresa para profissionais da saúde é gratuita! Você só paga a mensalidade da contabilidade a partir de R$ 297,90/mês."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quanto tempo leva para abrir a empresa?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "O processo completo leva em média 7 a 15 dias úteis, dependendo da prefeitura e do conselho profissional."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quais documentos preciso para abrir uma empresa?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "RG e CPF, comprovante de residência atualizado, registro no conselho profissional (CRM, CRO, CRP) e certificado digital."
+      }
+    }
+  ]
+};
 
 export default function AbrirEmpresa() {
   return (
@@ -21,12 +53,16 @@ export default function AbrirEmpresa() {
           name="keywords"
           content="abrir empresa, abertura de CNPJ, abrir MEI, abrir empresa grátis, contabilidade online, abertura de empresa"
         />
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
+        </script>
       </Helmet>
 
       <Header />
       
       <main>
         <AbrirEmpresaHero />
+        <AbrirEmpresaLeadForm />
         <AbrirEmpresaComparison />
         <AbrirEmpresaPricing />
         <AbrirEmpresaBenefits />

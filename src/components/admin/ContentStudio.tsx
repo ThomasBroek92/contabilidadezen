@@ -88,6 +88,8 @@ export function ContentStudio() {
   
   // Estados de operações
   const [generatingId, setGeneratingId] = useState<string | null>(null);
+  const [generatingAll, setGeneratingAll] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState({ current: 0, total: 0 });
   const [suggestingTopics, setSuggestingTopics] = useState(false);
   const [suggestions, setSuggestions] = useState<TopicSuggestion[]>([]);
   
@@ -167,6 +169,60 @@ export function ContentStudio() {
       toast({ title: 'Erro ao gerar', variant: 'destructive' });
     } finally {
       setGeneratingId(null);
+    }
+  };
+
+  // Geração de todos os tópicos pendentes
+  const handleGenerateAll = async () => {
+    const topicsToGenerate = topics.filter(t => t.status === 'pending' || t.status === 'failed');
+    
+    if (topicsToGenerate.length === 0) {
+      toast({ title: 'Nenhum tópico para gerar', description: 'A fila está vazia ou todos já foram gerados.' });
+      return;
+    }
+
+    setGeneratingAll(true);
+    setGenerationProgress({ current: 0, total: topicsToGenerate.length });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < topicsToGenerate.length; i++) {
+      const topic = topicsToGenerate[i];
+      setGenerationProgress({ current: i + 1, total: topicsToGenerate.length });
+      
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-blog-content', {
+          body: { topic_id: topic.id },
+        });
+        
+        if (error) throw error;
+        
+        if (data?.successful > 0) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+      
+      // Pequeno delay entre gerações para não sobrecarregar
+      if (i < topicsToGenerate.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+
+    setGeneratingAll(false);
+    setGenerationProgress({ current: 0, total: 0 });
+    fetchAll();
+
+    if (successCount > 0 && failCount === 0) {
+      toast({ title: 'Geração concluída!', description: `${successCount} posts criados com sucesso.` });
+    } else if (successCount > 0 && failCount > 0) {
+      toast({ title: 'Geração parcial', description: `${successCount} sucesso, ${failCount} falhas.`, variant: 'default' });
+    } else {
+      toast({ title: 'Falha na geração', description: 'Nenhum post foi gerado.', variant: 'destructive' });
     }
   };
 
@@ -475,9 +531,40 @@ export function ContentStudio() {
                   </CardTitle>
                   <CardDescription>Tópicos aguardando geração automática</CardDescription>
                 </div>
-                <Badge variant="secondary" className="text-lg px-3">{pendingTopics.length}</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="text-lg px-3">{pendingTopics.length}</Badge>
+                  {pendingTopics.length > 0 && (
+                    <Button 
+                      size="sm" 
+                      onClick={handleGenerateAll}
+                      disabled={generatingAll || generatingId !== null}
+                      className="gap-2"
+                    >
+                      {generatingAll ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          {generationProgress.current}/{generationProgress.total}
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4" />
+                          Gerar Todos
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
+                {generatingAll && (
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="text-muted-foreground">Gerando conteúdo...</span>
+                      <span className="font-medium">{generationProgress.current}/{generationProgress.total}</span>
+                    </div>
+                    <Progress value={(generationProgress.current / generationProgress.total) * 100} className="h-2" />
+                  </div>
+                )}
                 {pendingTopics.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Calendar className="h-10 w-10 mx-auto mb-3 opacity-40" />
@@ -499,7 +586,7 @@ export function ContentStudio() {
                             size="sm" 
                             variant="secondary"
                             onClick={() => handleGenerateNow(topic)}
-                            disabled={generatingId === topic.id}
+                            disabled={generatingId === topic.id || generatingAll}
                           >
                             {generatingId === topic.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -670,12 +757,42 @@ export function ContentStudio() {
               {/* Fila */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Fila de Geração
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Fila de Geração
+                    </CardTitle>
+                    {pendingTopics.length > 0 && (
+                      <Button 
+                        size="sm" 
+                        onClick={handleGenerateAll}
+                        disabled={generatingAll || generatingId !== null}
+                        className="gap-2"
+                      >
+                        {generatingAll ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            {generationProgress.current}/{generationProgress.total}
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4" />
+                            Gerar Todos
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
+                  {generatingAll && (
+                    <div className="mb-4">
+                      <Progress value={(generationProgress.current / generationProgress.total) * 100} className="h-2" />
+                      <p className="text-xs text-center text-muted-foreground mt-1">
+                        {generationProgress.current}/{generationProgress.total}
+                      </p>
+                    </div>
+                  )}
                   {pendingTopics.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-4">Fila vazia</p>
                   ) : (
@@ -689,7 +806,7 @@ export function ContentStudio() {
                                 size="sm" 
                                 variant="ghost"
                                 onClick={() => handleGenerateNow(topic)}
-                                disabled={generatingId === topic.id}
+                                disabled={generatingId === topic.id || generatingAll}
                               >
                                 {generatingId === topic.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
                               </Button>

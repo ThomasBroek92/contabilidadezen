@@ -43,11 +43,20 @@ export function ExitIntentPopup() {
   });
 
   useEffect(() => {
+    // Listen for custom event to force show popup (for testing)
+    const handleForceShow = () => {
+      setIsOpen(true);
+    };
+
+    window.addEventListener('force-exit-intent-popup', handleForceShow);
+
     // Check if popup was already shown in this session
     const alreadyShown = sessionStorage.getItem("exitIntentShown");
     if (alreadyShown) {
       setHasShown(true);
-      return;
+      return () => {
+        window.removeEventListener('force-exit-intent-popup', handleForceShow);
+      };
     }
 
     const handleMouseLeave = (e: MouseEvent) => {
@@ -67,6 +76,7 @@ export function ExitIntentPopup() {
     return () => {
       clearTimeout(timeout);
       document.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener('force-exit-intent-popup', handleForceShow);
     };
   }, [hasShown]);
 

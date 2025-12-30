@@ -6,13 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenTool } from 'lucide-react';
+import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenTool, MousePointerClick } from 'lucide-react';
 import logoFull from '@/assets/logo-full.png';
 import { UserRolesManager } from '@/components/admin/UserRolesManager';
 import { CRMPage } from '@/components/crm/CRMPage';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ContentStudio } from '@/components/admin/ContentStudio';
-
 export default function Admin() {
   const navigate = useNavigate();
   const { user, loading, roles, signOut, isAdmin, canViewLeads } = useAuth();
@@ -31,6 +30,14 @@ export default function Admin() {
       description: 'Você saiu da sua conta.',
     });
     navigate('/auth');
+  };
+
+  const handleTestExitIntent = () => {
+    window.dispatchEvent(new CustomEvent('force-exit-intent-popup'));
+    toast({
+      title: 'Pop-up de Exit Intent',
+      description: 'O pop-up foi exibido para teste.',
+    });
   };
 
   if (loading) {
@@ -70,6 +77,10 @@ export default function Admin() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">{user.email}</span>
+            <Button variant="outline" size="sm" onClick={handleTestExitIntent}>
+              <MousePointerClick className="h-4 w-4 mr-2" />
+              Testar Exit Intent
+            </Button>
             <Button variant="outline" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />
               Sair

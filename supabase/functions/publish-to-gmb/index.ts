@@ -14,14 +14,21 @@ interface BlogPost {
   featured_image_url: string | null;
 }
 
-interface GMBPost {
+interface GMBLocalPost {
   summary: string;
   callToAction?: {
     actionType: string;
     url: string;
   };
   topicType: string;
+  media?: Array<{
+    mediaFormat: string;
+    sourceUrl: string;
+  }>;
 }
+
+// Default logo URL - used for all GMB posts
+const DEFAULT_LOGO_URL = 'https://contabilidadezen.com.br/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png';
 
 // Get access token using service account
 async function getAccessToken(): Promise<string> {
@@ -48,7 +55,6 @@ async function getAccessToken(): Promise<string> {
   };
 
   // Encode header and payload
-  const encoder = new TextEncoder();
   const headerB64 = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
   const payloadB64 = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
   
@@ -71,6 +77,7 @@ async function getAccessToken(): Promise<string> {
     ['sign']
   );
 
+  const encoder = new TextEncoder();
   const signature = await crypto.subtle.sign(
     'RSASSA-PKCS1-v1_5',
     cryptoKey,
@@ -104,7 +111,7 @@ async function getAccessToken(): Promise<string> {
   return tokenData.access_token;
 }
 
-// Create a post on Google My Business
+// Create a post on Google My Business with image
 async function createGMBPost(accessToken: string, post: BlogPost, siteUrl: string): Promise<any> {
   const accountId = Deno.env.get('GOOGLE_BUSINESS_PROFILE_ACCOUNT_ID');
   const locationId = Deno.env.get('GOOGLE_BUSINESS_PROFILE_LOCATION_ID');
@@ -115,25 +122,35 @@ async function createGMBPost(accessToken: string, post: BlogPost, siteUrl: strin
 
   // Create summary from excerpt or title (max 1500 chars for GMB)
   const summary = post.excerpt 
-    ? `${post.title}\n\n${post.excerpt}`.substring(0, 1400)
-    : post.title.substring(0, 1400);
+    ? `${post.title}\n\n${post.excerpt}`.substring(0, 1300)
+    : post.title.substring(0, 1300);
 
   // Build the post URL
   const postUrl = `${siteUrl}/blog/${post.slug}`;
 
-  const gmbPost: GMBPost = {
+  // Use featured image if available, otherwise use the company logo
+  const imageUrl = post.featured_image_url || DEFAULT_LOGO_URL;
+
+  const gmbPost: GMBLocalPost = {
     summary: `${summary}\n\n📖 Leia o artigo completo em nosso blog!`,
     callToAction: {
       actionType: 'LEARN_MORE',
       url: postUrl,
     },
     topicType: 'STANDARD',
+    media: [
+      {
+        mediaFormat: 'PHOTO',
+        sourceUrl: imageUrl,
+      }
+    ],
   };
 
   const url = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/localPosts`;
   
   console.log(`Creating GMB post for: ${post.title}`);
   console.log(`GMB API URL: ${url}`);
+  console.log(`Using image: ${imageUrl}`);
 
   const response = await fetch(url, {
     method: 'POST',
@@ -238,7 +255,8 @@ Deno.serve(async (req) => {
           postId: post.id, 
           title: post.title, 
           success: true, 
-          gmbPostName: result.name 
+          gmbPostName: result.name,
+          imageUsed: post.featured_image_url || DEFAULT_LOGO_URL
         });
       } catch (error: any) {
         console.error(`Failed to publish post ${post.id}:`, error.message);

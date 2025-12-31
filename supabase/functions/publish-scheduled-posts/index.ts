@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
     // Get count of posts that were just published for logging
     const { data: recentlyPublished, error: countError } = await supabase
       .from('blog_posts')
-      .select('id, title')
+      .select('id, title, excerpt, slug, published_at, featured_image_url')
       .eq('status', 'published')
       .gte('published_at', new Date(Date.now() - 60000).toISOString()) // Published in last minute
 
@@ -42,6 +42,30 @@ Deno.serve(async (req) => {
         recentlyPublished.forEach(post => {
           console.log(`- Published: ${post.title}`)
         })
+
+        // Automatically publish to Google My Business
+        try {
+          console.log('Triggering Google My Business publication...')
+          const gmbResponse = await fetch(`${supabaseUrl}/functions/v1/publish-to-gmb`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify({ 
+              siteUrl: 'https://contabilidadezen.com.br'
+            }),
+          })
+          
+          if (gmbResponse.ok) {
+            const gmbResult = await gmbResponse.json()
+            console.log('GMB publication result:', gmbResult)
+          } else {
+            console.error('GMB publication failed:', await gmbResponse.text())
+          }
+        } catch (gmbError) {
+          console.error('Error publishing to GMB:', gmbError)
+        }
       }
     }
 

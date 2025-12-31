@@ -37,7 +37,17 @@ async function getAccessToken(): Promise<string> {
     throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not configured');
   }
 
-  const serviceAccount = JSON.parse(serviceAccountJson);
+  let serviceAccount;
+  try {
+    serviceAccount = JSON.parse(serviceAccountJson);
+  } catch (e) {
+    console.error('Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON:', e);
+    throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON');
+  }
+
+  if (!serviceAccount.private_key || !serviceAccount.client_email) {
+    throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON is missing required fields (private_key or client_email)');
+  }
   
   // Create JWT for service account
   const header = {

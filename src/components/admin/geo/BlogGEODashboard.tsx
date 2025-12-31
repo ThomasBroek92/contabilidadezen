@@ -23,7 +23,9 @@ import {
   ExternalLink,
   Loader2,
   Settings,
-  Lightbulb
+  Lightbulb,
+  MapPin,
+  Send
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -81,6 +83,7 @@ export function BlogGEODashboard() {
   const [suggestingTopics, setSuggestingTopics] = useState(false);
   const [generatingContent, setGeneratingContent] = useState<string | null>(null);
   const [savingSettings, setSavingSettings] = useState(false);
+  const [publishingToGMB, setPublishingToGMB] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -250,6 +253,38 @@ export function BlogGEODashboard() {
       });
     } finally {
       setSavingSettings(false);
+    }
+  };
+
+  const handlePublishToGMB = async (postId: string, postTitle: string) => {
+    setPublishingToGMB(postId);
+    try {
+      const { data, error } = await supabase.functions.invoke('publish-to-gmb', {
+        body: { 
+          postId,
+          siteUrl: 'https://contabilidadezen.com.br'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: 'Publicado no Google Meu Negócio!',
+          description: `"${postTitle}" foi compartilhado com sucesso.`,
+        });
+      } else {
+        throw new Error(data?.error || 'Erro desconhecido');
+      }
+    } catch (error: any) {
+      console.error('Error publishing to GMB:', error);
+      toast({
+        title: 'Erro ao publicar no GMB',
+        description: error.message || 'Não foi possível publicar. Verifique as credenciais.',
+        variant: 'destructive',
+      });
+    } finally {
+      setPublishingToGMB(null);
     }
   };
 
@@ -590,15 +625,31 @@ export function BlogGEODashboard() {
                       </div>
 
                       {post.status === 'published' && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full gap-2"
-                          onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
-                        >
-                          <Eye className="h-4 w-4" />
-                          Ver Post
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="flex-1 gap-2"
+                            onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
+                          >
+                            <Eye className="h-4 w-4" />
+                            Ver Post
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 gap-2"
+                            onClick={() => handlePublishToGMB(post.id, post.title)}
+                            disabled={publishingToGMB === post.id}
+                          >
+                            {publishingToGMB === post.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <MapPin className="h-4 w-4" />
+                            )}
+                            Publicar GMB
+                          </Button>
+                        </div>
                       )}
                     </div>
                   ))}

@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.optimize-content]
 verify_jwt = false
+
+[functions.publish-to-gmb]
+verify_jwt = false

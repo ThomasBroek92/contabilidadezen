@@ -1,9 +1,49 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Authentication helper - verify admin role or service role key
+async function verifyAdminAuth(req: Request, supabaseUrl: string, supabaseServiceKey: string): Promise<{ success: boolean; error?: string; userId?: string; isServiceRole?: boolean }> {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    return { success: false, error: 'Missing authorization header' };
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+  
+  // Check if this is a service role key (internal service-to-service call)
+  if (token === supabaseServiceKey) {
+    console.log('Service role key authentication - internal call');
+    return { success: true, isServiceRole: true };
+  }
+  
+  // Otherwise, verify as user token
+  const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+  if (authError || !user) {
+    return { success: false, error: 'Invalid or expired token' };
+  }
+
+  const { data: userRoles } = await supabaseClient
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .eq('role', 'admin')
+    .single();
+
+  if (!userRoles) {
+    return { success: false, error: 'Admin access required' };
+  }
+
+  return { success: true, userId: user.id };
+}
 
 interface ServiceAccountCredentials {
   type: string;
@@ -169,6 +209,23 @@ serve(async (req) => {
   }
 
   try {
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error('Supabase credentials not configured');
+    }
+
+    // Verify admin authentication
+    const authResult = await verifyAdminAuth(req, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    if (!authResult.success) {
+      return new Response(
+        JSON.stringify({ success: false, error: authResult.error }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    console.log('Authenticated admin user:', authResult.userId);
+
     const serviceAccountJson = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON');
     const siteUrl = Deno.env.get('GOOGLE_SEARCH_CONSOLE_SITE_URL');
 

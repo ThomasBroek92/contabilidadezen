@@ -6,12 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenTool, MousePointerClick } from 'lucide-react';
+import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenTool, MousePointerClick, Settings } from 'lucide-react';
 import logoFull from '@/assets/logo-full.png';
 import { UserRolesManager } from '@/components/admin/UserRolesManager';
 import { CRMPage } from '@/components/crm/CRMPage';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ContentStudio } from '@/components/admin/ContentStudio';
+import { GoogleIntegrationGuide } from '@/components/admin/GoogleIntegrationGuide';
 export default function Admin() {
   const navigate = useNavigate();
   const { user, loading, roles, signOut, isAdmin, canViewLeads } = useAuth();
@@ -148,6 +149,12 @@ export default function Admin() {
                   Usuários
                 </TabsTrigger>
               )}
+              {isAdmin() && (
+                <TabsTrigger value="integrations" className="gap-2">
+                  <Settings className="h-4 w-4" />
+                  Integrações
+                </TabsTrigger>
+              )}
             </TabsList>
 
             {isAdmin() && (
@@ -171,6 +178,12 @@ export default function Admin() {
             {isAdmin() && (
               <TabsContent value="users">
                 <UserRolesManager />
+              </TabsContent>
+            )}
+
+            {isAdmin() && (
+              <TabsContent value="integrations">
+                <GoogleIntegrationGuide />
               </TabsContent>
             )}
           </Tabs>

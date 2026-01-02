@@ -294,13 +294,46 @@ Deno.serve(async (req) => {
     // Get request body for optional parameters
     let postId: string | null = null;
     let siteUrl = 'https://contabilidadezen.com.br'; // Default site URL
+    let action: string | null = null;
     
     try {
       const body = await req.json();
       postId = body.postId || null;
       siteUrl = body.siteUrl || siteUrl;
+      action = body.action || null;
     } catch {
       // No body provided, will publish recent posts
+    }
+
+    // Handle test action - just verify authentication and credentials
+    if (action === 'test') {
+      console.log('Running authentication test...');
+      try {
+        const accessToken = await getAccessToken();
+        const accountId = Deno.env.get('GOOGLE_BUSINESS_PROFILE_ACCOUNT_ID');
+        const locationId = Deno.env.get('GOOGLE_BUSINESS_PROFILE_LOCATION_ID');
+        
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: 'Authentication successful',
+            details: {
+              accountId: accountId ? `${accountId.substring(0, 4)}...` : 'Not configured',
+              locationId: locationId ? `${locationId.substring(0, 4)}...` : 'Not configured',
+              tokenObtained: !!accessToken
+            }
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error: any) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: error.message 
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     let postsToPublish: BlogPost[] = [];

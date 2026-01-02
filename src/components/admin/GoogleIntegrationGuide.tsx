@@ -437,15 +437,72 @@ export function GoogleIntegrationGuide() {
                 </Alert>
               </Step>
 
-              <Step number={4} title="Configure o Secret da URL" description="Adicione a URL do site">
-                <div className="bg-background rounded-md border p-3">
-                  <p className="text-sm font-mono text-muted-foreground">
-                    Secret: <strong className="text-foreground">GOOGLE_SEARCH_CONSOLE_SITE_URL</strong>
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Valor: URL exata como aparece no Search Console (ex: https://seusite.com.br)
-                  </p>
+              <Step number={4} title="Configure o Secret da URL" description="Adicione a URL exata do site como aparece no Search Console">
+                <p className="text-sm mb-3">
+                  A URL deve ser <strong>exatamente igual</strong> à que aparece no Search Console, incluindo protocolo e trailing slash se houver.
+                </p>
+                
+                <div className="bg-background rounded-md border p-4 space-y-3">
+                  <div>
+                    <p className="text-sm font-mono text-muted-foreground">
+                      Secret: <strong className="text-foreground">GOOGLE_SEARCH_CONSOLE_SITE_URL</strong>
+                    </p>
+                  </div>
+                  
+                  <div className="pt-2 border-t">
+                    <p className="text-xs font-semibold text-foreground mb-2">Como encontrar a URL correta:</p>
+                    <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                      <li>Abra o <strong>Google Search Console</strong></li>
+                      <li>No canto superior esquerdo, clique no dropdown de propriedades</li>
+                      <li>Copie a URL exatamente como aparece (incluindo https://)</li>
+                    </ol>
+                  </div>
+
+                  <div className="pt-2 border-t">
+                    <p className="text-xs font-semibold text-foreground mb-2">Formatos válidos:</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">https://www.seusite.com.br</code>
+                        <span className="text-xs text-muted-foreground">- com www</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">https://seusite.com.br</code>
+                        <span className="text-xs text-muted-foreground">- sem www</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">sc-domain:seusite.com.br</code>
+                        <span className="text-xs text-muted-foreground">- propriedade de domínio</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t">
+                    <p className="text-xs font-semibold text-destructive mb-2">Formatos inválidos:</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <XCircle className="h-3 w-3 text-destructive shrink-0" />
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded line-through">seusite.com.br</code>
+                        <span className="text-xs text-muted-foreground">- falta https://</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <XCircle className="h-3 w-3 text-destructive shrink-0" />
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded line-through">http://seusite.com.br</code>
+                        <span className="text-xs text-muted-foreground">- usa http em vez de https</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                <Alert className="mt-3">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    <strong>Importante:</strong> Se a URL não corresponder exatamente à propriedade no Search Console, 
+                    você receberá erro 403 (permissão negada).
+                  </AlertDescription>
+                </Alert>
               </Step>
             </div>
           </AccordionContent>

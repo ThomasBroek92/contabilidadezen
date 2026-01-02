@@ -17,9 +17,13 @@ import {
   Building2,
   FileJson,
   Users,
-  Globe
+  Globe,
+  Loader2,
+  Play,
+  XCircle
 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StepProps {
   number: number;
@@ -27,6 +31,12 @@ interface StepProps {
   description: string;
   children: React.ReactNode;
   isCompleted?: boolean;
+}
+
+interface TestResult {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  message?: string;
+  details?: string;
 }
 
 function Step({ number, title, description, children, isCompleted }: StepProps) {
@@ -71,8 +81,51 @@ function CodeBlock({ children }: { children: string }) {
   );
 }
 
+function TestButton({ 
+  label, 
+  onTest, 
+  result 
+}: { 
+  label: string; 
+  onTest: () => Promise<void>; 
+  result: TestResult;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={onTest}
+        disabled={result.status === 'loading'}
+        className="min-w-[140px]"
+      >
+        {result.status === 'loading' ? (
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+        ) : (
+          <Play className="h-4 w-4 mr-2" />
+        )}
+        {label}
+      </Button>
+      {result.status === 'success' && (
+        <div className="flex items-center gap-2 text-green-600">
+          <CheckCircle2 className="h-4 w-4" />
+          <span className="text-sm">{result.message}</span>
+        </div>
+      )}
+      {result.status === 'error' && (
+        <div className="flex items-center gap-2 text-destructive">
+          <XCircle className="h-4 w-4" />
+          <span className="text-sm">{result.message}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function GoogleIntegrationGuide() {
   const [expandedSections, setExpandedSections] = useState<string[]>(["service-account"]);
+  const [searchConsoleTest, setSearchConsoleTest] = useState<TestResult>({ status: 'idle' });
+  const [businessProfileTest, setBusinessProfileTest] = useState<TestResult>({ status: 'idle' });
 
   const requiredSecrets = [
     { name: "GOOGLE_SERVICE_ACCOUNT_JSON", description: "JSON completo da conta de serviço" },
@@ -80,6 +133,58 @@ export function GoogleIntegrationGuide() {
     { name: "GOOGLE_BUSINESS_PROFILE_ACCOUNT_ID", description: "ID da conta do Google Business Profile" },
     { name: "GOOGLE_BUSINESS_PROFILE_LOCATION_ID", description: "ID da localização no Business Profile" },
   ];
+
+  const testSearchConsole = async () => {
+    setSearchConsoleTest({ status: 'loading' });
+    try {
+      const { data, error } = await supabase.functions.invoke('google-search-console', {
+        body: { action: 'sitemaps' }
+      });
+
+      if (error) throw error;
+      
+      if (data?.success) {
+        setSearchConsoleTest({ 
+          status: 'success', 
+          message: `Conectado! Site: ${data.siteUrl}`,
+          details: JSON.stringify(data.data, null, 2)
+        });
+        toast.success("Search Console conectado com sucesso!");
+      } else {
+        throw new Error(data?.error || 'Erro desconhecido');
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erro ao testar conexão';
+      setSearchConsoleTest({ status: 'error', message });
+      toast.error(`Erro no Search Console: ${message}`);
+    }
+  };
+
+  const testBusinessProfile = async () => {
+    setBusinessProfileTest({ status: 'loading' });
+    try {
+      const { data, error } = await supabase.functions.invoke('publish-to-gmb', {
+        body: { action: 'test' }
+      });
+
+      if (error) throw error;
+      
+      if (data?.success) {
+        setBusinessProfileTest({ 
+          status: 'success', 
+          message: 'Autenticação válida!',
+          details: JSON.stringify(data, null, 2)
+        });
+        toast.success("Business Profile conectado com sucesso!");
+      } else {
+        throw new Error(data?.error || 'Erro desconhecido');
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erro ao testar conexão';
+      setBusinessProfileTest({ status: 'error', message });
+      toast.error(`Erro no Business Profile: ${message}`);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -89,6 +194,81 @@ export function GoogleIntegrationGuide() {
           <p className="text-muted-foreground">Configure as integrações com Search Console, Business Profile e Analytics</p>
         </div>
       </div>
+
+      {/* Test Integration Card */}
+      <Card className="border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Play className="h-5 w-5 text-primary" />
+            Testar Integrações
+          </CardTitle>
+          <CardDescription>
+            Clique nos botões abaixo para verificar se cada integração está funcionando corretamente
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="p-4 rounded-lg border bg-muted/30 space-y-3">
+              <div className="flex items-center gap-2">
+                <Search className="h-5 w-5 text-green-500" />
+                <h4 className="font-medium">Google Search Console</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Testa a conexão com a API do Search Console e lista os sitemaps configurados.
+              </p>
+              <TestButton 
+                label="Testar" 
+                onTest={testSearchConsole} 
+                result={searchConsoleTest}
+              />
+              {searchConsoleTest.details && (
+                <details className="text-xs">
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                    Ver detalhes da resposta
+                  </summary>
+                  <pre className="mt-2 p-2 bg-background rounded border overflow-x-auto max-h-40">
+                    {searchConsoleTest.details}
+                  </pre>
+                </details>
+              )}
+            </div>
+
+            <div className="p-4 rounded-lg border bg-muted/30 space-y-3">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-orange-500" />
+                <h4 className="font-medium">Google Business Profile</h4>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Testa a autenticação com a API do Business Profile e verifica as permissões.
+              </p>
+              <TestButton 
+                label="Testar" 
+                onTest={testBusinessProfile} 
+                result={businessProfileTest}
+              />
+              {businessProfileTest.details && (
+                <details className="text-xs">
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                    Ver detalhes da resposta
+                  </summary>
+                  <pre className="mt-2 p-2 bg-background rounded border overflow-x-auto max-h-40">
+                    {businessProfileTest.details}
+                  </pre>
+                </details>
+              )}
+            </div>
+          </div>
+
+          <Alert>
+            <BarChart3 className="h-4 w-4" />
+            <AlertTitle>Google Analytics</AlertTitle>
+            <AlertDescription>
+              Para testar o Analytics, abra seu site em uma aba anônima, aceite os cookies e verifique 
+              o relatório de Tempo Real no painel do GA4.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
 
       {/* Overview Card */}
       <Card>

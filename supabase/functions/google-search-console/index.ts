@@ -279,7 +279,22 @@ serve(async (req) => {
       throw new Error('Missing required environment variables: GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_SEARCH_CONSOLE_SITE_URL');
     }
 
-    const credentials: ServiceAccountCredentials = JSON.parse(serviceAccountJson);
+    let credentials: ServiceAccountCredentials;
+    try {
+      credentials = JSON.parse(serviceAccountJson);
+      console.log('Parsed credentials for:', credentials.client_email);
+      
+      if (!credentials.private_key) {
+        throw new Error('private_key is missing from service account credentials');
+      }
+      if (!credentials.client_email) {
+        throw new Error('client_email is missing from service account credentials');
+      }
+    } catch (parseError) {
+      console.error('Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON:', parseError);
+      throw new Error('Invalid GOOGLE_SERVICE_ACCOUNT_JSON format. Ensure it is valid JSON.');
+    }
+
     const accessToken = await getAccessToken(credentials);
 
     const { action, urls } = await req.json();

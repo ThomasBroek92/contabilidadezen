@@ -5,6 +5,29 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 5; // 5 requests per minute
+
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(identifier: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const record = rateLimitStore.get(identifier);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitStore.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetIn: RATE_LIMIT_WINDOW_MS };
+  }
+  
+  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, remaining: 0, resetIn: record.resetTime - now };
+  }
+  
+  record.count++;
+  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count, resetIn: record.resetTime - now };
+}
+
 // Authentication helper - verify admin role or service role key
 async function verifyAdminAuth(req: Request, supabaseUrl: string, supabaseServiceKey: string): Promise<{ success: boolean; error?: string; userId?: string; isServiceRole?: boolean }> {
   const authHeader = req.headers.get('Authorization');
@@ -242,6 +265,29 @@ Deno.serve(async (req) => {
       );
     }
     console.log('Authenticated admin user:', authResult.userId);
+
+    // Check rate limit (skip for service role calls)
+    if (!authResult.isServiceRole) {
+      const rateLimitId = authResult.userId || 'anonymous';
+      const rateLimit = checkRateLimit(`publish-gmb:${rateLimitId}`);
+      if (!rateLimit.allowed) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'Rate limit exceeded',
+            retryAfter: Math.ceil(rateLimit.resetIn / 1000)
+          }),
+          { 
+            status: 429, 
+            headers: { 
+              ...corsHeaders, 
+              'Content-Type': 'application/json',
+              'Retry-After': String(Math.ceil(rateLimit.resetIn / 1000))
+            } 
+          }
+        );
+      }
+    }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 

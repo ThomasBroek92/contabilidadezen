@@ -22,6 +22,7 @@ import CalculadoraPJCLT from "./pages/conteudo/CalculadoraPJCLT";
 import GeradorRPA from "./pages/conteudo/GeradorRPA";
 import ComparativoTributario from "./pages/conteudo/ComparativoTributario";
 import AbrirEmpresa from "./pages/AbrirEmpresa";
+import IndiqueGanhe from "./pages/IndiqueGanhe";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/conteudo/gerador-rpa" element={<GeradorRPA />} />
             <Route path="/conteudo/comparativo-tributario" element={<ComparativoTributario />} />
             <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
+            <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />

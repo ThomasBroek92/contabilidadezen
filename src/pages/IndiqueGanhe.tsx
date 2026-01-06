@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -247,6 +248,9 @@ export default function IndiqueGanhe() {
                   <div>
                     <p className="text-sm font-medium text-foreground">+150 parceiros ativos</p>
                     <p className="text-xs text-muted-foreground">R$ 45.000+ pagos em indicações</p>
+                    <Link to="/parceiro/dashboard" className="text-xs text-secondary hover:underline mt-1 inline-block">
+                      Já é parceiro? Acesse seu dashboard →
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -580,6 +580,57 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_referrals: {
+        Row: {
+          commission_value: number | null
+          created_at: string
+          id: string
+          notes: string | null
+          paid_at: string | null
+          partner_email: string
+          partner_name: string
+          referred_email: string
+          referred_empresa: string | null
+          referred_name: string
+          referred_segmento: string | null
+          referred_whatsapp: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          commission_value?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          partner_email: string
+          partner_name: string
+          referred_email: string
+          referred_empresa?: string | null
+          referred_name: string
+          referred_segmento?: string | null
+          referred_whatsapp: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          commission_value?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          partner_email?: string
+          partner_name?: string
+          referred_email?: string
+          referred_empresa?: string | null
+          referred_name?: string
+          referred_segmento?: string | null
+          referred_whatsapp?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       recurring_schedules: {
         Row: {
           auto_publish: boolean

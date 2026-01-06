@@ -23,6 +23,7 @@ import GeradorRPA from "./pages/conteudo/GeradorRPA";
 import ComparativoTributario from "./pages/conteudo/ComparativoTributario";
 import AbrirEmpresa from "./pages/AbrirEmpresa";
 import IndiqueGanhe from "./pages/IndiqueGanhe";
+import PartnerDashboard from "./pages/PartnerDashboard";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
@@ -54,7 +55,9 @@ const App = () => (
             <Route path="/conteudo/comparativo-tributario" element={<ComparativoTributario />} />
             <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
             <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />
+            <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/termos" element={<Termos />} />

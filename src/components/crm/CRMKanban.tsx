@@ -6,8 +6,19 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Phone, Mail, Building2, DollarSign, 
-  ChevronLeft, ChevronRight, User, Clock
+  ChevronLeft, ChevronRight, User, Clock, Trash2
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -95,6 +106,31 @@ export function CRMKanban({ onSelectLead }: KanbanProps) {
       console.error('Error moving lead:', err);
       toast({
         title: 'Erro ao mover lead',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const deleteLead = async (leadId: string) => {
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', leadId);
+
+      if (error) throw error;
+
+      setLeads(prev => prev.filter(lead => lead.id !== leadId));
+
+      toast({
+        title: 'Lead excluído',
+        description: 'O lead foi removido com sucesso.',
+      });
+    } catch (err) {
+      console.error('Error deleting lead:', err);
+      toast({
+        title: 'Erro ao excluir lead',
+        description: 'Você precisa de permissão de administrador.',
         variant: 'destructive',
       });
     }
@@ -247,7 +283,7 @@ export function CRMKanban({ onSelectLead }: KanbanProps) {
                       </div>
 
                       {/* Quick move buttons */}
-                      <div className="flex justify-between pt-2 border-t">
+                      <div className="flex justify-between items-center pt-2 border-t">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -260,6 +296,38 @@ export function CRMKanban({ onSelectLead }: KanbanProps) {
                         >
                           <ChevronLeft className="h-3 w-3" />
                         </Button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir lead?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir <strong>{lead.nome}</strong>? 
+                                Esta ação não pode ser desfeita e todas as interações e tarefas relacionadas serão perdidas.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={() => deleteLead(lead.id)}
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
                         <Button
                           variant="ghost"
                           size="sm"

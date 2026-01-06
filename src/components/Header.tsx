@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, MessageCircle, ChevronDown, Calendar } from "lucide-react";
+import { Menu, X, MessageCircle, ChevronDown, Calendar, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import logoFull from "@/assets/logo-full.png";
@@ -112,8 +112,16 @@ export function Header() {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
-          <Button variant="outline" size="sm" asChild>
-            
+          <Button 
+            variant="outline" 
+            size="sm" 
+            asChild
+            className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground animate-pulse"
+          >
+            <Link to="/indique-e-ganhe">
+              <Gift className="h-4 w-4" />
+              Indique e Ganhe
+            </Link>
           </Button>
           <Button variant="whatsapp" size="sm" asChild>
             <a href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde." target="_blank" rel="noopener noreferrer">
@@ -170,11 +178,15 @@ export function Header() {
               </Link>)}
             
             <div className="flex flex-col gap-3 pt-4 border-t border-border">
-              <Button variant="outline" asChild>
-                <a href="https://agendacontabilidadezen.lovable.app" target="_blank" rel="noopener noreferrer">
-                  <Calendar className="h-4 w-4" />
-                  Agenda Zen
-                </a>
+              <Button 
+                variant="outline" 
+                asChild
+                className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground"
+              >
+                <Link to="/indique-e-ganhe" onClick={() => setIsMenuOpen(false)}>
+                  <Gift className="h-4 w-4" />
+                  Indique e Ganhe
+                </Link>
               </Button>
               <Button variant="whatsapp" asChild>
                 <a href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde." target="_blank" rel="noopener noreferrer">

@@ -3,10 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Phone, Mail, Building2, DollarSign, 
-  ChevronLeft, ChevronRight, User, Clock, Trash2
+  ChevronLeft, ChevronRight, User, Clock, Trash2, Plus
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -19,6 +22,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -50,11 +61,23 @@ const stages = [
   { key: 'perdido', label: 'Perdido', color: 'bg-red-500' },
 ];
 
+const segmentOptions = ['Médico', 'Dentista', 'Psicólogo', 'Fisioterapeuta', 'Outros'];
+
 export function CRMKanban({ onSelectLead }: KanbanProps) {
   const { toast } = useToast();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [draggingLead, setDraggingLead] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newLead, setNewLead] = useState({
+    nome: '',
+    email: '',
+    whatsapp: '',
+    empresa: '',
+    segmento: 'Médico',
+    fonte: 'CRM Manual',
+  });
 
   useEffect(() => {
     fetchLeads();
@@ -108,6 +131,63 @@ export function CRMKanban({ onSelectLead }: KanbanProps) {
         title: 'Erro ao mover lead',
         variant: 'destructive',
       });
+    }
+  };
+
+  const createLead = async () => {
+    if (!newLead.nome || !newLead.email || !newLead.whatsapp) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Preencha nome, e-mail e WhatsApp.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .insert({
+          nome: newLead.nome.trim(),
+          email: newLead.email.trim().toLowerCase(),
+          whatsapp: newLead.whatsapp.trim(),
+          empresa: newLead.empresa.trim() || null,
+          segmento: newLead.segmento,
+          fonte: newLead.fonte,
+          pipeline_stage: 'primeiro_contato',
+          consentimento_lgpd: true,
+          data_consentimento: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setLeads(prev => [data, ...prev]);
+      setShowCreateDialog(false);
+      setNewLead({
+        nome: '',
+        email: '',
+        whatsapp: '',
+        empresa: '',
+        segmento: 'Médico',
+        fonte: 'CRM Manual',
+      });
+
+      toast({
+        title: 'Lead criado!',
+        description: `${data.nome} foi adicionado ao pipeline.`,
+      });
+    } catch (err: any) {
+      console.error('Error creating lead:', err);
+      toast({
+        title: 'Erro ao criar lead',
+        description: err.message || 'Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -207,7 +287,89 @@ export function CRMKanban({ onSelectLead }: KanbanProps) {
   }
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4">
+    <div className="space-y-4">
+      {/* Header with Create Button */}
+      <div className="flex justify-end">
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Lead
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Criar Novo Lead</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="nome">Nome *</Label>
+                <Input
+                  id="nome"
+                  value={newLead.nome}
+                  onChange={(e) => setNewLead({ ...newLead, nome: e.target.value })}
+                  placeholder="Nome do lead"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">E-mail *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={newLead.email}
+                  onChange={(e) => setNewLead({ ...newLead, email: e.target.value })}
+                  placeholder="email@exemplo.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="whatsapp">WhatsApp *</Label>
+                <Input
+                  id="whatsapp"
+                  value={newLead.whatsapp}
+                  onChange={(e) => setNewLead({ ...newLead, whatsapp: e.target.value })}
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="empresa">Empresa</Label>
+                <Input
+                  id="empresa"
+                  value={newLead.empresa}
+                  onChange={(e) => setNewLead({ ...newLead, empresa: e.target.value })}
+                  placeholder="Nome da empresa (opcional)"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="segmento">Segmento</Label>
+                <Select
+                  value={newLead.segmento}
+                  onValueChange={(v) => setNewLead({ ...newLead, segmento: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {segmentOptions.map(seg => (
+                      <SelectItem key={seg} value={seg}>{seg}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={createLead} disabled={creating}>
+                {creating ? 'Criando...' : 'Criar Lead'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Kanban Board */}
+      <div className="flex gap-4 overflow-x-auto pb-4">
       {stages.map(stage => {
         const stageLeads = getLeadsByStage(stage.key);
         const stageValue = stageLeads.reduce((sum, l) => sum + (l.valor_negocio || 0), 0);
@@ -355,6 +517,7 @@ export function CRMKanban({ onSelectLead }: KanbanProps) {
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

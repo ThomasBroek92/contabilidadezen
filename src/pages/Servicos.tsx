@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -108,7 +109,23 @@ const specialties = [
 
 export default function Servicos() {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <Helmet>
+        <title>Serviços de Contabilidade | Contabilidade Zen - Abertura de Empresa, Contabilidade Mensal</title>
+        <meta 
+          name="description" 
+          content="Serviços de contabilidade para profissionais da saúde: abertura de empresa grátis, contabilidade mensal, migração de contabilidade e planejamento tributário. A partir de R$ 297,90/mês." 
+        />
+        <meta 
+          name="keywords" 
+          content="serviços contabilidade, abertura de empresa, contabilidade mensal, migração de contabilidade, planejamento tributário, contabilidade saúde" 
+        />
+        <link rel="canonical" href="https://www.contabilidadezen.com.br/servicos" />
+        <meta property="og:title" content="Serviços de Contabilidade | Contabilidade Zen" />
+        <meta property="og:description" content="Serviços completos de contabilidade para profissionais da saúde. Abertura de empresa grátis!" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <div className="min-h-screen bg-background">
       <Header />
       
       <main>
@@ -253,5 +270,6 @@ export default function Servicos() {
 
       <Footer />
     </div>
+    </>
   );
 }

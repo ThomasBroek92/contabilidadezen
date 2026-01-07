@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,23 @@ const team = [
 
 export default function Sobre() {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <Helmet>
+        <title>Sobre Nós | Contabilidade Zen - Quem Somos</title>
+        <meta 
+          name="description" 
+          content="Conheça a Contabilidade Zen: contabilidade digital especializada em profissionais da saúde. Mais de 500 clientes atendidos, 10+ anos de experiência e 98% de satisfação." 
+        />
+        <meta 
+          name="keywords" 
+          content="contabilidade zen, sobre nós, quem somos, contabilidade saúde, contabilidade digital" 
+        />
+        <link rel="canonical" href="https://www.contabilidadezen.com.br/sobre" />
+        <meta property="og:title" content="Sobre Nós | Contabilidade Zen" />
+        <meta property="og:description" content="Contabilidade digital especializada em profissionais da saúde. Mais de 500 clientes atendidos." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <div className="min-h-screen bg-background">
       <Header />
       
       <main>
@@ -239,5 +256,6 @@ export default function Sobre() {
 
       <Footer />
     </div>
+    </>
   );
 }

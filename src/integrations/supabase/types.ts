@@ -411,6 +411,50 @@ export type Database = {
         }
         Relationships: []
       }
+      indexing_queue: {
+        Row: {
+          action: string
+          blog_post_id: string | null
+          created_at: string
+          id: string
+          processed_at: string | null
+          result: Json | null
+          retry_count: number
+          status: string
+          url: string
+        }
+        Insert: {
+          action?: string
+          blog_post_id?: string | null
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          result?: Json | null
+          retry_count?: number
+          status?: string
+          url: string
+        }
+        Update: {
+          action?: string
+          blog_post_id?: string | null
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          result?: Json | null
+          retry_count?: number
+          status?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "indexing_queue_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_interactions: {
         Row: {
           created_at: string

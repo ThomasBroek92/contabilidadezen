@@ -437,8 +437,6 @@ serve(async (req) => {
         error?: string;
       }
       
-      const results: PageAuditResult[] = [];
-      
       // Get all URLs to audit from the request or use default pages
       const pagesToAudit = urls && Array.isArray(urls) ? urls : [
         siteUrl,
@@ -448,49 +446,94 @@ serve(async (req) => {
         `${siteUrl}/blog`,
       ];
       
-      for (const url of pagesToAudit.slice(0, 50)) {
-        const inspectionResult = await inspectUrl(accessToken, siteUrl, url);
+      console.log(`Starting audit for ${pagesToAudit.length} URLs`);
+      
+      // Process URLs in parallel batches of 5 for speed
+      const BATCH_SIZE = 5;
+      const results: PageAuditResult[] = [];
+      
+      for (let i = 0; i < Math.min(pagesToAudit.length, 30); i += BATCH_SIZE) {
+        const batch = pagesToAudit.slice(i, i + BATCH_SIZE);
+        console.log(`Processing batch ${i / BATCH_SIZE + 1}: ${batch.length} URLs`);
         
-        if (inspectionResult) {
-          const indexStatus = inspectionResult.inspectionResult?.indexStatusResult;
-          const mobileUsability = inspectionResult.inspectionResult?.mobileUsabilityResult;
-          const richResults = inspectionResult.inspectionResult?.richResultsResult;
-          
-          results.push({
-            url,
-            indexed: indexStatus?.coverageState === 'Indexed',
-            indexStatus: indexStatus?.coverageState || 'Unknown',
-            crawledAs: indexStatus?.crawledAs || 'Unknown',
-            lastCrawlTime: indexStatus?.lastCrawlTime || null,
-            pageFetchState: indexStatus?.pageFetchState || 'Unknown',
-            robotsTxtState: indexStatus?.robotsTxtState || 'Unknown',
-            indexingState: indexStatus?.indexingState || 'Unknown',
-            mobileUsable: mobileUsability?.verdict === 'PASS',
-            mobileIssues: mobileUsability?.issues || [],
-            hasRichResults: richResults?.verdict === 'PASS',
-            richResultsIssues: richResults?.issues || [],
-            issues: [],
-            suggestions: []
-          });
-        } else {
-          results.push({
-            url,
-            indexed: false,
-            indexStatus: 'Error',
-            issues: [],
-            suggestions: [],
-            error: 'Failed to inspect URL'
-          });
+        const batchResults = await Promise.all(
+          batch.map(async (url) => {
+            try {
+              const inspectionResult = await inspectUrl(accessToken, siteUrl, url);
+              
+              if (inspectionResult) {
+                const indexStatus = inspectionResult.inspectionResult?.indexStatusResult;
+                const mobileUsability = inspectionResult.inspectionResult?.mobileUsabilityResult;
+                const richResults = inspectionResult.inspectionResult?.richResultsResult;
+                
+                return {
+                  url,
+                  indexed: indexStatus?.coverageState === 'Indexed',
+                  indexStatus: indexStatus?.coverageState || 'Unknown',
+                  crawledAs: indexStatus?.crawledAs || 'Unknown',
+                  lastCrawlTime: indexStatus?.lastCrawlTime || null,
+                  pageFetchState: indexStatus?.pageFetchState || 'Unknown',
+                  robotsTxtState: indexStatus?.robotsTxtState || 'Unknown',
+                  indexingState: indexStatus?.indexingState || 'Unknown',
+                  mobileUsable: mobileUsability?.verdict === 'PASS',
+                  mobileIssues: mobileUsability?.issues || [],
+                  hasRichResults: richResults?.verdict === 'PASS',
+                  richResultsIssues: richResults?.issues || [],
+                  issues: [] as { type: string; message: string }[],
+                  suggestions: [] as string[]
+                };
+              } else {
+                return {
+                  url,
+                  indexed: false,
+                  indexStatus: 'Error',
+                  issues: [] as { type: string; message: string }[],
+                  suggestions: [] as string[],
+                  error: 'Failed to inspect URL'
+                };
+              }
+            } catch (err) {
+              console.error(`Error inspecting ${url}:`, err);
+              return {
+                url,
+                indexed: false,
+                indexStatus: 'Error',
+                issues: [] as { type: string; message: string }[],
+                suggestions: [] as string[],
+                error: err instanceof Error ? err.message : 'Unknown error'
+              };
+            }
+          })
+        );
+        
+        results.push(...batchResults);
+        
+        // Small delay between batches to respect API limits
+        if (i + BATCH_SIZE < pagesToAudit.length) {
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
-        
-        await new Promise(resolve => setTimeout(resolve, 300));
       }
+
+      console.log(`Audit complete: ${results.length} URLs processed`);
 
       // Analyze issues and add suggestions
       for (const page of results) {
         if (!page.indexed) {
           page.issues.push({ type: 'error', message: `Página não indexada: ${page.indexStatus}` });
           page.suggestions.push('Solicitar indexação ao Google');
+          
+          // Add more specific suggestions based on status
+          if (page.indexStatus === 'Discovered - currently not indexed') {
+            page.suggestions.push('Verificar qualidade do conteúdo');
+            page.suggestions.push('Adicionar links internos para esta página');
+          } else if (page.indexStatus === 'Crawled - currently not indexed') {
+            page.suggestions.push('Melhorar a qualidade e relevância do conteúdo');
+            page.suggestions.push('Verificar se há conteúdo duplicado');
+          } else if (page.indexStatus === 'Page with redirect') {
+            page.suggestions.push('Atualizar links para a URL final');
+          } else if (page.indexStatus === 'Not found (404)') {
+            page.suggestions.push('Corrigir ou remover links para esta página');
+          }
         }
         if (page.pageFetchState && page.pageFetchState !== 'SUCCESSFUL') {
           page.issues.push({ type: 'error', message: `Erro no fetch: ${page.pageFetchState}` });

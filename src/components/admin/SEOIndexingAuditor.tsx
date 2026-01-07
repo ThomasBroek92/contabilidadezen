@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { IndexingHistoryReport } from './IndexingHistoryReport';
 import { 
   Search, 
   AlertCircle, 
@@ -26,7 +27,8 @@ import {
   BarChart3,
   CalendarClock,
   Play,
-  List
+  List,
+  Activity
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -329,7 +331,7 @@ export function SEOIndexingAuditor() {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="audit" className="gap-2">
             <Search className="h-4 w-4" />
             Auditoria Manual
@@ -340,6 +342,10 @@ export function SEOIndexingAuditor() {
             {pendingQueueItems.length > 0 && (
               <Badge variant="secondary" className="ml-1">{pendingQueueItems.length}</Badge>
             )}
+          </TabsTrigger>
+          <TabsTrigger value="history" className="gap-2">
+            <Activity className="h-4 w-4" />
+            Relatório Histórico
           </TabsTrigger>
         </TabsList>
 
@@ -587,6 +593,10 @@ export function SEOIndexingAuditor() {
               <p><strong>Retentativas:</strong> Falhas são reprocessadas até 3 vezes.</p>
             </AlertDescription>
           </Alert>
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-4">
+          <IndexingHistoryReport />
         </TabsContent>
       </Tabs>
     </div>

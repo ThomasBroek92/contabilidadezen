@@ -82,7 +82,7 @@ interface ServiceAccountCredentials {
 }
 
 // Generate JWT for service account
-async function generateJWT(credentials: ServiceAccountCredentials): Promise<string> {
+async function generateJWT(credentials: ServiceAccountCredentials, scope: string): Promise<string> {
   const header = {
     alg: "RS256",
     typ: "JWT"
@@ -91,7 +91,7 @@ async function generateJWT(credentials: ServiceAccountCredentials): Promise<stri
   const now = Math.floor(Date.now() / 1000);
   const claim = {
     iss: credentials.client_email,
-    scope: "https://www.googleapis.com/auth/webmasters.readonly",
+    scope: scope,
     aud: "https://oauth2.googleapis.com/token",
     exp: now + 3600,
     iat: now
@@ -132,8 +132,8 @@ async function generateJWT(credentials: ServiceAccountCredentials): Promise<stri
 }
 
 // Get access token from Google
-async function getAccessToken(credentials: ServiceAccountCredentials): Promise<string> {
-  const jwt = await generateJWT(credentials);
+async function getAccessToken(credentials: ServiceAccountCredentials, scope: string = "https://www.googleapis.com/auth/webmasters.readonly"): Promise<string> {
+  const jwt = await generateJWT(credentials, scope);
   
   const response = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -151,6 +151,39 @@ async function getAccessToken(credentials: ServiceAccountCredentials): Promise<s
 
   const data = await response.json();
   return data.access_token;
+}
+
+// Request indexing for a URL
+async function requestIndexing(accessToken: string, url: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await fetch(
+      "https://indexing.googleapis.com/v3/urlNotifications:publish",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          url: url,
+          type: "URL_UPDATED"
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error(`Indexing API error for ${url}: ${error}`);
+      return { success: false, message: error };
+    }
+
+    const result = await response.json();
+    console.log(`Indexing requested for ${url}:`, result);
+    return { success: true, message: `Notificação enviada: ${result.urlNotificationMetadata?.latestUpdate?.notifyTime || 'OK'}` };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, message };
+  }
 }
 
 // Fetch search analytics data
@@ -344,6 +377,148 @@ serve(async (req) => {
       return new Response(JSON.stringify({
         success: true,
         data: sitemaps,
+        siteUrl
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Request indexing for URLs
+    if (action === 'request-indexing' && urls && Array.isArray(urls)) {
+      // Get token with indexing scope
+      const indexingToken = await getAccessToken(credentials, "https://www.googleapis.com/auth/indexing");
+      
+      const results = [];
+      let successCount = 0;
+      let failCount = 0;
+      
+      for (const url of urls.slice(0, 100)) { // Limit to 100 URLs per request
+        const result = await requestIndexing(indexingToken, url);
+        results.push({
+          url,
+          ...result
+        });
+        if (result.success) successCount++;
+        else failCount++;
+        
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      console.log(`Indexing batch complete: ${successCount} success, ${failCount} failed`);
+      
+      return new Response(JSON.stringify({
+        success: true,
+        data: results,
+        summary: { total: results.length, success: successCount, failed: failCount },
+        siteUrl
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Audit all pages - inspect and get detailed status
+    if (action === 'audit') {
+      interface PageAuditResult {
+        url: string;
+        indexed: boolean;
+        indexStatus: string;
+        crawledAs?: string;
+        lastCrawlTime?: string | null;
+        pageFetchState?: string;
+        robotsTxtState?: string;
+        indexingState?: string;
+        mobileUsable?: boolean;
+        mobileIssues?: unknown[];
+        hasRichResults?: boolean;
+        richResultsIssues?: unknown[];
+        issues: { type: string; message: string }[];
+        suggestions: string[];
+        error?: string;
+      }
+      
+      const results: PageAuditResult[] = [];
+      
+      // Get all URLs to audit from the request or use default pages
+      const pagesToAudit = urls && Array.isArray(urls) ? urls : [
+        siteUrl,
+        `${siteUrl}/sobre`,
+        `${siteUrl}/servicos`,
+        `${siteUrl}/contato`,
+        `${siteUrl}/blog`,
+      ];
+      
+      for (const url of pagesToAudit.slice(0, 50)) {
+        const inspectionResult = await inspectUrl(accessToken, siteUrl, url);
+        
+        if (inspectionResult) {
+          const indexStatus = inspectionResult.inspectionResult?.indexStatusResult;
+          const mobileUsability = inspectionResult.inspectionResult?.mobileUsabilityResult;
+          const richResults = inspectionResult.inspectionResult?.richResultsResult;
+          
+          results.push({
+            url,
+            indexed: indexStatus?.coverageState === 'Indexed',
+            indexStatus: indexStatus?.coverageState || 'Unknown',
+            crawledAs: indexStatus?.crawledAs || 'Unknown',
+            lastCrawlTime: indexStatus?.lastCrawlTime || null,
+            pageFetchState: indexStatus?.pageFetchState || 'Unknown',
+            robotsTxtState: indexStatus?.robotsTxtState || 'Unknown',
+            indexingState: indexStatus?.indexingState || 'Unknown',
+            mobileUsable: mobileUsability?.verdict === 'PASS',
+            mobileIssues: mobileUsability?.issues || [],
+            hasRichResults: richResults?.verdict === 'PASS',
+            richResultsIssues: richResults?.issues || [],
+            issues: [],
+            suggestions: []
+          });
+        } else {
+          results.push({
+            url,
+            indexed: false,
+            indexStatus: 'Error',
+            issues: [],
+            suggestions: [],
+            error: 'Failed to inspect URL'
+          });
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+
+      // Analyze issues and add suggestions
+      for (const page of results) {
+        if (!page.indexed) {
+          page.issues.push({ type: 'error', message: `Página não indexada: ${page.indexStatus}` });
+          page.suggestions.push('Solicitar indexação ao Google');
+        }
+        if (page.pageFetchState && page.pageFetchState !== 'SUCCESSFUL') {
+          page.issues.push({ type: 'error', message: `Erro no fetch: ${page.pageFetchState}` });
+          page.suggestions.push('Verificar se a página está acessível');
+        }
+        if (page.mobileUsable === false && page.mobileIssues && page.mobileIssues.length > 0) {
+          page.issues.push({ type: 'warning', message: 'Problemas de usabilidade mobile' });
+          page.suggestions.push('Corrigir problemas de responsividade');
+        }
+        if (page.robotsTxtState === 'DISALLOWED') {
+          page.issues.push({ type: 'error', message: 'Bloqueado pelo robots.txt' });
+          page.suggestions.push('Remover bloqueio no robots.txt');
+        }
+      }
+
+      const indexed = results.filter(r => r.indexed).length;
+      const notIndexed = results.filter(r => !r.indexed).length;
+      const withIssues = results.filter(r => r.issues && r.issues.length > 0).length;
+
+      return new Response(JSON.stringify({
+        success: true,
+        data: results,
+        summary: {
+          total: results.length,
+          indexed,
+          notIndexed,
+          withIssues
+        },
         siteUrl
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

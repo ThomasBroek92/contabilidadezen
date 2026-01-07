@@ -172,12 +172,23 @@ export function SEOIndexingAuditor() {
 
     try {
       const urls = await getAllPagesToAudit();
+      console.log('Starting audit for', urls.length, 'URLs');
+      
+      toast({ 
+        title: 'Iniciando auditoria...', 
+        description: `Analisando ${urls.length} páginas. Isso pode levar alguns segundos.` 
+      });
       
       const { data, error } = await supabase.functions.invoke('google-search-console', {
         body: { action: 'audit', urls }
       });
 
-      if (error) throw error;
+      console.log('Audit response:', { data, error });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Erro ao chamar função');
+      }
 
       if (data?.success) {
         setAuditResults(data.data);
@@ -194,13 +205,13 @@ export function SEOIndexingAuditor() {
           description: `${data.summary.indexed}/${data.summary.total} páginas indexadas` 
         });
       } else {
-        throw new Error(data?.error || 'Erro desconhecido');
+        throw new Error(data?.error || 'Erro desconhecido na resposta');
       }
     } catch (error) {
       console.error('Audit error:', error);
       toast({ 
         title: 'Erro na auditoria', 
-        description: error instanceof Error ? error.message : 'Falha ao auditar páginas',
+        description: error instanceof Error ? error.message : 'Falha ao auditar páginas. Verifique as credenciais do Google Search Console.',
         variant: 'destructive' 
       });
     } finally {

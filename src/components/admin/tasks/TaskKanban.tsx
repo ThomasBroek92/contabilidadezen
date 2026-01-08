@@ -6,8 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
-  Plus, GripVertical, Calendar, User, 
-  MoreHorizontal, Trash2, Edit, LinkIcon 
+  Plus, GripVertical, Calendar, 
+  MoreHorizontal, Trash2, Edit, ExternalLink, Link2 
 } from 'lucide-react';
 import { formatDistanceToNow, format, isPast, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -75,6 +75,18 @@ function TaskCard({ task, onEdit, onDelete, onDragStart }: TaskCardProps) {
               <Edit className="h-4 w-4 mr-2" />
               Editar
             </DropdownMenuItem>
+            {task.notion_page_id && (
+              <DropdownMenuItem asChild>
+                <a 
+                  href={`https://notion.so/${task.notion_page_id.replace(/-/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Abrir no Notion
+                </a>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem 
               onClick={() => onDelete(task.id)}
               className="text-destructive focus:text-destructive"
@@ -112,7 +124,7 @@ function TaskCard({ task, onEdit, onDelete, onDragStart }: TaskCardProps) {
             variant="outline" 
             className="bg-[hsl(var(--chart-1))]/10 text-[hsl(var(--chart-1))] border-[hsl(var(--chart-1))]/30"
           >
-            <LinkIcon className="h-3 w-3 mr-1" />
+            <Link2 className="h-3 w-3 mr-1" />
             Notion
           </Badge>
         )}

@@ -54,23 +54,39 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
   const [assigneeId, setAssigneeId] = useState<string>('');
   const [saving, setSaving] = useState(false);
 
-  // Fetch users with roles for assignee selection
-  const { data: users = [] } = useQuery({
-    queryKey: ['task-assignees'],
+  // Fetch profiles for assignee selection
+  const { data: profiles = [] } = useQuery({
+    queryKey: ['profiles-for-select'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role')
         .order('role');
       
-      if (error) throw error;
+      if (rolesError) throw rolesError;
       
       // Get unique user IDs
-      const uniqueUsers = Array.from(
-        new Map(data.map(u => [u.user_id, u])).values()
-      );
+      const uniqueUserIds = Array.from(new Set(rolesData.map(u => u.user_id)));
       
-      return uniqueUsers;
+      // Fetch profiles for these users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, display_name, email')
+        .in('id', uniqueUserIds);
+      
+      if (profilesError) throw profilesError;
+      
+      // Merge role info with profile info
+      return uniqueUserIds.map(userId => {
+        const profile = profilesData?.find(p => p.id === userId);
+        const roleInfo = rolesData.find(r => r.user_id === userId);
+        return {
+          user_id: userId,
+          role: roleInfo?.role || 'user',
+          display_name: profile?.display_name,
+          email: profile?.email,
+        };
+      });
     },
   });
 
@@ -209,7 +225,9 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
                       {assigneeId ? (
                         <span className="flex items-center gap-2">
                           <User className="h-4 w-4" />
-                          {assigneeId.substring(0, 8)}...
+                          {profiles.find(p => p.user_id === assigneeId)?.display_name || 
+                           profiles.find(p => p.user_id === assigneeId)?.email?.split('@')[0] || 
+                           'Usuário'}
                         </span>
                       ) : (
                         'Sem responsável'
@@ -218,11 +236,11 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Sem responsável</SelectItem>
-                    {users.map(user => (
-                      <SelectItem key={user.user_id} value={user.user_id}>
+                    {profiles.map(profile => (
+                      <SelectItem key={profile.user_id} value={profile.user_id}>
                         <span className="flex items-center gap-2">
                           <User className="h-4 w-4" />
-                          {user.user_id.substring(0, 8)}... ({getRoleLabel(user.role)})
+                          {profile.display_name || profile.email?.split('@')[0] || 'Usuário'} ({getRoleLabel(profile.role)})
                         </span>
                       </SelectItem>
                     ))}

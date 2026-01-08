@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Plus, GripVertical, Calendar, 
-  MoreHorizontal, Trash2, Edit, ExternalLink, Link2, Filter, X
+  MoreHorizontal, Trash2, Edit, ExternalLink, Link2, Filter, X, User
 } from 'lucide-react';
 import { formatDistanceToNow, format, isPast, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
   { id: 'backlog', title: 'Backlog', color: 'bg-muted' },
@@ -48,12 +50,17 @@ interface TaskCardProps {
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   onDragStart: (e: React.DragEvent, task: Task) => void;
+  profiles: Record<string, { display_name: string | null; email: string | null }>;
 }
 
-function TaskCard({ task, onEdit, onDelete, onDragStart }: TaskCardProps) {
+function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardProps) {
   const priority = PRIORITY_CONFIG[task.priority];
   const isOverdue = task.due_date && isPast(new Date(task.due_date)) && task.status !== 'done';
   const isDueToday = task.due_date && isToday(new Date(task.due_date));
+  
+  const assigneeName = task.assignee_id 
+    ? profiles[task.assignee_id]?.display_name || profiles[task.assignee_id]?.email?.split('@')[0] || 'Usuário'
+    : null;
 
   return (
     <div
@@ -137,6 +144,13 @@ function TaskCard({ task, onEdit, onDelete, onDragStart }: TaskCardProps) {
             Notion
           </Badge>
         )}
+
+        {assigneeName && (
+          <Badge variant="outline" className="bg-accent/50">
+            <User className="h-3 w-3 mr-1" />
+            {assigneeName}
+          </Badge>
+        )}
       </div>
     </div>
   );
@@ -151,6 +165,7 @@ interface KanbanColumnProps {
   onDragStart: (e: React.DragEvent, task: Task) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, status: TaskStatus) => void;
+  profiles: Record<string, { display_name: string | null; email: string | null }>;
 }
 
 function KanbanColumn({ 
@@ -162,6 +177,7 @@ function KanbanColumn({
   onDragStart,
   onDragOver,
   onDrop,
+  profiles,
 }: KanbanColumnProps) {
   return (
     <div 
@@ -196,6 +212,7 @@ function KanbanColumn({
                 onEdit={onEditTask}
                 onDelete={onDeleteTask}
                 onDragStart={onDragStart}
+                profiles={profiles}
               />
             ))}
             {tasks.length === 0 && (
@@ -221,6 +238,24 @@ export function TaskKanban() {
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
   const [assigneeFilter, setAssigneeFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+
+  // Fetch profiles for assignee names
+  const { data: profiles = {} } = useQuery({
+    queryKey: ['profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, display_name, email');
+      
+      if (error) throw error;
+      
+      const profilesMap: Record<string, { display_name: string | null; email: string | null }> = {};
+      data?.forEach(p => {
+        profilesMap[p.id] = { display_name: p.display_name, email: p.email };
+      });
+      return profilesMap;
+    },
+  });
 
   // Get unique assignees from tasks
   const assignees = useMemo(() => {
@@ -382,7 +417,7 @@ export function TaskKanban() {
             </Select>
 
             <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
-              <SelectTrigger className="w-[150px] h-8">
+              <SelectTrigger className="w-[170px] h-8">
                 <SelectValue placeholder="Responsável" />
               </SelectTrigger>
               <SelectContent>
@@ -390,7 +425,7 @@ export function TaskKanban() {
                 <SelectItem value="unassigned">Sem responsável</SelectItem>
                 {assignees.map(id => (
                   <SelectItem key={id} value={id}>
-                    {id.substring(0, 8)}...
+                    {profiles[id]?.display_name || profiles[id]?.email?.split('@')[0] || id.substring(0, 8) + '...'}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -431,6 +466,7 @@ export function TaskKanban() {
                 onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
+                profiles={profiles}
               />
             ))}
           </div>

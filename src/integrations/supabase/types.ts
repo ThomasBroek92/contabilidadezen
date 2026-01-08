@@ -750,6 +750,60 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_task_templates: {
+        Row: {
+          assignee_id: string | null
+          created_at: string
+          created_by: string | null
+          day_of_month: number | null
+          day_of_week: number | null
+          description: string | null
+          frequency: Database["public"]["Enums"]["recurrence_frequency"]
+          id: string
+          is_active: boolean
+          last_run_at: string | null
+          next_run_at: string | null
+          priority: Database["public"]["Enums"]["task_priority"]
+          time_of_day: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number | null
+          day_of_week?: number | null
+          description?: string | null
+          frequency?: Database["public"]["Enums"]["recurrence_frequency"]
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          time_of_day?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number | null
+          day_of_week?: number | null
+          description?: string | null
+          frequency?: Database["public"]["Enums"]["recurrence_frequency"]
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          time_of_day?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       task_board_settings: {
         Row: {
           columns: Json
@@ -859,6 +913,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_next_run: {
+        Args: {
+          p_day_of_month: number
+          p_day_of_week: number
+          p_frequency: Database["public"]["Enums"]["recurrence_frequency"]
+          p_from_date?: string
+          p_time_of_day: string
+        }
+        Returns: string
+      }
       can_view_leads: { Args: { _user_id: string }; Returns: boolean }
       generate_blog_slug: { Args: { title: string }; Returns: string }
       has_role: {
@@ -894,6 +958,7 @@ export type Database = {
         | "negociacao"
         | "fechamento"
         | "perdido"
+      recurrence_frequency: "daily" | "weekly" | "monthly"
       task_priority: "low" | "medium" | "high" | "urgent"
       task_status: "backlog" | "todo" | "in_progress" | "review" | "done"
     }
@@ -1043,6 +1108,7 @@ export const Constants = {
         "fechamento",
         "perdido",
       ],
+      recurrence_frequency: ["daily", "weekly", "monthly"],
       task_priority: ["low", "medium", "high", "urgent"],
       task_status: ["backlog", "todo", "in_progress", "review", "done"],
     },

@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.notion-proxy]
 verify_jwt = false
+
+[functions.process-recurring-tasks]
+verify_jwt = false

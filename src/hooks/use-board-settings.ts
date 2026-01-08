@@ -15,17 +15,17 @@ export interface BoardSettings {
   defaultView: 'kanban' | 'list';
 }
 
-// Notion-style pastel colors
-export const PASTEL_COLORS = [
-  { id: 'gray', bg: '#F1F1EF', text: '#787774', label: 'Cinza' },
-  { id: 'brown', bg: '#EEE0DA', text: '#976D57', label: 'Marrom' },
-  { id: 'orange', bg: '#FADEC9', text: '#D9730D', label: 'Laranja' },
-  { id: 'yellow', bg: '#FBF3DB', text: '#C29343', label: 'Amarelo' },
-  { id: 'green', bg: '#DBEDDB', text: '#448361', label: 'Verde' },
-  { id: 'blue', bg: '#D3E5EF', text: '#2E7D9A', label: 'Azul' },
-  { id: 'purple', bg: '#E8DEEE', text: '#9065B0', label: 'Roxo' },
-  { id: 'pink', bg: '#F5E0E9', text: '#C14C8A', label: 'Rosa' },
-  { id: 'red', bg: '#FFE2DD', text: '#E03E3E', label: 'Vermelho' },
+// Vibrant colors for columns
+export const COLUMN_COLORS = [
+  { id: 'gray', bg: '#6B7280', text: '#FFFFFF', label: 'Cinza' },
+  { id: 'brown', bg: '#92400E', text: '#FFFFFF', label: 'Marrom' },
+  { id: 'orange', bg: '#EA580C', text: '#FFFFFF', label: 'Laranja' },
+  { id: 'yellow', bg: '#CA8A04', text: '#FFFFFF', label: 'Amarelo' },
+  { id: 'green', bg: '#16A34A', text: '#FFFFFF', label: 'Verde' },
+  { id: 'blue', bg: '#2563EB', text: '#FFFFFF', label: 'Azul' },
+  { id: 'purple', bg: '#9333EA', text: '#FFFFFF', label: 'Roxo' },
+  { id: 'pink', bg: '#DB2777', text: '#FFFFFF', label: 'Rosa' },
+  { id: 'red', bg: '#DC2626', text: '#FFFFFF', label: 'Vermelho' },
 ];
 
 const DEFAULT_COLUMNS: BoardColumn[] = [

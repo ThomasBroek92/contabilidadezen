@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTasks, TaskStatus, TaskPriority, Task } from '@/hooks/use-tasks';
-import { useBoardSettings, BoardColumn, PASTEL_COLORS } from '@/hooks/use-board-settings';
+import { useBoardSettings, BoardColumn, COLUMN_COLORS } from '@/hooks/use-board-settings';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -161,7 +161,7 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
 }
 
 function getColorStyle(colorId: string) {
-  return PASTEL_COLORS.find(c => c.id === colorId) || PASTEL_COLORS[0];
+  return COLUMN_COLORS.find(c => c.id === colorId) || COLUMN_COLORS[0];
 }
 
 interface KanbanColumnProps {
@@ -196,14 +196,16 @@ function KanbanColumn({
       onDrop={(e) => onDrop(e, column.id)}
     >
       <div className="rounded-sm">
-        <div className="flex items-center justify-between mb-2 px-1">
-          <div className="flex items-center gap-2">
-            <div 
-              className="w-3 h-3 rounded-sm"
-              style={{ backgroundColor: colorStyle.bg, border: `1px solid ${colorStyle.text}20` }}
-            />
-            <h3 className="text-sm font-medium text-[#37352F] dark:text-[#FFFFFFCF]">{column.title}</h3>
-            <span className="text-xs text-[#9B9A97] dark:text-[#FFFFFF52] bg-[#F1F1EF] dark:bg-[#2F2F2F] px-1.5 py-0.5 rounded-sm">
+        <div className="flex items-center justify-between mb-2">
+          <div 
+            className="flex items-center gap-2 px-2.5 py-1 rounded-md"
+            style={{ backgroundColor: colorStyle.bg }}
+          >
+            <h3 className="text-sm font-medium" style={{ color: colorStyle.text }}>{column.title}</h3>
+            <span 
+              className="text-xs px-1.5 py-0.5 rounded-sm"
+              style={{ backgroundColor: `${colorStyle.text}20`, color: colorStyle.text }}
+            >
               {tasks.length}
             </span>
           </div>

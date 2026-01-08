@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTasks, TaskStatus, TaskPriority, Task } from '@/hooks/use-tasks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Plus, GripVertical, Calendar, 
-  MoreHorizontal, Trash2, Edit, ExternalLink, Link2 
+  MoreHorizontal, Trash2, Edit, ExternalLink, Link2, Filter, X
 } from 'lucide-react';
-import { formatDistanceToNow, format, isPast, isToday } from 'date-fns';
+import { formatDistanceToNow, format, isPast, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { TaskDialog } from './TaskDialog';
 import {
@@ -18,6 +18,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
   { id: 'backlog', title: 'Backlog', color: 'bg-muted' },
@@ -33,6 +40,8 @@ const PRIORITY_CONFIG: Record<TaskPriority, { label: string; class: string }> = 
   high: { label: 'Alta', class: 'bg-primary/20 text-primary' },
   urgent: { label: 'Urgente', class: 'bg-destructive/10 text-destructive' },
 };
+
+type DateFilter = 'all' | 'overdue' | 'today' | 'week' | 'month' | 'no_date';
 
 interface TaskCardProps {
   task: Task;
@@ -207,6 +216,71 @@ export function TaskKanban() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('todo');
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  
+  // Filters
+  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
+  const [assigneeFilter, setAssigneeFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+
+  // Get unique assignees from tasks
+  const assignees = useMemo(() => {
+    const ids = new Set<string>();
+    tasks.forEach(t => {
+      if (t.assignee_id) ids.add(t.assignee_id);
+    });
+    return Array.from(ids);
+  }, [tasks]);
+
+  // Filter tasks
+  const filterTasks = (tasksToFilter: Task[]): Task[] => {
+    return tasksToFilter.filter(task => {
+      // Priority filter
+      if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false;
+      
+      // Assignee filter
+      if (assigneeFilter !== 'all') {
+        if (assigneeFilter === 'unassigned' && task.assignee_id) return false;
+        if (assigneeFilter !== 'unassigned' && task.assignee_id !== assigneeFilter) return false;
+      }
+      
+      // Date filter
+      if (dateFilter !== 'all') {
+        const dueDate = task.due_date ? new Date(task.due_date) : null;
+        
+        switch (dateFilter) {
+          case 'overdue':
+            if (!dueDate || !isPast(dueDate) || task.status === 'done') return false;
+            break;
+          case 'today':
+            if (!dueDate || !isToday(dueDate)) return false;
+            break;
+          case 'week':
+            if (!dueDate || !isThisWeek(dueDate, { locale: ptBR })) return false;
+            break;
+          case 'month':
+            if (!dueDate || !isThisMonth(dueDate)) return false;
+            break;
+          case 'no_date':
+            if (dueDate) return false;
+            break;
+        }
+      }
+      
+      return true;
+    });
+  };
+
+  const getFilteredTasksByStatus = (status: TaskStatus) => {
+    return filterTasks(getTasksByStatus(status));
+  };
+
+  const hasActiveFilters = priorityFilter !== 'all' || assigneeFilter !== 'all' || dateFilter !== 'all';
+
+  const clearFilters = () => {
+    setPriorityFilter('all');
+    setAssigneeFilter('all');
+    setDateFilter('all');
+  };
 
   const handleAddTask = (status: TaskStatus) => {
     setDefaultStatus(status);
@@ -286,6 +360,63 @@ export function TaskKanban() {
               Nova Tarefa
             </Button>
           </div>
+          
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3 mt-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Filter className="h-4 w-4" />
+              Filtros:
+            </div>
+            
+            <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as TaskPriority | 'all')}>
+              <SelectTrigger className="w-[140px] h-8">
+                <SelectValue placeholder="Prioridade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas prioridades</SelectItem>
+                <SelectItem value="urgent">Urgente</SelectItem>
+                <SelectItem value="high">Alta</SelectItem>
+                <SelectItem value="medium">Média</SelectItem>
+                <SelectItem value="low">Baixa</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
+              <SelectTrigger className="w-[150px] h-8">
+                <SelectValue placeholder="Responsável" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos responsáveis</SelectItem>
+                <SelectItem value="unassigned">Sem responsável</SelectItem>
+                {assignees.map(id => (
+                  <SelectItem key={id} value={id}>
+                    {id.substring(0, 8)}...
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
+              <SelectTrigger className="w-[140px] h-8">
+                <SelectValue placeholder="Data" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas datas</SelectItem>
+                <SelectItem value="overdue">Atrasadas</SelectItem>
+                <SelectItem value="today">Hoje</SelectItem>
+                <SelectItem value="week">Esta semana</SelectItem>
+                <SelectItem value="month">Este mês</SelectItem>
+                <SelectItem value="no_date">Sem data</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8">
+                <X className="h-4 w-4 mr-1" />
+                Limpar
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 overflow-x-auto pb-4">
@@ -293,7 +424,7 @@ export function TaskKanban() {
               <KanbanColumn
                 key={column.id}
                 column={column}
-                tasks={getTasksByStatus(column.id)}
+                tasks={getFilteredTasksByStatus(column.id)}
                 onAddTask={handleAddTask}
                 onEditTask={handleEditTask}
                 onDeleteTask={handleDeleteTask}

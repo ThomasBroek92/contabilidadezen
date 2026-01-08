@@ -15,7 +15,7 @@ import { ContentStudio } from '@/components/admin/ContentStudio';
 import { GoogleIntegrationGuide } from '@/components/admin/GoogleIntegrationGuide';
 import { SEOIndexingAuditor } from '@/components/admin/SEOIndexingAuditor';
 import { NotionWidget } from '@/components/admin/NotionWidget';
-import { TaskKanban } from '@/components/admin/tasks';
+import { TasksContainer } from '@/components/admin/tasks';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -187,7 +187,7 @@ export default function Admin() {
 
             {canViewLeads() && (
               <TabsContent value="tasks">
-                <TaskKanban />
+                <TasksContainer />
               </TabsContent>
             )}
 

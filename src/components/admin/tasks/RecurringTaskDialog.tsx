@@ -216,12 +216,12 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
 
             <div className="space-y-2">
               <Label>Responsável</Label>
-              <Select value={assigneeId} onValueChange={setAssigneeId}>
+              <Select value={assigneeId || 'none'} onValueChange={(v) => setAssigneeId(v === 'none' ? '' : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sem responsável" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sem responsável</SelectItem>
+                  <SelectItem value="none">Sem responsável</SelectItem>
                   {profiles?.map((profile) => (
                     <SelectItem key={profile.id} value={profile.id}>
                       {profile.display_name || profile.email?.split('@')[0]}

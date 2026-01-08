@@ -219,7 +219,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
 
               <div className="space-y-2">
                 <Label>Responsável</Label>
-                <Select value={assigneeId} onValueChange={setAssigneeId}>
+                <Select value={assigneeId || 'none'} onValueChange={(v) => setAssigneeId(v === 'none' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecionar...">
                       {assigneeId ? (
@@ -235,7 +235,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Sem responsável</SelectItem>
+                    <SelectItem value="none">Sem responsável</SelectItem>
                     {profiles.map(profile => (
                       <SelectItem key={profile.user_id} value={profile.user_id}>
                         <span className="flex items-center gap-2">

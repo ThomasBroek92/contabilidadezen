@@ -53,7 +53,7 @@ export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { createPage: createNotionPage, updatePage: updateNotionPage } = useNotion();
+  const { createPage: createNotionPage, updatePage: updateNotionPage, archivePage: archiveNotionPage } = useNotion();
   const { user } = useAuth();
 
   const fetchTasks = useCallback(async () => {
@@ -262,6 +262,8 @@ export function useTasks() {
   }, [toast, tasks, syncUpdateToNotion]);
 
   const deleteTask = useCallback(async (id: string) => {
+    const taskToDelete = tasks.find(t => t.id === id);
+    
     try {
       const { error } = await supabase
         .from('tasks')
@@ -275,6 +277,13 @@ export function useTasks() {
         title: 'Tarefa excluída',
         description: 'A tarefa foi removida.',
       });
+
+      // Archive in Notion if synced (non-blocking)
+      if (taskToDelete?.notion_page_id) {
+        archiveNotionPage(taskToDelete.notion_page_id).catch(err => {
+          console.error('Error archiving Notion page:', err);
+        });
+      }
     } catch (error) {
       console.error('Error deleting task:', error);
       toast({
@@ -284,7 +293,7 @@ export function useTasks() {
       });
       throw error;
     }
-  }, [toast]);
+  }, [toast, tasks, archiveNotionPage]);
 
   const moveTask = useCallback(async (taskId: string, newStatus: TaskStatus, newPosition: number) => {
     const currentTask = tasks.find(t => t.id === taskId);

@@ -108,7 +108,10 @@ function TaskCard({ task, onEdit, onDelete, onDragStart }: TaskCardProps) {
         )}
 
         {task.notion_page_id && (
-          <Badge variant="outline" className="bg-background">
+          <Badge 
+            variant="outline" 
+            className="bg-[hsl(var(--chart-1))]/10 text-[hsl(var(--chart-1))] border-[hsl(var(--chart-1))]/30"
+          >
             <LinkIcon className="h-3 w-3 mr-1" />
             Notion
           </Badge>

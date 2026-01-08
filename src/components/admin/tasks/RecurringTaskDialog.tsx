@@ -82,14 +82,14 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
   const [timeOfDay, setTimeOfDay] = useState('09:00');
 
   // Fetch profiles
-  const { data: profiles } = useQuery({
+  const { data: profiles = [] } = useQuery({
     queryKey: ['profiles'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, display_name, email');
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 

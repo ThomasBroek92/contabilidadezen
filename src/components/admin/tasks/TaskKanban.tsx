@@ -269,7 +269,7 @@ export function TaskKanban() {
 
   // Fetch profiles for assignee names
   const { data: profiles = {} } = useQuery({
-    queryKey: ['profiles'],
+    queryKey: ['profiles-map'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')

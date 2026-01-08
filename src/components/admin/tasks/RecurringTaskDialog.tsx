@@ -83,7 +83,7 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
 
   // Fetch profiles
   const { data: profiles = [] } = useQuery({
-    queryKey: ['profiles'],
+    queryKey: ['profiles-list'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
@@ -222,7 +222,7 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Sem responsável</SelectItem>
-                  {profiles?.map((profile) => (
+                  {(Array.isArray(profiles) ? profiles : []).map((profile) => (
                     <SelectItem key={profile.id} value={profile.id}>
                       {profile.display_name || profile.email?.split('@')[0]}
                     </SelectItem>

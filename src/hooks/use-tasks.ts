@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNotion } from '@/hooks/use-notion';
 import { useAuth } from '@/hooks/useAuth';
 
 export type TaskStatus = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done';
@@ -32,10 +33,27 @@ export interface CreateTaskInput {
   lead_id?: string;
 }
 
+// Map local status to Notion status
+const STATUS_TO_NOTION: Record<string, string> = {
+  backlog: 'Backlog',
+  todo: 'To Do',
+  in_progress: 'In Progress',
+  review: 'Review',
+  done: 'Done',
+};
+
+const PRIORITY_TO_NOTION: Record<string, string> = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  urgent: 'Urgent',
+};
+
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { createPage: createNotionPage } = useNotion();
   const { user } = useAuth();
 
   const fetchTasks = useCallback(async () => {
@@ -59,6 +77,56 @@ export function useTasks() {
       setLoading(false);
     }
   }, [toast]);
+
+  const syncTaskToNotion = useCallback(async (task: Task) => {
+    try {
+      // Build Notion properties based on typical task database schema
+      const properties: Record<string, any> = {
+        Name: {
+          title: [{ text: { content: task.title } }],
+        },
+        Status: {
+          select: { name: STATUS_TO_NOTION[task.status] || 'To Do' },
+        },
+        Priority: {
+          select: { name: PRIORITY_TO_NOTION[task.priority] || 'Medium' },
+        },
+      };
+
+      if (task.description) {
+        properties['Description'] = {
+          rich_text: [{ text: { content: task.description } }],
+        };
+      }
+
+      if (task.due_date) {
+        properties['Due Date'] = {
+          date: { start: task.due_date.split('T')[0] },
+        };
+      }
+
+      const notionPage = await createNotionPage(properties);
+
+      // Update task with Notion page ID
+      if (notionPage?.id) {
+        await supabase
+          .from('tasks')
+          .update({ notion_page_id: notionPage.id })
+          .eq('id', task.id);
+        
+        setTasks(prev => prev.map(t => 
+          t.id === task.id ? { ...t, notion_page_id: notionPage.id } : t
+        ));
+      }
+
+      console.log('Task synced to Notion:', notionPage?.id);
+      return notionPage;
+    } catch (error) {
+      console.error('Error syncing task to Notion:', error);
+      // Don't throw - Notion sync is optional
+      return null;
+    }
+  }, [createNotionPage]);
 
   const createTask = useCallback(async (input: CreateTaskInput) => {
     try {
@@ -84,13 +152,25 @@ export function useTasks() {
 
       if (error) throw error;
 
-      setTasks(prev => [...prev, data as Task]);
+      const newTask = data as Task;
+      setTasks(prev => [...prev, newTask]);
+      
       toast({
         title: 'Tarefa criada!',
         description: `"${input.title}" foi adicionada.`,
       });
 
-      return data as Task;
+      // Sync to Notion in background (non-blocking)
+      syncTaskToNotion(newTask).then(notionPage => {
+        if (notionPage) {
+          toast({
+            title: 'Sincronizado com Notion',
+            description: 'Tarefa também criada no database Notion.',
+          });
+        }
+      });
+
+      return newTask;
     } catch (error) {
       console.error('Error creating task:', error);
       toast({
@@ -100,7 +180,7 @@ export function useTasks() {
       });
       throw error;
     }
-  }, [user, toast]);
+  }, [user, toast, syncTaskToNotion]);
 
   const updateTask = useCallback(async (id: string, updates: Partial<Task>) => {
     try {

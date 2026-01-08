@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
 import { TaskKanban } from './TaskKanban';
+import { RecurringTasksManager } from './RecurringTasksManager';
 import { ListChecks, RefreshCw } from 'lucide-react';
 
 export function TasksContainer() {
@@ -22,15 +22,7 @@ export function TasksContainer() {
       </TabsContent>
 
       <TabsContent value="recurring">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <RefreshCw className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Tarefas Recorrentes</h3>
-            <p className="text-muted-foreground">
-              Em breve você poderá configurar tarefas que se repetem automaticamente.
-            </p>
-          </CardContent>
-        </Card>
+        <RecurringTasksManager />
       </TabsContent>
     </Tabs>
   );

@@ -49,19 +49,19 @@ const getPropertyValue = (property: any): string => {
   }
 };
 
-// Helper to get status color
+// Helper to get status color (semantic tokens only)
 const getStatusColor = (status: string): string => {
   const statusLower = status.toLowerCase();
   if (statusLower.includes('done') || statusLower.includes('concluí') || statusLower.includes('complete')) {
-    return 'bg-green-500/10 text-green-600 border-green-200';
+    return 'bg-primary/10 text-primary border-border';
   }
   if (statusLower.includes('progress') || statusLower.includes('andamento') || statusLower.includes('doing')) {
-    return 'bg-blue-500/10 text-blue-600 border-blue-200';
+    return 'bg-secondary text-secondary-foreground border-border';
   }
   if (statusLower.includes('todo') || statusLower.includes('fazer') || statusLower.includes('pending')) {
-    return 'bg-yellow-500/10 text-yellow-600 border-yellow-200';
+    return 'bg-muted text-muted-foreground border-border';
   }
-  return 'bg-muted text-muted-foreground';
+  return 'bg-muted/50 text-foreground border-border';
 };
 
 interface CreateFormData {

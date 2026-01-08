@@ -7,6 +7,26 @@ const corsHeaders = {
 
 const NOTION_API_VERSION = '2022-06-28';
 
+const extractNotionId = (raw: string): string | null => {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  // Accept plain UUID (with or without hyphens)
+  if (/^[0-9a-fA-F]{32}$/.test(trimmed)) return trimmed;
+  if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(trimmed)) {
+    return trimmed;
+  }
+
+  // Accept full Notion URL: extract the 32-hex ID anywhere in the string
+  const match32 = trimmed.match(/[0-9a-fA-F]{32}/);
+  if (match32) return match32[0];
+
+  const matchUuid = trimmed.match(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/);
+  if (matchUuid) return matchUuid[0];
+
+  return null;
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -14,13 +34,25 @@ serve(async (req) => {
 
   try {
     const NOTION_API_KEY = Deno.env.get('NOTION_API_KEY');
-    const NOTION_DATABASE_ID = Deno.env.get('NOTION_DATABASE_ID');
+    const NOTION_DATABASE_ID_RAW = Deno.env.get('NOTION_DATABASE_ID');
 
-    if (!NOTION_API_KEY || !NOTION_DATABASE_ID) {
+    if (!NOTION_API_KEY || !NOTION_DATABASE_ID_RAW) {
       console.error('Missing Notion credentials');
       return new Response(
         JSON.stringify({ error: 'Notion credentials not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const NOTION_DATABASE_ID = extractNotionId(NOTION_DATABASE_ID_RAW);
+    if (!NOTION_DATABASE_ID) {
+      console.error('Invalid NOTION_DATABASE_ID format');
+      return new Response(
+        JSON.stringify({
+          error:
+            'NOTION_DATABASE_ID inválido. Use o ID do database (32 caracteres) ou cole o link completo do database.',
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

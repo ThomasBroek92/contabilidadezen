@@ -1,4 +1,5 @@
 import { Task, TaskStatus, TaskPriority } from '@/hooks/use-tasks';
+import { useBoardSettings, PASTEL_COLORS } from '@/hooks/use-board-settings';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -25,13 +26,16 @@ const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; bgCo
   urgent: { label: 'Urgente', color: '#E03E3E', bgColor: '#FFE2DD', icon: Zap },
 };
 
-const STATUS_CONFIG: Record<TaskStatus, { label: string; emoji: string }> = {
-  backlog: { label: 'Backlog', emoji: '📋' },
-  todo: { label: 'A Fazer', emoji: '📝' },
-  in_progress: { label: 'Em Progresso', emoji: '🔄' },
-  review: { label: 'Revisão', emoji: '👀' },
-  done: { label: 'Concluído', emoji: '✅' },
-};
+function getColorStyle(colorId: string) {
+  return PASTEL_COLORS.find(c => c.id === colorId) || PASTEL_COLORS[0];
+}
+
+interface ColumnConfig {
+  id: string;
+  title: string;
+  color: string;
+  order: number;
+}
 
 interface TaskListProps {
   tasks: Task[];
@@ -39,6 +43,7 @@ interface TaskListProps {
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
+  columns: ColumnConfig[];
 }
 
 interface TaskRowProps {
@@ -47,11 +52,13 @@ interface TaskRowProps {
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
+  columns: ColumnConfig[];
 }
 
-function TaskRow({ task, profiles, onEdit, onDelete, onStatusChange }: TaskRowProps) {
+function TaskRow({ task, profiles, onEdit, onDelete, onStatusChange, columns }: TaskRowProps) {
   const priority = PRIORITY_CONFIG[task.priority];
-  const status = STATUS_CONFIG[task.status];
+  const column = columns.find(c => c.id === task.status) || { title: task.status, color: 'gray' };
+  const colorStyle = getColorStyle(column.color);
   const PriorityIcon = priority.icon;
   const isOverdue = task.due_date && isPast(new Date(task.due_date)) && task.status !== 'done';
   const isDueToday = task.due_date && isToday(new Date(task.due_date));
@@ -97,8 +104,11 @@ function TaskRow({ task, profiles, onEdit, onDelete, onStatusChange }: TaskRowPr
       {/* Status */}
       <div className="w-28 flex-shrink-0">
         <span className="inline-flex items-center gap-1.5 text-xs text-[#37352F] dark:text-[#FFFFFFCF]">
-          <span>{status.emoji}</span>
-          {status.label}
+          <div 
+            className="w-2.5 h-2.5 rounded-sm" 
+            style={{ backgroundColor: colorStyle.bg, border: `1px solid ${colorStyle.text}40` }}
+          />
+          {column.title}
         </span>
       </div>
 
@@ -194,18 +204,19 @@ function TaskRow({ task, profiles, onEdit, onDelete, onStatusChange }: TaskRowPr
 }
 
 interface GroupedListProps {
-  title: string;
-  emoji: string;
+  column: ColumnConfig;
   tasks: Task[];
   profiles: Record<string, { display_name: string | null; email: string | null }>;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
+  columns: ColumnConfig[];
   defaultOpen?: boolean;
 }
 
-function GroupedList({ title, emoji, tasks, profiles, onEdit, onDelete, onStatusChange, defaultOpen = true }: GroupedListProps) {
+function GroupedList({ column, tasks, profiles, onEdit, onDelete, onStatusChange, columns, defaultOpen = true }: GroupedListProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const colorStyle = getColorStyle(column.color);
 
   if (tasks.length === 0) return null;
 
@@ -220,8 +231,11 @@ function GroupedList({ title, emoji, tasks, profiles, onEdit, onDelete, onStatus
         ) : (
           <ChevronRight className="h-3.5 w-3.5 text-[#9B9A97]" />
         )}
-        <span className="text-sm">{emoji}</span>
-        <span className="text-sm font-medium text-[#37352F] dark:text-[#FFFFFFCF]">{title}</span>
+        <div 
+          className="w-3 h-3 rounded-sm"
+          style={{ backgroundColor: colorStyle.bg, border: `1px solid ${colorStyle.text}40` }}
+        />
+        <span className="text-sm font-medium text-[#37352F] dark:text-[#FFFFFFCF]">{column.title}</span>
         <span className="text-xs text-[#9B9A97] bg-[#F1F1EF] dark:bg-[#2F2F2F] px-1.5 py-0.5 rounded-sm">
           {tasks.length}
         </span>
@@ -237,6 +251,7 @@ function GroupedList({ title, emoji, tasks, profiles, onEdit, onDelete, onStatus
               onEdit={onEdit}
               onDelete={onDelete}
               onStatusChange={onStatusChange}
+              columns={columns}
             />
           ))}
         </div>
@@ -245,15 +260,16 @@ function GroupedList({ title, emoji, tasks, profiles, onEdit, onDelete, onStatus
   );
 }
 
-export function TaskList({ tasks, profiles, onEdit, onDelete, onStatusChange }: TaskListProps) {
+export function TaskList({ tasks, profiles, onEdit, onDelete, onStatusChange, columns }: TaskListProps) {
   // Group tasks by status
   const tasksByStatus = tasks.reduce((acc, task) => {
     if (!acc[task.status]) acc[task.status] = [];
     acc[task.status].push(task);
     return acc;
-  }, {} as Record<TaskStatus, Task[]>);
+  }, {} as Record<string, Task[]>);
 
-  const statusOrder: TaskStatus[] = ['in_progress', 'todo', 'review', 'backlog', 'done'];
+  // Use columns order
+  const sortedColumns = [...columns].sort((a, b) => a.order - b.order);
 
   return (
     <div className="bg-white dark:bg-[#191919] rounded-sm border border-[#E9E9E7] dark:border-[#2F2F2F]">
@@ -271,17 +287,17 @@ export function TaskList({ tasks, profiles, onEdit, onDelete, onStatusChange }: 
 
       <ScrollArea className="h-[calc(100vh-320px)]">
         <div className="py-2">
-          {statusOrder.map(status => (
+          {sortedColumns.map(column => (
             <GroupedList
-              key={status}
-              title={STATUS_CONFIG[status].label}
-              emoji={STATUS_CONFIG[status].emoji}
-              tasks={tasksByStatus[status] || []}
+              key={column.id}
+              column={column}
+              tasks={tasksByStatus[column.id] || []}
               profiles={profiles}
               onEdit={onEdit}
               onDelete={onDelete}
               onStatusChange={onStatusChange}
-              defaultOpen={status !== 'done'}
+              columns={columns}
+              defaultOpen={column.id !== 'done'}
             />
           ))}
 

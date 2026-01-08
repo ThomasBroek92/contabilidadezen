@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTasks, TaskStatus, TaskPriority, Task } from '@/hooks/use-tasks';
-import { useBoardSettings, BoardColumn } from '@/hooks/use-board-settings';
+import { useBoardSettings, BoardColumn, PASTEL_COLORS } from '@/hooks/use-board-settings';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -160,6 +160,10 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
   );
 }
 
+function getColorStyle(colorId: string) {
+  return PASTEL_COLORS.find(c => c.id === colorId) || PASTEL_COLORS[0];
+}
+
 interface KanbanColumnProps {
   column: BoardColumn;
   tasks: Task[];
@@ -183,6 +187,8 @@ function KanbanColumn({
   onDrop,
   profiles,
 }: KanbanColumnProps) {
+  const colorStyle = getColorStyle(column.color);
+  
   return (
     <div 
       className="flex-shrink-0 w-72"
@@ -192,7 +198,10 @@ function KanbanColumn({
       <div className="rounded-sm">
         <div className="flex items-center justify-between mb-2 px-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm">{column.emoji}</span>
+            <div 
+              className="w-3 h-3 rounded-sm"
+              style={{ backgroundColor: colorStyle.bg, border: `1px solid ${colorStyle.text}20` }}
+            />
             <h3 className="text-sm font-medium text-[#37352F] dark:text-[#FFFFFFCF]">{column.title}</h3>
             <span className="text-xs text-[#9B9A97] dark:text-[#FFFFFF52] bg-[#F1F1EF] dark:bg-[#2F2F2F] px-1.5 py-0.5 rounded-sm">
               {tasks.length}
@@ -573,6 +582,7 @@ export function TaskKanban() {
               onEdit={handleEditTask}
               onDelete={handleDeleteTask}
               onStatusChange={handleStatusChange}
+              columns={columns}
             />
           )}
         </CardContent>

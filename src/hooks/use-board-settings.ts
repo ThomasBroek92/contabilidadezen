@@ -6,7 +6,7 @@ import { Json } from '@/integrations/supabase/types';
 export interface BoardColumn {
   id: string;
   title: string;
-  emoji: string;
+  color: string;
   order: number;
 }
 
@@ -15,12 +15,25 @@ export interface BoardSettings {
   defaultView: 'kanban' | 'list';
 }
 
+// Notion-style pastel colors
+export const PASTEL_COLORS = [
+  { id: 'gray', bg: '#F1F1EF', text: '#787774', label: 'Cinza' },
+  { id: 'brown', bg: '#EEE0DA', text: '#976D57', label: 'Marrom' },
+  { id: 'orange', bg: '#FADEC9', text: '#D9730D', label: 'Laranja' },
+  { id: 'yellow', bg: '#FBF3DB', text: '#C29343', label: 'Amarelo' },
+  { id: 'green', bg: '#DBEDDB', text: '#448361', label: 'Verde' },
+  { id: 'blue', bg: '#D3E5EF', text: '#2E7D9A', label: 'Azul' },
+  { id: 'purple', bg: '#E8DEEE', text: '#9065B0', label: 'Roxo' },
+  { id: 'pink', bg: '#F5E0E9', text: '#C14C8A', label: 'Rosa' },
+  { id: 'red', bg: '#FFE2DD', text: '#E03E3E', label: 'Vermelho' },
+];
+
 const DEFAULT_COLUMNS: BoardColumn[] = [
-  { id: 'backlog', title: 'Backlog', emoji: '📋', order: 0 },
-  { id: 'todo', title: 'A Fazer', emoji: '📝', order: 1 },
-  { id: 'in_progress', title: 'Em Progresso', emoji: '🔄', order: 2 },
-  { id: 'review', title: 'Revisão', emoji: '👀', order: 3 },
-  { id: 'done', title: 'Concluído', emoji: '✅', order: 4 },
+  { id: 'backlog', title: 'Backlog', color: 'gray', order: 0 },
+  { id: 'todo', title: 'A Fazer', color: 'blue', order: 1 },
+  { id: 'in_progress', title: 'Em Progresso', color: 'yellow', order: 2 },
+  { id: 'review', title: 'Revisão', color: 'purple', order: 3 },
+  { id: 'done', title: 'Concluído', color: 'green', order: 4 },
 ];
 
 export function useBoardSettings() {

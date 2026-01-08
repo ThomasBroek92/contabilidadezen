@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BoardColumn } from '@/hooks/use-board-settings';
+import { BoardColumn, PASTEL_COLORS } from '@/hooks/use-board-settings';
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Plus, Trash2, GripVertical, Save } from 'lucide-react';
+import { Loader2, Plus, Trash2, GripVertical, Save, Check } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -27,6 +27,11 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface BoardSettingsDialogProps {
   open: boolean;
@@ -36,9 +41,6 @@ interface BoardSettingsDialogProps {
   isSaving: boolean;
 }
 
-// Common emojis for task boards
-const EMOJI_OPTIONS = ['📋', '📝', '🔄', '👀', '✅', '🎯', '⏳', '🚀', '💡', '⚡', '🔥', '📌', '🏷️', '📦', '🎨', '🔧', '📊', '🗂️'];
-
 interface SortableColumnItemProps {
   column: BoardColumn;
   onUpdate: (id: string, updates: Partial<BoardColumn>) => void;
@@ -46,8 +48,13 @@ interface SortableColumnItemProps {
   canDelete: boolean;
 }
 
+function getColorStyle(colorId: string) {
+  return PASTEL_COLORS.find(c => c.id === colorId) || PASTEL_COLORS[0];
+}
+
 function SortableColumnItem({ column, onUpdate, onDelete, canDelete }: SortableColumnItemProps) {
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const colorStyle = getColorStyle(column.color);
   
   const {
     attributes,
@@ -78,31 +85,35 @@ function SortableColumnItem({ column, onUpdate, onDelete, canDelete }: SortableC
         <GripVertical className="h-4 w-4 text-[#9B9A97]" />
       </button>
 
-      {/* Emoji selector */}
-      <div className="relative">
-        <button
-          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[#F7F7F5] dark:hover:bg-[#3F3F3F] rounded-sm"
-        >
-          {column.emoji}
-        </button>
-        {showEmojiPicker && (
-          <div className="absolute top-full left-0 mt-1 p-2 bg-white dark:bg-[#252526] border border-[#E9E9E7] dark:border-[#3F3F3F] rounded-sm shadow-lg z-50 grid grid-cols-6 gap-1">
-            {EMOJI_OPTIONS.map(emoji => (
+      {/* Color selector */}
+      <Popover open={colorPickerOpen} onOpenChange={setColorPickerOpen}>
+        <PopoverTrigger asChild>
+          <button
+            className="w-6 h-6 rounded-sm border border-[#E9E9E7] dark:border-[#3F3F3F] flex items-center justify-center hover:scale-110 transition-transform"
+            style={{ backgroundColor: colorStyle.bg }}
+          />
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-2 bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]" align="start">
+          <div className="grid grid-cols-5 gap-1.5">
+            {PASTEL_COLORS.map(color => (
               <button
-                key={emoji}
+                key={color.id}
                 onClick={() => {
-                  onUpdate(column.id, { emoji });
-                  setShowEmojiPicker(false);
+                  onUpdate(column.id, { color: color.id });
+                  setColorPickerOpen(false);
                 }}
-                className="w-7 h-7 flex items-center justify-center hover:bg-[#F7F7F5] dark:hover:bg-[#3F3F3F] rounded-sm"
+                className="w-7 h-7 rounded-sm border border-[#E9E9E7] dark:border-[#3F3F3F] flex items-center justify-center hover:scale-110 transition-transform"
+                style={{ backgroundColor: color.bg }}
+                title={color.label}
               >
-                {emoji}
+                {column.color === color.id && (
+                  <Check className="h-3.5 w-3.5" style={{ color: color.text }} />
+                )}
               </button>
             ))}
           </div>
-        )}
-      </div>
+        </PopoverContent>
+      </Popover>
 
       <Input
         value={column.title}
@@ -170,7 +181,7 @@ export function BoardSettingsDialog({ open, onOpenChange, columns, onSave, isSav
     setLocalColumns(cols => [...cols, {
       id: newId,
       title: 'Nova Coluna',
-      emoji: '📌',
+      color: 'gray',
       order: cols.length,
     }]);
   };
@@ -194,7 +205,7 @@ export function BoardSettingsDialog({ open, onOpenChange, columns, onSave, isSav
 
         <div className="px-6 py-2">
           <p className="text-xs text-[#9B9A97] mb-4">
-            Arraste para reordenar, clique no emoji para alterar, ou adicione novas colunas.
+            Arraste para reordenar, clique na cor para alterar, ou adicione novas colunas.
           </p>
 
           <DndContext

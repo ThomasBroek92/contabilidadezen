@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useTasks, TaskStatus, TaskPriority, Task } from '@/hooks/use-tasks';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Plus, GripVertical, Calendar, 
-  MoreHorizontal, Trash2, Edit, ExternalLink, Link2, Filter, X, User
+  MoreHorizontal, Trash2, Edit, ExternalLink, Link2, Filter, X, User,
+  Circle, AlertCircle, Flag, Zap
 } from 'lucide-react';
 import { formatDistanceToNow, format, isPast, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -16,6 +16,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -28,19 +29,20 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
-const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
-  { id: 'backlog', title: 'Backlog', color: 'bg-muted' },
-  { id: 'todo', title: 'A Fazer', color: 'bg-secondary' },
-  { id: 'in_progress', title: 'Em Progresso', color: 'bg-primary/10' },
-  { id: 'review', title: 'Revisão', color: 'bg-accent' },
-  { id: 'done', title: 'Concluído', color: 'bg-primary/20' },
+const COLUMNS: { id: TaskStatus; title: string; emoji: string }[] = [
+  { id: 'backlog', title: 'Backlog', emoji: '📋' },
+  { id: 'todo', title: 'A Fazer', emoji: '📝' },
+  { id: 'in_progress', title: 'Em Progresso', emoji: '🔄' },
+  { id: 'review', title: 'Revisão', emoji: '👀' },
+  { id: 'done', title: 'Concluído', emoji: '✅' },
 ];
 
-const PRIORITY_CONFIG: Record<TaskPriority, { label: string; class: string }> = {
-  low: { label: 'Baixa', class: 'bg-muted text-muted-foreground' },
-  medium: { label: 'Média', class: 'bg-secondary text-secondary-foreground' },
-  high: { label: 'Alta', class: 'bg-primary/20 text-primary' },
-  urgent: { label: 'Urgente', class: 'bg-destructive/10 text-destructive' },
+// Notion-style pastel colors
+const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; icon: typeof Circle }> = {
+  low: { label: 'Baixa', color: 'bg-[#E3E2E0] text-[#787774]', icon: Circle },
+  medium: { label: 'Média', color: 'bg-[#D3E5EF] text-[#2E7D9A]', icon: Flag },
+  high: { label: 'Alta', color: 'bg-[#FADEC9] text-[#D9730D]', icon: AlertCircle },
+  urgent: { label: 'Urgente', color: 'bg-[#FFE2DD] text-[#E03E3E]', icon: Zap },
 };
 
 type DateFilter = 'all' | 'overdue' | 'today' | 'week' | 'month' | 'no_date';
@@ -57,6 +59,7 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
   const priority = PRIORITY_CONFIG[task.priority];
   const isOverdue = task.due_date && isPast(new Date(task.due_date)) && task.status !== 'done';
   const isDueToday = task.due_date && isToday(new Date(task.due_date));
+  const PriorityIcon = priority.icon;
   
   const assigneeName = task.assignee_id 
     ? profiles[task.assignee_id]?.display_name || profiles[task.assignee_id]?.email?.split('@')[0] || 'Usuário'
@@ -66,91 +69,99 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
     <div
       draggable
       onDragStart={(e) => onDragStart(e, task)}
-      className="group bg-card border rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-primary/50 transition-colors"
+      onClick={() => onEdit(task)}
+      className="group bg-white dark:bg-[#191919] border border-[#E9E9E7] dark:border-[#2F2F2F] rounded-sm p-2.5 cursor-pointer hover:bg-[#F7F7F5] dark:hover:bg-[#252525] transition-colors shadow-none"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
+      <div className="flex items-start gap-2">
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing pt-0.5">
+          <GripVertical className="h-3.5 w-3.5 text-[#B4B4B4]" />
         </div>
+        
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-sm truncate">{task.title}</h4>
+          <p className="text-sm text-[#37352F] dark:text-[#FFFFFFCF] font-normal leading-relaxed">
+            {task.title}
+          </p>
+          
           {task.description && (
-            <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+            <p className="text-xs text-[#9B9A97] dark:text-[#FFFFFF52] line-clamp-2 mt-1">
               {task.description}
             </p>
           )}
+
+          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+            {/* Priority tag */}
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium ${priority.color}`}>
+              <PriorityIcon className="h-3 w-3" />
+              {priority.label}
+            </span>
+            
+            {/* Due date */}
+            {task.due_date && (
+              <span 
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium ${
+                  isOverdue 
+                    ? 'bg-[#FFE2DD] text-[#E03E3E]' 
+                    : isDueToday 
+                      ? 'bg-[#FADEC9] text-[#D9730D]'
+                      : 'bg-[#E3E2E0] text-[#787774]'
+                }`}
+              >
+                <Calendar className="h-3 w-3" />
+                {format(new Date(task.due_date), 'dd MMM', { locale: ptBR })}
+              </span>
+            )}
+
+            {/* Notion link */}
+            {task.notion_page_id && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium bg-[#E3E2E0] text-[#787774]">
+                <Link2 className="h-3 w-3" />
+              </span>
+            )}
+
+            {/* Assignee */}
+            {assigneeName && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium bg-[#DDEBF1] text-[#2E7D9A]">
+                <User className="h-3 w-3" />
+                {assigneeName}
+              </span>
+            )}
+          </div>
         </div>
+
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+            <button className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center rounded-sm hover:bg-[#E9E9E7] dark:hover:bg-[#3F3F3F]">
+              <MoreHorizontal className="h-4 w-4 text-[#9B9A97]" />
+            </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(task)}>
-              <Edit className="h-4 w-4 mr-2" />
+          <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F] shadow-lg">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(task); }} className="text-[#37352F] dark:text-[#FFFFFFCF] hover:bg-[#F7F7F5] dark:hover:bg-[#3F3F3F]">
+              <Edit className="h-4 w-4 mr-2 text-[#9B9A97]" />
               Editar
             </DropdownMenuItem>
             {task.notion_page_id && (
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="text-[#37352F] dark:text-[#FFFFFFCF] hover:bg-[#F7F7F5] dark:hover:bg-[#3F3F3F]">
                 <a 
                   href={`https://notion.so/${task.notion_page_id.replace(/-/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <ExternalLink className="h-4 w-4 mr-2" />
+                  <ExternalLink className="h-4 w-4 mr-2 text-[#9B9A97]" />
                   Abrir no Notion
                 </a>
               </DropdownMenuItem>
             )}
+            <DropdownMenuSeparator className="bg-[#E9E9E7] dark:bg-[#3F3F3F]" />
             <DropdownMenuItem 
-              onClick={() => onDelete(task.id)}
-              className="text-destructive focus:text-destructive"
+              onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
+              className="text-[#E03E3E] hover:bg-[#FFE2DD] dark:hover:bg-[#3F3F3F]"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Excluir
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
-
-      <div className="flex items-center gap-2 mt-3 flex-wrap">
-        <Badge variant="outline" className={priority.class}>
-          {priority.label}
-        </Badge>
-        
-        {task.due_date && (
-          <Badge 
-            variant="outline" 
-            className={
-              isOverdue 
-                ? 'bg-destructive/10 text-destructive border-destructive/20' 
-                : isDueToday 
-                  ? 'bg-primary/10 text-primary border-primary/20'
-                  : ''
-            }
-          >
-            <Calendar className="h-3 w-3 mr-1" />
-            {format(new Date(task.due_date), 'dd/MM', { locale: ptBR })}
-          </Badge>
-        )}
-
-        {task.notion_page_id && (
-          <Badge 
-            variant="outline" 
-            className="bg-[hsl(var(--chart-1))]/10 text-[hsl(var(--chart-1))] border-[hsl(var(--chart-1))]/30"
-          >
-            <Link2 className="h-3 w-3 mr-1" />
-            Notion
-          </Badge>
-        )}
-
-        {assigneeName && (
-          <Badge variant="outline" className="bg-accent/50">
-            <User className="h-3 w-3 mr-1" />
-            {assigneeName}
-          </Badge>
-        )}
       </div>
     </div>
   );
@@ -185,26 +196,26 @@ function KanbanColumn({
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, column.id)}
     >
-      <div className={`rounded-lg ${column.color} p-3`}>
-        <div className="flex items-center justify-between mb-3">
+      <div className="rounded-sm">
+        {/* Column header - Notion style */}
+        <div className="flex items-center justify-between mb-2 px-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-sm">{column.title}</h3>
-            <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+            <span className="text-sm">{column.emoji}</span>
+            <h3 className="text-sm font-medium text-[#37352F] dark:text-[#FFFFFFCF]">{column.title}</h3>
+            <span className="text-xs text-[#9B9A97] dark:text-[#FFFFFF52] bg-[#F1F1EF] dark:bg-[#2F2F2F] px-1.5 py-0.5 rounded-sm">
               {tasks.length}
-            </Badge>
+            </span>
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-6 w-6"
+          <button 
             onClick={() => onAddTask(column.id)}
+            className="h-6 w-6 flex items-center justify-center rounded-sm hover:bg-[#E9E9E7] dark:hover:bg-[#3F3F3F] transition-colors"
           >
-            <Plus className="h-4 w-4" />
-          </Button>
+            <Plus className="h-4 w-4 text-[#9B9A97]" />
+          </button>
         </div>
 
-        <ScrollArea className="h-[calc(100vh-320px)]">
-          <div className="space-y-2 pr-2">
+        <ScrollArea className="h-[calc(100vh-280px)]">
+          <div className="space-y-1.5 pr-2">
             {tasks.map(task => (
               <TaskCard
                 key={task.id}
@@ -215,11 +226,15 @@ function KanbanColumn({
                 profiles={profiles}
               />
             ))}
-            {tasks.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground text-sm">
-                Nenhuma tarefa
-              </div>
-            )}
+            
+            {/* Add new task button at bottom */}
+            <button
+              onClick={() => onAddTask(column.id)}
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#9B9A97] hover:bg-[#F7F7F5] dark:hover:bg-[#252525] rounded-sm transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Nova tarefa</span>
+            </button>
           </div>
         </ScrollArea>
       </div>
@@ -269,16 +284,13 @@ export function TaskKanban() {
   // Filter tasks
   const filterTasks = (tasksToFilter: Task[]): Task[] => {
     return tasksToFilter.filter(task => {
-      // Priority filter
       if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false;
       
-      // Assignee filter
       if (assigneeFilter !== 'all') {
         if (assigneeFilter === 'unassigned' && task.assignee_id) return false;
         if (assigneeFilter !== 'unassigned' && task.assignee_id !== assigneeFilter) return false;
       }
       
-      // Date filter
       if (dateFilter !== 'all') {
         const dueDate = task.due_date ? new Date(task.due_date) : null;
         
@@ -367,15 +379,15 @@ export function TaskKanban() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Tarefas</CardTitle>
+      <Card className="border-[#E9E9E7] dark:border-[#2F2F2F] shadow-none bg-white dark:bg-[#191919]">
+        <CardHeader className="pb-2">
+          <Skeleton className="h-6 w-48 bg-[#F1F1EF]" />
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 overflow-x-auto pb-4">
             {COLUMNS.map(col => (
               <div key={col.id} className="w-72 flex-shrink-0">
-                <Skeleton className="h-[400px] w-full rounded-lg" />
+                <Skeleton className="h-[400px] w-full rounded-sm bg-[#F1F1EF]" />
               </div>
             ))}
           </div>
@@ -386,75 +398,102 @@ export function TaskKanban() {
 
   return (
     <>
-      <Card>
-        <CardHeader>
+      <Card className="border-[#E9E9E7] dark:border-[#2F2F2F] shadow-none bg-white dark:bg-[#191919]">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle>Gestão de Tarefas</CardTitle>
-            <Button onClick={() => handleAddTask('todo')}>
-              <Plus className="h-4 w-4 mr-2" />
+            <h2 className="text-lg font-semibold text-[#37352F] dark:text-[#FFFFFFCF]">Tarefas</h2>
+            <Button 
+              onClick={() => handleAddTask('todo')}
+              className="bg-[#2383E2] hover:bg-[#1B6EC2] text-white shadow-none h-8 text-sm font-normal"
+            >
+              <Plus className="h-4 w-4 mr-1.5" />
               Nova Tarefa
             </Button>
           </div>
           
-          {/* Filters */}
-          <div className="flex flex-wrap items-center gap-3 mt-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Filter className="h-4 w-4" />
-              Filtros:
+          {/* Notion-style filters */}
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <div className="flex items-center gap-1.5 text-xs text-[#9B9A97]">
+              <Filter className="h-3.5 w-3.5" />
+              Filtrar:
             </div>
             
             <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as TaskPriority | 'all')}>
-              <SelectTrigger className="w-[140px] h-8">
+              <SelectTrigger className="w-[130px] h-7 text-xs bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none">
                 <SelectValue placeholder="Prioridade" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas prioridades</SelectItem>
-                <SelectItem value="urgent">Urgente</SelectItem>
-                <SelectItem value="high">Alta</SelectItem>
-                <SelectItem value="medium">Média</SelectItem>
-                <SelectItem value="low">Baixa</SelectItem>
+              <SelectContent className="bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]">
+                <SelectItem value="all" className="text-xs">Todas</SelectItem>
+                <SelectItem value="urgent" className="text-xs">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#E03E3E]" />
+                    Urgente
+                  </span>
+                </SelectItem>
+                <SelectItem value="high" className="text-xs">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#D9730D]" />
+                    Alta
+                  </span>
+                </SelectItem>
+                <SelectItem value="medium" className="text-xs">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#2E7D9A]" />
+                    Média
+                  </span>
+                </SelectItem>
+                <SelectItem value="low" className="text-xs">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#787774]" />
+                    Baixa
+                  </span>
+                </SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
-              <SelectTrigger className="w-[170px] h-8">
+              <SelectTrigger className="w-[150px] h-7 text-xs bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none">
                 <SelectValue placeholder="Responsável" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos responsáveis</SelectItem>
-                <SelectItem value="unassigned">Sem responsável</SelectItem>
+              <SelectContent className="bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]">
+                <SelectItem value="all" className="text-xs">Todos</SelectItem>
+                <SelectItem value="unassigned" className="text-xs">Sem responsável</SelectItem>
                 {assignees.map(id => (
-                  <SelectItem key={id} value={id}>
-                    {profiles[id]?.display_name || profiles[id]?.email?.split('@')[0] || id.substring(0, 8) + '...'}
+                  <SelectItem key={id} value={id} className="text-xs">
+                    {profiles[id]?.display_name || profiles[id]?.email?.split('@')[0] || id.substring(0, 8)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as DateFilter)}>
-              <SelectTrigger className="w-[140px] h-8">
+              <SelectTrigger className="w-[130px] h-7 text-xs bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none">
                 <SelectValue placeholder="Data" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas datas</SelectItem>
-                <SelectItem value="overdue">Atrasadas</SelectItem>
-                <SelectItem value="today">Hoje</SelectItem>
-                <SelectItem value="week">Esta semana</SelectItem>
-                <SelectItem value="month">Este mês</SelectItem>
-                <SelectItem value="no_date">Sem data</SelectItem>
+              <SelectContent className="bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]">
+                <SelectItem value="all" className="text-xs">Todas</SelectItem>
+                <SelectItem value="overdue" className="text-xs">Atrasadas</SelectItem>
+                <SelectItem value="today" className="text-xs">Hoje</SelectItem>
+                <SelectItem value="week" className="text-xs">Esta semana</SelectItem>
+                <SelectItem value="month" className="text-xs">Este mês</SelectItem>
+                <SelectItem value="no_date" className="text-xs">Sem data</SelectItem>
               </SelectContent>
             </Select>
 
             {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8">
-                <X className="h-4 w-4 mr-1" />
+              <button 
+                onClick={clearFilters} 
+                className="h-7 px-2 flex items-center gap-1 text-xs text-[#9B9A97] hover:bg-[#F7F7F5] dark:hover:bg-[#3F3F3F] rounded-sm transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
                 Limpar
-              </Button>
+              </button>
             )}
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 overflow-x-auto pb-4">
+        
+        <CardContent className="pt-0">
+          <div className="flex gap-6 overflow-x-auto pb-4">
             {COLUMNS.map(column => (
               <KanbanColumn
                 key={column.id}

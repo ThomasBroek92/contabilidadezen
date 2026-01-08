@@ -53,7 +53,7 @@ export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { createPage: createNotionPage } = useNotion();
+  const { createPage: createNotionPage, updatePage: updateNotionPage } = useNotion();
   const { user } = useAuth();
 
   const fetchTasks = useCallback(async () => {
@@ -182,8 +182,56 @@ export function useTasks() {
     }
   }, [user, toast, syncTaskToNotion]);
 
+  const syncUpdateToNotion = useCallback(async (task: Task, updates: Partial<Task>) => {
+    if (!task.notion_page_id) return null;
+
+    try {
+      const properties: Record<string, any> = {};
+
+      if (updates.title !== undefined) {
+        properties['Name'] = {
+          title: [{ text: { content: updates.title } }],
+        };
+      }
+
+      if (updates.status !== undefined) {
+        properties['Status'] = {
+          select: { name: STATUS_TO_NOTION[updates.status] || 'To Do' },
+        };
+      }
+
+      if (updates.priority !== undefined) {
+        properties['Priority'] = {
+          select: { name: PRIORITY_TO_NOTION[updates.priority] || 'Medium' },
+        };
+      }
+
+      if (updates.description !== undefined) {
+        properties['Description'] = {
+          rich_text: updates.description ? [{ text: { content: updates.description } }] : [],
+        };
+      }
+
+      if (updates.due_date !== undefined) {
+        properties['Due Date'] = updates.due_date 
+          ? { date: { start: updates.due_date.split('T')[0] } }
+          : { date: null };
+      }
+
+      if (Object.keys(properties).length > 0) {
+        await updateNotionPage(task.notion_page_id, properties);
+        console.log('Task update synced to Notion:', task.notion_page_id);
+      }
+    } catch (error) {
+      console.error('Error syncing update to Notion:', error);
+      // Don't throw - Notion sync is optional
+    }
+  }, [updateNotionPage]);
+
   const updateTask = useCallback(async (id: string, updates: Partial<Task>) => {
     try {
+      const currentTask = tasks.find(t => t.id === id);
+      
       const { data, error } = await supabase
         .from('tasks')
         .update(updates)
@@ -193,8 +241,15 @@ export function useTasks() {
 
       if (error) throw error;
 
-      setTasks(prev => prev.map(t => t.id === id ? (data as Task) : t));
-      return data as Task;
+      const updatedTask = data as Task;
+      setTasks(prev => prev.map(t => t.id === id ? updatedTask : t));
+
+      // Sync to Notion in background if task is linked
+      if (currentTask?.notion_page_id) {
+        syncUpdateToNotion({ ...currentTask, ...updatedTask }, updates);
+      }
+
+      return updatedTask;
     } catch (error) {
       console.error('Error updating task:', error);
       toast({
@@ -204,7 +259,7 @@ export function useTasks() {
       });
       throw error;
     }
-  }, [toast]);
+  }, [toast, tasks, syncUpdateToNotion]);
 
   const deleteTask = useCallback(async (id: string) => {
     try {
@@ -232,6 +287,8 @@ export function useTasks() {
   }, [toast]);
 
   const moveTask = useCallback(async (taskId: string, newStatus: TaskStatus, newPosition: number) => {
+    const currentTask = tasks.find(t => t.id === taskId);
+    
     // Optimistic update
     setTasks(prev => {
       const task = prev.find(t => t.id === taskId);
@@ -256,12 +313,17 @@ export function useTasks() {
         .from('tasks')
         .update({ status: newStatus, position: newPosition })
         .eq('id', taskId);
+
+      // Sync status change to Notion
+      if (currentTask?.notion_page_id) {
+        syncUpdateToNotion(currentTask, { status: newStatus });
+      }
     } catch (error) {
       console.error('Error moving task:', error);
       // Revert on error
       fetchTasks();
     }
-  }, [fetchTasks]);
+  }, [fetchTasks, tasks, syncUpdateToNotion]);
 
   // Subscribe to realtime changes
   useEffect(() => {

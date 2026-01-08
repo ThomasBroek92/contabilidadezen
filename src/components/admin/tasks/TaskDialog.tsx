@@ -3,14 +3,12 @@ import { Task, TaskStatus, TaskPriority } from '@/hooks/use-tasks';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -19,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, User } from 'lucide-react';
+import { Loader2, User, Calendar, Flag, Circle, AlertCircle, Zap, ListTodo, CheckCircle2, Eye, RotateCcw, Archive } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -30,19 +28,19 @@ interface TaskDialogProps {
   onSave: (data: Partial<Task>) => Promise<void>;
 }
 
-const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
-  { value: 'backlog', label: 'Backlog' },
-  { value: 'todo', label: 'A Fazer' },
-  { value: 'in_progress', label: 'Em Progresso' },
-  { value: 'review', label: 'Revisão' },
-  { value: 'done', label: 'Concluído' },
+const STATUS_OPTIONS: { value: TaskStatus; label: string; icon: typeof ListTodo }[] = [
+  { value: 'backlog', label: 'Backlog', icon: Archive },
+  { value: 'todo', label: 'A Fazer', icon: ListTodo },
+  { value: 'in_progress', label: 'Em Progresso', icon: RotateCcw },
+  { value: 'review', label: 'Revisão', icon: Eye },
+  { value: 'done', label: 'Concluído', icon: CheckCircle2 },
 ];
 
-const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
-  { value: 'low', label: 'Baixa' },
-  { value: 'medium', label: 'Média' },
-  { value: 'high', label: 'Alta' },
-  { value: 'urgent', label: 'Urgente' },
+const PRIORITY_OPTIONS: { value: TaskPriority; label: string; color: string; icon: typeof Circle }[] = [
+  { value: 'low', label: 'Baixa', color: '#787774', icon: Circle },
+  { value: 'medium', label: 'Média', color: '#2E7D9A', icon: Flag },
+  { value: 'high', label: 'Alta', color: '#D9730D', icon: AlertCircle },
+  { value: 'urgent', label: 'Urgente', color: '#E03E3E', icon: Zap },
 ];
 
 export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps) {
@@ -65,10 +63,8 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
       
       if (rolesError) throw rolesError;
       
-      // Get unique user IDs
       const uniqueUserIds = Array.from(new Set(rolesData.map(u => u.user_id)));
       
-      // Fetch profiles for these users
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, display_name, email')
@@ -76,7 +72,6 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
       
       if (profilesError) throw profilesError;
       
-      // Merge role info with profile info
       return uniqueUserIds.map(userId => {
         const profile = profilesData?.find(p => p.id === userId);
         const roleInfo = rolesData.find(r => r.user_id === userId);
@@ -136,111 +131,147 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
     return labels[role] || role;
   };
 
+  const selectedPriority = PRIORITY_OPTIONS.find(p => p.value === priority);
+  const selectedStatus = STATUS_OPTIONS.find(s => s.value === status);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[520px] bg-white dark:bg-[#191919] border-[#E9E9E7] dark:border-[#2F2F2F] shadow-xl p-0">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>
+          <DialogHeader className="px-6 pt-5 pb-0">
+            <DialogTitle className="text-base font-semibold text-[#37352F] dark:text-[#FFFFFFCF]">
               {task ? 'Editar Tarefa' : 'Nova Tarefa'}
             </DialogTitle>
-            <DialogDescription>
-              {task ? 'Atualize os detalhes da tarefa.' : 'Preencha os detalhes da nova tarefa.'}
-            </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Título *</Label>
+          <div className="px-6 py-4 space-y-4">
+            {/* Title input - Notion style */}
+            <div>
               <Input
-                id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ex: Revisar proposta comercial"
+                placeholder="Título da tarefa..."
                 required
+                className="border-0 bg-transparent text-lg font-medium text-[#37352F] dark:text-[#FFFFFFCF] placeholder:text-[#B4B4B4] focus-visible:ring-0 px-0 h-auto py-1"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Descrição</Label>
+            {/* Description - Notion style */}
+            <div>
               <Textarea
-                id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Detalhes adicionais sobre a tarefa..."
+                placeholder="Adicionar descrição..."
                 rows={3}
+                className="border-0 bg-transparent text-sm text-[#37352F] dark:text-[#FFFFFFCF] placeholder:text-[#B4B4B4] focus-visible:ring-0 px-0 resize-none"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Status</Label>
+            {/* Properties grid - Notion style */}
+            <div className="space-y-2 pt-2 border-t border-[#E9E9E7] dark:border-[#2F2F2F]">
+              {/* Status */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-[#9B9A97] w-24 flex-shrink-0">Status</span>
                 <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
-                  <SelectTrigger>
-                    <SelectValue />
+                  <SelectTrigger className="flex-1 h-8 text-xs bg-transparent border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none hover:bg-[#F7F7F5] dark:hover:bg-[#252525]">
+                    <SelectValue>
+                      {selectedStatus && (
+                        <span className="flex items-center gap-2">
+                          <selectedStatus.icon className="h-3.5 w-3.5 text-[#9B9A97]" />
+                          {selectedStatus.label}
+                        </span>
+                      )}
+                    </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]">
                     {STATUS_OPTIONS.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                        <span className="flex items-center gap-2">
+                          <opt.icon className="h-3.5 w-3.5 text-[#9B9A97]" />
+                          {opt.label}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label>Prioridade</Label>
+              {/* Priority */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-[#9B9A97] w-24 flex-shrink-0">Prioridade</span>
                 <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
-                  <SelectTrigger>
-                    <SelectValue />
+                  <SelectTrigger className="flex-1 h-8 text-xs bg-transparent border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none hover:bg-[#F7F7F5] dark:hover:bg-[#252525]">
+                    <SelectValue>
+                      {selectedPriority && (
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: selectedPriority.color }} />
+                          {selectedPriority.label}
+                        </span>
+                      )}
+                    </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]">
                     {PRIORITY_OPTIONS.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                        <span className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: opt.color }} />
+                          {opt.label}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="dueDate">Data de Vencimento</Label>
+              {/* Due Date */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-[#9B9A97] w-24 flex-shrink-0 flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Data
+                </span>
                 <Input
-                  id="dueDate"
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
+                  className="flex-1 h-8 text-xs bg-transparent border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none hover:bg-[#F7F7F5] dark:hover:bg-[#252525]"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>Responsável</Label>
+              {/* Assignee */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-[#9B9A97] w-24 flex-shrink-0 flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5" />
+                  Responsável
+                </span>
                 <Select value={assigneeId || 'none'} onValueChange={(v) => setAssigneeId(v === 'none' ? '' : v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecionar...">
+                  <SelectTrigger className="flex-1 h-8 text-xs bg-transparent border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none hover:bg-[#F7F7F5] dark:hover:bg-[#252525]">
+                    <SelectValue>
                       {assigneeId ? (
                         <span className="flex items-center gap-2">
-                          <User className="h-4 w-4" />
+                          <div className="w-5 h-5 rounded-full bg-[#DDEBF1] flex items-center justify-center">
+                            <User className="h-3 w-3 text-[#2E7D9A]" />
+                          </div>
                           {profiles.find(p => p.user_id === assigneeId)?.display_name || 
                            profiles.find(p => p.user_id === assigneeId)?.email?.split('@')[0] || 
                            'Usuário'}
                         </span>
                       ) : (
-                        'Sem responsável'
+                        <span className="text-[#9B9A97]">Sem responsável</span>
                       )}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Sem responsável</SelectItem>
+                  <SelectContent className="bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]">
+                    <SelectItem value="none" className="text-xs">
+                      <span className="text-[#9B9A97]">Sem responsável</span>
+                    </SelectItem>
                     {profiles.map(profile => (
-                      <SelectItem key={profile.user_id} value={profile.user_id}>
+                      <SelectItem key={profile.user_id} value={profile.user_id} className="text-xs">
                         <span className="flex items-center gap-2">
-                          <User className="h-4 w-4" />
-                          {profile.display_name || profile.email?.split('@')[0] || 'Usuário'} ({getRoleLabel(profile.role)})
+                          <div className="w-5 h-5 rounded-full bg-[#DDEBF1] flex items-center justify-center">
+                            <User className="h-3 w-3 text-[#2E7D9A]" />
+                          </div>
+                          {profile.display_name || profile.email?.split('@')[0] || 'Usuário'}
+                          <span className="text-[#9B9A97]">({getRoleLabel(profile.role)})</span>
                         </span>
                       </SelectItem>
                     ))}
@@ -250,13 +281,22 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
             </div>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="px-6 py-4 border-t border-[#E9E9E7] dark:border-[#2F2F2F] bg-[#FBFBFA] dark:bg-[#1E1E1E]">
+            <Button 
+              type="button" 
+              variant="ghost" 
+              onClick={() => onOpenChange(false)}
+              className="text-[#37352F] dark:text-[#FFFFFFCF] hover:bg-[#E9E9E7] dark:hover:bg-[#3F3F3F] shadow-none"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={saving || !title.trim()}>
+            <Button 
+              type="submit" 
+              disabled={saving || !title.trim()}
+              className="bg-[#2383E2] hover:bg-[#1B6EC2] text-white shadow-none"
+            >
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {task ? 'Salvar' : 'Criar'}
+              {task ? 'Salvar' : 'Criar tarefa'}
             </Button>
           </DialogFooter>
         </form>

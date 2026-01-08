@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTasks, TaskStatus, TaskPriority, Task } from '@/hooks/use-tasks';
+import { useBoardSettings, BoardColumn } from '@/hooks/use-board-settings';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,12 +8,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Plus, GripVertical, Calendar, 
   MoreHorizontal, Trash2, Edit, ExternalLink, Link2, Filter, X, User,
-  Circle, AlertCircle, Flag, Zap, LayoutGrid, List
+  Circle, AlertCircle, Flag, Zap, LayoutGrid, List, Settings
 } from 'lucide-react';
-import { formatDistanceToNow, format, isPast, isToday, isThisWeek, isThisMonth } from 'date-fns';
+import { format, isPast, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { TaskDialog } from './TaskDialog';
 import { TaskList } from './TaskList';
+import { BoardSettingsDialog } from './BoardSettingsDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,14 +33,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
 type ViewMode = 'kanban' | 'list';
-
-const COLUMNS: { id: TaskStatus; title: string; emoji: string }[] = [
-  { id: 'backlog', title: 'Backlog', emoji: '📋' },
-  { id: 'todo', title: 'A Fazer', emoji: '📝' },
-  { id: 'in_progress', title: 'Em Progresso', emoji: '🔄' },
-  { id: 'review', title: 'Revisão', emoji: '👀' },
-  { id: 'done', title: 'Concluído', emoji: '✅' },
-];
 
 // Notion-style pastel colors
 const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; icon: typeof Circle }> = {
@@ -92,13 +86,11 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
           )}
 
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-            {/* Priority tag */}
             <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium ${priority.color}`}>
               <PriorityIcon className="h-3 w-3" />
               {priority.label}
             </span>
             
-            {/* Due date */}
             {task.due_date && (
               <span 
                 className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium ${
@@ -114,14 +106,12 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
               </span>
             )}
 
-            {/* Notion link */}
             {task.notion_page_id && (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium bg-[#E3E2E0] text-[#787774]">
                 <Link2 className="h-3 w-3" />
               </span>
             )}
 
-            {/* Assignee */}
             {assigneeName && (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium bg-[#DDEBF1] text-[#2E7D9A]">
                 <User className="h-3 w-3" />
@@ -171,14 +161,14 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
 }
 
 interface KanbanColumnProps {
-  column: typeof COLUMNS[number];
+  column: BoardColumn;
   tasks: Task[];
-  onAddTask: (status: TaskStatus) => void;
+  onAddTask: (status: string) => void;
   onEditTask: (task: Task) => void;
   onDeleteTask: (id: string) => void;
   onDragStart: (e: React.DragEvent, task: Task) => void;
   onDragOver: (e: React.DragEvent) => void;
-  onDrop: (e: React.DragEvent, status: TaskStatus) => void;
+  onDrop: (e: React.DragEvent, status: string) => void;
   profiles: Record<string, { display_name: string | null; email: string | null }>;
 }
 
@@ -200,7 +190,6 @@ function KanbanColumn({
       onDrop={(e) => onDrop(e, column.id)}
     >
       <div className="rounded-sm">
-        {/* Column header - Notion style */}
         <div className="flex items-center justify-between mb-2 px-1">
           <div className="flex items-center gap-2">
             <span className="text-sm">{column.emoji}</span>
@@ -230,7 +219,6 @@ function KanbanColumn({
               />
             ))}
             
-            {/* Add new task button at bottom */}
             <button
               onClick={() => onAddTask(column.id)}
               className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#9B9A97] hover:bg-[#F7F7F5] dark:hover:bg-[#252525] rounded-sm transition-colors"
@@ -247,11 +235,21 @@ function KanbanColumn({
 
 export function TaskKanban() {
   const { tasks, loading, createTask, updateTask, deleteTask, moveTask, getTasksByStatus } = useTasks();
+  const { columns, defaultView, saveSettings, isSaving, isLoading: isLoadingSettings } = useBoardSettings();
+  
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('todo');
+  const [defaultStatus, setDefaultStatus] = useState<string>('todo');
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('kanban');
+  
+  // Set initial view mode from settings
+  useEffect(() => {
+    if (defaultView) {
+      setViewMode(defaultView);
+    }
+  }, [defaultView]);
   
   // Filters
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
@@ -321,7 +319,9 @@ export function TaskKanban() {
     });
   };
 
-  const getFilteredTasksByStatus = (status: TaskStatus) => {
+  const getFilteredTasksByColumn = (columnId: string) => {
+    // Map column ID to task status (for backward compatibility)
+    const status = columnId as TaskStatus;
     return filterTasks(getTasksByStatus(status));
   };
 
@@ -335,7 +335,7 @@ export function TaskKanban() {
     setDateFilter('all');
   };
 
-  const handleAddTask = (status: TaskStatus) => {
+  const handleAddTask = (status: string) => {
     setDefaultStatus(status);
     setEditingTask(null);
     setDialogOpen(true);
@@ -355,7 +355,7 @@ export function TaskKanban() {
     if (editingTask) {
       await updateTask(editingTask.id, data);
     } else {
-      await createTask({ ...data, status: defaultStatus });
+      await createTask({ ...data, status: defaultStatus as TaskStatus });
     }
     setDialogOpen(false);
     setEditingTask(null);
@@ -363,6 +363,15 @@ export function TaskKanban() {
 
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
     await updateTask(taskId, { status: newStatus });
+  };
+
+  const handleSaveSettings = (newColumns: BoardColumn[]) => {
+    saveSettings({ columns: newColumns, defaultView: viewMode });
+  };
+
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    saveSettings({ columns, defaultView: mode });
   };
 
   const handleDragStart = (e: React.DragEvent, task: Task) => {
@@ -375,19 +384,19 @@ export function TaskKanban() {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent, newStatus: TaskStatus) => {
+  const handleDrop = (e: React.DragEvent, newStatus: string) => {
     e.preventDefault();
     if (!draggedTask) return;
 
     if (draggedTask.status !== newStatus) {
-      const tasksInColumn = getTasksByStatus(newStatus);
+      const tasksInColumn = getTasksByStatus(newStatus as TaskStatus);
       const newPosition = tasksInColumn.length;
-      moveTask(draggedTask.id, newStatus, newPosition);
+      moveTask(draggedTask.id, newStatus as TaskStatus, newPosition);
     }
     setDraggedTask(null);
   };
 
-  if (loading) {
+  if (loading || isLoadingSettings) {
     return (
       <Card className="border-[#E9E9E7] dark:border-[#2F2F2F] shadow-none bg-white dark:bg-[#191919]">
         <CardHeader className="pb-2">
@@ -395,8 +404,8 @@ export function TaskKanban() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 overflow-x-auto pb-4">
-            {COLUMNS.map(col => (
-              <div key={col.id} className="w-72 flex-shrink-0">
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="w-72 flex-shrink-0">
                 <Skeleton className="h-[400px] w-full rounded-sm bg-[#F1F1EF]" />
               </div>
             ))}
@@ -416,7 +425,7 @@ export function TaskKanban() {
               {/* View toggle */}
               <div className="flex items-center bg-[#F1F1EF] dark:bg-[#2F2F2F] rounded-sm p-0.5">
                 <button
-                  onClick={() => setViewMode('kanban')}
+                  onClick={() => handleViewModeChange('kanban')}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-medium transition-colors ${
                     viewMode === 'kanban' 
                       ? 'bg-white dark:bg-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-sm' 
@@ -427,7 +436,7 @@ export function TaskKanban() {
                   Board
                 </button>
                 <button
-                  onClick={() => setViewMode('list')}
+                  onClick={() => handleViewModeChange('list')}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-medium transition-colors ${
                     viewMode === 'list' 
                       ? 'bg-white dark:bg-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-sm' 
@@ -439,6 +448,15 @@ export function TaskKanban() {
                 </button>
               </div>
 
+              {/* Settings button */}
+              <button
+                onClick={() => setSettingsOpen(true)}
+                className="h-8 w-8 flex items-center justify-center rounded-sm hover:bg-[#F7F7F5] dark:hover:bg-[#3F3F3F] transition-colors"
+                title="Personalizar colunas"
+              >
+                <Settings className="h-4 w-4 text-[#9B9A97]" />
+              </button>
+
               <Button 
                 onClick={() => handleAddTask('todo')}
                 className="bg-[#2383E2] hover:bg-[#1B6EC2] text-white shadow-none h-8 text-sm font-normal"
@@ -449,7 +467,7 @@ export function TaskKanban() {
             </div>
           </div>
           
-          {/* Notion-style filters */}
+          {/* Filters */}
           <div className="flex flex-wrap items-center gap-2 mt-3">
             <div className="flex items-center gap-1.5 text-xs text-[#9B9A97]">
               <Filter className="h-3.5 w-3.5" />
@@ -533,11 +551,11 @@ export function TaskKanban() {
         <CardContent className="pt-0">
           {viewMode === 'kanban' ? (
             <div className="flex gap-6 overflow-x-auto pb-4">
-              {COLUMNS.map(column => (
+              {columns.map(column => (
                 <KanbanColumn
                   key={column.id}
                   column={column}
-                  tasks={getFilteredTasksByStatus(column.id)}
+                  tasks={getFilteredTasksByColumn(column.id)}
                   onAddTask={handleAddTask}
                   onEditTask={handleEditTask}
                   onDeleteTask={handleDeleteTask}
@@ -565,6 +583,14 @@ export function TaskKanban() {
         onOpenChange={setDialogOpen}
         task={editingTask}
         onSave={handleSaveTask}
+      />
+
+      <BoardSettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        columns={columns}
+        onSave={handleSaveSettings}
+        isSaving={isSaving}
       />
     </>
   );

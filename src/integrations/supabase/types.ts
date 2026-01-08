@@ -750,6 +750,33 @@ export type Database = {
         }
         Relationships: []
       }
+      task_board_settings: {
+        Row: {
+          columns: Json
+          created_at: string
+          default_view: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          columns?: Json
+          created_at?: string
+          default_view?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          columns?: Json
+          created_at?: string
+          default_view?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assignee_id: string | null

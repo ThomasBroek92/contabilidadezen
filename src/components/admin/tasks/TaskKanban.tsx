@@ -7,11 +7,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Plus, GripVertical, Calendar, 
   MoreHorizontal, Trash2, Edit, ExternalLink, Link2, Filter, X, User,
-  Circle, AlertCircle, Flag, Zap
+  Circle, AlertCircle, Flag, Zap, LayoutGrid, List
 } from 'lucide-react';
 import { formatDistanceToNow, format, isPast, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { TaskDialog } from './TaskDialog';
+import { TaskList } from './TaskList';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,8 @@ import {
 } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+
+type ViewMode = 'kanban' | 'list';
 
 const COLUMNS: { id: TaskStatus; title: string; emoji: string }[] = [
   { id: 'backlog', title: 'Backlog', emoji: '📋' },
@@ -248,6 +251,7 @@ export function TaskKanban() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('todo');
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('kanban');
   
   // Filters
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
@@ -321,6 +325,8 @@ export function TaskKanban() {
     return filterTasks(getTasksByStatus(status));
   };
 
+  const filteredTasks = useMemo(() => filterTasks(tasks), [tasks, priorityFilter, assigneeFilter, dateFilter]);
+
   const hasActiveFilters = priorityFilter !== 'all' || assigneeFilter !== 'all' || dateFilter !== 'all';
 
   const clearFilters = () => {
@@ -353,6 +359,10 @@ export function TaskKanban() {
     }
     setDialogOpen(false);
     setEditingTask(null);
+  };
+
+  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    await updateTask(taskId, { status: newStatus });
   };
 
   const handleDragStart = (e: React.DragEvent, task: Task) => {
@@ -402,13 +412,41 @@ export function TaskKanban() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-[#37352F] dark:text-[#FFFFFFCF]">Tarefas</h2>
-            <Button 
-              onClick={() => handleAddTask('todo')}
-              className="bg-[#2383E2] hover:bg-[#1B6EC2] text-white shadow-none h-8 text-sm font-normal"
-            >
-              <Plus className="h-4 w-4 mr-1.5" />
-              Nova Tarefa
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* View toggle */}
+              <div className="flex items-center bg-[#F1F1EF] dark:bg-[#2F2F2F] rounded-sm p-0.5">
+                <button
+                  onClick={() => setViewMode('kanban')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-medium transition-colors ${
+                    viewMode === 'kanban' 
+                      ? 'bg-white dark:bg-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-sm' 
+                      : 'text-[#9B9A97] hover:text-[#37352F] dark:hover:text-[#FFFFFFCF]'
+                  }`}
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  Board
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-xs font-medium transition-colors ${
+                    viewMode === 'list' 
+                      ? 'bg-white dark:bg-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-sm' 
+                      : 'text-[#9B9A97] hover:text-[#37352F] dark:hover:text-[#FFFFFFCF]'
+                  }`}
+                >
+                  <List className="h-3.5 w-3.5" />
+                  Lista
+                </button>
+              </div>
+
+              <Button 
+                onClick={() => handleAddTask('todo')}
+                className="bg-[#2383E2] hover:bg-[#1B6EC2] text-white shadow-none h-8 text-sm font-normal"
+              >
+                <Plus className="h-4 w-4 mr-1.5" />
+                Nova Tarefa
+              </Button>
+            </div>
           </div>
           
           {/* Notion-style filters */}
@@ -493,22 +531,32 @@ export function TaskKanban() {
         </CardHeader>
         
         <CardContent className="pt-0">
-          <div className="flex gap-6 overflow-x-auto pb-4">
-            {COLUMNS.map(column => (
-              <KanbanColumn
-                key={column.id}
-                column={column}
-                tasks={getFilteredTasksByStatus(column.id)}
-                onAddTask={handleAddTask}
-                onEditTask={handleEditTask}
-                onDeleteTask={handleDeleteTask}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                profiles={profiles}
-              />
-            ))}
-          </div>
+          {viewMode === 'kanban' ? (
+            <div className="flex gap-6 overflow-x-auto pb-4">
+              {COLUMNS.map(column => (
+                <KanbanColumn
+                  key={column.id}
+                  column={column}
+                  tasks={getFilteredTasksByStatus(column.id)}
+                  onAddTask={handleAddTask}
+                  onEditTask={handleEditTask}
+                  onDeleteTask={handleDeleteTask}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  profiles={profiles}
+                />
+              ))}
+            </div>
+          ) : (
+            <TaskList
+              tasks={filteredTasks}
+              profiles={profiles}
+              onEdit={handleEditTask}
+              onDelete={handleDeleteTask}
+              onStatusChange={handleStatusChange}
+            />
+          )}
         </CardContent>
       </Card>
 

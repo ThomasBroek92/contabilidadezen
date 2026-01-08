@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.process-indexing-queue]
 verify_jwt = false
+
+[functions.notion-proxy]
+verify_jwt = false

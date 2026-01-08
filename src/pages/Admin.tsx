@@ -14,6 +14,7 @@ import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { ContentStudio } from '@/components/admin/ContentStudio';
 import { GoogleIntegrationGuide } from '@/components/admin/GoogleIntegrationGuide';
 import { SEOIndexingAuditor } from '@/components/admin/SEOIndexingAuditor';
+import { NotionWidget } from '@/components/admin/NotionWidget';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -197,7 +198,10 @@ export default function Admin() {
 
             {isAdmin() && (
               <TabsContent value="integrations">
-                <GoogleIntegrationGuide />
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <NotionWidget />
+                  <GoogleIntegrationGuide />
+                </div>
               </TabsContent>
             )}
           </Tabs>

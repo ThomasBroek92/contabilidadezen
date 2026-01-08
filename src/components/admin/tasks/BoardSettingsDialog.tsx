@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BoardColumn, PASTEL_COLORS } from '@/hooks/use-board-settings';
+import { BoardColumn, COLUMN_COLORS } from '@/hooks/use-board-settings';
 import {
   Dialog,
   DialogContent,
@@ -49,7 +49,7 @@ interface SortableColumnItemProps {
 }
 
 function getColorStyle(colorId: string) {
-  return PASTEL_COLORS.find(c => c.id === colorId) || PASTEL_COLORS[0];
+  return COLUMN_COLORS.find(c => c.id === colorId) || COLUMN_COLORS[0];
 }
 
 function SortableColumnItem({ column, onUpdate, onDelete, canDelete }: SortableColumnItemProps) {
@@ -95,7 +95,7 @@ function SortableColumnItem({ column, onUpdate, onDelete, canDelete }: SortableC
         </PopoverTrigger>
         <PopoverContent className="w-auto p-2 bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]" align="start">
           <div className="grid grid-cols-5 gap-1.5">
-            {PASTEL_COLORS.map(color => (
+            {COLUMN_COLORS.map(color => (
               <button
                 key={color.id}
                 onClick={() => {

@@ -1,5 +1,5 @@
 import { Task, TaskStatus, TaskPriority } from '@/hooks/use-tasks';
-import { useBoardSettings, PASTEL_COLORS } from '@/hooks/use-board-settings';
+import { useBoardSettings, COLUMN_COLORS } from '@/hooks/use-board-settings';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -27,7 +27,7 @@ const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; bgCo
 };
 
 function getColorStyle(colorId: string) {
-  return PASTEL_COLORS.find(c => c.id === colorId) || PASTEL_COLORS[0];
+  return COLUMN_COLORS.find(c => c.id === colorId) || COLUMN_COLORS[0];
 }
 
 interface ColumnConfig {
@@ -103,11 +103,10 @@ function TaskRow({ task, profiles, onEdit, onDelete, onStatusChange, columns }: 
 
       {/* Status */}
       <div className="w-28 flex-shrink-0">
-        <span className="inline-flex items-center gap-1.5 text-xs text-[#37352F] dark:text-[#FFFFFFCF]">
-          <div 
-            className="w-2.5 h-2.5 rounded-sm" 
-            style={{ backgroundColor: colorStyle.bg, border: `1px solid ${colorStyle.text}40` }}
-          />
+        <span 
+          className="inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-md font-medium"
+          style={{ backgroundColor: colorStyle.bg, color: colorStyle.text }}
+        >
           {column.title}
         </span>
       </div>
@@ -231,11 +230,12 @@ function GroupedList({ column, tasks, profiles, onEdit, onDelete, onStatusChange
         ) : (
           <ChevronRight className="h-3.5 w-3.5 text-[#9B9A97]" />
         )}
-        <div 
-          className="w-3 h-3 rounded-sm"
-          style={{ backgroundColor: colorStyle.bg, border: `1px solid ${colorStyle.text}40` }}
-        />
-        <span className="text-sm font-medium text-[#37352F] dark:text-[#FFFFFFCF]">{column.title}</span>
+        <span 
+          className="text-sm font-medium px-2 py-0.5 rounded-md"
+          style={{ backgroundColor: colorStyle.bg, color: colorStyle.text }}
+        >
+          {column.title}
+        </span>
         <span className="text-xs text-[#9B9A97] bg-[#F1F1EF] dark:bg-[#2F2F2F] px-1.5 py-0.5 rounded-sm">
           {tasks.length}
         </span>

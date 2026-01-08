@@ -29,7 +29,22 @@ export function useNotion() {
 
     if (error) {
       console.error('Notion proxy error:', error);
-      throw new Error(error.message || 'Erro ao conectar com Notion');
+
+      // Supabase wraps non-2xx responses like:
+      // "Edge function returned 404: Error, {\"error\":\"...\"}"
+      const msg = error.message || 'Erro ao conectar com Notion';
+      const jsonStart = msg.indexOf('{');
+      const jsonEnd = msg.lastIndexOf('}');
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        try {
+          const parsed = JSON.parse(msg.slice(jsonStart, jsonEnd + 1));
+          if (parsed?.error) throw new Error(parsed.error);
+        } catch {
+          // ignore parse errors and fall back to raw message
+        }
+      }
+
+      throw new Error(msg);
     }
 
     if (result?.error) {

@@ -19,7 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 interface TaskDialogProps {
   open: boolean;
@@ -49,7 +51,28 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
   const [status, setStatus] = useState<TaskStatus>('todo');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState('');
+  const [assigneeId, setAssigneeId] = useState<string>('');
   const [saving, setSaving] = useState(false);
+
+  // Fetch users with roles for assignee selection
+  const { data: users = [] } = useQuery({
+    queryKey: ['task-assignees'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .order('role');
+      
+      if (error) throw error;
+      
+      // Get unique user IDs
+      const uniqueUsers = Array.from(
+        new Map(data.map(u => [u.user_id, u])).values()
+      );
+      
+      return uniqueUsers;
+    },
+  });
 
   useEffect(() => {
     if (task) {
@@ -58,12 +81,14 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
       setStatus(task.status);
       setPriority(task.priority);
       setDueDate(task.due_date ? task.due_date.split('T')[0] : '');
+      setAssigneeId(task.assignee_id || '');
     } else {
       setTitle('');
       setDescription('');
       setStatus('todo');
       setPriority('medium');
       setDueDate('');
+      setAssigneeId('');
     }
   }, [task, open]);
 
@@ -79,10 +104,20 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
         status,
         priority,
         due_date: dueDate ? new Date(dueDate).toISOString() : null,
+        assignee_id: assigneeId || null,
       });
     } finally {
       setSaving(false);
     }
+  };
+
+  const getRoleLabel = (role: string) => {
+    const labels: Record<string, string> = {
+      admin: 'Admin',
+      sales_manager: 'Gerente',
+      sales_rep: 'Vendedor',
+    };
+    return labels[role] || role;
   };
 
   return (
@@ -155,14 +190,45 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="dueDate">Data de Vencimento</Label>
-              <Input
-                id="dueDate"
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="dueDate">Data de Vencimento</Label>
+                <Input
+                  id="dueDate"
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Responsável</Label>
+                <Select value={assigneeId} onValueChange={setAssigneeId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar...">
+                      {assigneeId ? (
+                        <span className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          {assigneeId.substring(0, 8)}...
+                        </span>
+                      ) : (
+                        'Sem responsável'
+                      )}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Sem responsável</SelectItem>
+                    {users.map(user => (
+                      <SelectItem key={user.user_id} value={user.user_id}>
+                        <span className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          {user.user_id.substring(0, 8)}... ({getRoleLabel(user.role)})
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 

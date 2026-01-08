@@ -68,14 +68,14 @@ export function RecurringTasksManager() {
   });
 
   // Fetch profiles for assignee names
-  const { data: profiles } = useQuery({
-    queryKey: ['profiles'],
+  const { data: profiles = [] } = useQuery({
+    queryKey: ['profiles-list'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, display_name, email');
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
@@ -127,8 +127,8 @@ export function RecurringTasksManager() {
   });
 
   const getAssigneeName = (assigneeId: string | null) => {
-    if (!assigneeId || !profiles) return null;
-    const profile = profiles.find(p => p.id === assigneeId);
+    if (!assigneeId) return null;
+    const profile = (Array.isArray(profiles) ? profiles : []).find(p => p.id === assigneeId);
     return profile?.display_name || profile?.email?.split('@')[0];
   };
 

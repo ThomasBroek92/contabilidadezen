@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useNotion } from '@/hooks/use-notion';
+import { useNotion, NotionDatabase } from '@/hooks/use-notion';
 import { useAuth } from '@/hooks/useAuth';
 
 export type TaskStatus = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done';
@@ -33,28 +33,113 @@ export interface CreateTaskInput {
   lead_id?: string;
 }
 
-// Map local status to Notion status
-const STATUS_TO_NOTION: Record<string, string> = {
-  backlog: 'Backlog',
-  todo: 'To Do',
-  in_progress: 'In Progress',
-  review: 'Review',
-  done: 'Done',
+// Map local status to common Notion status variations
+const STATUS_VARIATIONS: Record<string, string[]> = {
+  backlog: ['Backlog', 'backlog', 'A Fazer', 'Not Started'],
+  todo: ['To Do', 'Todo', 'A Fazer', 'Not Started', 'Pendente'],
+  in_progress: ['In Progress', 'Em Progresso', 'Doing', 'In progress', 'Em Andamento'],
+  review: ['Review', 'Revisão', 'Em Revisão', 'In Review'],
+  done: ['Done', 'Concluído', 'Feito', 'Complete', 'Completed'],
 };
 
-const PRIORITY_TO_NOTION: Record<string, string> = {
-  low: 'Low',
-  medium: 'Medium',
-  high: 'High',
-  urgent: 'Urgent',
+const PRIORITY_VARIATIONS: Record<string, string[]> = {
+  low: ['Low', 'Baixa', 'low'],
+  medium: ['Medium', 'Média', 'medium', 'Normal'],
+  high: ['High', 'Alta', 'high'],
+  urgent: ['Urgent', 'Urgente', 'urgent', 'Critical'],
 };
+
+interface NotionPropertyMapping {
+  title: string | null;
+  status: string | null;
+  priority: string | null;
+  description: string | null;
+  dueDate: string | null;
+}
+
+// Find the best matching property name from Notion schema
+function findPropertyByType(
+  schema: NotionDatabase['properties'],
+  type: string,
+  hints: string[] = []
+): string | null {
+  // First try to match by type and hints
+  for (const [name, prop] of Object.entries(schema)) {
+    if (prop.type === type) {
+      const lowerName = name.toLowerCase();
+      if (hints.some(h => lowerName.includes(h.toLowerCase()))) {
+        return name;
+      }
+    }
+  }
+  // Fall back to first property of that type
+  for (const [name, prop] of Object.entries(schema)) {
+    if (prop.type === type) {
+      return name;
+    }
+  }
+  return null;
+}
+
+function buildPropertyMapping(schema: NotionDatabase['properties'] | undefined): NotionPropertyMapping {
+  if (!schema) {
+    return { title: null, status: null, priority: null, description: null, dueDate: null };
+  }
+  
+  return {
+    title: findPropertyByType(schema, 'title', ['name', 'title', 'tarefa', 'task', 'título']),
+    status: findPropertyByType(schema, 'status', ['status', 'estado']) || 
+            findPropertyByType(schema, 'select', ['status', 'estado', 'etapa']),
+    priority: findPropertyByType(schema, 'select', ['priority', 'prioridade']) ||
+              findPropertyByType(schema, 'multi_select', ['priority', 'prioridade']),
+    description: findPropertyByType(schema, 'rich_text', ['description', 'descrição', 'desc', 'notes', 'notas']),
+    dueDate: findPropertyByType(schema, 'date', ['due', 'date', 'data', 'prazo', 'deadline', 'vencimento']),
+  };
+}
+
+function getNotionStatusValue(status: TaskStatus, availableOptions?: string[]): string {
+  const variations = STATUS_VARIATIONS[status] || ['To Do'];
+  if (availableOptions) {
+    const match = variations.find(v => availableOptions.includes(v));
+    if (match) return match;
+  }
+  return variations[0];
+}
+
+function getNotionPriorityValue(priority: TaskPriority, availableOptions?: string[]): string {
+  const variations = PRIORITY_VARIATIONS[priority] || ['Medium'];
+  if (availableOptions) {
+    const match = variations.find(v => availableOptions.includes(v));
+    if (match) return match;
+  }
+  return variations[0];
+}
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { createPage: createNotionPage, updatePage: updateNotionPage, archivePage: archiveNotionPage } = useNotion();
+  const { createPage: createNotionPage, updatePage: updateNotionPage, archivePage: archiveNotionPage, fetchDatabase, database } = useNotion();
   const { user } = useAuth();
+  const propertyMapping = useRef<NotionPropertyMapping>({ title: null, status: null, priority: null, description: null, dueDate: null });
+  const schemaFetched = useRef(false);
+
+  // Fetch Notion schema once
+  useEffect(() => {
+    if (!schemaFetched.current) {
+      schemaFetched.current = true;
+      fetchDatabase()
+        .then(db => {
+          if (db?.properties) {
+            propertyMapping.current = buildPropertyMapping(db.properties);
+            console.log('Notion property mapping:', propertyMapping.current);
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch Notion schema:', err);
+        });
+    }
+  }, [fetchDatabase]);
 
   const fetchTasks = useCallback(async () => {
     setLoading(true);
@@ -79,32 +164,46 @@ export function useTasks() {
   }, [toast]);
 
   const syncTaskToNotion = useCallback(async (task: Task) => {
+    const mapping = propertyMapping.current;
+    
+    // If no title property found, we can't create the page
+    if (!mapping.title) {
+      console.warn('No title property found in Notion schema, skipping sync');
+      return null;
+    }
+
     try {
-      // Build Notion properties based on typical task database schema
       const properties: Record<string, any> = {
-        Name: {
+        [mapping.title]: {
           title: [{ text: { content: task.title } }],
-        },
-        Status: {
-          select: { name: STATUS_TO_NOTION[task.status] || 'To Do' },
-        },
-        Priority: {
-          select: { name: PRIORITY_TO_NOTION[task.priority] || 'Medium' },
         },
       };
 
-      if (task.description) {
-        properties['Description'] = {
+      if (mapping.status) {
+        properties[mapping.status] = {
+          select: { name: getNotionStatusValue(task.status) },
+        };
+      }
+
+      if (mapping.priority) {
+        properties[mapping.priority] = {
+          select: { name: getNotionPriorityValue(task.priority) },
+        };
+      }
+
+      if (mapping.description && task.description) {
+        properties[mapping.description] = {
           rich_text: [{ text: { content: task.description } }],
         };
       }
 
-      if (task.due_date) {
-        properties['Due Date'] = {
+      if (mapping.dueDate && task.due_date) {
+        properties[mapping.dueDate] = {
           date: { start: task.due_date.split('T')[0] },
         };
       }
 
+      console.log('Creating Notion page with properties:', Object.keys(properties));
       const notionPage = await createNotionPage(properties);
 
       // Update task with Notion page ID
@@ -184,36 +283,37 @@ export function useTasks() {
 
   const syncUpdateToNotion = useCallback(async (task: Task, updates: Partial<Task>) => {
     if (!task.notion_page_id) return null;
+    const mapping = propertyMapping.current;
 
     try {
       const properties: Record<string, any> = {};
 
-      if (updates.title !== undefined) {
-        properties['Name'] = {
+      if (updates.title !== undefined && mapping.title) {
+        properties[mapping.title] = {
           title: [{ text: { content: updates.title } }],
         };
       }
 
-      if (updates.status !== undefined) {
-        properties['Status'] = {
-          select: { name: STATUS_TO_NOTION[updates.status] || 'To Do' },
+      if (updates.status !== undefined && mapping.status) {
+        properties[mapping.status] = {
+          select: { name: getNotionStatusValue(updates.status) },
         };
       }
 
-      if (updates.priority !== undefined) {
-        properties['Priority'] = {
-          select: { name: PRIORITY_TO_NOTION[updates.priority] || 'Medium' },
+      if (updates.priority !== undefined && mapping.priority) {
+        properties[mapping.priority] = {
+          select: { name: getNotionPriorityValue(updates.priority) },
         };
       }
 
-      if (updates.description !== undefined) {
-        properties['Description'] = {
+      if (updates.description !== undefined && mapping.description) {
+        properties[mapping.description] = {
           rich_text: updates.description ? [{ text: { content: updates.description } }] : [],
         };
       }
 
-      if (updates.due_date !== undefined) {
-        properties['Due Date'] = updates.due_date 
+      if (updates.due_date !== undefined && mapping.dueDate) {
+        properties[mapping.dueDate] = updates.due_date 
           ? { date: { start: updates.due_date.split('T')[0] } }
           : { date: null };
       }

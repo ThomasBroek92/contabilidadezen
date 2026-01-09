@@ -37,6 +37,7 @@ interface RecurringTemplate {
   day_of_month: number | null;
   time_of_day: string;
   is_active: boolean;
+  category: string | null;
 }
 
 interface RecurringTaskDialogProps {
@@ -68,6 +69,17 @@ const DAY_OF_WEEK_OPTIONS = [
   { value: '6', label: 'Sábado' },
 ];
 
+const CATEGORY_OPTIONS = [
+  { value: 'vendas', label: 'Vendas' },
+  { value: 'financeiro', label: 'Financeiro' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'operacional', label: 'Operacional' },
+  { value: 'administrativo', label: 'Administrativo' },
+  { value: 'suporte', label: 'Suporte' },
+  { value: 'desenvolvimento', label: 'Desenvolvimento' },
+  { value: 'rh', label: 'RH' },
+];
+
 export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringTaskDialogProps) {
   const queryClient = useQueryClient();
   const isEditing = !!template;
@@ -80,6 +92,7 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
   const [dayOfWeek, setDayOfWeek] = useState<string>('1');
   const [dayOfMonth, setDayOfMonth] = useState<string>('1');
   const [timeOfDay, setTimeOfDay] = useState('09:00');
+  const [category, setCategory] = useState<string>('');
 
   // Fetch profiles
   const { data: profiles = [] } = useQuery({
@@ -104,6 +117,7 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
       setDayOfWeek(String(template.day_of_week ?? 1));
       setDayOfMonth(String(template.day_of_month ?? 1));
       setTimeOfDay(template.time_of_day.substring(0, 5));
+      setCategory(template.category || '');
     } else {
       setTitle('');
       setDescription('');
@@ -113,6 +127,7 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
       setDayOfWeek('1');
       setDayOfMonth('1');
       setTimeOfDay('09:00');
+      setCategory('');
     }
   }, [template, open]);
 
@@ -128,6 +143,7 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
         day_of_week: frequency === 'weekly' ? parseInt(dayOfWeek) : null,
         day_of_month: frequency === 'monthly' ? parseInt(dayOfMonth) : null,
         time_of_day: timeOfDay,
+        category: category || null,
       };
 
       if (isEditing) {
@@ -230,6 +246,24 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Category */}
+          <div className="space-y-2">
+            <Label>Setor</Label>
+            <Select value={category || 'none'} onValueChange={(v) => setCategory(v === 'none' ? '' : v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um setor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem setor</SelectItem>
+                {CATEGORY_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Frequency */}

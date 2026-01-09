@@ -31,6 +31,7 @@ interface RecurringTemplate {
   next_run_at: string | null;
   last_run_at: string | null;
   created_at: string;
+  category: string | null;
 }
 
 const FREQUENCY_LABELS: Record<RecurrenceFrequency, { label: string; icon: React.ElementType }> = {

@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Plus, GripVertical, Calendar, 
   MoreHorizontal, Trash2, Edit, ExternalLink, Link2, Filter, X, User,
-  Circle, AlertCircle, Flag, Zap, LayoutGrid, List, Settings
+  Circle, AlertCircle, Flag, Zap, LayoutGrid, List, Settings, Tag
 } from 'lucide-react';
 import { format, isPast, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -43,6 +43,17 @@ const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; icon
 };
 
 type DateFilter = 'all' | 'overdue' | 'today' | 'week' | 'month' | 'no_date';
+
+const CATEGORY_OPTIONS = [
+  { value: 'vendas', label: 'Vendas' },
+  { value: 'financeiro', label: 'Financeiro' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'operacional', label: 'Operacional' },
+  { value: 'administrativo', label: 'Administrativo' },
+  { value: 'suporte', label: 'Suporte' },
+  { value: 'desenvolvimento', label: 'Desenvolvimento' },
+  { value: 'rh', label: 'RH' },
+];
 
 interface TaskCardProps {
   task: Task;
@@ -266,6 +277,7 @@ export function TaskKanban() {
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all');
   const [assigneeFilter, setAssigneeFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   // Fetch profiles for assignee names
   const { data: profiles = {} } = useQuery({
@@ -304,6 +316,11 @@ export function TaskKanban() {
         if (assigneeFilter !== 'unassigned' && task.assignee_id !== assigneeFilter) return false;
       }
       
+      if (categoryFilter !== 'all') {
+        if (categoryFilter === 'no_category' && task.category) return false;
+        if (categoryFilter !== 'no_category' && task.category !== categoryFilter) return false;
+      }
+      
       if (dateFilter !== 'all') {
         const dueDate = task.due_date ? new Date(task.due_date) : null;
         
@@ -336,14 +353,15 @@ export function TaskKanban() {
     return filterTasks(getTasksByStatus(status));
   };
 
-  const filteredTasks = useMemo(() => filterTasks(tasks), [tasks, priorityFilter, assigneeFilter, dateFilter]);
+  const filteredTasks = useMemo(() => filterTasks(tasks), [tasks, priorityFilter, assigneeFilter, dateFilter, categoryFilter]);
 
-  const hasActiveFilters = priorityFilter !== 'all' || assigneeFilter !== 'all' || dateFilter !== 'all';
+  const hasActiveFilters = priorityFilter !== 'all' || assigneeFilter !== 'all' || dateFilter !== 'all' || categoryFilter !== 'all';
 
   const clearFilters = () => {
     setPriorityFilter('all');
     setAssigneeFilter('all');
     setDateFilter('all');
+    setCategoryFilter('all');
   };
 
   const handleAddTask = (status: string) => {
@@ -544,6 +562,24 @@ export function TaskKanban() {
                 <SelectItem value="week" className="text-xs">Esta semana</SelectItem>
                 <SelectItem value="month" className="text-xs">Este mês</SelectItem>
                 <SelectItem value="no_date" className="text-xs">Sem data</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[140px] h-7 text-xs bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none">
+                <SelectValue placeholder="Setor" />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]">
+                <SelectItem value="all" className="text-xs">Todos os setores</SelectItem>
+                <SelectItem value="no_category" className="text-xs">Sem setor</SelectItem>
+                {CATEGORY_OPTIONS.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                    <span className="flex items-center gap-1.5">
+                      <Tag className="h-3 w-3" />
+                      {opt.label}
+                    </span>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 

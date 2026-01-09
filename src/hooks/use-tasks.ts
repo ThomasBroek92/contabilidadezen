@@ -21,6 +21,7 @@ export interface Task {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  category: string | null;
 }
 
 export interface CreateTaskInput {
@@ -31,6 +32,7 @@ export interface CreateTaskInput {
   due_date?: string;
   assignee_id?: string;
   lead_id?: string;
+  category?: string;
 }
 
 // Map local status to common Notion status variations

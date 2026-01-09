@@ -753,6 +753,7 @@ export type Database = {
       recurring_task_templates: {
         Row: {
           assignee_id: string | null
+          category: string | null
           created_at: string
           created_by: string | null
           day_of_month: number | null
@@ -770,6 +771,7 @@ export type Database = {
         }
         Insert: {
           assignee_id?: string | null
+          category?: string | null
           created_at?: string
           created_by?: string | null
           day_of_month?: number | null
@@ -787,6 +789,7 @@ export type Database = {
         }
         Update: {
           assignee_id?: string | null
+          category?: string | null
           created_at?: string
           created_by?: string | null
           day_of_month?: number | null
@@ -834,6 +837,7 @@ export type Database = {
       tasks: {
         Row: {
           assignee_id: string | null
+          category: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -849,6 +853,7 @@ export type Database = {
         }
         Insert: {
           assignee_id?: string | null
+          category?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -864,6 +869,7 @@ export type Database = {
         }
         Update: {
           assignee_id?: string | null
+          category?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null

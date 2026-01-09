@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, User, Calendar, Flag, Circle, AlertCircle, Zap, ListTodo, CheckCircle2, Eye, RotateCcw, Archive } from 'lucide-react';
+import { Loader2, User, Calendar, Flag, Circle, AlertCircle, Zap, ListTodo, CheckCircle2, Eye, RotateCcw, Archive, Tag } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -43,6 +43,17 @@ const PRIORITY_OPTIONS: { value: TaskPriority; label: string; color: string; ico
   { value: 'urgent', label: 'Urgente', color: '#E03E3E', icon: Zap },
 ];
 
+const CATEGORY_OPTIONS = [
+  { value: 'vendas', label: 'Vendas' },
+  { value: 'financeiro', label: 'Financeiro' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'operacional', label: 'Operacional' },
+  { value: 'administrativo', label: 'Administrativo' },
+  { value: 'suporte', label: 'Suporte' },
+  { value: 'desenvolvimento', label: 'Desenvolvimento' },
+  { value: 'rh', label: 'RH' },
+];
+
 export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -50,6 +61,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [dueDate, setDueDate] = useState('');
   const [assigneeId, setAssigneeId] = useState<string>('');
+  const [category, setCategory] = useState<string>('');
   const [saving, setSaving] = useState(false);
 
   // Fetch profiles for assignee selection
@@ -93,6 +105,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
       setPriority(task.priority);
       setDueDate(task.due_date ? task.due_date.split('T')[0] : '');
       setAssigneeId(task.assignee_id || '');
+      setCategory(task.category || '');
     } else {
       setTitle('');
       setDescription('');
@@ -100,6 +113,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
       setPriority('medium');
       setDueDate('');
       setAssigneeId('');
+      setCategory('');
     }
   }, [task, open]);
 
@@ -116,6 +130,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
         priority,
         due_date: dueDate ? new Date(dueDate).toISOString() : null,
         assignee_id: assigneeId || null,
+        category: category || null,
       });
     } finally {
       setSaving(false);
@@ -273,6 +288,38 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
                           {profile.display_name || profile.email?.split('@')[0] || 'Usuário'}
                           <span className="text-[#9B9A97]">({getRoleLabel(profile.role)})</span>
                         </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Category */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-[#9B9A97] w-24 flex-shrink-0 flex items-center gap-1.5">
+                  <Tag className="h-3.5 w-3.5" />
+                  Setor
+                </span>
+                <Select value={category || 'none'} onValueChange={(v) => setCategory(v === 'none' ? '' : v)}>
+                  <SelectTrigger className="flex-1 h-8 text-xs bg-transparent border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none hover:bg-[#F7F7F5] dark:hover:bg-[#252525]">
+                    <SelectValue>
+                      {category ? (
+                        <span className="flex items-center gap-2">
+                          <Tag className="h-3 w-3 text-[#9B9A97]" />
+                          {CATEGORY_OPTIONS.find(c => c.value === category)?.label || category}
+                        </span>
+                      ) : (
+                        <span className="text-[#9B9A97]">Sem setor</span>
+                      )}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]">
+                    <SelectItem value="none" className="text-xs">
+                      <span className="text-[#9B9A97]">Sem setor</span>
+                    </SelectItem>
+                    {CATEGORY_OPTIONS.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                        {opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>

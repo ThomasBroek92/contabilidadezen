@@ -15,18 +15,28 @@ import jsPDF from "jspdf";
 import logoFull from "@/assets/logo-full.png";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 
-// Tabela IRRF 2025
-const IRRF_TABLE_2025 = [
-  { min: 0, max: 2259.20, rate: 0, deduction: 0 },
-  { min: 2259.21, max: 2826.65, rate: 0.075, deduction: 169.44 },
-  { min: 2826.66, max: 3751.05, rate: 0.15, deduction: 381.44 },
-  { min: 3751.06, max: 4664.68, rate: 0.225, deduction: 662.77 },
-  { min: 4664.69, max: Infinity, rate: 0.275, deduction: 896.00 },
+// Tabela IRRF 2026 - Atualizada conforme legislação vigente
+// Fonte: Receita Federal (janeiro/2026)
+const IRRF_TABLE_2026 = [
+  { min: 0, max: 2428.80, rate: 0, deduction: 0 },
+  { min: 2428.81, max: 2826.65, rate: 0.075, deduction: 182.16 },
+  { min: 2826.66, max: 3751.05, rate: 0.15, deduction: 394.16 },
+  { min: 3751.06, max: 4664.68, rate: 0.225, deduction: 675.49 },
+  { min: 4664.69, max: Infinity, rate: 0.275, deduction: 908.73 },
 ];
 
-// Teto INSS 2025
-const INSS_TETO_2025 = 8157.41;
-const INSS_CONTRIBUICAO_MAXIMA = 908.85;
+// Parâmetros da redução adicional do IR 2026 (isenção até R$ 5.000)
+const IRRF_REDUCAO_2026 = {
+  limiteIsencaoTotal: 5000.00, // Renda até R$ 5.000 = isenção total
+  limiteReducaoGradual: 7350.00, // Renda até R$ 7.350 = redução gradual
+  valorMaximoReducao: 312.89, // Redução máxima para quem ganha até R$ 5.000
+  fatorReducao: 0.133145, // Fator para cálculo da redução gradual
+  valorBaseReducao: 978.62, // Valor base para fórmula: 978,62 - (0,133145 × renda)
+};
+
+// Teto INSS 2026 (valores atualizados)
+const INSS_TETO_2026 = 8502.27;
+const INSS_CONTRIBUICAO_MAXIMA = 935.25;
 const INSS_ALIQUOTA_AUTONOMO = 0.11;
 
 interface DadosPrestador {
@@ -130,18 +140,37 @@ export default function GeradorRPA() {
   };
 
   const calcularINSS = (valorBruto: number): number => {
-    const baseCalculo = Math.min(valorBruto, INSS_TETO_2025);
+    const baseCalculo = Math.min(valorBruto, INSS_TETO_2026);
     const contribuicao = baseCalculo * INSS_ALIQUOTA_AUTONOMO;
     return Math.min(contribuicao, INSS_CONTRIBUICAO_MAXIMA);
   };
 
+  // Cálculo do IRRF com a nova legislação 2026
+  // Inclui redução adicional para rendas até R$ 7.350
   const calcularIRRF = (baseCalculo: number): number => {
-    for (const faixa of IRRF_TABLE_2025) {
+    // Primeiro, calcula o imposto pela tabela tradicional
+    let impostoTabela = 0;
+    for (const faixa of IRRF_TABLE_2026) {
       if (baseCalculo >= faixa.min && baseCalculo <= faixa.max) {
-        return Math.max(0, baseCalculo * faixa.rate - faixa.deduction);
+        impostoTabela = Math.max(0, baseCalculo * faixa.rate - faixa.deduction);
+        break;
       }
     }
-    return 0;
+
+    // Aplica a redução adicional da legislação 2026
+    let reducao = 0;
+    
+    if (baseCalculo <= IRRF_REDUCAO_2026.limiteIsencaoTotal) {
+      // Renda até R$ 5.000: isenção total (redução de até R$ 312,89 ou o que for necessário para zerar)
+      reducao = Math.min(impostoTabela, IRRF_REDUCAO_2026.valorMaximoReducao);
+    } else if (baseCalculo <= IRRF_REDUCAO_2026.limiteReducaoGradual) {
+      // Renda entre R$ 5.000,01 e R$ 7.350: redução gradual
+      // Fórmula: R$ 978,62 - (0,133145 × renda mensal)
+      reducao = Math.max(0, IRRF_REDUCAO_2026.valorBaseReducao - (IRRF_REDUCAO_2026.fatorReducao * baseCalculo));
+    }
+    // Acima de R$ 7.350: sem redução adicional
+
+    return Math.max(0, impostoTabela - reducao);
   };
 
   const calcularRPA = () => {
@@ -371,10 +400,10 @@ export default function GeradorRPA() {
   return (
     <>
       <Helmet>
-        <title>Gerador de RPA - Recibo de Pagamento a Autônomo | Contabilidade Zen</title>
+        <title>Gerador de RPA 2026 - Recibo de Pagamento a Autônomo | Contabilidade Zen</title>
         <meta
           name="description"
-          content="Gere RPA (Recibo de Pagamento a Autônomo) com cálculo automático de INSS, IRRF e ISS. Ferramenta gratuita atualizada com a legislação 2025."
+          content="Gere RPA (Recibo de Pagamento a Autônomo) com cálculo automático de INSS e IRRF. Ferramenta gratuita atualizada com a nova legislação tributária 2026, incluindo isenção para quem ganha até R$ 5.000."
         />
       </Helmet>
 
@@ -389,11 +418,11 @@ export default function GeradorRPA() {
               Ferramenta Gratuita
             </Badge>
             <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-              Gerador de RPA
+              Gerador de RPA 2026
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Recibo de Pagamento a Autônomo com cálculo automático de impostos.
-              Atualizado com a legislação tributária 2025.
+              Atualizado com a <strong>nova legislação tributária 2026</strong>, incluindo isenção total para rendas até R$ 5.000.
             </p>
           </div>
 
@@ -658,11 +687,13 @@ export default function GeradorRPA() {
                         </div>
                       </div>
                       <div className="bg-muted/50 p-4 rounded-lg">
-                        <h4 className="font-medium mb-2">Informações dos Cálculos (2025)</h4>
+                        <h4 className="font-medium mb-2">Informações dos Cálculos (2026)</h4>
                         <ul className="text-sm text-muted-foreground space-y-1">
-                          <li>• INSS: 11% sobre valor bruto (teto R$ 8.157,41)</li>
+                          <li>• INSS: 11% sobre valor bruto (teto R$ 8.502,27)</li>
                           <li>• IRRF: Tabela progressiva sobre base (após INSS)</li>
-                          <li>• Isenção IRRF até R$ 2.259,20</li>
+                          <li>• Isenção IRRF: até R$ 2.428,80 pela tabela base</li>
+                          <li>• <strong>Isenção total: renda até R$ 5.000</strong></li>
+                          <li>• Redução gradual: renda até R$ 7.350</li>
                         </ul>
                       </div>
                     </div>
@@ -760,7 +791,72 @@ export default function GeradorRPA() {
           </div>
 
           {/* Explicação */}
-          <div className="max-w-3xl mx-auto mt-12">
+          <div className="max-w-3xl mx-auto mt-12 space-y-6">
+            {/* Nova Legislação 2026 */}
+            <Card className="border-primary/30 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-primary" />
+                  Nova Tabela do IR 2026
+                </CardTitle>
+                <CardDescription>
+                  Atualizada conforme legislação em vigor desde 1º de janeiro de 2026
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="prose prose-sm max-w-none text-muted-foreground">
+                <p>
+                  A <strong>nova tabela do Imposto de Renda 2026</strong> trouxe importantes mudanças para milhões de contribuintes:
+                </p>
+                <ul>
+                  <li><strong>Isenção total</strong> para rendas até <strong>R$ 5.000/mês</strong></li>
+                  <li><strong>Redução gradual</strong> do imposto para rendas entre R$ 5.000,01 e R$ 7.350</li>
+                  <li>Acima de R$ 7.350, a tabela progressiva tradicional é aplicada</li>
+                </ul>
+                <h4 className="font-semibold text-foreground mt-4">Tabela IRRF Mensal 2026</h4>
+                <div className="overflow-x-auto">
+                  <table className="text-sm w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2">Base de Cálculo</th>
+                        <th className="text-left py-2">Alíquota</th>
+                        <th className="text-left py-2">Dedução</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b">
+                        <td className="py-2">Até R$ 2.428,80</td>
+                        <td className="py-2">Isento</td>
+                        <td className="py-2">-</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2">R$ 2.428,81 a R$ 2.826,65</td>
+                        <td className="py-2">7,5%</td>
+                        <td className="py-2">R$ 182,16</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2">R$ 2.826,66 a R$ 3.751,05</td>
+                        <td className="py-2">15%</td>
+                        <td className="py-2">R$ 394,16</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2">R$ 3.751,06 a R$ 4.664,68</td>
+                        <td className="py-2">22,5%</td>
+                        <td className="py-2">R$ 675,49</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2">Acima de R$ 4.664,68</td>
+                        <td className="py-2">27,5%</td>
+                        <td className="py-2">R$ 908,73</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs mt-2">
+                  <strong>Fonte:</strong> Receita Federal do Brasil (janeiro/2026)
+                </p>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>O que é o RPA?</CardTitle>

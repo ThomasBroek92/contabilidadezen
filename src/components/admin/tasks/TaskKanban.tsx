@@ -129,6 +129,13 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
                 {assigneeName}
               </span>
             )}
+
+            {task.category && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium bg-[#EDE9FE] text-[#7C3AED]">
+                <Tag className="h-3 w-3" />
+                {CATEGORY_OPTIONS.find(c => c.value === task.category)?.label || task.category}
+              </span>
+            )}
           </div>
         </div>
 

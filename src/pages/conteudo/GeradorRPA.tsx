@@ -25,13 +25,11 @@ const IRRF_TABLE_2026 = [
   { min: 4664.69, max: Infinity, rate: 0.275, deduction: 908.73 },
 ];
 
-// Parâmetros da redução adicional do IR 2026 (isenção até R$ 5.000)
-const IRRF_REDUCAO_2026 = {
-  limiteIsencaoTotal: 5000.00, // Renda até R$ 5.000 = isenção total
-  limiteReducaoGradual: 7350.00, // Renda até R$ 7.350 = redução gradual
-  valorMaximoReducao: 312.89, // Redução máxima para quem ganha até R$ 5.000
-  fatorReducao: 0.133145, // Fator para cálculo da redução gradual
-  valorBaseReducao: 978.62, // Valor base para fórmula: 978,62 - (0,133145 × renda)
+// Parâmetros do desconto do IR 2026 (isenção total até R$ 5.000 e parcial até R$ 7.000)
+// Premissa do FAQ oficial: a dedução ocorre após a aplicação da tabela progressiva
+const IRRF_DESCONTO_2026 = {
+  limiteIsencaoTotal: 5000.0,
+  limiteIsencaoParcial: 7000.0,
 };
 
 // Teto INSS 2026 (valores atualizados)
@@ -139,47 +137,58 @@ export default function GeradorRPA() {
       .replace(/(\d{5})(\d)/, "$1-$2");
   };
 
+  const round2 = (value: number): number =>
+    Math.round((value + Number.EPSILON) * 100) / 100;
+
   const calcularINSS = (valorBruto: number): number => {
     const baseCalculo = Math.min(valorBruto, INSS_TETO_2026);
     const contribuicao = baseCalculo * INSS_ALIQUOTA_AUTONOMO;
-    return Math.min(contribuicao, INSS_CONTRIBUICAO_MAXIMA);
+    return round2(Math.min(contribuicao, INSS_CONTRIBUICAO_MAXIMA));
   };
 
-  // Cálculo do IRRF com a nova legislação 2026
-  // Inclui redução adicional para rendas até R$ 7.350
-  const calcularIRRF = (baseCalculo: number): number => {
-    // Primeiro, calcula o imposto pela tabela tradicional
-    let impostoTabela = 0;
+  const calcularImpostoTabelaIRRF = (baseCalculo: number): number => {
     for (const faixa of IRRF_TABLE_2026) {
       if (baseCalculo >= faixa.min && baseCalculo <= faixa.max) {
-        impostoTabela = Math.max(0, baseCalculo * faixa.rate - faixa.deduction);
-        break;
+        return Math.max(0, baseCalculo * faixa.rate - faixa.deduction);
       }
     }
+    return 0;
+  };
 
-    // Aplica a redução adicional da legislação 2026
-    let reducao = 0;
-    
-    if (baseCalculo <= IRRF_REDUCAO_2026.limiteIsencaoTotal) {
-      // Renda até R$ 5.000: isenção total (redução de até R$ 312,89 ou o que for necessário para zerar)
-      reducao = Math.min(impostoTabela, IRRF_REDUCAO_2026.valorMaximoReducao);
-    } else if (baseCalculo <= IRRF_REDUCAO_2026.limiteReducaoGradual) {
-      // Renda entre R$ 5.000,01 e R$ 7.350: redução gradual
-      // Fórmula: R$ 978,62 - (0,133145 × renda mensal)
-      reducao = Math.max(0, IRRF_REDUCAO_2026.valorBaseReducao - (IRRF_REDUCAO_2026.fatorReducao * baseCalculo));
+  // Cálculo do IRRF com a legislação 2026 (FAQ oficial)
+  // Premissa: aplica a tabela progressiva e, depois, aplica a dedução
+  // (isenção total até R$ 5.000 e parcial até R$ 7.000)
+  const calcularIRRF = (baseCalculo: number, rendaMensal: number): number => {
+    const impostoTabela = calcularImpostoTabelaIRRF(baseCalculo);
+
+    if (rendaMensal <= IRRF_DESCONTO_2026.limiteIsencaoTotal) return 0;
+
+    if (rendaMensal >= IRRF_DESCONTO_2026.limiteIsencaoParcial) {
+      return round2(impostoTabela);
     }
-    // Acima de R$ 7.350: sem redução adicional
 
-    return Math.max(0, impostoTabela - reducao);
+    const rendaLimite = IRRF_DESCONTO_2026.limiteIsencaoTotal;
+    const baseLimite = rendaLimite - calcularINSS(rendaLimite);
+    const impostoNoLimite = calcularImpostoTabelaIRRF(baseLimite);
+
+    // % do benefício máximo (no limite de R$ 5.000) que ainda vale para a renda atual
+    // Ex.: R$ 5.500 => 75%, R$ 6.000 => 50%, R$ 6.500 => 25%, R$ 7.000 => 0%
+    const percentualBeneficio =
+      (IRRF_DESCONTO_2026.limiteIsencaoParcial - rendaMensal) /
+      (IRRF_DESCONTO_2026.limiteIsencaoParcial - IRRF_DESCONTO_2026.limiteIsencaoTotal);
+
+    const deducao = impostoNoLimite * percentualBeneficio;
+
+    return round2(Math.max(0, impostoTabela - deducao));
   };
 
   const calcularRPA = () => {
-    const valorBruto = servico.valorBruto;
+    const valorBruto = round2(servico.valorBruto);
     const inss = calcularINSS(valorBruto);
-    const baseIRRF = valorBruto - inss;
-    const irrf = calcularIRRF(baseIRRF);
-    const totalDescontos = inss + irrf;
-    const valorLiquido = valorBruto - totalDescontos;
+    const baseIRRF = round2(valorBruto - inss);
+    const irrf = calcularIRRF(baseIRRF, valorBruto);
+    const totalDescontos = round2(inss + irrf);
+    const valorLiquido = round2(valorBruto - totalDescontos);
 
     setResultado({
       valorBruto,
@@ -693,7 +702,7 @@ export default function GeradorRPA() {
                           <li>• IRRF: Tabela progressiva sobre base (após INSS)</li>
                           <li>• Isenção IRRF: até R$ 2.428,80 pela tabela base</li>
                           <li>• <strong>Isenção total: renda até R$ 5.000</strong></li>
-                          <li>• Redução gradual: renda até R$ 7.350</li>
+                          <li>• Redução gradual: renda até R$ 7.000</li>
                         </ul>
                       </div>
                     </div>
@@ -809,8 +818,8 @@ export default function GeradorRPA() {
                 </p>
                 <ul>
                   <li><strong>Isenção total</strong> para rendas até <strong>R$ 5.000/mês</strong></li>
-                  <li><strong>Redução gradual</strong> do imposto para rendas entre R$ 5.000,01 e R$ 7.350</li>
-                  <li>Acima de R$ 7.350, a tabela progressiva tradicional é aplicada</li>
+                  <li><strong>Redução gradual</strong> do imposto para rendas entre R$ 5.000,01 e R$ 7.000</li>
+                  <li>Acima de R$ 7.000, a tabela progressiva tradicional é aplicada</li>
                 </ul>
                 <h4 className="font-semibold text-foreground mt-4">Tabela IRRF Mensal 2026</h4>
                 <div className="overflow-x-auto">

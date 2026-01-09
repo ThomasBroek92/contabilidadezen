@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTasks, TaskStatus, TaskPriority, Task } from '@/hooks/use-tasks';
 import { useBoardSettings, BoardColumn, COLUMN_COLORS } from '@/hooks/use-board-settings';
+import { useCategorySettings, CategoryOption } from '@/hooks/use-category-settings';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,13 +9,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Plus, GripVertical, Calendar, 
   MoreHorizontal, Trash2, Edit, ExternalLink, Link2, Filter, X, User,
-  Circle, AlertCircle, Flag, Zap, LayoutGrid, List, Settings, Tag
+  Circle, AlertCircle, Flag, Zap, LayoutGrid, List, Settings, Tag, Folder
 } from 'lucide-react';
 import { format, isPast, isToday, isThisWeek, isThisMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { TaskDialog } from './TaskDialog';
 import { TaskList } from './TaskList';
 import { BoardSettingsDialog } from './BoardSettingsDialog';
+import { CategorySettingsDialog } from './CategorySettingsDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,26 +46,16 @@ const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; icon
 
 type DateFilter = 'all' | 'overdue' | 'today' | 'week' | 'month' | 'no_date';
 
-const CATEGORY_OPTIONS = [
-  { value: 'vendas', label: 'Vendas' },
-  { value: 'financeiro', label: 'Financeiro' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'operacional', label: 'Operacional' },
-  { value: 'administrativo', label: 'Administrativo' },
-  { value: 'suporte', label: 'Suporte' },
-  { value: 'desenvolvimento', label: 'Desenvolvimento' },
-  { value: 'rh', label: 'RH' },
-];
-
 interface TaskCardProps {
   task: Task;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   onDragStart: (e: React.DragEvent, task: Task) => void;
   profiles: Record<string, { display_name: string | null; email: string | null }>;
+  categories: CategoryOption[];
 }
 
-function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardProps) {
+function TaskCard({ task, onEdit, onDelete, onDragStart, profiles, categories }: TaskCardProps) {
   const priority = PRIORITY_CONFIG[task.priority];
   const isOverdue = task.due_date && isPast(new Date(task.due_date)) && task.status !== 'done';
   const isDueToday = task.due_date && isToday(new Date(task.due_date));
@@ -71,6 +63,13 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
   
   const assigneeName = task.assignee_id 
     ? profiles[task.assignee_id]?.display_name || profiles[task.assignee_id]?.email?.split('@')[0] || 'Usuário'
+    : null;
+    
+  const categoryInfo = task.category 
+    ? categories.find(c => c.id === task.category) 
+    : null;
+  const categoryColor = categoryInfo 
+    ? COLUMN_COLORS.find(c => c.id === categoryInfo.color) 
     : null;
 
   return (
@@ -130,10 +129,16 @@ function TaskCard({ task, onEdit, onDelete, onDragStart, profiles }: TaskCardPro
               </span>
             )}
 
-            {task.category && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium bg-[#EDE9FE] text-[#7C3AED]">
+            {categoryInfo && (
+              <span 
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium"
+                style={{ 
+                  backgroundColor: categoryColor ? `${categoryColor.bg}20` : '#EDE9FE',
+                  color: categoryColor?.bg || '#7C3AED'
+                }}
+              >
                 <Tag className="h-3 w-3" />
-                {CATEGORY_OPTIONS.find(c => c.value === task.category)?.label || task.category}
+                {categoryInfo.title}
               </span>
             )}
           </div>
@@ -192,6 +197,7 @@ interface KanbanColumnProps {
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, status: string) => void;
   profiles: Record<string, { display_name: string | null; email: string | null }>;
+  categories: CategoryOption[];
 }
 
 function KanbanColumn({ 
@@ -204,6 +210,7 @@ function KanbanColumn({
   onDragOver,
   onDrop,
   profiles,
+  categories,
 }: KanbanColumnProps) {
   const colorStyle = getColorStyle(column.color);
   
@@ -245,6 +252,7 @@ function KanbanColumn({
                 onDelete={onDeleteTask}
                 onDragStart={onDragStart}
                 profiles={profiles}
+                categories={categories}
               />
             ))}
             
@@ -265,9 +273,11 @@ function KanbanColumn({
 export function TaskKanban() {
   const { tasks, loading, createTask, updateTask, deleteTask, moveTask, getTasksByStatus } = useTasks();
   const { columns, defaultView, saveSettings, isSaving, isLoading: isLoadingSettings } = useBoardSettings();
+  const { categories, saveCategories, isSaving: isSavingCategories, isLoading: isLoadingCategories } = useCategorySettings();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [categorySettingsOpen, setCategorySettingsOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [defaultStatus, setDefaultStatus] = useState<string>('todo');
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
@@ -579,16 +589,24 @@ export function TaskKanban() {
               <SelectContent className="bg-white dark:bg-[#252526] border-[#E9E9E7] dark:border-[#3F3F3F]">
                 <SelectItem value="all" className="text-xs">Todos os setores</SelectItem>
                 <SelectItem value="no_category" className="text-xs">Sem setor</SelectItem>
-                {CATEGORY_OPTIONS.map(opt => (
-                  <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                {categories.map(cat => (
+                  <SelectItem key={cat.id} value={cat.id} className="text-xs">
                     <span className="flex items-center gap-1.5">
                       <Tag className="h-3 w-3" />
-                      {opt.label}
+                      {cat.title}
                     </span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            
+            <button
+              onClick={() => setCategorySettingsOpen(true)}
+              className="h-7 px-2 flex items-center gap-1 text-xs text-[#9B9A97] hover:bg-[#F7F7F5] dark:hover:bg-[#3F3F3F] rounded-sm transition-colors"
+              title="Personalizar setores"
+            >
+              <Folder className="h-3.5 w-3.5" />
+            </button>
 
             {hasActiveFilters && (
               <button 
@@ -617,6 +635,7 @@ export function TaskKanban() {
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   profiles={profiles}
+                  categories={categories}
                 />
               ))}
             </div>
@@ -646,6 +665,14 @@ export function TaskKanban() {
         columns={columns}
         onSave={handleSaveSettings}
         isSaving={isSaving}
+      />
+
+      <CategorySettingsDialog
+        open={categorySettingsOpen}
+        onOpenChange={setCategorySettingsOpen}
+        categories={categories}
+        onSave={saveCategories}
+        isSaving={isSavingCategories}
       />
     </>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useCategorySettings, COLUMN_COLORS } from '@/hooks/use-category-settings';
 import {
   Dialog,
   DialogContent,
@@ -69,19 +70,9 @@ const DAY_OF_WEEK_OPTIONS = [
   { value: '6', label: 'Sábado' },
 ];
 
-const CATEGORY_OPTIONS = [
-  { value: 'vendas', label: 'Vendas' },
-  { value: 'financeiro', label: 'Financeiro' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'operacional', label: 'Operacional' },
-  { value: 'administrativo', label: 'Administrativo' },
-  { value: 'suporte', label: 'Suporte' },
-  { value: 'desenvolvimento', label: 'Desenvolvimento' },
-  { value: 'rh', label: 'RH' },
-];
-
 export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringTaskDialogProps) {
   const queryClient = useQueryClient();
+  const { categories } = useCategorySettings();
   const isEditing = !!template;
 
   const [title, setTitle] = useState('');
@@ -257,11 +248,20 @@ export function RecurringTaskDialog({ open, onOpenChange, template }: RecurringT
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Sem setor</SelectItem>
-                {CATEGORY_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
+                {categories.map((cat) => {
+                  const catColor = COLUMN_COLORS.find(c => c.id === cat.color);
+                  return (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      <span className="flex items-center gap-2">
+                        <span 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: catColor?.bg || '#9B9A97' }} 
+                        />
+                        {cat.title}
+                      </span>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>

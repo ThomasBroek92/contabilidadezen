@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Task, TaskStatus, TaskPriority } from '@/hooks/use-tasks';
+import { useCategorySettings, COLUMN_COLORS } from '@/hooks/use-category-settings';
 import {
   Dialog,
   DialogContent,
@@ -43,18 +44,8 @@ const PRIORITY_OPTIONS: { value: TaskPriority; label: string; color: string; ico
   { value: 'urgent', label: 'Urgente', color: '#E03E3E', icon: Zap },
 ];
 
-const CATEGORY_OPTIONS = [
-  { value: 'vendas', label: 'Vendas' },
-  { value: 'financeiro', label: 'Financeiro' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'operacional', label: 'Operacional' },
-  { value: 'administrativo', label: 'Administrativo' },
-  { value: 'suporte', label: 'Suporte' },
-  { value: 'desenvolvimento', label: 'Desenvolvimento' },
-  { value: 'rh', label: 'RH' },
-];
-
 export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps) {
+  const { categories } = useCategorySettings();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<TaskStatus>('todo');
@@ -63,8 +54,9 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
   const [assigneeId, setAssigneeId] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [saving, setSaving] = useState(false);
-
-  // Fetch profiles for assignee selection
+  
+  const selectedCategory = categories.find(c => c.id === category);
+  const categoryColor = selectedCategory ? COLUMN_COLORS.find(c => c.id === selectedCategory.color) : null;
   const { data: profiles = [] } = useQuery({
     queryKey: ['profiles-for-select'],
     queryFn: async () => {
@@ -303,10 +295,13 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
                 <Select value={category || 'none'} onValueChange={(v) => setCategory(v === 'none' ? '' : v)}>
                   <SelectTrigger className="flex-1 h-8 text-xs bg-transparent border-[#E9E9E7] dark:border-[#3F3F3F] text-[#37352F] dark:text-[#FFFFFFCF] shadow-none hover:bg-[#F7F7F5] dark:hover:bg-[#252525]">
                     <SelectValue>
-                      {category ? (
+                      {selectedCategory ? (
                         <span className="flex items-center gap-2">
-                          <Tag className="h-3 w-3 text-[#9B9A97]" />
-                          {CATEGORY_OPTIONS.find(c => c.value === category)?.label || category}
+                          <span 
+                            className="w-2 h-2 rounded-full" 
+                            style={{ backgroundColor: categoryColor?.bg || '#9B9A97' }} 
+                          />
+                          {selectedCategory.title}
                         </span>
                       ) : (
                         <span className="text-[#9B9A97]">Sem setor</span>
@@ -317,11 +312,20 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
                     <SelectItem value="none" className="text-xs">
                       <span className="text-[#9B9A97]">Sem setor</span>
                     </SelectItem>
-                    {CATEGORY_OPTIONS.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
-                        {opt.label}
-                      </SelectItem>
-                    ))}
+                    {categories.map(cat => {
+                      const catColor = COLUMN_COLORS.find(c => c.id === cat.color);
+                      return (
+                        <SelectItem key={cat.id} value={cat.id} className="text-xs">
+                          <span className="flex items-center gap-2">
+                            <span 
+                              className="w-2 h-2 rounded-full" 
+                              style={{ backgroundColor: catColor?.bg || '#9B9A97' }} 
+                            />
+                            {cat.title}
+                          </span>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>

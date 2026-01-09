@@ -809,6 +809,7 @@ export type Database = {
       }
       task_board_settings: {
         Row: {
+          categories: Json | null
           columns: Json
           created_at: string
           default_view: string
@@ -817,6 +818,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          categories?: Json | null
           columns?: Json
           created_at?: string
           default_view?: string
@@ -825,6 +827,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          categories?: Json | null
           columns?: Json
           created_at?: string
           default_view?: string

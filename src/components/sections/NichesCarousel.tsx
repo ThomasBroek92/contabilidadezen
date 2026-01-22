@@ -7,6 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 import {
   Stethoscope,
   Scale,
@@ -195,6 +196,12 @@ export function NichesCarousel() {
             align: "start",
             loop: true,
           }}
+          plugins={[
+            Autoplay({
+              delay: 5000,
+              stopOnInteraction: true,
+            }),
+          ]}
           className="w-full"
         >
           <CarouselContent className="-ml-4">

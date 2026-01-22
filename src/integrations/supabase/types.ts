@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_cache: {
+        Row: {
+          id: string
+          metric_name: string
+          metric_value: Json
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          metric_name: string
+          metric_value: Json
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          metric_name?: string
+          metric_value?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           answer_first_validated: boolean | null

@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.optimize-blog-slugs]
 verify_jwt = false
+
+[functions.sync-analytics]
+verify_jwt = false

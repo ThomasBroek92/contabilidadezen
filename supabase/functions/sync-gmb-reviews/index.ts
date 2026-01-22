@@ -5,37 +5,32 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Rating map from Google API string to number
-const ratingMap: Record<string, number> = {
-  'ONE': 1,
-  'TWO': 2,
-  'THREE': 3,
-  'FOUR': 4,
-  'FIVE': 5
-};
-
-interface GoogleReview {
-  name: string;
-  reviewId: string;
-  reviewer: {
-    profilePhotoUrl?: string;
-    displayName: string;
+interface PlaceReview {
+  name?: string;
+  authorAttribution?: {
+    displayName?: string;
+    photoUri?: string;
+    uri?: string;
   };
-  starRating: string;
-  comment?: string;
-  createTime: string;
-  updateTime: string;
-  reviewReply?: {
-    comment: string;
-    updateTime: string;
+  rating?: number;
+  text?: {
+    text?: string;
+    languageCode?: string;
   };
+  originalText?: {
+    text?: string;
+  };
+  relativePublishTimeDescription?: string;
+  publishTime?: string;
 }
 
-interface GoogleReviewsResponse {
-  reviews?: GoogleReview[];
-  averageRating?: number;
-  totalReviewCount?: number;
-  nextPageToken?: string;
+interface PlaceDetailsResponse {
+  reviews?: PlaceReview[];
+  rating?: number;
+  userRatingCount?: number;
+  displayName?: {
+    text?: string;
+  };
 }
 
 async function getAccessToken(serviceAccountJson: string): Promise<string> {
@@ -50,13 +45,12 @@ async function getAccessToken(serviceAccountJson: string): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const payload = {
     iss: serviceAccount.client_email,
-    scope: 'https://www.googleapis.com/auth/business.manage',
+    scope: 'https://www.googleapis.com/auth/cloud-platform',
     aud: 'https://oauth2.googleapis.com/token',
     iat: now,
     exp: now + 3600
   };
   
-  // Import crypto for signing
   const encoder = new TextEncoder();
   
   function base64UrlEncode(data: string | Uint8Array): string {
@@ -72,7 +66,6 @@ async function getAccessToken(serviceAccountJson: string): Promise<string> {
   const payloadB64 = base64UrlEncode(JSON.stringify(payload));
   const signatureInput = `${headerB64}.${payloadB64}`;
   
-  // Parse PEM key
   const pemHeader = '-----BEGIN PRIVATE KEY-----';
   const pemFooter = '-----END PRIVATE KEY-----';
   const pemContents = serviceAccount.private_key
@@ -99,7 +92,6 @@ async function getAccessToken(serviceAccountJson: string): Promise<string> {
   const signatureB64 = base64UrlEncode(new Uint8Array(signature));
   const jwt = `${signatureInput}.${signatureB64}`;
   
-  // Exchange JWT for access token
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -115,49 +107,37 @@ async function getAccessToken(serviceAccountJson: string): Promise<string> {
   return tokenData.access_token;
 }
 
-async function fetchGMBReviews(
+async function fetchPlaceReviews(
   accessToken: string,
-  accountId: string,
-  locationId: string
-): Promise<GoogleReviewsResponse> {
-  // Try the new Business Profile API first (mybusinessbusinessinformation.googleapis.com)
-  // Then fallback to the legacy mybusiness.googleapis.com
+  placeId: string
+): Promise<PlaceDetailsResponse> {
+  // Use Places API (New) to get reviews
+  // Note: placeId should be in format "places/ChIJ..." or just "ChIJ..."
+  const cleanPlaceId = placeId.startsWith('places/') ? placeId : `places/${placeId}`;
   
-  // New API format: accounts/{account}/locations/{location}/reviews
-  const newApiUrl = `https://mybusinessreviews.googleapis.com/v1/accounts/${accountId}/locations/${locationId}/reviews`;
-  const legacyUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews`;
+  const url = `https://places.googleapis.com/v1/${cleanPlaceId}`;
+  const fieldMask = 'reviews,rating,userRatingCount,displayName';
   
-  console.log(`Trying new API: ${newApiUrl}`);
+  console.log(`Fetching place details from: ${url}`);
   
-  let response = await fetch(newApiUrl, {
+  const response = await fetch(url, {
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
+      'X-Goog-FieldMask': fieldMask,
     },
   });
   
-  // If new API fails, try legacy
-  if (!response.ok) {
-    console.log(`New API failed with ${response.status}, trying legacy API: ${legacyUrl}`);
-    response = await fetch(legacyUrl, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
-  }
-  
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`GMB API error: ${response.status} - ${errorText}`);
-    throw new Error(`GMB API error: ${response.status} - ${errorText}`);
+    console.error(`Places API error: ${response.status} - ${errorText}`);
+    throw new Error(`Places API error: ${response.status} - ${errorText}`);
   }
   
   return await response.json();
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -165,67 +145,63 @@ Deno.serve(async (req) => {
   try {
     console.log('Starting GMB reviews sync...');
     
-    // Get environment variables
     const serviceAccountJson = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON');
-    const accountId = Deno.env.get('GOOGLE_BUSINESS_PROFILE_ACCOUNT_ID');
-    const locationId = Deno.env.get('GOOGLE_BUSINESS_PROFILE_LOCATION_ID');
+    // For Places API, we use the Place ID instead of account/location IDs
+    // The locationId field will now store the Google Place ID (e.g., ChIJ...)
+    const placeId = Deno.env.get('GOOGLE_BUSINESS_PROFILE_LOCATION_ID');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!serviceAccountJson) {
       throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not configured');
     }
-    if (!accountId) {
-      throw new Error('GOOGLE_BUSINESS_PROFILE_ACCOUNT_ID not configured');
-    }
-    if (!locationId) {
-      throw new Error('GOOGLE_BUSINESS_PROFILE_LOCATION_ID not configured');
+    if (!placeId) {
+      throw new Error('GOOGLE_BUSINESS_PROFILE_LOCATION_ID not configured. Please set this to your Google Place ID (starts with ChIJ...)');
     }
     if (!supabaseUrl || !supabaseServiceKey) {
       throw new Error('Supabase credentials not configured');
     }
 
-    // Initialize Supabase client with service role
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get access token
     console.log('Getting access token...');
     const accessToken = await getAccessToken(serviceAccountJson);
     console.log('Access token obtained');
 
-    // Fetch reviews from GMB
-    console.log('Fetching reviews from GMB API...');
-    const reviewsData = await fetchGMBReviews(accessToken, accountId, locationId);
-    console.log(`Received ${reviewsData.reviews?.length || 0} reviews`);
+    console.log('Fetching reviews from Places API...');
+    const placeData = await fetchPlaceReviews(accessToken, placeId);
+    console.log(`Received ${placeData.reviews?.length || 0} reviews`);
 
     let syncedCount = 0;
     let filteredCount = 0;
 
-    // Process reviews
-    if (reviewsData.reviews && reviewsData.reviews.length > 0) {
-      for (const review of reviewsData.reviews) {
-        const rating = ratingMap[review.starRating] || 0;
+    if (placeData.reviews && placeData.reviews.length > 0) {
+      for (const review of placeData.reviews) {
+        const rating = review.rating || 0;
         
         // Only sync reviews with 4+ stars
         if (rating < 4) {
           filteredCount++;
-          console.log(`Skipping review ${review.reviewId} with rating ${rating}`);
+          console.log(`Skipping review with rating ${rating}`);
           continue;
         }
 
+        // Generate a unique ID from the review content
+        const reviewId = review.name?.split('/').pop() || 
+                         `review_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
         const reviewData = {
-          google_review_id: review.reviewId,
-          reviewer_name: review.reviewer.displayName,
-          reviewer_photo_url: review.reviewer.profilePhotoUrl || null,
+          google_review_id: reviewId,
+          reviewer_name: review.authorAttribution?.displayName || 'Usuário Google',
+          reviewer_photo_url: review.authorAttribution?.photoUri || null,
           rating: rating,
-          comment: review.comment || null,
-          review_time: review.createTime,
-          reply_comment: review.reviewReply?.comment || null,
-          reply_time: review.reviewReply?.updateTime || null,
+          comment: review.text?.text || review.originalText?.text || null,
+          review_time: review.publishTime || new Date().toISOString(),
+          reply_comment: null, // Places API doesn't return reply in basic field mask
+          reply_time: null,
           synced_at: new Date().toISOString(),
         };
 
-        // Upsert review
         const { error: upsertError } = await supabase
           .from('gmb_reviews')
           .upsert(reviewData, { 
@@ -234,26 +210,25 @@ Deno.serve(async (req) => {
           });
 
         if (upsertError) {
-          console.error(`Error upserting review ${review.reviewId}:`, upsertError);
+          console.error(`Error upserting review ${reviewId}:`, upsertError);
         } else {
           syncedCount++;
-          console.log(`Synced review ${review.reviewId}`);
+          console.log(`Synced review ${reviewId}`);
         }
       }
     }
 
     // Update stats
-    if (reviewsData.averageRating !== undefined && reviewsData.totalReviewCount !== undefined) {
-      console.log(`Updating stats: avg=${reviewsData.averageRating}, total=${reviewsData.totalReviewCount}`);
+    if (placeData.rating !== undefined && placeData.userRatingCount !== undefined) {
+      console.log(`Updating stats: avg=${placeData.rating}, total=${placeData.userRatingCount}`);
       
-      // Delete old stats and insert new
       await supabase.from('gmb_stats').delete().neq('id', '00000000-0000-0000-0000-000000000000');
       
       const { error: statsError } = await supabase
         .from('gmb_stats')
         .insert({
-          average_rating: reviewsData.averageRating,
-          total_reviews: reviewsData.totalReviewCount,
+          average_rating: placeData.rating,
+          total_reviews: placeData.userRatingCount,
           synced_at: new Date().toISOString(),
         });
 
@@ -265,12 +240,13 @@ Deno.serve(async (req) => {
     const result = {
       success: true,
       message: `Sincronização concluída`,
+      placeName: placeData.displayName?.text,
       stats: {
-        totalFromGoogle: reviewsData.reviews?.length || 0,
+        totalFromGoogle: placeData.reviews?.length || 0,
         synced: syncedCount,
         filtered: filteredCount,
-        averageRating: reviewsData.averageRating,
-        totalReviews: reviewsData.totalReviewCount,
+        averageRating: placeData.rating,
+        totalReviews: placeData.userRatingCount,
       }
     };
 

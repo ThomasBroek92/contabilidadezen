@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition, Suspense, lazy } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, AppRole } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -20,14 +20,15 @@ import {
   MousePointerClick
 } from 'lucide-react';
 import logoIcon from '@/assets/logo-icon.png';
-import { UserRolesManager } from '@/components/admin/UserRolesManager';
-import { CRMPage } from '@/components/crm/CRMPage';
-import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
-import { ContentStudio } from '@/components/admin/ContentStudio';
-import { GoogleIntegrationGuide } from '@/components/admin/GoogleIntegrationGuide';
-import { SEOIndexingAuditor } from '@/components/admin/SEOIndexingAuditor';
-import { NotionWidget } from '@/components/admin/NotionWidget';
-import { TasksContainer } from '@/components/admin/tasks';
+// Lazy load components for better performance
+const UserRolesManager = lazy(() => import('@/components/admin/UserRolesManager').then(m => ({ default: m.UserRolesManager })));
+const CRMPage = lazy(() => import('@/components/crm/CRMPage').then(m => ({ default: m.CRMPage })));
+const AnalyticsDashboard = lazy(() => import('@/components/admin/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
+const ContentStudio = lazy(() => import('@/components/admin/ContentStudio').then(m => ({ default: m.ContentStudio })));
+const GoogleIntegrationGuide = lazy(() => import('@/components/admin/GoogleIntegrationGuide').then(m => ({ default: m.GoogleIntegrationGuide })));
+const SEOIndexingAuditor = lazy(() => import('@/components/admin/SEOIndexingAuditor').then(m => ({ default: m.SEOIndexingAuditor })));
+const NotionWidget = lazy(() => import('@/components/admin/NotionWidget').then(m => ({ default: m.NotionWidget })));
+const TasksContainer = lazy(() => import('@/components/admin/tasks').then(m => ({ default: m.TasksContainer })));
 import { cn } from '@/lib/utils';
 
 type TabId = 'analytics' | 'content' | 'tasks' | 'leads' | 'users' | 'seo' | 'integrations';
@@ -56,11 +57,17 @@ export default function Admin() {
   const { user, loading, roles, signOut, isAdmin, canViewLeads } = useAuth();
   const { toast } = useToast();
   const [collapsed, setCollapsed] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<TabId>(() => {
-    // Recuperar tab salva ou usar analytics como padrão
     const saved = sessionStorage.getItem('admin-active-tab');
     return (saved as TabId) || 'analytics';
   });
+
+  const handleTabChange = (tabId: TabId) => {
+    startTransition(() => {
+      setActiveTab(tabId);
+    });
+  };
 
   // Persistir tab ativa
   useEffect(() => {
@@ -199,11 +206,7 @@ export default function Admin() {
             return (
               <button
                 key={item.id}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setActiveTab(item.id);
-                }}
+                onClick={() => handleTabChange(item.id)}
                 type="button"
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors cursor-pointer",
@@ -212,7 +215,11 @@ export default function Admin() {
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 )}
               >
-                <Icon className="h-4 w-4 shrink-0" />
+                {isPending && activeTab !== item.id && item.id === activeTab ? (
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                ) : (
+                  <Icon className="h-4 w-4 shrink-0" />
+                )}
                 {!collapsed && <span className="truncate">{item.label}</span>}
               </button>
             );
@@ -273,8 +280,22 @@ export default function Admin() {
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6 overflow-auto">
-          {renderContent()}
+        <main className="flex-1 p-6 overflow-auto relative">
+          {isPending && (
+            <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10 backdrop-blur-[1px]">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span className="text-sm">Carregando...</span>
+              </div>
+            </div>
+          )}
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          }>
+            {renderContent()}
+          </Suspense>
         </main>
       </div>
     </div>

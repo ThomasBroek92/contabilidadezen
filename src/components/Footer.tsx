@@ -132,18 +132,30 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-primary-foreground/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-primary-foreground/60">
-            © {new Date().getFullYear()} Contabilidade Zen. Todos os direitos reservados.
-          </p>
-          <div className="flex gap-6">
-            <Link to="/politica-de-privacidade" className="text-sm text-primary-foreground/60 hover:text-secondary transition-colors">
-              Política de Privacidade
-            </Link>
-            <Link to="/termos" className="text-sm text-primary-foreground/60 hover:text-secondary transition-colors">
-              Termos de Uso
-            </Link>
+        {/* Legal Info */}
+        <div className="border-t border-primary-foreground/20 mt-12 pt-8">
+          <div className="text-center mb-6">
+            <p className="text-sm text-primary-foreground/70">
+              <strong>Contabilidade Zen</strong> — Contabilidade Especializada para Profissionais da Saúde
+            </p>
+            <p className="text-xs text-primary-foreground/50 mt-2">
+              CNPJ: XX.XXX.XXX/0001-XX • Responsável Técnico: CRC-SP XXXXXX/O
+            </p>
+          </div>
+          
+          {/* Bottom Bar */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-primary-foreground/60">
+              © {new Date().getFullYear()} Contabilidade Zen. Todos os direitos reservados.
+            </p>
+            <div className="flex gap-6">
+              <Link to="/politica-de-privacidade" className="text-sm text-primary-foreground/60 hover:text-secondary transition-colors">
+                Política de Privacidade
+              </Link>
+              <Link to="/termos" className="text-sm text-primary-foreground/60 hover:text-secondary transition-colors">
+                Termos de Uso
+              </Link>
+            </div>
           </div>
         </div>
       </div>

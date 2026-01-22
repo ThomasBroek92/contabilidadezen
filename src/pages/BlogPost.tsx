@@ -151,15 +151,15 @@ export default function BlogPost() {
       dateModified: post.freshness_date || post.published_at || post.created_at,
       author: {
         '@type': 'Organization',
-        name: 'Contabilidade Zona Sul',
-        url: 'https://contabilidadezonasul.com.br',
+        name: 'Contabilidade Zen',
+        url: 'https://www.contabilidadezen.com.br',
       },
       publisher: {
         '@type': 'Organization',
-        name: 'Contabilidade Zona Sul',
+        name: 'Contabilidade Zen',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://contabilidadezonasul.com.br/logo.png',
+          url: 'https://www.contabilidadezen.com.br/logo.png',
         },
       },
       mainEntityOfPage: {
@@ -211,7 +211,7 @@ export default function BlogPost() {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>{post.meta_title || post.title} | Blog Contabilidade Zona Sul</title>
+        <title>{post.meta_title || post.title} | Blog Contabilidade Zen</title>
         <meta name="description" content={post.meta_description || post.excerpt || post.title} />
         {post.meta_keywords && (
           <meta name="keywords" content={post.meta_keywords.join(', ')} />
@@ -433,7 +433,7 @@ export default function BlogPost() {
                 {format(new Date(post.freshness_date || post.published_at || post.created_at), "MMMM 'de' yyyy", { locale: ptBR })}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                Revisado por: <strong>Equipe Contabilidade Zona Sul</strong>
+                Revisado por: <strong>Equipe Contabilidade Zen</strong>
               </p>
             </div>
 

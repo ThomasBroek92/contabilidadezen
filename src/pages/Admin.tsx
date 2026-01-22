@@ -18,7 +18,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  MousePointerClick
+  MousePointerClick,
+  Sparkles
 } from 'lucide-react';
 import logoIcon from '@/assets/logo-icon.png';
 // Lazy load components for better performance
@@ -28,11 +29,12 @@ const AnalyticsDashboard = lazy(() => import('@/components/admin/AnalyticsDashbo
 const ContentStudio = lazy(() => import('@/components/admin/ContentStudio').then(m => ({ default: m.ContentStudio })));
 const GoogleIntegrationGuide = lazy(() => import('@/components/admin/GoogleIntegrationGuide').then(m => ({ default: m.GoogleIntegrationGuide })));
 const SEOIndexingAuditor = lazy(() => import('@/components/admin/SEOIndexingAuditor').then(m => ({ default: m.SEOIndexingAuditor })));
+const GEOManager = lazy(() => import('@/components/admin/geo/GEOManager').then(m => ({ default: m.GEOManager })));
 const NotionWidget = lazy(() => import('@/components/admin/NotionWidget').then(m => ({ default: m.NotionWidget })));
 const TasksContainer = lazy(() => import('@/components/admin/tasks').then(m => ({ default: m.TasksContainer })));
 import { cn } from '@/lib/utils';
 
-type TabId = 'analytics' | 'content' | 'tasks' | 'leads' | 'users' | 'seo' | 'integrations';
+type TabId = 'analytics' | 'content' | 'tasks' | 'leads' | 'users' | 'seo' | 'geo' | 'integrations';
 
 interface SubNavItem {
   id: TabId;
@@ -57,6 +59,7 @@ const navItems: NavItem[] = [
     adminOnly: true,
     subItems: [
       { id: 'seo', label: 'SEO & Indexação', icon: Search },
+      { id: 'geo', label: 'GEO Manager', icon: Sparkles },
     ]
   },
   { id: 'content', label: 'Conteúdo', icon: PenTool, adminOnly: true },
@@ -76,7 +79,7 @@ export default function Admin() {
   const [expandedMenus, setExpandedMenus] = useState<Set<TabId>>(new Set(['analytics']));
   
   // Determinar tab ativa baseada na URL
-  const validTabs: TabId[] = ['analytics', 'content', 'tasks', 'leads', 'users', 'seo', 'integrations'];
+  const validTabs: TabId[] = ['analytics', 'content', 'tasks', 'leads', 'users', 'seo', 'geo', 'integrations'];
   const activeTab: TabId = (tab && validTabs.includes(tab as TabId)) ? (tab as TabId) : 'analytics';
 
   // Auto-expand parent menu if a sub-item is active
@@ -202,6 +205,8 @@ export default function Admin() {
         return <UserRolesManager />;
       case 'seo':
         return <SEOIndexingAuditor />;
+      case 'geo':
+        return <GEOManager />;
       case 'integrations':
         return (
           <div className="grid gap-6 lg:grid-cols-2">

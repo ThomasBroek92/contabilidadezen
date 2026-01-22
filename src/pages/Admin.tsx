@@ -17,6 +17,7 @@ import {
   CheckSquare,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   MousePointerClick
 } from 'lucide-react';
 import logoIcon from '@/assets/logo-icon.png';
@@ -33,21 +34,35 @@ import { cn } from '@/lib/utils';
 
 type TabId = 'analytics' | 'content' | 'tasks' | 'leads' | 'users' | 'seo' | 'integrations';
 
+interface SubNavItem {
+  id: TabId;
+  label: string;
+  icon: React.ElementType;
+}
+
 interface NavItem {
   id: TabId;
   label: string;
   icon: React.ElementType;
   adminOnly?: boolean;
   requiresLeadAccess?: boolean;
+  subItems?: SubNavItem[];
 }
 
 const navItems: NavItem[] = [
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, adminOnly: true },
+  { 
+    id: 'analytics', 
+    label: 'Analytics', 
+    icon: BarChart3, 
+    adminOnly: true,
+    subItems: [
+      { id: 'seo', label: 'SEO & Indexação', icon: Search },
+    ]
+  },
   { id: 'content', label: 'Conteúdo', icon: PenTool, adminOnly: true },
   { id: 'tasks', label: 'Tarefas', icon: CheckSquare, requiresLeadAccess: true },
   { id: 'leads', label: 'Leads', icon: FileText, requiresLeadAccess: true },
   { id: 'users', label: 'Equipe', icon: Users, adminOnly: true },
-  { id: 'seo', label: 'SEO', icon: Search, adminOnly: true },
   { id: 'integrations', label: 'Integrações', icon: Settings, adminOnly: true },
 ];
 
@@ -58,10 +73,32 @@ export default function Admin() {
   const { toast } = useToast();
   const [collapsed, setCollapsed] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [expandedMenus, setExpandedMenus] = useState<Set<TabId>>(new Set(['analytics']));
   
   // Determinar tab ativa baseada na URL
   const validTabs: TabId[] = ['analytics', 'content', 'tasks', 'leads', 'users', 'seo', 'integrations'];
   const activeTab: TabId = (tab && validTabs.includes(tab as TabId)) ? (tab as TabId) : 'analytics';
+
+  // Auto-expand parent menu if a sub-item is active
+  useEffect(() => {
+    navItems.forEach(item => {
+      if (item.subItems?.some(sub => sub.id === activeTab)) {
+        setExpandedMenus(prev => new Set([...prev, item.id]));
+      }
+    });
+  }, [activeTab]);
+
+  const toggleMenu = (id: TabId) => {
+    setExpandedMenus(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
 
   const handleTabChange = (tabId: TabId) => {
     startTransition(() => {
@@ -203,26 +240,74 @@ export default function Admin() {
           {visibleNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
+            const hasSubItems = item.subItems && item.subItems.length > 0;
+            const isExpanded = expandedMenus.has(item.id);
+            const hasActiveSubItem = item.subItems?.some(sub => sub.id === activeTab);
             
             return (
-              <button
-                key={item.id}
-                onClick={() => handleTabChange(item.id)}
-                type="button"
-                className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors cursor-pointer",
-                  isActive 
-                    ? "bg-muted font-medium text-foreground" 
-                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+              <div key={item.id}>
+                <button
+                  onClick={() => {
+                    if (hasSubItems && !collapsed) {
+                      toggleMenu(item.id);
+                    }
+                    handleTabChange(item.id);
+                  }}
+                  type="button"
+                  className={cn(
+                    "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors cursor-pointer",
+                    (isActive || hasActiveSubItem) 
+                      ? "bg-muted font-medium text-foreground" 
+                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                  )}
+                >
+                  {isPending && activeTab !== item.id && item.id === activeTab ? (
+                    <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                  ) : (
+                    <Icon className="h-4 w-4 shrink-0" />
+                  )}
+                  {!collapsed && (
+                    <>
+                      <span className="truncate flex-1 text-left">{item.label}</span>
+                      {hasSubItems && (
+                        <ChevronDown 
+                          className={cn(
+                            "h-4 w-4 shrink-0 transition-transform",
+                            isExpanded && "rotate-180"
+                          )} 
+                        />
+                      )}
+                    </>
+                  )}
+                </button>
+                
+                {/* Sub Items */}
+                {hasSubItems && isExpanded && !collapsed && (
+                  <div className="ml-4 mt-1 space-y-1 border-l pl-2">
+                    {item.subItems!.map((subItem) => {
+                      const SubIcon = subItem.icon;
+                      const isSubActive = activeTab === subItem.id;
+                      
+                      return (
+                        <button
+                          key={subItem.id}
+                          onClick={() => handleTabChange(subItem.id)}
+                          type="button"
+                          className={cn(
+                            "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors cursor-pointer",
+                            isSubActive 
+                              ? "bg-muted font-medium text-foreground" 
+                              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                          )}
+                        >
+                          <SubIcon className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{subItem.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-              >
-                {isPending && activeTab !== item.id && item.id === activeTab ? (
-                  <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                ) : (
-                  <Icon className="h-4 w-4 shrink-0" />
-                )}
-                {!collapsed && <span className="truncate">{item.label}</span>}
-              </button>
+              </div>
             );
           })}
         </nav>

@@ -24,7 +24,11 @@ export default function ContabilidadePsicologos() {
           name="keywords" 
           content="contabilidade para psicólogos, contabilidade para clínicas de psicologia, psicólogo PJ contabilidade, planejamento tributário psicólogo, contabilidade online para psicólogos" 
         />
-        <link rel="canonical" href="/segmentos/contabilidade-para-psicologos" />
+        <link rel="canonical" href="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-psicologos" />
+        <meta property="og:title" content="Contabilidade para Psicólogos e Clínicas de Psicologia | Reduza Impostos" />
+        <meta property="og:description" content="Contabilidade especializada para psicólogos. Reduza até 40% dos impostos com planejamento tributário." />
+        <meta property="og:url" content="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-psicologos" />
+        <meta property="og:type" content="website" />
       </Helmet>
       
       <Header />

@@ -53,6 +53,7 @@ export default function AbrirEmpresa() {
           name="keywords"
           content="abrir empresa, abertura de CNPJ, abrir MEI, abrir empresa grátis, contabilidade online, abertura de empresa"
         />
+        <link rel="canonical" href="https://www.contabilidadezen.com.br/abrir-empresa" />
         <script type="application/ld+json">
           {JSON.stringify(faqSchema)}
         </script>

@@ -24,7 +24,11 @@ export default function ContabilidadeDentistas() {
           name="keywords" 
           content="contabilidade para dentistas, contabilidade para clínicas odontológicas, dentista PJ contabilidade, planejamento tributário dentista, contabilidade online para dentistas" 
         />
-        <link rel="canonical" href="/segmentos/contabilidade-para-dentistas" />
+        <link rel="canonical" href="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-dentistas" />
+        <meta property="og:title" content="Contabilidade para Dentistas e Clínicas Odontológicas | Reduza Impostos" />
+        <meta property="og:description" content="Contabilidade especializada para dentistas. Reduza até 40% dos impostos com planejamento tributário." />
+        <meta property="og:url" content="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-dentistas" />
+        <meta property="og:type" content="website" />
       </Helmet>
       
       <Header />

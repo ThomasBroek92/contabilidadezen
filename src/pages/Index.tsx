@@ -63,11 +63,11 @@ const Index = () => {
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            <Benefits />
+            <Testimonials />
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            <Testimonials />
+            <Benefits />
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>

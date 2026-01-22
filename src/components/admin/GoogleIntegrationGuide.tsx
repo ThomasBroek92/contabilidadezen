@@ -25,10 +25,14 @@ import {
   Play,
   XCircle,
   CircleDot,
-  Save
+  Save,
+  Star,
+  RefreshCw,
+  MessageSquare
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface StepProps {
   number: number;
@@ -275,6 +279,47 @@ export function GoogleIntegrationGuide() {
   const [searchConsoleTest, setSearchConsoleTest] = useState<TestResult>({ status: 'idle' });
   const [businessProfileTest, setBusinessProfileTest] = useState<TestResult>({ status: 'idle' });
   const [progress, setProgress] = useState<IntegrationProgress>(loadProgress);
+  const [isSyncingReviews, setIsSyncingReviews] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Fetch GMB reviews stats
+  const { data: gmbReviewsData, isLoading: isLoadingReviews } = useQuery({
+    queryKey: ['admin-gmb-reviews'],
+    queryFn: async () => {
+      const [reviewsResult, statsResult] = await Promise.all([
+        supabase.from('gmb_reviews').select('*').order('review_time', { ascending: false }),
+        supabase.from('gmb_stats').select('*').order('synced_at', { ascending: false }).limit(1).maybeSingle()
+      ]);
+      return {
+        reviews: reviewsResult.data || [],
+        stats: statsResult.data
+      };
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
+
+  const syncGMBReviews = async () => {
+    setIsSyncingReviews(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-gmb-reviews');
+      
+      if (error) throw error;
+      
+      if (data?.success) {
+        toast.success(`Sincronização concluída! ${data.stats?.synced || 0} avaliações importadas.`);
+        queryClient.invalidateQueries({ queryKey: ['admin-gmb-reviews'] });
+        queryClient.invalidateQueries({ queryKey: ['gmb-reviews'] });
+        queryClient.invalidateQueries({ queryKey: ['gmb-stats'] });
+      } else {
+        throw new Error(data?.error || 'Erro desconhecido');
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erro ao sincronizar';
+      toast.error(`Erro na sincronização: ${message}`);
+    } finally {
+      setIsSyncingReviews(false);
+    }
+  };
 
   // Save progress whenever it changes
   useEffect(() => {
@@ -445,6 +490,122 @@ export function GoogleIntegrationGuide() {
               totalSteps={analyticsSteps.length}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* GMB Reviews Sync Card */}
+      <Card className="border-2 border-orange-500/20 bg-gradient-to-r from-orange-500/5 to-transparent">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Star className="h-5 w-5 text-orange-500" />
+            Avaliações do Google Meu Negócio
+          </CardTitle>
+          <CardDescription>
+            Sincronize as avaliações do Google para exibir no site
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Stats */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="p-4 bg-muted/50 rounded-lg text-center">
+              <p className="text-2xl font-bold text-foreground">
+                {isLoadingReviews ? '...' : gmbReviewsData?.reviews?.length || 0}
+              </p>
+              <p className="text-sm text-muted-foreground">Avaliações no cache</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star 
+                    key={i} 
+                    className={`h-4 w-4 ${
+                      i < Math.round(gmbReviewsData?.stats?.average_rating || 0) 
+                        ? 'fill-orange-500 text-orange-500' 
+                        : 'text-muted-foreground/30'
+                    }`} 
+                  />
+                ))}
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {gmbReviewsData?.stats?.average_rating?.toFixed(1) || '-'}
+              </p>
+              <p className="text-sm text-muted-foreground">Nota média</p>
+            </div>
+            <div className="p-4 bg-muted/50 rounded-lg text-center">
+              <p className="text-2xl font-bold text-foreground">
+                {gmbReviewsData?.stats?.total_reviews || 0}
+              </p>
+              <p className="text-sm text-muted-foreground">Total no Google</p>
+            </div>
+          </div>
+
+          {/* Last sync info */}
+          {gmbReviewsData?.stats?.synced_at && (
+            <p className="text-xs text-muted-foreground text-center">
+              Última sincronização: {new Date(gmbReviewsData.stats.synced_at).toLocaleString('pt-BR')}
+            </p>
+          )}
+
+          {/* Sync button */}
+          <div className="flex justify-center">
+            <Button 
+              onClick={syncGMBReviews} 
+              disabled={isSyncingReviews}
+              className="gap-2"
+            >
+              {isSyncingReviews ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Sincronizando...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4" />
+                  Sincronizar Avaliações
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Recent reviews preview */}
+          {gmbReviewsData?.reviews && gmbReviewsData.reviews.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Avaliações recentes
+              </h4>
+              <div className="grid gap-2 max-h-48 overflow-y-auto">
+                {gmbReviewsData.reviews.slice(0, 3).map((review: {
+                  id: string;
+                  reviewer_name: string;
+                  rating: number;
+                  comment: string | null;
+                  review_time: string;
+                }) => (
+                  <div key={review.id} className="p-3 bg-background border border-border rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-sm">{review.reviewer_name}</span>
+                      <div className="flex gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={`h-3 w-3 ${
+                              i < review.rating 
+                                ? 'fill-orange-500 text-orange-500' 
+                                : 'text-muted-foreground/30'
+                            }`} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {review.comment || 'Sem comentário'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

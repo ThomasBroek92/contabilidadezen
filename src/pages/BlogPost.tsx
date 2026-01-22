@@ -74,11 +74,28 @@ export default function BlogPost() {
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Check if slug has timestamp (old format) and redirect to clean URL
+  const hasTimestamp = (slugToCheck: string): boolean => {
+    return /\-\d{13,}$/.test(slugToCheck);
+  };
+
+  // Remove timestamp from slug to get clean version
+  const removeTimestamp = (slugWithTimestamp: string): string => {
+    return slugWithTimestamp.replace(/\-\d{13,}$/, '');
+  };
+
   useEffect(() => {
     if (slug) {
+      // 301 Redirect: If old URL with timestamp, redirect to clean URL
+      if (hasTimestamp(slug)) {
+        const cleanSlug = removeTimestamp(slug);
+        // Use replace: true to simulate 301 behavior (replaces history entry)
+        navigate(`/blog/${cleanSlug}`, { replace: true });
+        return;
+      }
       fetchPost(slug);
     }
-  }, [slug]);
+  }, [slug, navigate]);
 
   const fetchPost = async (postSlug: string) => {
     try {
@@ -92,6 +109,21 @@ export default function BlogPost() {
       if (error) throw error;
 
       if (!data) {
+        // Try to find post by partial slug match (for edge cases)
+        const { data: partialMatch } = await supabase
+          .from('blog_posts')
+          .select('slug')
+          .eq('status', 'published')
+          .ilike('slug', `${postSlug}%`)
+          .limit(1)
+          .maybeSingle();
+
+        if (partialMatch && partialMatch.slug !== postSlug) {
+          // Redirect to the correct slug
+          navigate(`/blog/${partialMatch.slug}`, { replace: true });
+          return;
+        }
+
         navigate('/blog', { replace: true });
         return;
       }

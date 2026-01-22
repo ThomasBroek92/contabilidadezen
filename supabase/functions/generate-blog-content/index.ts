@@ -1081,19 +1081,44 @@ serve(async (req) => {
         // Determinar se deve auto-publicar
         const shouldAutoPublish = geoScore >= settings.min_geo_score_publish;
 
-        const slug = parsedContent.title
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .substring(0, 100);
+        // Gerar slug SEO-friendly otimizado para Google
+        const generateSEOSlug = (title: string): string => {
+          return title
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+            .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+            .replace(/\s+/g, '-') // Espaços para hífens
+            .replace(/-+/g, '-') // Remove hífens duplicados
+            .replace(/^-|-$/g, '') // Remove hífens no início/fim
+            .substring(0, 80); // Limite para URL amigável
+        };
+
+        let baseSlug = generateSEOSlug(parsedContent.title);
+        
+        // Verificar se slug já existe e adicionar sufixo numérico se necessário
+        const { data: existingSlug } = await supabase
+          .from('blog_posts')
+          .select('slug')
+          .like('slug', `${baseSlug}%`)
+          .limit(10);
+        
+        let finalSlug = baseSlug;
+        if (existingSlug && existingSlug.length > 0) {
+          // Encontrar o próximo número disponível
+          const existingSlugs = existingSlug.map(p => p.slug);
+          let counter = 2;
+          while (existingSlugs.includes(finalSlug)) {
+            finalSlug = `${baseSlug}-${counter}`;
+            counter++;
+          }
+        }
 
         const { data: newPost, error: insertError } = await supabase
           .from('blog_posts')
           .insert({
             title: parsedContent.title,
-            slug: `${slug}-${Date.now()}`,
+            slug: finalSlug,
             excerpt: parsedContent.excerpt,
             content: finalContent,
             category: topic.category,

@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.process-recurring-tasks]
 verify_jwt = false
+
+[functions.optimize-blog-slugs]
+verify_jwt = false

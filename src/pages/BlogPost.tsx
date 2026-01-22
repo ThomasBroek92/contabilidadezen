@@ -219,14 +219,14 @@ export default function BlogPost() {
         <meta property="og:title" content={post.meta_title || post.title} />
         <meta property="og:description" content={post.meta_description || post.excerpt || post.title} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={window.location.href} />
+        <meta property="og:url" content={`https://www.contabilidadezen.com.br/blog/${post.slug}`} />
         <meta property="article:published_time" content={post.published_at || post.created_at} />
         <meta property="article:modified_time" content={post.freshness_date || post.published_at || post.created_at} />
         <meta property="article:section" content={post.category} />
         {post.meta_keywords?.map((keyword, i) => (
           <meta key={i} property="article:tag" content={keyword} />
         ))}
-        <link rel="canonical" href={window.location.href} />
+        <link rel="canonical" href={`https://www.contabilidadezen.com.br/blog/${post.slug}`} />
         {structuredData && structuredData.map((schema, i) => (
           <script key={i} type="application/ld+json">
             {JSON.stringify(schema)}

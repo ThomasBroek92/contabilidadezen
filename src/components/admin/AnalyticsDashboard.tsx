@@ -53,7 +53,7 @@ export function AnalyticsDashboard() {
     staleTime: 1000 * 60 * 60, // 1 hour
   });
 
-  const lastSync = cache?.last_sync?.metric_value as { timestamp?: string; status?: string } | undefined;
+  const lastSync = cache?.last_sync?.metric_value as { timestamp?: string; status?: string; source?: string } | undefined;
   const visitors = cache?.visitors?.metric_value as { total?: number; trend?: number } | undefined;
   const pageviews = cache?.pageviews?.metric_value as { total?: number; trend?: number } | undefined;
   const avgSession = cache?.avg_session?.metric_value as { seconds?: number; formatted?: string } | undefined;
@@ -61,6 +61,8 @@ export function AnalyticsDashboard() {
   const topPages = cache?.top_pages?.metric_value as unknown as Array<{ page: string; views: number }> | undefined;
   const topCountries = cache?.top_countries?.metric_value as unknown as Array<{ country: string; visitors: number; flag: string }> | undefined;
   const devices = cache?.devices?.metric_value as { desktop?: number; mobile?: number; tablet?: number } | undefined;
+
+  const isSimulated = lastSync?.source !== 'ga4';
 
   const handleManualSync = async () => {
     await supabase.functions.invoke('sync-analytics');
@@ -102,18 +104,27 @@ export function AnalyticsDashboard() {
                   : 'Aguardando primeira sincronização'
                 }
               </span>
-              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
-                <Info className="h-3 w-3 mr-1" />
-                Dados simulados
-              </Badge>
+              {isSimulated ? (
+                <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                  <Info className="h-3 w-3 mr-1" />
+                  Dados simulados
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                  Google Analytics 4
+                </Badge>
+              )}
             </div>
             <p className="text-xs text-muted-foreground/60">
-              Sincronização automática às 3h da manhã • Conecte o Google Analytics para dados reais
+              {isSimulated 
+                ? 'Sincronização automática às 3h da manhã • Configure o GA4 para dados reais'
+                : 'Sincronização automática às 3h da manhã • Dados do Google Analytics 4'
+              }
             </p>
           </div>
           <Button 
             variant="outline" 
-            size="sm" 
+            size="sm"
             onClick={handleManualSync} 
             disabled={isFetching}
           >

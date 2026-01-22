@@ -630,9 +630,10 @@ REGRAS OBRIGATÓRIAS:`;
 3. Inclua citações de especialistas formatadas como blockquotes.`;
   }
 
+  // FAQ será adicionado programaticamente após a geração, não no conteúdo inline
   if (settings.auto_generate_faq) {
     prompt += `
-4. Termine com seção FAQ de ${settings.faq_count} perguntas frequentes.`;
+4. NÃO inclua seção FAQ no conteúdo. As ${settings.faq_count} perguntas frequentes serão retornadas separadamente no JSON.`;
   }
 
   if (settings.freshness_signals_enabled) {

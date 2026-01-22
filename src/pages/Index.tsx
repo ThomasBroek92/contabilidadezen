@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { HeroMultiNiche } from "@/components/sections/HeroMultiNiche";
 import { NichesCarousel } from "@/components/sections/NichesCarousel";
 import { MainServices } from "@/components/sections/MainServices";
+import { CustomerJourney } from "@/components/sections/CustomerJourney";
 import { Benefits } from "@/components/sections/Benefits";
 import { WhySpecialized } from "@/components/sections/WhySpecialized";
 import { TaxCalculator } from "@/components/sections/TaxCalculator";
@@ -66,6 +67,10 @@ const Index = () => {
           </ScrollAnimation>
           
           <ScrollAnimation>
+            <CustomerJourney />
+          </ScrollAnimation>
+          
+          <ScrollAnimation delay={0.1}>
             <Benefits />
           </ScrollAnimation>
           

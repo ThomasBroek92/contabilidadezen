@@ -120,16 +120,32 @@ async function fetchGMBReviews(
   accountId: string,
   locationId: string
 ): Promise<GoogleReviewsResponse> {
-  const url = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews`;
+  // Try the new Business Profile API first (mybusinessbusinessinformation.googleapis.com)
+  // Then fallback to the legacy mybusiness.googleapis.com
   
-  console.log(`Fetching reviews from: ${url}`);
+  // New API format: accounts/{account}/locations/{location}/reviews
+  const newApiUrl = `https://mybusinessreviews.googleapis.com/v1/accounts/${accountId}/locations/${locationId}/reviews`;
+  const legacyUrl = `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews`;
   
-  const response = await fetch(url, {
+  console.log(`Trying new API: ${newApiUrl}`);
+  
+  let response = await fetch(newApiUrl, {
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
   });
+  
+  // If new API fails, try legacy
+  if (!response.ok) {
+    console.log(`New API failed with ${response.status}, trying legacy API: ${legacyUrl}`);
+    response = await fetch(legacyUrl, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
   
   if (!response.ok) {
     const errorText = await response.text();

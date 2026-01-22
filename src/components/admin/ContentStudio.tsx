@@ -23,7 +23,7 @@ import {
   AlertCircle, 
   Calendar,
   CalendarDays,
-  Columns3,
+  
   BarChart3,
   TrendingUp,
   Zap,
@@ -41,7 +41,7 @@ import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { EditorialCalendar } from './editorial/EditorialCalendar';
-import { EditorialKanban } from './editorial/EditorialKanban';
+
 import { PostEditorDialog } from './editorial/PostEditorDialog';
 import { TopicDialog } from './editorial/TopicDialog';
 import { BatchGenerationDialog } from './editorial/BatchGenerationDialog';
@@ -73,7 +73,7 @@ export function ContentStudio() {
   const { posts, topics, loading, fetchPosts, fetchTopics, fetchAll } = useEditorialData();
   
   // Estados de UI
-  const [activeView, setActiveView] = useState<'overview' | 'create' | 'manage' | 'calendar' | 'kanban' | 'analytics' | 'settings'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'create' | 'manage' | 'calendar' | 'analytics' | 'settings'>('overview');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
   const [topicDialogOpen, setTopicDialogOpen] = useState(false);
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);
@@ -422,7 +422,7 @@ export function ContentStudio() {
 
       {/* Navegação simplificada com ícones claros */}
       <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)}>
-        <TabsList className="grid w-full grid-cols-7 h-12">
+        <TabsList className="grid w-full grid-cols-6 h-12">
           <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Lightbulb className="h-4 w-4" />
             <span className="hidden md:inline">Visão Geral</span>
@@ -438,10 +438,6 @@ export function ContentStudio() {
           <TabsTrigger value="calendar" className="gap-2">
             <CalendarDays className="h-4 w-4" />
             <span className="hidden md:inline">Calendário</span>
-          </TabsTrigger>
-          <TabsTrigger value="kanban" className="gap-2">
-            <Columns3 className="h-4 w-4" />
-            <span className="hidden md:inline">Kanban</span>
           </TabsTrigger>
           <TabsTrigger value="analytics" className="gap-2">
             <BarChart3 className="h-4 w-4" />
@@ -974,15 +970,6 @@ export function ContentStudio() {
           />
         </TabsContent>
 
-        {/* KANBAN */}
-        <TabsContent value="kanban" className="mt-6">
-          <EditorialKanban 
-            posts={posts}
-            onEditPost={(post) => handleOpenPostDialog(post as BlogPost)} 
-            onViewPost={(post) => window.open(`/blog/${post.slug}`, '_blank')}
-            onRefresh={fetchAll}
-          />
-        </TabsContent>
 
         {/* MÉTRICAS */}
         <TabsContent value="analytics" className="mt-6">

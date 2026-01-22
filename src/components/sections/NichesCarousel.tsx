@@ -90,19 +90,6 @@ const niches = [
     gradient: "from-cyan-600 to-cyan-600/70",
   },
   {
-    icon: Store,
-    title: "FRANQUIAS",
-    subtitle: "Franqueados e Franqueadores",
-    features: [
-      "Controle de royalties",
-      "Múltiplas unidades",
-      "Fundo de marketing",
-      "Análise de viabilidade",
-    ],
-    href: "/contato",
-    gradient: "from-orange-500 to-orange-500/70",
-  },
-  {
     icon: Globe,
     title: "EXPORTAÇÃO DE SERVIÇOS",
     subtitle: "Serviços Internacionais",

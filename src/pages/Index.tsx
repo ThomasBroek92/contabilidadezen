@@ -6,6 +6,7 @@ import { NichesCarousel } from "@/components/sections/NichesCarousel";
 import { MainServices } from "@/components/sections/MainServices";
 import { CustomerJourney } from "@/components/sections/CustomerJourney";
 import { RoutineCarousel } from "@/components/sections/RoutineCarousel";
+import { CitiesSection } from "@/components/sections/CitiesSection";
 import { Benefits } from "@/components/sections/Benefits";
 import { WhySpecialized } from "@/components/sections/WhySpecialized";
 import { Testimonials } from "@/components/sections/Testimonials";
@@ -60,6 +61,10 @@ const Index = () => {
           
           <ScrollAnimation>
             <RoutineCarousel />
+          </ScrollAnimation>
+          
+          <ScrollAnimation>
+            <CitiesSection />
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>

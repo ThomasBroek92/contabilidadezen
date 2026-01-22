@@ -19,7 +19,9 @@ import {
   ChevronRight,
   ChevronDown,
   MousePointerClick,
-  Sparkles
+  Sparkles,
+  StickyNote,
+  Chrome
 } from 'lucide-react';
 import logoIcon from '@/assets/logo-icon.png';
 // Lazy load components for better performance
@@ -34,7 +36,7 @@ const NotionWidget = lazy(() => import('@/components/admin/NotionWidget').then(m
 const TasksContainer = lazy(() => import('@/components/admin/tasks').then(m => ({ default: m.TasksContainer })));
 import { cn } from '@/lib/utils';
 
-type TabId = 'analytics' | 'content' | 'tasks' | 'leads' | 'users' | 'seo' | 'geo' | 'integrations';
+type TabId = 'analytics' | 'content' | 'tasks' | 'leads' | 'users' | 'seo' | 'geo' | 'integrations' | 'notion' | 'google';
 
 interface SubNavItem {
   id: TabId;
@@ -66,7 +68,16 @@ const navItems: NavItem[] = [
   { id: 'tasks', label: 'Tarefas', icon: CheckSquare, requiresLeadAccess: true },
   { id: 'leads', label: 'Leads', icon: FileText, requiresLeadAccess: true },
   { id: 'users', label: 'Equipe', icon: Users, adminOnly: true },
-  { id: 'integrations', label: 'Integrações', icon: Settings, adminOnly: true },
+  { 
+    id: 'integrations', 
+    label: 'Integrações', 
+    icon: Settings, 
+    adminOnly: true,
+    subItems: [
+      { id: 'notion', label: 'Notion', icon: StickyNote },
+      { id: 'google', label: 'Google', icon: Chrome },
+    ]
+  },
 ];
 
 export default function Admin() {
@@ -79,7 +90,7 @@ export default function Admin() {
   const [expandedMenus, setExpandedMenus] = useState<Set<TabId>>(new Set(['analytics']));
   
   // Determinar tab ativa baseada na URL
-  const validTabs: TabId[] = ['analytics', 'content', 'tasks', 'leads', 'users', 'seo', 'geo', 'integrations'];
+  const validTabs: TabId[] = ['analytics', 'content', 'tasks', 'leads', 'users', 'seo', 'geo', 'integrations', 'notion', 'google'];
   const activeTab: TabId = (tab && validTabs.includes(tab as TabId)) ? (tab as TabId) : 'analytics';
 
   // Auto-expand parent menu if a sub-item is active
@@ -214,6 +225,10 @@ export default function Admin() {
             <GoogleIntegrationGuide />
           </div>
         );
+      case 'notion':
+        return <NotionWidget />;
+      case 'google':
+        return <GoogleIntegrationGuide />;
       default:
         return null;
     }

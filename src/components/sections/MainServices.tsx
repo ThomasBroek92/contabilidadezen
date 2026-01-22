@@ -1,6 +1,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import {
   FileCheck,
   ArrowLeftRight,
   TrendingUp,
@@ -8,83 +15,49 @@ import {
   Building,
   CheckCircle,
   ArrowRight,
+  Sparkles,
+  Star,
 } from "lucide-react";
 
-const services = [
-  {
-    icon: FileCheck,
-    title: "Abertura de Empresa",
-    description: "Abra seu CNPJ em até 7 dias úteis com todo suporte para escolher CNAE, regime tributário e estrutura societária ideais.",
-    benefits: [
-      "Análise gratuita de viabilidade",
-      "Registro na Junta Comercial",
-      "Inscrições municipais e estaduais",
-      "Alvará e licenças",
-    ],
-    price: "A partir de R$ 0*",
-    cta: "Abrir Minha Empresa",
-    href: "/abrir-empresa",
-    color: "secondary",
-  },
-  {
-    icon: ArrowLeftRight,
-    title: "Migração de Contabilidade",
-    description: "Troque de contador sem dor de cabeça. Cuidamos de toda burocracia junto ao seu contador atual.",
-    benefits: [
-      "Processo 100% digital",
-      "Sem interrupção nas obrigações",
-      "Análise de pendências",
-      "Migração em até 15 dias",
-    ],
-    price: "Gratuito",
-    cta: "Migrar Agora",
-    href: "/contato",
-    color: "primary",
-  },
+const otherServices = [
   {
     icon: TrendingUp,
     title: "Transformar MEI em ME",
-    description: "Seu MEI estourou o limite ou precisa contratar funcionários? Regularize sem multas e sem complicação.",
+    description: "Seu MEI estourou o limite ou precisa contratar funcionários? Regularize sem multas.",
     benefits: [
       "Desenquadramento automático",
       "Escolha do melhor regime",
       "Sem multas por estouro",
-      "Manutenção dos benefícios",
     ],
     price: "Consulta grátis",
     cta: "Quero Regularizar",
     href: "/contato",
-    color: "accent",
   },
   {
     icon: Calculator,
     title: "Planejamento Tributário",
-    description: "Análise completa da sua situação fiscal atual com estratégias legais para reduzir impostos em até 50%.",
+    description: "Análise completa da sua situação fiscal com estratégias para reduzir impostos.",
     benefits: [
       "Simulação de cenários",
       "Fator R otimizado",
-      "Comparação Simples/Presumido/Real",
       "Economia garantida",
     ],
     price: "ROI de 10x+",
     cta: "Calcular Economia",
     href: "/calculadora-pj-clt",
-    color: "secondary",
   },
   {
     icon: Building,
     title: "BPO Financeiro",
-    description: "Terceirize todo seu financeiro: contas a pagar, a receber, conciliação bancária e relatórios gerenciais.",
+    description: "Terceirize seu financeiro: contas a pagar, receber e relatórios gerenciais.",
     benefits: [
       "Gestão de contas completa",
       "Conciliação automática",
-      "Relatórios mensais",
       "Dashboard em tempo real",
     ],
     price: "Sob consulta",
     cta: "Conhecer Serviço",
     href: "/contato",
-    color: "primary",
   },
 ];
 
@@ -107,78 +80,197 @@ export function MainServices() {
           </p>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {services.map((service, index) => (
-            <div
-              key={index}
-              className="group bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-secondary/50 hover:shadow-card transition-all duration-300 flex flex-col"
-            >
-              {/* Icon & Title */}
-              <div className="flex items-start gap-4 mb-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                  service.color === "secondary" 
-                    ? "bg-secondary/10" 
-                    : service.color === "accent"
-                    ? "bg-accent/10"
-                    : "bg-primary/10"
-                }`}>
-                  <service.icon className={`h-6 w-6 ${
-                    service.color === "secondary" 
-                      ? "text-secondary" 
-                      : service.color === "accent"
-                      ? "text-accent"
-                      : "text-primary"
-                  }`} />
+        {/* Featured Service: Abertura de Empresa */}
+        <div className="mb-10">
+          <div className="relative bg-gradient-to-br from-secondary via-secondary/90 to-secondary/80 rounded-3xl p-8 lg:p-12 overflow-hidden">
+            {/* Background decorations */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+            
+            <div className="relative grid lg:grid-cols-2 gap-8 items-center">
+              {/* Content */}
+              <div>
+                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+                  <Sparkles className="h-4 w-4" />
+                  Mais Popular
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-foreground">{service.title}</h3>
-                  <span className={`text-sm font-bold ${
-                    service.color === "secondary" 
-                      ? "text-secondary" 
-                      : service.color === "accent"
-                      ? "text-accent"
-                      : "text-primary"
-                  }`}>
-                    {service.price}
+                
+                <h3 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                  Abertura de Empresa
+                </h3>
+                <p className="text-white/90 text-lg mb-6">
+                  Abra seu CNPJ em até 7 dias úteis com todo suporte para escolher CNAE, 
+                  regime tributário e estrutura societária ideais. Comece sua jornada empresarial 
+                  com quem entende do assunto.
+                </p>
+                
+                <ul className="grid sm:grid-cols-2 gap-3 mb-8">
+                  {[
+                    "Análise gratuita de viabilidade",
+                    "Registro na Junta Comercial",
+                    "Inscrições municipais e estaduais",
+                    "Alvará e licenças inclusos",
+                    "Suporte especializado",
+                    "Processo 100% digital",
+                  ].map((benefit, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-white/90">
+                      <CheckCircle className="h-5 w-5 text-white flex-shrink-0" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <div className="flex flex-wrap items-center gap-4">
+                  <Button 
+                    size="lg" 
+                    className="bg-white text-secondary hover:bg-white/90 font-semibold"
+                    asChild
+                  >
+                    <Link to="/abrir-empresa">
+                      Abrir Minha Empresa
+                      <ArrowRight className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                  <span className="text-white font-bold text-xl">
+                    A partir de R$ 0*
                   </span>
                 </div>
               </div>
+              
+              {/* Visual element */}
+              <div className="hidden lg:flex justify-center">
+                <div className="relative">
+                  <div className="w-64 h-64 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center">
+                    <FileCheck className="h-32 w-32 text-white" />
+                  </div>
+                  <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl p-4 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                      <span className="font-bold text-foreground">4.9</span>
+                      <span className="text-muted-foreground text-sm">no Google</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-              {/* Description */}
-              <p className="text-muted-foreground text-sm mb-4 flex-grow">
-                {service.description}
-              </p>
-
-              {/* Benefits */}
-              <ul className="space-y-2 mb-6">
-                {service.benefits.map((benefit, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-sm">
-                    <CheckCircle className={`h-4 w-4 flex-shrink-0 ${
-                      service.color === "secondary" 
-                        ? "text-secondary" 
-                        : service.color === "accent"
-                        ? "text-accent"
-                        : "text-primary"
-                    }`} />
-                    <span className="text-foreground/80">{benefit}</span>
-                  </li>
+        {/* Secondary Feature: Migração de Contabilidade */}
+        <div className="mb-10">
+          <div className="relative bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-6 lg:p-8 overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+            
+            <div className="relative flex flex-col lg:flex-row lg:items-center gap-6">
+              {/* Icon */}
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shrink-0">
+                <ArrowLeftRight className="h-8 w-8 text-white" />
+              </div>
+              
+              {/* Content */}
+              <div className="flex-grow">
+                <div className="flex flex-wrap items-center gap-3 mb-2">
+                  <h3 className="text-2xl font-bold text-white">
+                    Migração de Contabilidade
+                  </h3>
+                  <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Gratuito
+                  </span>
+                </div>
+                <p className="text-white/90 mb-4 lg:mb-0 max-w-2xl">
+                  Troque de contador sem dor de cabeça. Cuidamos de toda burocracia junto ao 
+                  seu contador atual. Processo 100% digital, sem interrupção nas obrigações.
+                </p>
+              </div>
+              
+              {/* Benefits (hidden on mobile) */}
+              <div className="hidden xl:flex items-center gap-4 shrink-0">
+                {["100% Digital", "15 dias", "Sem interrupção"].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2 bg-white/10 px-3 py-2 rounded-lg">
+                    <CheckCircle className="h-4 w-4 text-white" />
+                    <span className="text-white text-sm whitespace-nowrap">{item}</span>
+                  </div>
                 ))}
-              </ul>
-
+              </div>
+              
               {/* CTA */}
               <Button 
-                variant="zen-outline" 
-                className="w-full group-hover:bg-secondary group-hover:text-secondary-foreground mt-auto"
+                size="lg"
+                className="bg-white text-primary hover:bg-white/90 font-semibold shrink-0"
                 asChild
               >
-                <Link to={service.href}>
-                  {service.cta}
-                  <ArrowRight className="h-4 w-4" />
+                <Link to="/contato">
+                  Migrar Agora
+                  <ArrowRight className="h-5 w-5" />
                 </Link>
               </Button>
             </div>
-          ))}
+          </div>
+        </div>
+
+        {/* Other Services Carousel */}
+        <div>
+          <h3 className="text-xl font-semibold text-foreground mb-6 text-center lg:text-left">
+            Outros Serviços
+          </h3>
+          
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4">
+              {otherServices.map((service, index) => (
+                <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="h-full bg-card rounded-2xl p-6 border border-border hover:border-secondary/50 hover:shadow-card transition-all duration-300 flex flex-col">
+                    {/* Icon & Title */}
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                        <service.icon className="h-6 w-6 text-secondary" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-foreground">{service.title}</h4>
+                        <span className="text-sm font-bold text-secondary">
+                          {service.price}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-muted-foreground text-sm mb-4 flex-grow">
+                      {service.description}
+                    </p>
+
+                    {/* Benefits */}
+                    <ul className="space-y-2 mb-6">
+                      {service.benefits.map((benefit, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-sm">
+                          <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0" />
+                          <span className="text-foreground/80">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* CTA */}
+                    <Button 
+                      variant="zen-outline" 
+                      className="w-full mt-auto"
+                      asChild
+                    >
+                      <Link to={service.href}>
+                        {service.cta}
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex -left-4 bg-card border-border hover:bg-muted" />
+            <CarouselNext className="hidden md:flex -right-4 bg-card border-border hover:bg-muted" />
+          </Carousel>
         </div>
       </div>
     </section>

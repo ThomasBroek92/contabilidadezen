@@ -1,5 +1,5 @@
 import { useEffect, useState, useTransition, Suspense, lazy } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth, AppRole } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -53,26 +53,21 @@ const navItems: NavItem[] = [
 
 export default function Admin() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { tab } = useParams<{ tab?: string }>();
   const { user, loading, roles, signOut, isAdmin, canViewLeads } = useAuth();
   const { toast } = useToast();
   const [collapsed, setCollapsed] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [activeTab, setActiveTab] = useState<TabId>(() => {
-    const saved = sessionStorage.getItem('admin-active-tab');
-    return (saved as TabId) || 'analytics';
-  });
+  
+  // Determinar tab ativa baseada na URL
+  const validTabs: TabId[] = ['analytics', 'content', 'tasks', 'leads', 'users', 'seo', 'integrations'];
+  const activeTab: TabId = (tab && validTabs.includes(tab as TabId)) ? (tab as TabId) : 'analytics';
 
   const handleTabChange = (tabId: TabId) => {
     startTransition(() => {
-      setActiveTab(tabId);
+      navigate(`/admin/${tabId}`, { replace: false });
     });
   };
-
-  // Persistir tab ativa
-  useEffect(() => {
-    sessionStorage.setItem('admin-active-tab', activeTab);
-  }, [activeTab]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -80,16 +75,22 @@ export default function Admin() {
     }
   }, [user, loading, navigate]);
 
-  // Set initial tab based on permissions
+  // Redirecionar para tab correta baseado em permissões
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && !tab) {
       if (isAdmin()) {
-        setActiveTab('analytics');
+        navigate('/admin/analytics', { replace: true });
       } else if (canViewLeads()) {
-        setActiveTab('leads');
+        navigate('/admin/leads', { replace: true });
       }
     }
-  }, [loading, user, isAdmin, canViewLeads]);
+  }, [loading, user, isAdmin, canViewLeads, tab, navigate]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();

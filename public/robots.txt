@@ -1,8 +1,13 @@
+# Contabilidade Zen - robots.txt
+# https://www.contabilidadezen.com.br
+
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 2
 
 User-agent: Twitterbot
 Allow: /
@@ -13,5 +18,13 @@ Allow: /
 User-agent: *
 Allow: /
 
+# Bloquear páginas administrativas e de autenticação
+Disallow: /admin
+Disallow: /auth
+Disallow: /parceiro/dashboard
+
 # Sitemap
 Sitemap: https://www.contabilidadezen.com.br/sitemap.xml
+
+# Host preferencial
+Host: https://www.contabilidadezen.com.br

@@ -11,18 +11,22 @@ const SITE_URL = "https://www.contabilidadezen.com.br";
 // Static pages with their priorities and change frequencies
 const staticPages = [
   { url: "/", priority: "1.0", changefreq: "weekly" },
-  { url: "/sobre", priority: "0.8", changefreq: "monthly" },
   { url: "/servicos", priority: "0.9", changefreq: "monthly" },
+  { url: "/sobre", priority: "0.8", changefreq: "monthly" },
   { url: "/contato", priority: "0.8", changefreq: "monthly" },
   { url: "/blog", priority: "0.9", changefreq: "daily" },
   { url: "/abrir-empresa", priority: "0.9", changefreq: "monthly" },
+  { url: "/medicos", priority: "0.8", changefreq: "monthly" },
   { url: "/indique-e-ganhe", priority: "0.7", changefreq: "monthly" },
+  // Segmentos - Landing pages por profissão
   { url: "/segmentos/contabilidade-para-medicos", priority: "0.9", changefreq: "monthly" },
   { url: "/segmentos/contabilidade-para-dentistas", priority: "0.9", changefreq: "monthly" },
   { url: "/segmentos/contabilidade-para-psicologos", priority: "0.9", changefreq: "monthly" },
-  { url: "/conteudo/calculadora-pj-clt", priority: "0.7", changefreq: "monthly" },
-  { url: "/conteudo/comparativo-tributario", priority: "0.7", changefreq: "monthly" },
-  { url: "/conteudo/gerador-rpa", priority: "0.7", changefreq: "monthly" },
+  // Ferramentas e calculadoras
+  { url: "/conteudo/calculadora-pj-clt", priority: "0.8", changefreq: "monthly" },
+  { url: "/conteudo/comparativo-tributario", priority: "0.8", changefreq: "monthly" },
+  { url: "/conteudo/gerador-rpa", priority: "0.8", changefreq: "monthly" },
+  // Páginas legais
   { url: "/politica-de-privacidade", priority: "0.3", changefreq: "yearly" },
   { url: "/termos", priority: "0.3", changefreq: "yearly" },
 ];

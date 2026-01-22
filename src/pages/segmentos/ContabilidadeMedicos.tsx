@@ -24,7 +24,11 @@ export default function ContabilidadeMedicos() {
           name="keywords" 
           content="contabilidade para médicos, contabilidade para clínicas médicas, médico PJ contabilidade, planejamento tributário médico, contabilidade online para médicos" 
         />
-        <link rel="canonical" href="/segmentos/contabilidade-para-medicos" />
+        <link rel="canonical" href="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-medicos" />
+        <meta property="og:title" content="Contabilidade para Médicos e Clínicas Médicas | Reduza Impostos" />
+        <meta property="og:description" content="Contabilidade especializada para médicos. Reduza até 40% dos impostos com planejamento tributário." />
+        <meta property="og:url" content="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-medicos" />
+        <meta property="og:type" content="website" />
       </Helmet>
       
       <Header />

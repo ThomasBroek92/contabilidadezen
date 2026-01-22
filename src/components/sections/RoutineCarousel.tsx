@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -5,8 +6,10 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { motion } from "framer-motion";
 import { 
   FileText, 
   Upload, 
@@ -71,12 +74,20 @@ const routineSteps: RoutineStep[] = [
   },
 ];
 
-function StepCard({ step }: { step: RoutineStep }) {
+function StepCard({ step, index }: { step: RoutineStep; index: number }) {
   const Icon = step.icon;
   const isClient = step.owner === "client";
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ 
+        duration: 0.5, 
+        delay: index * 0.1,
+        ease: "easeOut"
+      }}
       className={`
         relative h-full rounded-2xl p-6 md:p-8 transition-all duration-300
         border-2 group hover:scale-[1.02] hover:shadow-xl
@@ -146,16 +157,35 @@ function StepCard({ step }: { step: RoutineStep }) {
           }
         `}
       />
-    </div>
+    </motion.div>
   );
 }
 
 export function RoutineCarousel() {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
+
   const autoplayPlugin = Autoplay({
     delay: 5000,
     stopOnInteraction: true,
     stopOnMouseEnter: true,
   });
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
+
+  const scrollTo = (index: number) => {
+    api?.scrollTo(index);
+  };
 
   const clientStepsCount = routineSteps.filter(s => s.owner === "client").length;
   const zenStepsCount = routineSteps.filter(s => s.owner === "zen").length;
@@ -164,7 +194,13 @@ export function RoutineCarousel() {
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-6"
+        >
           <span className="inline-block text-secondary font-semibold text-sm uppercase tracking-wider mb-3">
             Processo Simplificado
           </span>
@@ -176,10 +212,16 @@ export function RoutineCarousel() {
             Você cuida apenas de <strong className="text-amber-600">{clientStepsCount} etapas simples</strong>, 
             nós cuidamos de <strong className="text-secondary">{zenStepsCount} processos complexos</strong>
           </p>
-        </div>
+        </motion.div>
 
         {/* Legend */}
-        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-10"
+        >
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-400 to-orange-500" />
             <span className="text-sm font-medium text-muted-foreground">Sua responsabilidade</span>
@@ -188,10 +230,11 @@ export function RoutineCarousel() {
             <div className="w-4 h-4 rounded-full bg-gradient-to-br from-secondary to-accent" />
             <span className="text-sm font-medium text-muted-foreground">Contabilidade Zen cuida</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Carousel */}
         <Carousel
+          setApi={setApi}
           opts={{
             loop: true,
             align: "start",
@@ -200,12 +243,12 @@ export function RoutineCarousel() {
           className="w-full"
         >
           <CarouselContent className="-ml-4">
-            {routineSteps.map((step) => (
+            {routineSteps.map((step, index) => (
               <CarouselItem 
                 key={step.number} 
                 className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
               >
-                <StepCard step={step} />
+                <StepCard step={step} index={index} />
               </CarouselItem>
             ))}
           </CarouselContent>
@@ -216,8 +259,32 @@ export function RoutineCarousel() {
           </div>
         </Carousel>
 
+        {/* Navigation Dots */}
+        <div className="flex items-center justify-center gap-2 mt-8">
+          {Array.from({ length: count }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => scrollTo(index)}
+              className={`
+                w-2.5 h-2.5 rounded-full transition-all duration-300
+                ${current === index 
+                  ? "bg-secondary w-8" 
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                }
+              `}
+              aria-label={`Ir para slide ${index + 1}`}
+            />
+          ))}
+        </div>
+
         {/* CTA */}
-        <div className="text-center mt-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-center mt-10"
+        >
           <Button 
             size="lg" 
             className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold gap-2"
@@ -228,7 +295,7 @@ export function RoutineCarousel() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

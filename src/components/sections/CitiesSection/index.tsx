@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { CitiesWordCloud } from "./CitiesWordCloud";
-import { CampinasHighlight } from "./CampinasHighlight";
 
 export function CitiesSection() {
   return (
@@ -22,14 +21,13 @@ export function CitiesSection() {
           </p>
         </motion.div>
 
-        {/* Word Cloud + Highlight */}
+        {/* Word Cloud */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
           <CitiesWordCloud />
-          <CampinasHighlight />
         </motion.div>
       </div>
     </section>
@@ -37,4 +35,3 @@ export function CitiesSection() {
 }
 
 export { CitiesWordCloud } from "./CitiesWordCloud";
-export { CampinasHighlight } from "./CampinasHighlight";

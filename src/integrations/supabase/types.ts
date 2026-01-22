@@ -203,6 +203,13 @@ export type Database = {
             referencedRelation: "blog_posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "blog_topics_generated_post_id_fkey"
+            columns: ["generated_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       cadence_steps: {
@@ -472,6 +479,13 @@ export type Database = {
             columns: ["blog_post_id"]
             isOneToOne: false
             referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "indexing_queue_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts_public"
             referencedColumns: ["id"]
           },
         ]
@@ -828,6 +842,42 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          created_at: string
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       task_board_settings: {
         Row: {
           categories: Json | null
@@ -940,7 +990,78 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      blog_posts_public: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string | null
+          etapa_funil: Database["public"]["Enums"]["funnel_stage"] | null
+          excerpt: string | null
+          faq_schema: Json | null
+          featured_image_url: string | null
+          geo_score: number | null
+          id: string | null
+          meta_description: string | null
+          meta_keywords: string[] | null
+          meta_title: string | null
+          objetivo: Database["public"]["Enums"]["content_objective"] | null
+          persona_alvo: string | null
+          published_at: string | null
+          read_time_minutes: number | null
+          slug: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          views: number | null
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          etapa_funil?: Database["public"]["Enums"]["funnel_stage"] | null
+          excerpt?: string | null
+          faq_schema?: Json | null
+          featured_image_url?: string | null
+          geo_score?: number | null
+          id?: string | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          objetivo?: Database["public"]["Enums"]["content_objective"] | null
+          persona_alvo?: string | null
+          published_at?: string | null
+          read_time_minutes?: number | null
+          slug?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          views?: number | null
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          etapa_funil?: Database["public"]["Enums"]["funnel_stage"] | null
+          excerpt?: string | null
+          faq_schema?: Json | null
+          featured_image_url?: string | null
+          geo_score?: number | null
+          id?: string | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          meta_title?: string | null
+          objetivo?: Database["public"]["Enums"]["content_objective"] | null
+          persona_alvo?: string | null
+          published_at?: string | null
+          read_time_minutes?: number | null
+          slug?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          views?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_next_run: {

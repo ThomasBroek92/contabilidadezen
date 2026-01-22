@@ -171,16 +171,44 @@ export function NotionWidget() {
   };
 
   if (error) {
+    const isNotShared = error.includes('not found') || error.includes('object_not_found') || error.includes('shared');
+    const isInvalidConfig = error.includes('inválido') || error.includes('credentials');
+    
     return (
-      <Card>
+      <Card className="border-destructive/50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-destructive" />
-            Erro de Conexão
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <AlertCircle className="h-5 w-5" />
+            {isNotShared ? 'Database não compartilhado' : isInvalidConfig ? 'Configuração inválida' : 'Erro na conexão'}
           </CardTitle>
-          <CardDescription>{error}</CardDescription>
+          <CardDescription className="text-destructive/80">
+            {isNotShared 
+              ? 'O database do Notion não está compartilhado com a integração.' 
+              : error}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {isNotShared && (
+            <div className="bg-muted/50 border rounded-lg p-4 space-y-3">
+              <p className="text-sm font-medium">Como resolver:</p>
+              <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                <li>Abra o database no Notion</li>
+                <li>Clique no botão <strong>"..."</strong> (menu) no canto superior direito</li>
+                <li>Selecione <strong>"Connections"</strong> → <strong>"Connect to"</strong></li>
+                <li>Procure e selecione sua integração</li>
+                <li>Volte aqui e clique em "Tentar novamente"</li>
+              </ol>
+              <a 
+                href="https://www.notion.so/help/add-and-manage-connections-with-the-api" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:underline inline-flex items-center gap-1"
+              >
+                Ver documentação do Notion
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          )}
           <Button onClick={loadData} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
             Tentar novamente

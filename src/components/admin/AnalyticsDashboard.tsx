@@ -102,9 +102,13 @@ export function AnalyticsDashboard() {
                   : 'Aguardando primeira sincronização'
                 }
               </span>
+              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                <Info className="h-3 w-3 mr-1" />
+                Dados simulados
+              </Badge>
             </div>
             <p className="text-xs text-muted-foreground/60">
-              Sincronização automática às 3h da manhã (horário de Brasília)
+              Sincronização automática às 3h da manhã • Conecte o Google Analytics para dados reais
             </p>
           </div>
           <Button 

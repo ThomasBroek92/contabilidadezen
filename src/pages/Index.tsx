@@ -5,6 +5,7 @@ import { HeroMultiNiche } from "@/components/sections/HeroMultiNiche";
 import { NichesCarousel } from "@/components/sections/NichesCarousel";
 import { MainServices } from "@/components/sections/MainServices";
 import { CustomerJourney } from "@/components/sections/CustomerJourney";
+import { RoutineCarousel } from "@/components/sections/RoutineCarousel";
 import { Benefits } from "@/components/sections/Benefits";
 import { WhySpecialized } from "@/components/sections/WhySpecialized";
 import { Testimonials } from "@/components/sections/Testimonials";
@@ -57,20 +58,16 @@ const Index = () => {
             <CustomerJourney />
           </ScrollAnimation>
           
+          <ScrollAnimation>
+            <RoutineCarousel />
+          </ScrollAnimation>
+          
           <ScrollAnimation delay={0.1}>
             <Benefits />
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            
-          </ScrollAnimation>
-          
-          <ScrollAnimation delay={0.1}>
             <Testimonials />
-          </ScrollAnimation>
-          
-          <ScrollAnimation>
-            
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>

@@ -58,7 +58,6 @@ const App = () => (
             <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="/admin" element={<Admin />} />
             <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/termos" element={<Termos />} />
             <Route path="*" element={<NotFound />} />

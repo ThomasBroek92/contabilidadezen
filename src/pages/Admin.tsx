@@ -1,13 +1,25 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, AppRole } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, LogOut, Users, UserCog, FileText, Shield, ShieldCheck, ShieldAlert, BarChart3, PenTool, MousePointerClick, Settings, Search, CheckSquare } from 'lucide-react';
-import logoFull from '@/assets/logo-full.png';
+import { 
+  Loader2, 
+  LogOut, 
+  Users, 
+  FileText, 
+  BarChart3, 
+  PenTool, 
+  Settings, 
+  Search, 
+  CheckSquare,
+  ChevronLeft,
+  ChevronRight,
+  MousePointerClick
+} from 'lucide-react';
+import logoIcon from '@/assets/logo-icon.png';
 import { UserRolesManager } from '@/components/admin/UserRolesManager';
 import { CRMPage } from '@/components/crm/CRMPage';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
@@ -16,17 +28,52 @@ import { GoogleIntegrationGuide } from '@/components/admin/GoogleIntegrationGuid
 import { SEOIndexingAuditor } from '@/components/admin/SEOIndexingAuditor';
 import { NotionWidget } from '@/components/admin/NotionWidget';
 import { TasksContainer } from '@/components/admin/tasks';
+import { cn } from '@/lib/utils';
+
+type TabId = 'analytics' | 'content' | 'tasks' | 'leads' | 'users' | 'seo' | 'integrations';
+
+interface NavItem {
+  id: TabId;
+  label: string;
+  icon: React.ElementType;
+  adminOnly?: boolean;
+  requiresLeadAccess?: boolean;
+}
+
+const navItems: NavItem[] = [
+  { id: 'analytics', label: 'Analytics', icon: BarChart3, adminOnly: true },
+  { id: 'content', label: 'Conteúdo', icon: PenTool, adminOnly: true },
+  { id: 'tasks', label: 'Tarefas', icon: CheckSquare, requiresLeadAccess: true },
+  { id: 'leads', label: 'Leads', icon: FileText, requiresLeadAccess: true },
+  { id: 'users', label: 'Equipe', icon: Users, adminOnly: true },
+  { id: 'seo', label: 'SEO', icon: Search, adminOnly: true },
+  { id: 'integrations', label: 'Integrações', icon: Settings, adminOnly: true },
+];
 
 export default function Admin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading, roles, signOut, isAdmin, canViewLeads } = useAuth();
   const { toast } = useToast();
+  const [collapsed, setCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabId>('analytics');
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
+
+  // Set initial tab based on permissions
+  useEffect(() => {
+    if (!loading && user) {
+      if (isAdmin()) {
+        setActiveTab('analytics');
+      } else if (canViewLeads()) {
+        setActiveTab('leads');
+      }
+    }
+  }, [loading, user, isAdmin, canViewLeads]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -45,10 +92,18 @@ export default function Admin() {
     });
   };
 
+  const canAccessTab = (item: NavItem): boolean => {
+    if (item.adminOnly && !isAdmin()) return false;
+    if (item.requiresLeadAccess && !canViewLeads()) return false;
+    return true;
+  };
+
+  const visibleNavItems = navItems.filter(canAccessTab);
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -57,169 +112,157 @@ export default function Admin() {
     return null;
   }
 
-  const getRoleBadge = (role: AppRole) => {
-    const config = {
-      admin: { label: 'Administrador', icon: ShieldCheck, variant: 'default' as const },
-      sales_manager: { label: 'Gerente de Vendas', icon: Shield, variant: 'secondary' as const },
-      sales_rep: { label: 'Vendedor', icon: ShieldAlert, variant: 'outline' as const },
-    };
-    const { label, icon: Icon, variant } = config[role];
+  if (roles.length === 0) {
     return (
-      <Badge key={role} variant={variant} className="gap-1">
-        <Icon className="h-3 w-3" />
-        {label}
-      </Badge>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="h-12 w-12 mx-auto rounded-full bg-muted flex items-center justify-center">
+            <Users className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <div>
+            <h2 className="text-lg font-medium">Acesso Pendente</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Aguarde um administrador liberar seu acesso.
+            </p>
+          </div>
+          <Button variant="outline" size="sm" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Sair
+          </Button>
+        </div>
+      </div>
     );
+  }
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'analytics':
+        return <AnalyticsDashboard />;
+      case 'content':
+        return <ContentStudio />;
+      case 'tasks':
+        return <TasksContainer />;
+      case 'leads':
+        return <CRMPage />;
+      case 'users':
+        return <UserRolesManager />;
+      case 'seo':
+        return <SEOIndexingAuditor />;
+      case 'integrations':
+        return (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <NotionWidget />
+            <GoogleIntegrationGuide />
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="bg-background border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img src={logoFull} alt="Contabilidade Zen" className="h-8" />
-            <span className="text-sm text-muted-foreground">Painel Administrativo</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user.email}</span>
-            <Button variant="outline" size="sm" onClick={handleTestExitIntent}>
-              <MousePointerClick className="h-4 w-4 mr-2" />
-              Testar Exit Intent
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserCog className="h-5 w-5" />
-              Suas Permissões
-            </CardTitle>
-            <CardDescription>
-              Suas roles determinam o que você pode acessar no sistema.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {roles.length > 0 ? (
-              <div className="flex flex-wrap gap-2">{roles.map(getRoleBadge)}</div>
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                Você ainda não possui nenhuma role atribuída.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {roles.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Acesso Restrito</h3>
-              <p className="text-muted-foreground">
-                Você precisa de uma role atribuída por um administrador.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <Tabs defaultValue={isAdmin() ? 'analytics' : canViewLeads() ? 'leads' : 'users'} className="space-y-4">
-            <TabsList>
-              {isAdmin() && (
-                <TabsTrigger value="analytics" className="gap-2">
-                  <BarChart3 className="h-4 w-4" />
-                  Analytics
-                </TabsTrigger>
-              )}
-              {isAdmin() && (
-                <TabsTrigger value="content" className="gap-2">
-                  <PenTool className="h-4 w-4" />
-                  Conteúdo
-                </TabsTrigger>
-              )}
-              {canViewLeads() && (
-                <TabsTrigger value="tasks" className="gap-2">
-                  <CheckSquare className="h-4 w-4" />
-                  Tarefas
-                </TabsTrigger>
-              )}
-              {canViewLeads() && (
-                <TabsTrigger value="leads" className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  Leads
-                </TabsTrigger>
-              )}
-              {isAdmin() && (
-                <TabsTrigger value="users" className="gap-2">
-                  <Users className="h-4 w-4" />
-                  Usuários
-                </TabsTrigger>
-              )}
-              {isAdmin() && (
-                <TabsTrigger value="seo" className="gap-2">
-                  <Search className="h-4 w-4" />
-                  SEO
-                </TabsTrigger>
-              )}
-              {isAdmin() && (
-                <TabsTrigger value="integrations" className="gap-2">
-                  <Settings className="h-4 w-4" />
-                  Integrações
-                </TabsTrigger>
-              )}
-            </TabsList>
-
-            {isAdmin() && (
-              <TabsContent value="analytics">
-                <AnalyticsDashboard />
-              </TabsContent>
-            )}
-
-            {isAdmin() && (
-              <TabsContent value="content">
-                <ContentStudio />
-              </TabsContent>
-            )}
-
-            {canViewLeads() && (
-              <TabsContent value="tasks">
-                <TasksContainer />
-              </TabsContent>
-            )}
-
-            {canViewLeads() && (
-              <TabsContent value="leads">
-                <CRMPage />
-              </TabsContent>
-            )}
-
-            {isAdmin() && (
-              <TabsContent value="users">
-                <UserRolesManager />
-              </TabsContent>
-            )}
-
-            {isAdmin() && (
-              <TabsContent value="seo">
-                <SEOIndexingAuditor />
-              </TabsContent>
-            )}
-
-            {isAdmin() && (
-              <TabsContent value="integrations">
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <NotionWidget />
-                  <GoogleIntegrationGuide />
-                </div>
-              </TabsContent>
-            )}
-          </Tabs>
+    <div className="min-h-screen flex bg-background">
+      {/* Sidebar */}
+      <aside 
+        className={cn(
+          "h-screen sticky top-0 border-r bg-card flex flex-col transition-all duration-200",
+          collapsed ? "w-16" : "w-56"
         )}
-      </main>
+      >
+        {/* Logo */}
+        <div className="h-14 flex items-center justify-between px-4 border-b">
+          {!collapsed && (
+            <span className="font-medium text-sm truncate">Contabilidade Zen</span>
+          )}
+          <img 
+            src={logoIcon} 
+            alt="CZ" 
+            className={cn("h-7 w-7", collapsed && "mx-auto")} 
+          />
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+          {visibleNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                  isActive 
+                    ? "bg-muted font-medium text-foreground" 
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                {!collapsed && <span className="truncate">{item.label}</span>}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="border-t p-2 space-y-1">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors"
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4 mx-auto" />
+            ) : (
+              <>
+                <ChevronLeft className="h-4 w-4" />
+                <span>Recolher</span>
+              </>
+            )}
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Bar */}
+        <header className="h-14 border-b bg-card flex items-center justify-between px-6 shrink-0">
+          <div className="flex items-center gap-3">
+            <h1 className="font-medium">
+              {visibleNavItems.find(i => i.id === activeTab)?.label}
+            </h1>
+            {roles.length > 0 && (
+              <Badge variant="outline" className="text-xs font-normal">
+                {roles.includes('admin') ? 'Admin' : roles.includes('sales_manager') ? 'Gerente' : 'Vendedor'}
+              </Badge>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleTestExitIntent}
+              className="text-muted-foreground text-xs"
+            >
+              <MousePointerClick className="h-3.5 w-3.5 mr-1.5" />
+              Exit Intent
+            </Button>
+            <Separator orientation="vertical" className="h-5" />
+            <span className="text-xs text-muted-foreground hidden sm:inline">
+              {user.email}
+            </span>
+            <Button variant="ghost" size="icon" onClick={handleSignOut} className="h-8 w-8">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="flex-1 p-6 overflow-auto">
+          {renderContent()}
+        </main>
+      </div>
     </div>
   );
 }

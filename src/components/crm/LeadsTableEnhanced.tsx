@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { 
   Loader2, Search, RefreshCw, Download, FileText, ExternalLink,
-  Building2, AlertTriangle, Filter, ArrowUpDown
+  Building2, AlertTriangle, Filter, ArrowUpDown, Trash2
 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -67,6 +68,8 @@ export function LeadsTable({ onSelectLead }: LeadsTableProps) {
   const [segmentFilter, setSegmentFilter] = useState<string>('all');
   const [sortField, setSortField] = useState<string>('created_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [deleteLeadId, setDeleteLeadId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -180,6 +183,32 @@ export function LeadsTable({ onSelectLead }: LeadsTableProps) {
     }
   };
 
+  const handleDeleteLead = async () => {
+    if (!deleteLeadId) return;
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', deleteLeadId);
+      
+      if (error) throw error;
+      
+      setLeads(prev => prev.filter(l => l.id !== deleteLeadId));
+      toast({ title: 'Lead excluído com sucesso' });
+    } catch (err) {
+      console.error('Error deleting lead:', err);
+      toast({
+        title: 'Erro ao excluir lead',
+        description: 'Não foi possível excluir o lead.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(false);
+      setDeleteLeadId(null);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -281,6 +310,7 @@ export function LeadsTable({ onSelectLead }: LeadsTableProps) {
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -344,12 +374,48 @@ export function LeadsTable({ onSelectLead }: LeadsTableProps) {
                     <TableCell className="text-sm text-muted-foreground">
                       {format(new Date(lead.created_at), "dd/MM/yyyy", { locale: ptBR })}
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteLeadId(lead.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
         )}
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!deleteLeadId} onOpenChange={(open) => !open && setDeleteLeadId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir Lead</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem certeza que deseja excluir este lead? Esta ação não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDeleteLead} 
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );

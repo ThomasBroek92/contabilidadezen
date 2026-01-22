@@ -12,6 +12,7 @@ import { Pricing } from "@/components/sections/Pricing";
 import { FAQ } from "@/components/sections/FAQ";
 import { BlogPreview } from "@/components/sections/BlogPreview";
 import { CTA } from "@/components/sections/CTA";
+import { ScrollAnimation } from "@/components/ui/scroll-animation";
 import { homePageSchema, generateFAQSchema, homeFAQs } from "@/lib/seo-schemas";
 
 const Index = () => {
@@ -55,16 +56,46 @@ const Index = () => {
         <Header />
         <main>
           <HeroMultiNiche />
-          <NichesCarousel />
-          <MainServices />
-          <Benefits />
-          <WhySpecialized />
-          <TaxCalculator />
-          <Testimonials />
-          <Pricing />
-          <FAQ />
-          <BlogPreview />
-          <CTA />
+          
+          <ScrollAnimation>
+            <NichesCarousel />
+          </ScrollAnimation>
+          
+          <ScrollAnimation delay={0.1}>
+            <MainServices />
+          </ScrollAnimation>
+          
+          <ScrollAnimation>
+            <Benefits />
+          </ScrollAnimation>
+          
+          <ScrollAnimation delay={0.1}>
+            <WhySpecialized />
+          </ScrollAnimation>
+          
+          <ScrollAnimation>
+            <TaxCalculator />
+          </ScrollAnimation>
+          
+          <ScrollAnimation delay={0.1}>
+            <Testimonials />
+          </ScrollAnimation>
+          
+          <ScrollAnimation>
+            <Pricing />
+          </ScrollAnimation>
+          
+          <ScrollAnimation delay={0.1}>
+            <FAQ />
+          </ScrollAnimation>
+          
+          <ScrollAnimation>
+            <BlogPreview />
+          </ScrollAnimation>
+          
+          <ScrollAnimation delay={0.1}>
+            <CTA />
+          </ScrollAnimation>
         </main>
         <Footer />
       </div>

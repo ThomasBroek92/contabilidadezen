@@ -439,6 +439,75 @@ export type Database = {
         }
         Relationships: []
       }
+      gmb_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          google_review_id: string
+          id: string
+          is_visible: boolean | null
+          rating: number
+          reply_comment: string | null
+          reply_time: string | null
+          review_time: string
+          reviewer_name: string
+          reviewer_photo_url: string | null
+          synced_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          google_review_id: string
+          id?: string
+          is_visible?: boolean | null
+          rating: number
+          reply_comment?: string | null
+          reply_time?: string | null
+          review_time: string
+          reviewer_name: string
+          reviewer_photo_url?: string | null
+          synced_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          google_review_id?: string
+          id?: string
+          is_visible?: boolean | null
+          rating?: number
+          reply_comment?: string | null
+          reply_time?: string | null
+          review_time?: string
+          reviewer_name?: string
+          reviewer_photo_url?: string | null
+          synced_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      gmb_stats: {
+        Row: {
+          average_rating: number
+          id: string
+          synced_at: string | null
+          total_reviews: number
+        }
+        Insert: {
+          average_rating: number
+          id?: string
+          synced_at?: string | null
+          total_reviews: number
+        }
+        Update: {
+          average_rating?: number
+          id?: string
+          synced_at?: string | null
+          total_reviews?: number
+        }
+        Relationships: []
+      }
       indexing_queue: {
         Row: {
           action: string

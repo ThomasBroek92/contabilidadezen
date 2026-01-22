@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   Trophy, 
@@ -7,7 +6,7 @@ import {
   CheckCircle,
   MessageCircle,
 } from "lucide-react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
 const journeySteps = [
@@ -19,6 +18,7 @@ const journeySteps = [
     gradient: "from-orange-500 to-orange-400",
     badgeBg: "bg-orange-100",
     badgeText: "text-orange-600",
+    borderColor: "border-orange-500",
     description: "Todo novo cliente da Contabilidade Zen passa por um processo de onboarding completo que inclui:",
     benefits: [
       "Call de ativação com seu contador dedicado",
@@ -38,6 +38,7 @@ const journeySteps = [
     gradient: "from-violet-600 to-violet-400",
     badgeBg: "bg-violet-100",
     badgeText: "text-violet-600",
+    borderColor: "border-violet-500",
     description: "Tanto no onboarding quanto no dia a dia operacional, sua empresa terá acesso ao nosso suporte ágil e humanizado:",
     benefits: [
       "WhatsApp direto com seu contador",
@@ -57,6 +58,7 @@ const journeySteps = [
     gradient: "from-emerald-600 to-emerald-400",
     badgeBg: "bg-emerald-100",
     badgeText: "text-emerald-600",
+    borderColor: "border-emerald-500",
     description: "Nosso time de sucesso do cliente vai constantemente avaliar seu atendimento e satisfação para garantir a melhor experiência:",
     benefits: [
       "Pesquisas de NPS trimestrais",
@@ -70,72 +72,104 @@ const journeySteps = [
   },
 ];
 
-function JourneyCard({ step, index }: { step: typeof journeySteps[0]; index: number }) {
+function TimelineCard({ step, index, isLast }: { step: typeof journeySteps[0]; index: number; isLast: boolean }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <motion.article
+    <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration: 0.6, delay: index * 0.15, ease: [0.25, 0.1, 0.25, 1] }}
-      className="group relative bg-card rounded-2xl p-8 border border-border hover:border-secondary/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col"
+      initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+      transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+      className={`relative flex items-start gap-6 ${!isLast ? 'pb-12 md:pb-16' : ''}`}
     >
-      {/* Icon */}
-      <div className="flex justify-center mb-6">
-        <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg`}>
-          <step.icon className="h-9 w-9 text-white" />
+      {/* Timeline connector */}
+      <div className="flex flex-col items-center">
+        {/* Icon circle */}
+        <motion.div 
+          initial={{ scale: 0 }}
+          animate={isInView ? { scale: 1 } : { scale: 0 }}
+          transition={{ duration: 0.4, delay: 0.3, type: "spring", stiffness: 200 }}
+          className={`relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg`}
+        >
+          <step.icon className="h-7 w-7 md:h-9 md:w-9 text-white" />
+        </motion.div>
+        
+        {/* Vertical line */}
+        {!isLast && (
+          <motion.div 
+            initial={{ scaleY: 0 }}
+            animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+            className="w-1 flex-grow bg-gradient-to-b from-current to-border origin-top mt-4"
+            style={{ color: index === 0 ? '#f97316' : index === 1 ? '#7c3aed' : '#059669' }}
+          />
+        )}
+      </div>
+
+      {/* Content card */}
+      <motion.article
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className={`flex-1 bg-card rounded-2xl p-6 md:p-8 border-2 ${step.borderColor} shadow-lg hover:shadow-xl transition-shadow duration-300`}
+      >
+        {/* Header */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <span className={`${step.badgeBg} ${step.badgeText} px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider`}>
+            {step.badge}
+          </span>
+          <span className="text-muted-foreground text-sm">
+            {step.step}
+          </span>
         </div>
-      </div>
 
-      {/* Badge */}
-      <div className="flex justify-center mb-4">
-        <span className={`${step.badgeBg} ${step.badgeText} px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider`}>
-          {step.badge}
-        </span>
-      </div>
+        {/* Title */}
+        <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4">
+          {step.title}
+        </h3>
 
-      {/* Title */}
-      <h3 className="text-2xl font-bold text-foreground text-center mb-4">
-        {step.title}
-      </h3>
+        {/* Description */}
+        <div className="text-muted-foreground text-sm leading-relaxed">
+          <p className="mb-4">{step.description}</p>
+          
+          <ul className="space-y-2 mb-4">
+            {step.benefits.map((benefit, idx) => (
+              <li key={idx} className="flex items-start gap-2">
+                <CheckCircle className={`h-4 w-4 flex-shrink-0 mt-0.5 ${step.badgeText}`} />
+                <span className="text-foreground/80">{benefit}</span>
+              </li>
+            ))}
+          </ul>
+          
+          <p className="text-foreground/70 font-medium">{step.conclusion}</p>
+        </div>
 
-      {/* Description */}
-      <div className="text-muted-foreground text-sm leading-relaxed flex-grow">
-        <p className="mb-4">{step.description}</p>
-        
-        <ul className="space-y-2 mb-4">
-          {step.benefits.map((benefit, idx) => (
-            <li key={idx} className="flex items-start gap-2">
-              <CheckCircle className={`h-4 w-4 flex-shrink-0 mt-0.5 ${step.badgeText}`} />
-              <span className="text-foreground/80">{benefit}</span>
-            </li>
-          ))}
-        </ul>
-        
-        <p className="text-foreground/70">{step.conclusion}</p>
-      </div>
-
-      {/* Step indicator */}
-      <div className="mt-6 pt-4 border-t border-border text-center">
-        <span className="text-secondary font-semibold text-sm block">{step.step}</span>
-        <span className="text-muted-foreground text-xs">{step.stepLabel}</span>
-      </div>
-    </motion.article>
+        {/* Step label */}
+        <div className="mt-4 pt-4 border-t border-border">
+          <span className="text-secondary font-semibold text-sm">{step.stepLabel}</span>
+        </div>
+      </motion.article>
+    </motion.div>
   );
 }
 
 export function CustomerJourney() {
-  const lineRef = useRef(null);
-  const lineInView = useInView(lineRef, { once: true, margin: "-100px" });
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  const progressHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"]);
 
   const whatsappMessage = encodeURIComponent(
     "Olá! Vim pelo site e gostaria de entender melhor como funciona a jornada de clientes na Contabilidade Zen. Podem me ajudar?"
   );
 
   return (
-    <section className="py-20 lg:py-28 bg-background">
+    <section ref={containerRef} className="py-20 lg:py-28 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -152,23 +186,27 @@ export function CustomerJourney() {
           </p>
         </div>
 
-        {/* Timeline connector line (desktop only) */}
-        <div ref={lineRef} className="hidden lg:block relative mb-8">
-          <div className="absolute top-1/2 left-[15%] right-[15%] h-1 bg-border rounded-full overflow-hidden">
+        {/* Timeline */}
+        <div className="max-w-3xl mx-auto relative">
+          {/* Background progress line */}
+          <div className="absolute left-8 md:left-10 top-0 bottom-0 w-1 bg-border rounded-full">
             <motion.div
-              initial={{ scaleX: 0 }}
-              animate={lineInView ? { scaleX: 1 } : { scaleX: 0 }}
-              transition={{ duration: 1, delay: 0.5, ease: "easeInOut" }}
-              className="h-full bg-gradient-to-r from-orange-500 via-violet-500 to-emerald-500 origin-left"
+              className="w-full bg-gradient-to-b from-orange-500 via-violet-500 to-emerald-500 rounded-full origin-top"
+              style={{ height: progressHeight }}
             />
           </div>
-        </div>
 
-        {/* Cards Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-6">
-          {journeySteps.map((step, index) => (
-            <JourneyCard key={step.id} step={step} index={index} />
-          ))}
+          {/* Timeline cards */}
+          <div className="relative">
+            {journeySteps.map((step, index) => (
+              <TimelineCard 
+                key={step.id} 
+                step={step} 
+                index={index} 
+                isLast={index === journeySteps.length - 1}
+              />
+            ))}
+          </div>
         </div>
 
         {/* CTA */}

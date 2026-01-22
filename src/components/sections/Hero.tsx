@@ -50,21 +50,21 @@ export function Hero() {
               </Button>
             </div>
 
-            {/* Social Proof */}
+            {/* Social Proof - Updated for competitive positioning */}
             <div className="flex items-center gap-6 pt-4 flex-wrap">
               <div className="flex items-center gap-2">
-                <span className="text-3xl font-bold text-secondary">100+</span>
-                <span className="text-sm text-muted-foreground">Clientes<br />atendidos</span>
+                <span className="text-3xl font-bold text-secondary">200+</span>
+                <span className="text-sm text-muted-foreground">Médicos<br />atendidos</span>
               </div>
               <div className="w-px h-12 bg-border"></div>
               <div className="flex items-center gap-2">
                 <span className="text-3xl font-bold text-secondary">10+</span>
-                <span className="text-sm text-muted-foreground">Anos de<br />experiência</span>
+                <span className="text-sm text-muted-foreground">Anos em<br />saúde</span>
               </div>
               <div className="w-px h-12 bg-border"></div>
               <div className="flex items-center gap-2">
-                <span className="text-3xl font-bold text-secondary">98%</span>
-                <span className="text-sm text-muted-foreground">Satisfação<br />dos clientes</span>
+                <span className="text-3xl font-bold text-secondary">4.9</span>
+                <span className="text-sm text-muted-foreground">⭐ Nota no<br />Google</span>
               </div>
             </div>
           </div>

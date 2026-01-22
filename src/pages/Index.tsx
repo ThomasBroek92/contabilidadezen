@@ -7,7 +7,7 @@ import { MainServices } from "@/components/sections/MainServices";
 import { CustomerJourney } from "@/components/sections/CustomerJourney";
 import { Benefits } from "@/components/sections/Benefits";
 import { WhySpecialized } from "@/components/sections/WhySpecialized";
-import { TaxCalculator } from "@/components/sections/TaxCalculator";
+
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Pricing } from "@/components/sections/Pricing";
 import { FAQ } from "@/components/sections/FAQ";
@@ -76,10 +76,6 @@ const Index = () => {
           
           <ScrollAnimation delay={0.1}>
             <WhySpecialized />
-          </ScrollAnimation>
-          
-          <ScrollAnimation>
-            <TaxCalculator />
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>

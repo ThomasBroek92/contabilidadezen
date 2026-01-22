@@ -224,48 +224,6 @@ export function CitiesWordCloud() {
           </motion.div>
         </AnimatePresence>
       </div>
-
-      {/* Stats with animation */}
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="flex justify-center gap-8 text-center"
-      >
-        <motion.div
-          key={`cities-${activeFilter}`}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="flex flex-col items-center"
-        >
-          <motion.p 
-            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
-            key={`count-${filteredCities.length}`}
-            initial={{ y: -10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-          >
-            {filteredCities.length}+
-          </motion.p>
-          <p className="text-sm text-muted-foreground mt-1">cidades</p>
-        </motion.div>
-        
-        <div className="w-px bg-gradient-to-b from-transparent via-border to-transparent" />
-        
-        <motion.div
-          key={`total-${activeFilter}`}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-col items-center"
-        >
-          <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-            {activeFilter === "rmc" ? "20" : activeFilter === "sul-sudeste" ? "65" : "75"}+
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {activeFilter === "rmc" ? "na RMC" : "atendidas"}
-          </p>
-        </motion.div>
-      </motion.div>
     </div>
   );
 }

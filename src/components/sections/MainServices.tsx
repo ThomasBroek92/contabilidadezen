@@ -18,6 +18,7 @@ import {
   Sparkles,
   Star,
 } from "lucide-react";
+import { LeadGatedCalculator } from "./LeadGatedCalculator";
 
 const otherServices = [
   {
@@ -137,20 +138,9 @@ export function MainServices() {
                 </div>
               </div>
               
-              {/* Visual element */}
-              <div className="hidden lg:flex justify-center">
-                <div className="relative">
-                  <div className="w-64 h-64 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center">
-                    <FileCheck className="h-32 w-32 text-white" />
-                  </div>
-                  <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl p-4 shadow-lg">
-                    <div className="flex items-center gap-2">
-                      <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                      <span className="font-bold text-foreground">4.9</span>
-                      <span className="text-muted-foreground text-sm">no Google</span>
-                    </div>
-                  </div>
-                </div>
+              {/* Calculator - Lead Capture */}
+              <div className="lg:block">
+                <LeadGatedCalculator source="abertura-empresa-hero" />
               </div>
             </div>
           </div>

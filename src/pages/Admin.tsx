@@ -56,7 +56,16 @@ export default function Admin() {
   const { user, loading, roles, signOut, isAdmin, canViewLeads } = useAuth();
   const { toast } = useToast();
   const [collapsed, setCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabId>('analytics');
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
+    // Recuperar tab salva ou usar analytics como padrão
+    const saved = sessionStorage.getItem('admin-active-tab');
+    return (saved as TabId) || 'analytics';
+  });
+
+  // Persistir tab ativa
+  useEffect(() => {
+    sessionStorage.setItem('admin-active-tab', activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -190,9 +199,14 @@ export default function Admin() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setActiveTab(item.id);
+                }}
+                type="button"
                 className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                  "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors cursor-pointer",
                   isActive 
                     ? "bg-muted font-medium text-foreground" 
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"

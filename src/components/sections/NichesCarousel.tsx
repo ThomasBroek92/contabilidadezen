@@ -39,7 +39,8 @@ const niches = [
       "Fator R otimizado",
     ],
     href: "/medicos",
-    gradient: "from-secondary to-secondary/70",
+    // Verde-azulado: saúde, bem-estar, confiança médica
+    gradient: "from-teal-600 to-teal-500",
   },
   {
     icon: Scale,
@@ -52,7 +53,8 @@ const niches = [
       "Planejamento sucessório",
     ],
     href: "/contato",
-    gradient: "from-primary to-primary/70",
+    // Azul escuro/marinho: autoridade, justiça, profissionalismo
+    gradient: "from-slate-800 to-slate-700",
   },
   {
     icon: Briefcase,
@@ -65,7 +67,8 @@ const niches = [
       "Lucro Presumido otimizado",
     ],
     href: "/contato",
-    gradient: "from-emerald-600 to-emerald-600/70",
+    // Laranja: vendas, energia, dinamismo comercial
+    gradient: "from-orange-500 to-orange-400",
   },
   {
     icon: Play,
@@ -78,7 +81,8 @@ const niches = [
       "Faturamento internacional",
     ],
     href: "/contato",
-    gradient: "from-violet-600 to-violet-600/70",
+    // Roxo/violeta: digital, criatividade, inovação
+    gradient: "from-purple-600 to-purple-500",
   },
   {
     icon: Code,
@@ -91,7 +95,8 @@ const niches = [
       "Startup e investimentos",
     ],
     href: "/contato",
-    gradient: "from-cyan-600 to-cyan-600/70",
+    // Ciano/azul elétrico: tecnologia, inovação, digital
+    gradient: "from-cyan-600 to-cyan-500",
   },
   {
     icon: Globe,
@@ -104,7 +109,8 @@ const niches = [
       "Câmbio e compliance",
     ],
     href: "/contato",
-    gradient: "from-blue-500 to-blue-500/70",
+    // Azul royal: internacional, corporativo, confiança global
+    gradient: "from-blue-600 to-blue-500",
   },
   {
     icon: Wrench,
@@ -117,7 +123,8 @@ const niches = [
       "Otimização de pró-labore",
     ],
     href: "/contato",
-    gradient: "from-emerald-700 to-emerald-700/70",
+    // Âmbar/dourado: versatilidade, acessibilidade, profissionalismo
+    gradient: "from-amber-600 to-amber-500",
   },
   {
     icon: UserCheck,
@@ -130,7 +137,8 @@ const niches = [
       "Planejamento tributário PJ",
     ],
     href: "/contato",
-    gradient: "from-indigo-600 to-indigo-600/70",
+    // Índigo: corporativo, sério, profissional
+    gradient: "from-indigo-600 to-indigo-500",
   },
   {
     icon: ShoppingCart,
@@ -143,7 +151,8 @@ const niches = [
       "Substituição tributária",
     ],
     href: "/contato",
-    gradient: "from-pink-500 to-pink-500/70",
+    // Rosa/magenta: comércio, compras, energia (Shopee/ML)
+    gradient: "from-pink-600 to-pink-500",
   },
   {
     icon: Building2,
@@ -156,7 +165,8 @@ const niches = [
       "Sociedade médica",
     ],
     href: "/contato",
-    gradient: "from-teal-500 to-teal-500/70",
+    // Verde esmeralda: saúde institucional, médico, confiável
+    gradient: "from-emerald-600 to-emerald-500",
   },
   {
     icon: Video,
@@ -169,7 +179,8 @@ const niches = [
       "Direitos autorais",
     ],
     href: "/contato",
-    gradient: "from-red-500 to-red-500/70",
+    // Vermelho: YouTube, energia, paixão, criatividade
+    gradient: "from-red-600 to-red-500",
   },
   {
     icon: LayoutGrid,
@@ -182,7 +193,8 @@ const niches = [
       "Fotógrafos e Videomakers",
     ],
     href: "/contato",
-    gradient: "from-gray-600 to-gray-600/70",
+    // Cinza ardósia: neutro, versátil, acolhedor
+    gradient: "from-slate-600 to-slate-500",
   },
 ];
 

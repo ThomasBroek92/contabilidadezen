@@ -240,13 +240,7 @@ export function HeroMultiNiche() {
                   y: -4,
                 }}
               >
-                <motion.div
-                  initial={{ rotate: 0 }}
-                  whileHover={{ rotate: [0, -10, 10, 0] }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <card.icon className="h-8 w-8 text-secondary mb-3" />
-                </motion.div>
+                <card.icon className="h-8 w-8 text-secondary mb-3" />
                 <h3 className="font-semibold text-foreground text-sm mb-1">{card.title}</h3>
                 <p className="text-muted-foreground text-xs">{card.description}</p>
               </motion.div>

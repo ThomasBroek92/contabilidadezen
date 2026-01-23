@@ -252,17 +252,18 @@ export function NichesCarousel() {
                     <HoverLift lift={8} className="h-full">
                       <div 
                         className={`group relative h-[420px] rounded-2xl overflow-hidden ${!niche.backgroundImage ? `bg-gradient-to-br ${niche.gradient}` : ''} p-6 flex flex-col justify-between transition-all duration-300`}
+                        style={{ isolation: 'isolate' }}
                       >
                         {/* Background Image with Gradient Overlay from bottom */}
                         {niche.backgroundImage && (
-                          <>
+                          <div className="absolute inset-0 overflow-hidden rounded-2xl">
                             <img 
                               src={niche.backgroundImage} 
                               alt="" 
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-orange-600 via-orange-500/60 to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300" />
-                          </>
+                          </div>
                         )}
                         
                         {/* Icon - always at top */}

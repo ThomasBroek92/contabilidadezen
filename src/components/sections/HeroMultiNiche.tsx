@@ -46,22 +46,22 @@ const stats = [
 
 export function HeroMultiNiche() {
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-secondary via-primary to-primary-foreground overflow-visible pb-12">
+    <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/30 to-muted/50 overflow-visible pb-12">
       {/* Background pattern with parallax */}
-      <Parallax speed={0.3} direction="down" className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent rounded-full blur-3xl" />
+      <Parallax speed={0.3} direction="down" className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary rounded-full blur-3xl" />
       </Parallax>
 
       <div className="container mx-auto px-4 py-16 lg:py-24 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
           {/* Content - Left Side */}
-          <StaggerContainer className="space-y-8 text-white" staggerDelay={0.15}>
+          <StaggerContainer className="space-y-8" staggerDelay={0.15}>
             {/* Badge */}
             <StaggerItem type="slide">
               <motion.div 
-                className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-white/20"
-                animate={{ boxShadow: ["0 0 0 0 rgba(255,255,255,0.2)", "0 0 0 8px rgba(255,255,255,0)", "0 0 0 0 rgba(255,255,255,0)"] }}
+                className="inline-flex items-center gap-2 bg-secondary/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-secondary/20 text-foreground"
+                animate={{ boxShadow: ["0 0 0 0 rgba(0,128,128,0.2)", "0 0 0 8px rgba(0,128,128,0)", "0 0 0 0 rgba(0,128,128,0)"] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
               >
                 <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
@@ -71,9 +71,9 @@ export function HeroMultiNiche() {
 
             {/* Headline */}
             <StaggerItem type="hybrid">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
                 Economize até{" "}
-                <span className="text-accent">50% em impostos</span>
+                <span className="text-secondary">50% em impostos</span>
                 <br />
                 com especialistas que entendem seu negócio
               </h1>
@@ -81,10 +81,10 @@ export function HeroMultiNiche() {
 
             {/* Subheadline */}
             <StaggerItem type="slide">
-              <p className="text-lg md:text-xl text-white/80 max-w-xl leading-relaxed">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
                 Mais de 500 profissionais e empresas em todo Brasil já reduziram sua carga tributária 
                 com nossa contabilidade digital nichada.{" "}
-                <span className="font-semibold text-white">100% online, 0% burocracia.</span>
+                <span className="font-semibold text-foreground">100% online, 0% burocracia.</span>
               </p>
             </StaggerItem>
 
@@ -104,11 +104,11 @@ export function HeroMultiNiche() {
                       animate={{ rotate: [0, -5, 5, 0] }}
                       transition={{ duration: 0.5, delay: 1 + index * 0.2 }}
                     >
-                      <stat.icon className="h-6 w-6 text-accent" />
+                      <stat.icon className="h-6 w-6 text-secondary" />
                     </motion.div>
                     <div>
-                      <span className="text-2xl md:text-3xl font-bold text-white">{stat.value}</span>
-                      <p className="text-xs text-white/70">{stat.label}</p>
+                      <span className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</span>
+                      <p className="text-xs text-muted-foreground">{stat.label}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -130,7 +130,8 @@ export function HeroMultiNiche() {
                 </Button>
                 <Button 
                   size="xl" 
-                  variant="hero-outline"
+                  variant="outline"
+                  className="border-secondary text-secondary hover:bg-secondary hover:text-white"
                   asChild
                 >
                   <a 
@@ -232,10 +233,10 @@ export function HeroMultiNiche() {
           {benefitCards.map((card, index) => (
             <StaggerItem key={index} type="scale">
               <motion.div
-                className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 transition-all duration-300"
+                className="bg-secondary/10 backdrop-blur-sm border border-secondary/20 rounded-xl p-4 transition-all duration-300"
                 whileHover={{ 
                   scale: 1.03, 
-                  backgroundColor: "rgba(255,255,255,0.2)",
+                  backgroundColor: "rgba(0,128,128,0.15)",
                   y: -4,
                 }}
               >
@@ -244,10 +245,10 @@ export function HeroMultiNiche() {
                   whileHover={{ rotate: [0, -10, 10, 0] }}
                   transition={{ duration: 0.4 }}
                 >
-                  <card.icon className="h-8 w-8 text-accent mb-3" />
+                  <card.icon className="h-8 w-8 text-secondary mb-3" />
                 </motion.div>
-                <h3 className="font-semibold text-white text-sm mb-1">{card.title}</h3>
-                <p className="text-white/70 text-xs">{card.description}</p>
+                <h3 className="font-semibold text-foreground text-sm mb-1">{card.title}</h3>
+                <p className="text-muted-foreground text-xs">{card.description}</p>
               </motion.div>
             </StaggerItem>
           ))}

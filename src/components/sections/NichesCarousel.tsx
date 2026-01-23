@@ -36,6 +36,7 @@ import ecommerceBg from "@/assets/ecommerce-bg.jpg";
 import profissionaisPjBg from "@/assets/profissionais-pj-bg.jpg";
 import prestadoresServicoBg from "@/assets/prestadores-servico-bg.jpg";
 import produtoresDigitaisBg from "@/assets/produtores-digitais-bg.jpg";
+import profissionaisTiBg from "@/assets/profissionais-ti-bg.jpg";
 
 const niches = [
   {
@@ -99,14 +100,14 @@ const niches = [
     title: "PROFISSIONAIS DE TI",
     subtitle: "Desenvolvedores e Tech",
     features: [
-      "PJ para empresas brasileiras",
-      "Exportação de software",
-      "Regime de caixa ou competência",
-      "Startup e investimentos",
+      "Enquadramento correto",
+      "Fator R estratégico",
+      "Otimização de pró-labore",
     ],
     href: "/contato",
     // Ciano/azul elétrico: tecnologia, inovação, digital
     gradient: "from-cyan-600 to-cyan-500",
+    backgroundImage: profissionaisTiBg,
   },
   {
     icon: Globe,
@@ -276,7 +277,7 @@ export function NichesCarousel() {
                               alt="" 
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                            <div className={`absolute inset-0 bg-gradient-to-t ${niche.title === "ADVOGADOS" ? "from-slate-800 via-slate-700/60" : niche.title === "PROFISSIONAIS DA SAÚDE" ? "from-teal-600 via-teal-500/60" : niche.title === "OUTROS SEGMENTOS" ? "from-slate-600 via-slate-500/60" : niche.title === "YOUTUBERS E CREATORS" ? "from-red-600 via-red-500/60" : niche.title === "CLÍNICAS E CONSULTÓRIOS" ? "from-emerald-600 via-emerald-500/60" : niche.title === "E-COMMERCE" ? "from-pink-600 via-pink-500/60" : niche.title === "PRESTADORES DE SERVIÇOS" ? "from-amber-600 via-amber-500/60" : niche.title === "PROFISSIONAIS PJs" ? "from-indigo-600 via-indigo-500/60" : niche.title === "PRODUTORES DIGITAIS" ? "from-purple-600 via-purple-500/60" : "from-orange-600 via-orange-500/60"} to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300`} />
+                            <div className={`absolute inset-0 bg-gradient-to-t ${niche.title === "ADVOGADOS" ? "from-slate-800 via-slate-700/60" : niche.title === "PROFISSIONAIS DA SAÚDE" ? "from-teal-600 via-teal-500/60" : niche.title === "OUTROS SEGMENTOS" ? "from-slate-600 via-slate-500/60" : niche.title === "YOUTUBERS E CREATORS" ? "from-red-600 via-red-500/60" : niche.title === "CLÍNICAS E CONSULTÓRIOS" ? "from-emerald-600 via-emerald-500/60" : niche.title === "E-COMMERCE" ? "from-pink-600 via-pink-500/60" : niche.title === "PRESTADORES DE SERVIÇOS" ? "from-amber-600 via-amber-500/60" : niche.title === "PROFISSIONAIS PJs" ? "from-indigo-600 via-indigo-500/60" : niche.title === "PRODUTORES DIGITAIS" ? "from-purple-600 via-purple-500/60" : niche.title === "PROFISSIONAIS DE TI" ? "from-cyan-600 via-cyan-500/60" : "from-orange-600 via-orange-500/60"} to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300`} />
                           </div>
                         )}
                         

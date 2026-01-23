@@ -52,24 +52,12 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:h-20">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img 
-            src={logoFull} 
-            alt="Contabilidade Zen" 
-            className="h-10 lg:h-12 w-auto" 
-            width={240}
-            height={48}
-            loading="eager"
-            decoding="async"
-          />
+          <img src={logoFull} alt="Contabilidade Zen" className="h-10 lg:h-12 w-auto" width={240} height={48} loading="eager" decoding="async" />
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-8">
-          {navLinks.slice(0, 2).map(link => (
-            <Link key={link.name} to={link.href} className={`text-sm font-medium transition-colors hover:text-secondary ${isActive(link.href) ? "text-secondary" : "text-foreground/80"}`}>
-              {link.name}
-            </Link>
-          ))}
+          {navLinks.slice(0, 2).map(link => {})}
           
           {/* Segmentos Dropdown */}
           <DropdownMenu>
@@ -112,22 +100,14 @@ export function Header() {
 
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            asChild
-            className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground animate-pulse"
-          >
+          <Button variant="outline" size="sm" asChild className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground animate-pulse">
             <Link to="/indique-e-ganhe">
               <Gift className="h-4 w-4" />
               Indique e Ganhe
             </Link>
           </Button>
           <Button variant="whatsapp" size="sm" asChild>
-            <a href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde." target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp
-            </a>
+            
           </Button>
           <Button variant="hero" size="sm" asChild>
             <Link to="/abrir-empresa">Abrir Empresa Grátis</Link>
@@ -178,11 +158,7 @@ export function Header() {
               </Link>)}
             
             <div className="flex flex-col gap-3 pt-4 border-t border-border">
-              <Button 
-                variant="outline" 
-                asChild
-                className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground"
-              >
+              <Button variant="outline" asChild className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground">
                 <Link to="/indique-e-ganhe" onClick={() => setIsMenuOpen(false)}>
                   <Gift className="h-4 w-4" />
                   Indique e Ganhe

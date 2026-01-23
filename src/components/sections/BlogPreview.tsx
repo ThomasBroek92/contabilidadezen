@@ -39,10 +39,10 @@ export function BlogPreview() {
             <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
               Blog
             </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 text-foreground">
-              Conteúdo para{" "}
-              <span className="text-gradient">profissionais da saúde</span>
-            </h2>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 text-foreground">
+            Artigos que{" "}
+            <span className="text-gradient">transformam e empoderam!</span>
+          </h2>
           </div>
           <Button variant="zen-outline" asChild>
             <Link to="/blog">

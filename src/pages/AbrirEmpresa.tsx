@@ -2,13 +2,13 @@ import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AbrirEmpresaHero } from "@/components/abrir-empresa/AbrirEmpresaHero";
+import { AbrirEmpresaVirtualOffice } from "@/components/abrir-empresa/AbrirEmpresaVirtualOffice";
 import { AbrirEmpresaComparison } from "@/components/abrir-empresa/AbrirEmpresaComparison";
 import { AbrirEmpresaPricing } from "@/components/abrir-empresa/AbrirEmpresaPricing";
 import { AbrirEmpresaBenefits } from "@/components/abrir-empresa/AbrirEmpresaBenefits";
 import { AbrirEmpresaTimeline } from "@/components/abrir-empresa/AbrirEmpresaTimeline";
 import { AbrirEmpresaLeadForm } from "@/components/abrir-empresa/AbrirEmpresaLeadForm";
 import { AbrirEmpresaCTA } from "@/components/abrir-empresa/AbrirEmpresaCTA";
-
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -63,6 +63,7 @@ export default function AbrirEmpresa() {
       
       <main>
         <AbrirEmpresaHero />
+        <AbrirEmpresaVirtualOffice />
         <AbrirEmpresaLeadForm />
         <AbrirEmpresaComparison />
         <AbrirEmpresaPricing />

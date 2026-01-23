@@ -27,6 +27,7 @@ import {
 import { StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/scroll-animation";
 import { motion } from "framer-motion";
 import representanteComercialBg from "@/assets/representante-comercial-bg.jpg";
+import advogadosBg from "@/assets/advogados-bg.jpg";
 
 const niches = [
   {
@@ -56,6 +57,7 @@ const niches = [
     href: "/contato",
     // Azul escuro/marinho: autoridade, justiça, profissionalismo
     gradient: "from-slate-800 to-slate-700",
+    backgroundImage: advogadosBg,
   },
   {
     icon: Briefcase,
@@ -262,7 +264,7 @@ export function NichesCarousel() {
                               alt="" 
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-orange-600 via-orange-500/60 to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300" />
+                            <div className={`absolute inset-0 bg-gradient-to-t ${niche.title === "ADVOGADOS" ? "from-slate-800 via-slate-700/60" : "from-orange-600 via-orange-500/60"} to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300`} />
                           </div>
                         )}
                         

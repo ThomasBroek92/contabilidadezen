@@ -236,14 +236,14 @@ export function PJCalculatorSection() {
   const whatsappLink = `https://wa.me/5519974158342?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
-    <section className="py-20 lg:py-28 bg-gradient-to-b from-muted/30 to-background">
+    <section className="py-12 lg:py-16 bg-gradient-to-b from-muted/30 to-background">
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center max-w-3xl mx-auto mb-12"
+          className="text-center max-w-3xl mx-auto mb-8"
         >
           <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
             CALCULADORA GRATUITA
@@ -265,7 +265,7 @@ export function PJCalculatorSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
-          className="max-w-4xl mx-auto mb-16"
+          className="max-w-4xl mx-auto mb-10"
         >
           <Card className="border-border shadow-card">
             <CardContent className="p-6 md:p-8">

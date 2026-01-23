@@ -30,6 +30,7 @@ import representanteComercialBg from "@/assets/representante-comercial-bg.jpg";
 import advogadosBg from "@/assets/advogados-bg.jpg";
 import profissionaisSaudeBg from "@/assets/profissionais-saude-bg.jpg";
 import outrosSegmentosBg from "@/assets/outros-segmentos-bg.jpg";
+import youtubersBg from "@/assets/youtubers-creators-bg.jpg";
 
 const niches = [
   {
@@ -184,6 +185,7 @@ const niches = [
     href: "/contato",
     // Vermelho: YouTube, energia, paixão, criatividade
     gradient: "from-red-600 to-red-500",
+    backgroundImage: youtubersBg,
   },
   {
     icon: LayoutGrid,
@@ -266,7 +268,7 @@ export function NichesCarousel() {
                               alt="" 
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                            <div className={`absolute inset-0 bg-gradient-to-t ${niche.title === "ADVOGADOS" ? "from-slate-800 via-slate-700/60" : niche.title === "PROFISSIONAIS DA SAÚDE" ? "from-teal-600 via-teal-500/60" : niche.title === "OUTROS SEGMENTOS" ? "from-slate-600 via-slate-500/60" : "from-orange-600 via-orange-500/60"} to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300`} />
+                            <div className={`absolute inset-0 bg-gradient-to-t ${niche.title === "ADVOGADOS" ? "from-slate-800 via-slate-700/60" : niche.title === "PROFISSIONAIS DA SAÚDE" ? "from-teal-600 via-teal-500/60" : niche.title === "OUTROS SEGMENTOS" ? "from-slate-600 via-slate-500/60" : niche.title === "YOUTUBERS E CREATORS" ? "from-red-600 via-red-500/60" : "from-orange-600 via-orange-500/60"} to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300`} />
                           </div>
                         )}
                         

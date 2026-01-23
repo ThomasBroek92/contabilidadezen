@@ -251,7 +251,7 @@ export function NichesCarousel() {
                   >
                     <HoverLift lift={8} className="h-full">
                       <div 
-                        className={`group relative h-[420px] rounded-2xl overflow-hidden ${!niche.backgroundImage ? `bg-gradient-to-br ${niche.gradient}` : ''} p-6 flex flex-col justify-between transition-all duration-300`}
+                        className={`group relative h-[420px] rounded-2xl overflow-hidden ${!niche.backgroundImage ? `bg-gradient-to-br ${niche.gradient}` : ''} p-6 flex flex-col justify-between transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-black/25`}
                         style={{ isolation: 'isolate' }}
                       >
                         {/* Background Image with Gradient Overlay from bottom */}

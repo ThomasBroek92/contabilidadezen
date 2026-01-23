@@ -63,7 +63,7 @@ export function ScrollAnimation({
       transition={{
         duration,
         delay,
-        ease: [0.25, 0.1, 0.25, 1],
+        ease: [0.25, 0.1, 0.25, 1] as const,
       }}
       className={className}
     >
@@ -225,7 +225,7 @@ export function HoverLift({ children, className = "", lift = 4 }: HoverLiftProps
         y: -lift,
         transition: { duration: 0.2 },
       }}
-      className={className}
+      className={`relative hover:z-30 focus-within:z-30 ${className}`}
     >
       {children}
     </motion.div>

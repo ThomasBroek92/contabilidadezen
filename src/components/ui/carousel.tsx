@@ -135,11 +135,22 @@ const CarouselContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
   ({ className, ...props }, ref) => {
     const { carouselRef, orientation } = useCarousel();
 
+    // NOTE: Embla's viewport uses overflow hidden (required for carousel behavior).
+    // To avoid cards being visually clipped when they "lift" on hover,
+    // we add extra top padding to the viewport and offset the track back up.
+    const hoverLiftPad = orientation === "horizontal" ? "pt-10" : "";
+    const hoverLiftOffset = orientation === "horizontal" ? "-mt-10" : "";
+
     return (
-      <div ref={carouselRef} className="overflow-hidden">
+      <div ref={carouselRef} className={cn("overflow-hidden", hoverLiftPad)}>
         <div
           ref={ref}
-          className={cn("flex", orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col", className)}
+          className={cn(
+            "flex",
+            hoverLiftOffset,
+            orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
+            className,
+          )}
           {...props}
         />
       </div>

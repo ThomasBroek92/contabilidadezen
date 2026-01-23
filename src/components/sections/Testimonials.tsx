@@ -172,8 +172,8 @@ export function Testimonials() {
   };
 
   return (
-    <section ref={sectionRef} className="py-16 lg:py-24 bg-background overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section ref={sectionRef} className="py-16 lg:py-24 bg-background overflow-visible relative">
+      <div className="container mx-auto px-4 overflow-visible">
         {/* Header */}
         <StaggerContainer className="text-center max-w-3xl mx-auto mb-12 lg:mb-16" staggerDelay={0.1}>
           <StaggerItem type="slide">

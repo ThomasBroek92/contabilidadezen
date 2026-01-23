@@ -23,6 +23,8 @@ import {
   LayoutGrid,
   ArrowRight,
 } from "lucide-react";
+import { StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/scroll-animation";
+import { motion } from "framer-motion";
 
 const niches = [
   {
@@ -175,92 +177,108 @@ export function NichesCarousel() {
     <section className="py-20 lg:py-28 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
-          <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
-            SOLUÇÕES ESPECIALIZADAS POR SEGMENTO
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 mb-6 text-foreground">
-            Encontre a contabilidade perfeita{" "}
-            <span className="text-gradient">para o seu tipo de negócio</span>
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Cada profissão tem particularidades únicas. Nossa equipe de especialistas 
-            entende as nuances tributárias e fiscais do seu segmento, garantindo 
-            máxima economia e conformidade.
-          </p>
-        </div>
+        <StaggerContainer className="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
+          <StaggerItem type="slide">
+            <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
+              SOLUÇÕES ESPECIALIZADAS POR SEGMENTO
+            </span>
+          </StaggerItem>
+          <StaggerItem type="hybrid">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 mb-6 text-foreground">
+              Encontre a contabilidade perfeita{" "}
+              <span className="text-gradient">para o seu tipo de negócio</span>
+            </h2>
+          </StaggerItem>
+          <StaggerItem type="slide">
+            <p className="text-lg text-muted-foreground">
+              Cada profissão tem particularidades únicas. Nossa equipe de especialistas 
+              entende as nuances tributárias e fiscais do seu segmento, garantindo 
+              máxima economia e conformidade.
+            </p>
+          </StaggerItem>
+        </StaggerContainer>
 
         {/* Carousel */}
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          plugins={[
-            Autoplay({
-              delay: 5000,
-              stopOnInteraction: true,
-            }),
-          ]}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-4">
-            {niches.map((niche, index) => (
-              <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                <div className="h-full">
-                  <div 
-                    className={`group relative h-[420px] rounded-2xl overflow-hidden bg-gradient-to-br ${niche.gradient} p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.02] hover:shadow-xl`}
+        <StaggerItem type="scale">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            plugins={[
+              Autoplay({
+                delay: 5000,
+                stopOnInteraction: true,
+              }),
+            ]}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4">
+              {niches.map((niche, index) => (
+                <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <motion.div 
+                    className="h-full"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.4 }}
+                    viewport={{ once: true }}
                   >
-                    {/* Icon */}
-                    <div>
-                      <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4">
-                        <niche.icon className="h-7 w-7 text-white" />
-                      </div>
-                      
-                      {/* Title */}
-                      <h3 className="text-lg font-bold text-white mb-1">{niche.title}</h3>
-                      <p className="text-white/80 text-sm mb-4">{niche.subtitle}</p>
-                      
-                      {/* Features */}
-                      <ul className="space-y-2">
-                        {niche.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-white/90 text-sm">
-                            <span className="text-white/60">•</span>
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    <HoverLift lift={8} className="h-full">
+                      <div 
+                        className={`group relative h-[420px] rounded-2xl overflow-hidden bg-gradient-to-br ${niche.gradient} p-6 flex flex-col justify-between transition-all duration-300`}
+                      >
+                        {/* Icon */}
+                        <div>
+                          <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <niche.icon className="h-7 w-7 text-white" />
+                          </div>
+                          
+                          {/* Title */}
+                          <h3 className="text-lg font-bold text-white mb-1">{niche.title}</h3>
+                          <p className="text-white/80 text-sm mb-4">{niche.subtitle}</p>
+                          
+                          {/* Features */}
+                          <ul className="space-y-2">
+                            {niche.features.map((feature, idx) => (
+                              <li key={idx} className="flex items-start gap-2 text-white/90 text-sm">
+                                <span className="text-white/60">•</span>
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
 
-                    {/* CTA */}
-                    <Button 
-                      variant="secondary" 
-                      className="w-full mt-4 bg-white/20 hover:bg-white/30 text-white border-white/20"
-                      asChild
-                    >
-                      <Link to={niche.href}>
-                        Saiba mais
-                        <ArrowRight className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden md:flex -left-4 bg-card border-border hover:bg-muted" />
-          <CarouselNext className="hidden md:flex -right-4 bg-card border-border hover:bg-muted" />
-        </Carousel>
+                        {/* CTA */}
+                        <Button 
+                          variant="secondary" 
+                          className="w-full mt-4 bg-white/20 hover:bg-white/30 text-white border-white/20 group-hover:bg-white/30"
+                          asChild
+                        >
+                          <Link to={niche.href}>
+                            Saiba mais
+                            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </HoverLift>
+                  </motion.div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex -left-4 bg-card border-border hover:bg-muted" />
+            <CarouselNext className="hidden md:flex -right-4 bg-card border-border hover:bg-muted" />
+          </Carousel>
+        </StaggerItem>
 
         {/* View All CTA */}
-        <div className="text-center mt-12">
-          <Button variant="zen-outline" size="lg" asChild>
+        <StaggerItem type="scale" className="text-center mt-12">
+          <Button variant="cta-glow" size="lg" asChild>
             <Link to="/servicos">
               Ver todos os segmentos
               <ArrowRight className="h-5 w-5" />
             </Link>
           </Button>
-        </div>
+        </StaggerItem>
       </div>
     </section>
   );

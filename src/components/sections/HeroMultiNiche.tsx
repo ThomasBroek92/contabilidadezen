@@ -13,6 +13,7 @@ import {
   Star
 } from "lucide-react";
 import { Parallax, StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
+import heroFounder from "@/assets/hero-founder.jpg";
 
 const benefitCards = [
   {
@@ -145,56 +146,54 @@ export function HeroMultiNiche() {
             </StaggerItem>
           </StaggerContainer>
 
-          {/* Right Side - Visual with Parallax */}
-          <Parallax speed={0.2} className="relative hidden lg:block">
-            <div className="relative w-full h-[600px]">
-              {/* Central circle */}
-              <motion.div 
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              >
-                <div className="text-center text-white">
-                  <motion.div 
-                    className="text-6xl font-bold mb-2"
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  >
-                    Zen
-                  </motion.div>
-                  <div className="text-sm opacity-80">Contabilidade Digital</div>
-                </div>
-              </motion.div>
+          {/* Right Side - Founder Image (inspired by AM Contabilidade) */}
+          <Parallax speed={0.2} className="relative hidden lg:flex items-center justify-center">
+            <motion.div 
+              className="relative"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              {/* Glow effect behind the image */}
+              <div className="absolute inset-0 bg-accent/20 rounded-full blur-3xl scale-75 translate-x-10" />
               
-              {/* Floating profession icons with enhanced animations */}
-              {[
-                { emoji: "🩺", className: "top-10 left-10", delay: 0 },
-                { emoji: "⚖️", className: "top-20 right-20", delay: 0.5 },
-                { emoji: "💻", className: "bottom-32 left-16", delay: 1 },
-                { emoji: "🎬", className: "bottom-20 right-10", delay: 1.5 },
-                { emoji: "🛒", className: "top-40 left-1/2", delay: 2 },
-              ].map((item, index) => (
-                <motion.div 
-                  key={index}
-                  className={`absolute ${item.className} w-16 h-16 bg-secondary/80 rounded-2xl flex items-center justify-center shadow-lg`}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ 
-                    scale: 1, 
-                    opacity: 1,
-                    y: [0, -10, 0],
-                  }}
-                  transition={{ 
-                    scale: { delay: 0.5 + item.delay * 0.2, duration: 0.4 },
-                    y: { delay: 1 + item.delay, duration: 3, repeat: Infinity, ease: "easeInOut" }
-                  }}
-                  whileHover={{ scale: 1.2, rotate: 5 }}
-                >
-                  <span className="text-2xl">{item.emoji}</span>
-                </motion.div>
-              ))}
-            </div>
+              {/* Main founder image */}
+              <motion.img
+                src={heroFounder}
+                alt="Fundador da Contabilidade Zen - Especialista em contabilidade para empresas"
+                className="relative z-10 w-full max-w-lg h-auto object-contain drop-shadow-2xl"
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+              />
+              
+              {/* Subtle decorative elements */}
+              <motion.div 
+                className="absolute -bottom-4 -left-4 w-24 h-24 bg-secondary/40 rounded-full blur-xl"
+                animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+              <motion.div 
+                className="absolute -top-4 -right-4 w-16 h-16 bg-accent/30 rounded-full blur-lg"
+                animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
+              />
+            </motion.div>
           </Parallax>
+
+          {/* Mobile: Founder image visible */}
+          <motion.div 
+            className="relative lg:hidden flex justify-center"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <img
+              src={heroFounder}
+              alt="Fundador da Contabilidade Zen"
+              className="w-64 h-auto object-contain drop-shadow-xl"
+            />
+          </motion.div>
         </div>
 
         {/* Benefit Cards - Bottom with stagger */}

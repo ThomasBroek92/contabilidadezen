@@ -22,6 +22,7 @@ import {
   Video,
   LayoutGrid,
   ArrowRight,
+  UserCheck,
 } from "lucide-react";
 import { StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/scroll-animation";
 import { motion } from "framer-motion";
@@ -117,6 +118,19 @@ const niches = [
     ],
     href: "/contato",
     gradient: "from-emerald-700 to-emerald-700/70",
+  },
+  {
+    icon: UserCheck,
+    title: "PROFISSIONAIS PJs",
+    subtitle: "Trabalhadores PJ e CLT→PJ",
+    features: [
+      "Enquadramento correto (Anexo III)",
+      "Fator R estratégico",
+      "Otimização de colaboradores",
+      "Planejamento tributário PJ",
+    ],
+    href: "/contato",
+    gradient: "from-indigo-600 to-indigo-600/70",
   },
   {
     icon: ShoppingCart,

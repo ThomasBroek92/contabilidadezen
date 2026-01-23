@@ -200,8 +200,8 @@ const niches = [
 
 export function NichesCarousel() {
   return (
-    <section className="py-20 lg:py-28 bg-background">
-      <div className="container mx-auto px-4">
+    <section className="py-20 lg:py-28 bg-background relative z-10 overflow-visible -mt-8 pt-28">
+      <div className="container mx-auto px-4 overflow-visible">
         {/* Header */}
         <StaggerContainer className="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
           <StaggerItem type="slide">

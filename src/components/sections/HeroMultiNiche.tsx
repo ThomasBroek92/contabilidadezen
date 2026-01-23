@@ -45,7 +45,7 @@ const stats = [
 
 export function HeroMultiNiche() {
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-secondary via-primary to-primary-foreground overflow-hidden">
+    <section className="relative min-h-screen bg-gradient-to-br from-secondary via-primary to-primary-foreground overflow-visible pb-12">
       {/* Background pattern with parallax */}
       <Parallax speed={0.3} direction="down" className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl" />

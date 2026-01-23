@@ -64,8 +64,6 @@ const niches = [
     features: [
       "Registro no CORE",
       "Múltiplas representadas",
-      "Comissões e reembolsos",
-      "Lucro Presumido otimizado",
     ],
     href: "/contato",
     // Laranja: vendas, energia, dinamismo comercial

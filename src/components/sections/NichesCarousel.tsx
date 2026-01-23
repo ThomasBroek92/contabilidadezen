@@ -51,8 +51,6 @@ const niches = [
     features: [
       "Simples Nacional vs Lucro Presumido",
       "Sociedade de advogados (OAB)",
-      "Gestão de honorários",
-      "Planejamento sucessório",
     ],
     href: "/contato",
     // Azul escuro/marinho: autoridade, justiça, profissionalismo

@@ -257,44 +257,44 @@ export const homePageSchema = {
 
 // FAQ data for reuse across components and schema
 export const homeFAQs = [
+  // BLOCO 1 - CONTABILIDADE DIGITAL
   {
-    question: "Vale a pena abrir empresa (PJ) como médico?",
-    answer: "Na maioria dos casos, sim! Como pessoa física, médicos podem pagar até 27,5% de Imposto de Renda. Como PJ, com planejamento tributário adequado, esse valor pode cair para 6% a 15%, dependendo do faturamento e regime escolhido. Fazemos uma análise personalizada para cada caso.",
+    question: "O que é contabilidade digital e como ela funciona?",
+    answer: "Contabilidade digital é um modelo 100% online onde você gerencia toda a contabilidade da sua empresa pela internet, sem precisar ir ao escritório. Através de uma plataforma exclusiva, você envia documentos, acompanha impostos, emite notas fiscais e recebe atendimento especializado via WhatsApp. É mais ágil, econômico e transparente que a contabilidade tradicional.",
   },
   {
-    question: "Qual o melhor regime tributário para dentistas?",
-    answer: "Depende do seu faturamento e estrutura de custos. Para dentistas com faturamento até R$ 81.000/ano, o MEI pode ser interessante. Acima disso, o Simples Nacional com otimização do Fator R geralmente é a melhor opção, permitindo pagar apenas 6% de impostos.",
+    question: "Como funciona o atendimento na contabilidade digital?",
+    answer: "Nosso atendimento é feito principalmente via WhatsApp durante horário comercial (9h-18h, seg-sex), com tempo médio de resposta de 2 horas. Você terá um contador dedicado que conhece seu negócio, acesso ao portal do cliente 24/7 e pode agendar reuniões online sempre que precisar. Simples, rápido e humanizado.",
+  },
+  // BLOCO 2 - ABERTURA E MIGRAÇÃO
+  {
+    question: "Quanto tempo leva para abrir uma empresa?",
+    answer: "O processo completo leva de 5 a 10 dias úteis, dependendo da cidade e tipo de empresa. Cuidamos de tudo: análise de viabilidade, registro na Junta Comercial, CNPJ, inscrições municipais e estaduais, alvarás e licenças. Tudo 100% digital e você acompanha cada etapa pelo nosso sistema.",
   },
   {
-    question: "O que é Fator R e como ele reduz meus impostos?",
-    answer: "O Fator R é a razão entre a folha de pagamento (incluindo pró-labore) e a receita bruta dos últimos 12 meses. Se esse valor for maior que 28%, empresas no Simples Nacional pagam impostos pelo Anexo III (6%) ao invés do Anexo V (15,5%). Nós fazemos esse monitoramento mensalmente para garantir a menor tributação possível.",
+    question: "Posso migrar minha contabilidade sem problemas?",
+    answer: "Sim! A migração é 100% gratuita e sem complicações. Cuidamos de toda a comunicação com seu contador atual, solicitamos os documentos necessários e fazemos a transição sem interromper suas operações. O processo leva em média 15 dias e você não precisa se preocupar com nada.",
   },
   {
-    question: "Como funciona a contabilidade 100% online?",
-    answer: "Todo o processo é digital: você envia documentos pelo nosso aplicativo ou WhatsApp, recebe guias de pagamento e relatórios no celular, e tem suporte via chat com especialistas. Você não precisa sair do consultório para nada relacionado à contabilidade.",
+    question: "Precisarei abrir conta bancária específica?",
+    answer: "Não é obrigatório abrir uma nova conta, mas recomendamos ter uma conta PJ separada da pessoa física para melhor organização financeira e controle contábil. Isso facilita a gestão, evita mistura de patrimônios e simplifica a prestação de contas. Podemos orientar sobre as melhores opções do mercado.",
+  },
+  // BLOCO 3 - TRIBUTAÇÃO E ECONOMIA
+  {
+    question: "Como vocês ajudam a reduzir impostos legalmente?",
+    answer: "Fazemos um planejamento tributário estratégico analisando seu faturamento, atividades e despesas. Identificamos o melhor regime tributário (Simples Nacional, Lucro Presumido ou Real), aplicamos o Fator R quando vantajoso, otimizamos o pró-labore e aproveitamos todos os benefícios fiscais legais. A economia pode chegar a 50% em impostos.",
   },
   {
-    question: "Posso migrar a contabilidade do meu consultório sem multa?",
-    answer: "Sim! A migração é um direito seu. Nós cuidamos de todo o processo: entramos em contato com seu contador atual, solicitamos toda a documentação necessária e fazemos a transição sem que você precise se preocupar com nada.",
+    question: "Atendem empresas de Lucro Presumido e Real?",
+    answer: "Sim! Atendemos empresas em todos os regimes tributários: Simples Nacional, Lucro Presumido e Lucro Real. Nossa equipe é especializada em cada modalidade e faz a análise completa para indicar qual é mais vantajoso para o seu negócio. Também cuidamos de todas as obrigações acessórias específicas de cada regime.",
+  },
+  // BLOCO 4 - SERVIÇOS E DIFERENCIAIS
+  {
+    question: "A sede virtual é gratuita?",
+    answer: "Sim! Oferecemos sede virtual gratuita para nossos clientes (consulte disponibilidade por cidade). Você usa nosso endereço comercial para registrar sua empresa, recebe correspondências e tem um espaço profissional sem custos de aluguel. Perfeito para quem trabalha home office ou não precisa de espaço físico.",
   },
   {
-    question: "Quanto tempo leva para abrir uma empresa médica?",
-    answer: "Com nosso processo 100% digital, a abertura de empresa é concluída em média em 7 a 15 dias úteis, incluindo CNPJ, Contrato Social, Inscrição Municipal, Alvará e registro no CRM. Fornecemos sede virtual gratuita para quem não tem endereço comercial.",
-  },
-  {
-    question: "Vocês fazem a DMED e outras obrigações específicas da saúde?",
-    answer: "Sim! Conhecemos todas as obrigações específicas dos profissionais da saúde: DMED, declarações aos conselhos de classe (CRM, CRO, CRP), REINF, eSocial e todas as demais. Você não precisa se preocupar com prazos - cuidamos de tudo.",
-  },
-  {
-    question: "Atendem clínicas com funcionários?",
-    answer: "Sim! Temos planos específicos para clínicas com funcionários, incluindo gestão completa de folha de pagamento, eSocial, admissões, rescisões e todas as obrigações trabalhistas. Nosso plano Empresarial inclui até 3 funcionários no valor mensal.",
-  },
-  {
-    question: "O que está incluso na abertura de empresa gratuita?",
-    answer: "Inclui: elaboração do Contrato Social (geralmente SLU), registro na Junta Comercial, obtenção do CNPJ, Inscrição Municipal, Alvará de funcionamento e auxílio no registro junto ao conselho de classe. Também oferecemos sede virtual gratuita.",
-  },
-  {
-    question: "Como funciona o suporte ao cliente?",
-    answer: "Você tem acesso a especialistas por WhatsApp, e-mail e nosso aplicativo. O tempo médio de resposta é de 2 horas em dias úteis. No plano Empresarial, você tem um gerente de conta dedicado com atendimento prioritário.",
+    question: "Vocês fazem gestão financeira além da contabilidade?",
+    answer: "Sim! Oferecemos serviço de BPO Financeiro completo: gestão de contas a pagar e receber, conciliação bancária, relatórios gerenciais, fluxo de caixa e dashboard em tempo real. Assim você tem uma visão 360° das finanças da sua empresa e pode tomar decisões estratégicas baseadas em dados reais.",
   },
 ];

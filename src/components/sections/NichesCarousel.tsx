@@ -132,6 +132,7 @@ const niches = [
     href: "/contato",
     // Âmbar/dourado: versatilidade, acessibilidade, profissionalismo
     gradient: "from-amber-600 to-amber-500",
+    backgroundImage: profissionaisPjBg,
   },
   {
     icon: UserCheck,
@@ -146,7 +147,6 @@ const niches = [
     href: "/contato",
     // Índigo: corporativo, sério, profissional
     gradient: "from-indigo-600 to-indigo-500",
-    backgroundImage: profissionaisPjBg,
   },
   {
     icon: ShoppingCart,
@@ -274,7 +274,7 @@ export function NichesCarousel() {
                               alt="" 
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                            <div className={`absolute inset-0 bg-gradient-to-t ${niche.title === "ADVOGADOS" ? "from-slate-800 via-slate-700/60" : niche.title === "PROFISSIONAIS DA SAÚDE" ? "from-teal-600 via-teal-500/60" : niche.title === "OUTROS SEGMENTOS" ? "from-slate-600 via-slate-500/60" : niche.title === "YOUTUBERS E CREATORS" ? "from-red-600 via-red-500/60" : niche.title === "CLÍNICAS E CONSULTÓRIOS" ? "from-emerald-600 via-emerald-500/60" : niche.title === "E-COMMERCE" ? "from-pink-600 via-pink-500/60" : niche.title === "PROFISSIONAIS PJs" ? "from-indigo-600 via-indigo-500/60" : "from-orange-600 via-orange-500/60"} to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300`} />
+                            <div className={`absolute inset-0 bg-gradient-to-t ${niche.title === "ADVOGADOS" ? "from-slate-800 via-slate-700/60" : niche.title === "PROFISSIONAIS DA SAÚDE" ? "from-teal-600 via-teal-500/60" : niche.title === "OUTROS SEGMENTOS" ? "from-slate-600 via-slate-500/60" : niche.title === "YOUTUBERS E CREATORS" ? "from-red-600 via-red-500/60" : niche.title === "CLÍNICAS E CONSULTÓRIOS" ? "from-emerald-600 via-emerald-500/60" : niche.title === "E-COMMERCE" ? "from-pink-600 via-pink-500/60" : niche.title === "PRESTADORES DE SERVIÇOS" ? "from-amber-600 via-amber-500/60" : "from-orange-600 via-orange-500/60"} to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300`} />
                           </div>
                         )}
                         

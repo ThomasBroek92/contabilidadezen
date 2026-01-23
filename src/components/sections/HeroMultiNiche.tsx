@@ -175,14 +175,14 @@ export function HeroMultiNiche() {
 
                 {/* Name Card - Bottom */}
                 <motion.div 
-                  className="absolute bottom-0 left-0 right-0 bg-secondary/95 backdrop-blur-sm p-5"
+                  className="absolute bottom-0 left-0 right-0 bg-secondary/95 backdrop-blur-sm p-5 text-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8, duration: 0.5 }}
                 >
                   <p className="text-white font-bold text-lg">Thomas Broek</p>
-                  <p className="text-white/80 text-sm">Contador responsável e técnico</p>
-                  <p className="text-accent text-xs font-medium mt-1">CRC-SP 337693/O-7</p>
+                  <p className="text-white text-sm">Contador responsável e técnico</p>
+                  <p className="text-white text-xs font-medium mt-1">CRC-SP 337693/O-7</p>
                 </motion.div>
               </motion.div>
               
@@ -218,10 +218,10 @@ export function HeroMultiNiche() {
               <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 via-transparent to-transparent" />
 
               {/* Name Card mobile - Bottom */}
-              <div className="absolute bottom-0 left-0 right-0 bg-secondary/95 backdrop-blur-sm p-4">
+              <div className="absolute bottom-0 left-0 right-0 bg-secondary/95 backdrop-blur-sm p-4 text-center">
                 <p className="text-white font-bold text-sm">Thomas Broek</p>
-                <p className="text-white/80 text-xs">Contador responsável e técnico</p>
-                <p className="text-accent text-[10px] font-medium mt-0.5">CRC-SP 337693/O-7</p>
+                <p className="text-white text-xs">Contador responsável e técnico</p>
+                <p className="text-white text-[10px] font-medium mt-0.5">CRC-SP 337693/O-7</p>
               </div>
             </div>
           </motion.div>

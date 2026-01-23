@@ -20,7 +20,7 @@ const buttonVariants = cva(
         hero: "bg-gradient-to-r from-zen-teal to-zen-blue text-secondary-foreground hover:opacity-90 shadow-card hover:shadow-glow text-base hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         "hero-outline": "border-2 border-secondary bg-secondary/10 text-secondary hover:bg-secondary hover:text-secondary-foreground text-base hover:-translate-y-1",
         whatsapp: "bg-[hsl(142_70%_45%)] text-primary-foreground hover:bg-[hsl(142_70%_40%)] shadow-soft hover:-translate-y-0.5",
-        "cta-glow": "bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground shadow-lg hover:shadow-glow hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700 animate-[glow_3s_ease-in-out_infinite]",
+        "cta-glow": "bg-secondary text-secondary-foreground shadow-md hover:shadow-lg hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700 ring-2 ring-offset-2 ring-offset-background animate-border-glow",
       },
       size: {
         default: "h-10 px-4 py-2",

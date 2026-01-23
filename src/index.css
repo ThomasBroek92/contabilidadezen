@@ -230,6 +230,21 @@
   }
 }
 
+@keyframes border-glow {
+  0%, 100% {
+    --tw-ring-color: hsl(168 76% 42% / 0.6);
+    box-shadow: 0 0 8px hsl(168 76% 42% / 0.2);
+  }
+  50% {
+    --tw-ring-color: hsl(199 89% 48% / 0.7);
+    box-shadow: 0 0 12px hsl(199 89% 48% / 0.25);
+  }
+}
+
+.animate-border-glow {
+  animation: border-glow 3s ease-in-out infinite;
+}
+
 @keyframes shimmer {
   0% {
     transform: translateX(-100%);

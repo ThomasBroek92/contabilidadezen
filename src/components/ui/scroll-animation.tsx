@@ -216,16 +216,25 @@ interface HoverLiftProps {
   children: ReactNode;
   className?: string;
   lift?: number;
+  scale?: number;
 }
 
-export function HoverLift({ children, className = "", lift = 4 }: HoverLiftProps) {
+export function HoverLift({ 
+  children, 
+  className = "", 
+  lift = 4,
+  scale = 1.01,
+}: HoverLiftProps) {
   return (
     <motion.div
       whileHover={{
         y: -lift,
-        transition: { duration: 0.2 },
+        scale,
+        zIndex: 30,
+        transition: { duration: 0.25, ease: "easeOut" },
       }}
-      className={`relative hover:z-30 focus-within:z-30 ${className}`}
+      className={`relative ${className}`}
+      style={{ zIndex: 1 }}
     >
       {children}
     </motion.div>

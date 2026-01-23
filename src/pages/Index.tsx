@@ -89,7 +89,7 @@ const Index = () => {
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            <CTA />
+            
           </ScrollAnimation>
         </main>
         <Footer />

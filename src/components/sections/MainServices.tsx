@@ -17,6 +17,8 @@ import {
   ArrowRight,
   Sparkles,
   Star,
+  Gift,
+  Building2,
 } from "lucide-react";
 import { LeadGatedCalculator } from "./LeadGatedCalculator";
 
@@ -105,7 +107,7 @@ export function MainServices() {
                   com quem entende do assunto.
                 </p>
                 
-                <ul className="grid sm:grid-cols-2 gap-3 mb-8">
+                <ul className="grid sm:grid-cols-2 gap-3 mb-6">
                   {[
                     "Análise gratuita de viabilidade",
                     "Registro na Junta Comercial",
@@ -120,6 +122,26 @@ export function MainServices() {
                     </li>
                   ))}
                 </ul>
+
+                {/* Virtual Office Highlight */}
+                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 mb-6 border border-white/30 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-warning rounded-xl flex items-center justify-center shrink-0 animate-pulse">
+                    <Gift className="h-6 w-6 text-warning-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Building2 className="h-4 w-4 text-white" />
+                      <span className="font-bold text-white">Sede Virtual GRÁTIS!</span>
+                    </div>
+                    <p className="text-white/80 text-sm">
+                      Endereço comercial completo incluído para nossos clientes, sem custo adicional.
+                    </p>
+                  </div>
+                  <div className="hidden sm:block text-right shrink-0">
+                    <p className="text-white/60 text-xs line-through">R$ 99/mês</p>
+                    <p className="text-white font-bold text-lg">R$ 0</p>
+                  </div>
+                </div>
                 
                 <div className="flex flex-wrap items-center gap-4">
                   <Button 

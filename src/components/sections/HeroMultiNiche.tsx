@@ -173,28 +173,16 @@ export function HeroMultiNiche() {
                 {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 via-transparent to-transparent" />
 
-                {/* Card Overlay - Top Right */}
+                {/* Name Card - Bottom */}
                 <motion.div 
-                  className="absolute top-4 right-4 bg-secondary/95 backdrop-blur-sm rounded-xl p-5 shadow-lg"
-                  initial={{ opacity: 0, y: -20 }}
+                  className="absolute bottom-0 left-0 right-0 bg-secondary/95 backdrop-blur-sm p-5"
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8, duration: 0.5 }}
                 >
                   <p className="text-white font-bold text-lg">Thomas Broek</p>
                   <p className="text-white/80 text-sm">Contador responsável e técnico</p>
                   <p className="text-accent text-xs font-medium mt-1">CRC-SP 337693/O-7</p>
-                </motion.div>
-
-                {/* Motivational Quote - Bottom */}
-                <motion.div 
-                  className="absolute bottom-0 left-0 right-0 bg-secondary/80 backdrop-blur-sm p-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1, duration: 0.5 }}
-                >
-                  <p className="text-white text-xl md:text-2xl italic font-light leading-relaxed">
-                    "Simplificamos a vida de quem empreende no Brasil"
-                  </p>
                 </motion.div>
               </motion.div>
               
@@ -229,18 +217,11 @@ export function HeroMultiNiche() {
               {/* Gradient overlay mobile */}
               <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 via-transparent to-transparent" />
 
-              {/* Card Overlay mobile - Top Right */}
-              <div className="absolute top-3 right-3 bg-secondary/95 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+              {/* Name Card mobile - Bottom */}
+              <div className="absolute bottom-0 left-0 right-0 bg-secondary/95 backdrop-blur-sm p-4">
                 <p className="text-white font-bold text-sm">Thomas Broek</p>
-                <p className="text-white/80 text-xs">Contador responsável</p>
+                <p className="text-white/80 text-xs">Contador responsável e técnico</p>
                 <p className="text-accent text-[10px] font-medium mt-0.5">CRC-SP 337693/O-7</p>
-              </div>
-
-              {/* Motivational Quote mobile - Bottom */}
-              <div className="absolute bottom-0 left-0 right-0 bg-secondary/80 backdrop-blur-sm p-4">
-                <p className="text-white text-base italic font-light leading-snug">
-                  "Simplificamos a vida de quem empreende no Brasil"
-                </p>
               </div>
             </div>
           </motion.div>

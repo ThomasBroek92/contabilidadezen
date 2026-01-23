@@ -139,9 +139,8 @@ const niches = [
     title: "PROFISSIONAIS PJs",
     subtitle: "Trabalhadores PJ e CLT→PJ",
     features: [
-      "Enquadramento correto (Anexo III)",
+      "Enquadramento correto",
       "Fator R estratégico",
-      "Otimização de colaboradores",
       "Planejamento tributário PJ",
     ],
     href: "/contato",

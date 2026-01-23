@@ -34,6 +34,7 @@ import youtubersBg from "@/assets/youtubers-creators-bg.jpg";
 import clinicasConsultoriosBg from "@/assets/clinicas-consultorios-bg.jpg";
 import ecommerceBg from "@/assets/ecommerce-bg.jpg";
 import profissionaisPjBg from "@/assets/profissionais-pj-bg.jpg";
+import prestadoresServicoBg from "@/assets/prestadores-servico-bg.jpg";
 
 const niches = [
   {
@@ -124,15 +125,14 @@ const niches = [
     title: "PRESTADORES DE SERVIÇOS",
     subtitle: "Consultores e Freelancers",
     features: [
-      "Enquadramento correto (Anexo III/V)",
+      "Enquadramento correto",
       "Fator R estratégico",
-      "MEI, ME ou EPP",
       "Otimização de pró-labore",
     ],
     href: "/contato",
     // Âmbar/dourado: versatilidade, acessibilidade, profissionalismo
     gradient: "from-amber-600 to-amber-500",
-    backgroundImage: profissionaisPjBg,
+    backgroundImage: prestadoresServicoBg,
   },
   {
     icon: UserCheck,

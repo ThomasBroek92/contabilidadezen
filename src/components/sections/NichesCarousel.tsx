@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/scroll-animation";
 import { motion } from "framer-motion";
+import representanteComercialBg from "@/assets/representante-comercial-bg.jpg";
 
 const niches = [
   {
@@ -60,15 +61,11 @@ const niches = [
     icon: Briefcase,
     title: "REPRESENTANTES COMERCIAIS",
     subtitle: "Representação e Vendas",
-    features: [
-      "Registro no CORE",
-      "Múltiplas representadas",
-      "Comissões e reembolsos",
-      "Lucro Presumido otimizado",
-    ],
+    features: [],
     href: "/contato",
     // Laranja: vendas, energia, dinamismo comercial
     gradient: "from-orange-500 to-orange-400",
+    backgroundImage: representanteComercialBg,
   },
   {
     icon: Play,
@@ -253,8 +250,20 @@ export function NichesCarousel() {
                       <div 
                         className={`group relative h-[420px] rounded-2xl overflow-hidden bg-gradient-to-br ${niche.gradient} p-6 flex flex-col justify-between transition-all duration-300`}
                       >
-                        {/* Icon */}
-                        <div>
+                        {/* Background Image with Gradient Overlay */}
+                        {niche.backgroundImage && (
+                          <>
+                            <img 
+                              src={niche.backgroundImage} 
+                              alt="" 
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                            <div className={`absolute inset-0 bg-gradient-to-br ${niche.gradient} opacity-80`} />
+                          </>
+                        )}
+                        
+                        {/* Content */}
+                        <div className="relative z-10">
                           <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                             <niche.icon className="h-7 w-7 text-white" />
                           </div>
@@ -263,21 +272,23 @@ export function NichesCarousel() {
                           <h3 className="text-lg font-bold text-white mb-1">{niche.title}</h3>
                           <p className="text-white/80 text-sm mb-4">{niche.subtitle}</p>
                           
-                          {/* Features */}
-                          <ul className="space-y-2">
-                            {niche.features.map((feature, idx) => (
-                              <li key={idx} className="flex items-start gap-2 text-white/90 text-sm">
-                                <span className="text-white/60">•</span>
-                                <span>{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
+                          {/* Features - only show if features exist */}
+                          {niche.features.length > 0 && (
+                            <ul className="space-y-2">
+                              {niche.features.map((feature, idx) => (
+                                <li key={idx} className="flex items-start gap-2 text-white/90 text-sm">
+                                  <span className="text-white/60">•</span>
+                                  <span>{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
 
                         {/* CTA */}
                         <Button 
                           variant="secondary" 
-                          className="w-full mt-4 bg-white/20 hover:bg-white/30 text-white border-white/20 group-hover:bg-white/30"
+                          className="relative z-10 w-full mt-4 bg-white/20 hover:bg-white/30 text-white border-white/20 group-hover:bg-white/30"
                           asChild
                         >
                           <Link to={niche.href}>

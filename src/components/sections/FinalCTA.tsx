@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, Star, MessageCircle, Clock } from "lucide-react";
+import { Check, MessageCircle } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { StaggerContainer, StaggerItem, Parallax } from "@/components/ui/scroll-animation";
+import thomasBroekFinalCta from "@/assets/thomas-broek-final-cta.png";
 
 export function FinalCTA() {
   const ref = useRef(null);
@@ -98,52 +99,15 @@ export function FinalCTA() {
               {/* Container circular com sombra */}
               <motion.div 
                 className="absolute inset-0 rounded-full overflow-hidden shadow-2xl border-4 border-secondary/20"
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
               >
                 <img
-                  src="/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png"
-                  alt="Especialista em Contabilidade Zen"
+                  src={thomasBroekFinalCta}
+                  alt="Thomas Broek - Especialista em Contabilidade Zen"
                   className="w-full h-full object-cover"
                 />
               </motion.div>
-
-              {/* Badge flutuante */}
-              <motion.div 
-                className="absolute bottom-8 right-0 lg:-right-4 bg-secondary text-secondary-foreground px-5 py-3 rounded-full shadow-xl flex items-center gap-2"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-                transition={{ delay: 0.8, type: "spring", stiffness: 300 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <Star className="w-5 h-5 fill-current" />
-                <span className="font-semibold text-sm whitespace-nowrap">Atendimento Humanizado</span>
-              </motion.div>
-
-              {/* Badge de urgência */}
-              <motion.div 
-                className="absolute top-8 left-0 lg:-left-4 bg-accent text-accent-foreground px-4 py-2 rounded-full shadow-xl flex items-center gap-2"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-                transition={{ delay: 1, type: "spring", stiffness: 300 }}
-              >
-                <Clock className="w-4 h-4" />
-                <span className="font-semibold text-xs whitespace-nowrap">Resposta em 2h</span>
-              </motion.div>
-
-              {/* Elemento decorativo de fundo */}
-              <div className="absolute inset-0 -z-10 scale-110">
-                <motion.div 
-                  className="absolute top-0 right-0 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"
-                  animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-                  transition={{ duration: 4, repeat: Infinity }}
-                />
-                <motion.div 
-                  className="absolute bottom-0 left-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl"
-                  animate={{ scale: [1.1, 1, 1.1], opacity: [0.2, 0.4, 0.2] }}
-                  transition={{ duration: 5, repeat: Infinity }}
-                />
-              </div>
             </motion.div>
           </Parallax>
         </div>

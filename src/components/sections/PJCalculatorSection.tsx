@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { toast } from "sonner";
+import { triggerWhatsAppEmphasis } from "@/components/FloatingWhatsApp";
 
 // Tabela INSS 2024
 const INSS_FAIXAS = [
@@ -84,6 +85,23 @@ export function PJCalculatorSection() {
   const [outrosBeneficios, setOutrosBeneficios] = useState("");
   const [resultado, setResultado] = useState<ResultadoCalculo | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [hasTriggeredEmphasis, setHasTriggeredEmphasis] = useState(false);
+  
+  // Ref for scroll-triggered emphasis
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  
+  // Trigger WhatsApp emphasis when calculator section comes into view
+  useEffect(() => {
+    if (isInView && !hasTriggeredEmphasis) {
+      // Small delay to let user focus on the calculator first
+      const timer = setTimeout(() => {
+        triggerWhatsAppEmphasis();
+        setHasTriggeredEmphasis(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isInView, hasTriggeredEmphasis]);
   
   // Lead capture
   const [nome, setNome] = useState("");
@@ -236,7 +254,7 @@ export function PJCalculatorSection() {
   const whatsappLink = `https://wa.me/5519974158342?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
-    <section className="py-12 lg:py-16 bg-gradient-to-b from-muted/30 to-background">
+    <section ref={sectionRef} className="py-12 lg:py-16 bg-gradient-to-b from-muted/30 to-background">
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div

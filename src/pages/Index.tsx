@@ -14,7 +14,7 @@ import { PJCalculatorSection } from "@/components/sections/PJCalculatorSection";
 import { Pricing } from "@/components/sections/Pricing";
 import { FAQ } from "@/components/sections/FAQ";
 import { BlogPreview } from "@/components/sections/BlogPreview";
-import { CTA } from "@/components/sections/CTA";
+import { FinalCTA } from "@/components/sections/FinalCTA";
 import { ScrollAnimation } from "@/components/ui/scroll-animation";
 import { homePageSchema, generateFAQSchema, homeFAQs } from "@/lib/seo-schemas";
 const Index = () => {
@@ -89,7 +89,7 @@ const Index = () => {
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            
+            <FinalCTA />
           </ScrollAnimation>
         </main>
         <Footer />

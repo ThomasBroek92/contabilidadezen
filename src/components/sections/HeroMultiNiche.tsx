@@ -159,7 +159,7 @@ export function HeroMultiNiche() {
               
               {/* Main founder image with special border radius */}
               <motion.div
-                className="relative z-10 overflow-hidden rounded-bl-[120px]"
+                className="relative z-10 overflow-hidden rounded-[32px] rounded-bl-[80px] rounded-tr-[80px]"
                 initial={{ scale: 0.95 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
@@ -207,7 +207,7 @@ export function HeroMultiNiche() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <div className="relative overflow-hidden rounded-bl-[80px]">
+            <div className="relative overflow-hidden rounded-[24px] rounded-bl-[60px] rounded-tr-[60px]">
               <img
                 src={heroFounder}
                 alt="Thomas Broek - Contador responsável da Contabilidade Zen"

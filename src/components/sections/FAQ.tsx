@@ -7,6 +7,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
 
 const faqs = [
   // BLOCO 1 - CONTABILIDADE DIGITAL
@@ -52,66 +55,87 @@ const faqs = [
 ];
 
 export function FAQ() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
   return (
-    <section className="py-16 lg:py-24 bg-background">
+    <section ref={ref} className="py-16 lg:py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Left - Header */}
-          <div className="lg:sticky lg:top-24 lg:self-start">
-            <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
-              FAQ
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 mb-6 text-foreground">
-              Perguntas{" "}
-              <span className="text-gradient">frequentes</span>
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Tire suas dúvidas sobre contabilidade digital. 
-              Se não encontrar sua pergunta, entre em contato conosco.
-            </p>
-
-            <div className="bg-zen-light-teal rounded-2xl p-6 lg:p-8">
-              <h3 className="font-semibold text-lg mb-3 text-foreground">
-                Ainda tem dúvidas?
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                Nossa equipe de especialistas está pronta para ajudar você. 
-                Agende uma consulta gratuita ou fale conosco pelo WhatsApp.
+          <StaggerContainer className="lg:sticky lg:top-24 lg:self-start" staggerDelay={0.1}>
+            <StaggerItem type="slide">
+              <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
+                FAQ
+              </span>
+            </StaggerItem>
+            <StaggerItem type="hybrid">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 mb-6 text-foreground">
+                Perguntas{" "}
+                <span className="text-gradient">frequentes</span>
+              </h2>
+            </StaggerItem>
+            <StaggerItem type="slide">
+              <p className="text-lg text-muted-foreground mb-8">
+                Tire suas dúvidas sobre contabilidade digital. 
+                Se não encontrar sua pergunta, entre em contato conosco.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button variant="zen" asChild>
-                  <Link to="/contato">Agendar Consulta</Link>
-                </Button>
-                <Button variant="whatsapp" asChild>
-                  <a
-                    href="https://wa.me/5519974158342?text=Olá! Tenho uma dúvida sobre contabilidade para profissionais da saúde."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    WhatsApp
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </div>
+            </StaggerItem>
+
+            <StaggerItem type="scale">
+              <motion.div 
+                className="bg-zen-light-teal rounded-2xl p-6 lg:p-8"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                <h3 className="font-semibold text-lg mb-3 text-foreground">
+                  Ainda tem dúvidas?
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  Nossa equipe de especialistas está pronta para ajudar você. 
+                  Agende uma consulta gratuita ou fale conosco pelo WhatsApp.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button variant="zen" asChild>
+                    <Link to="/contato">Agendar Consulta</Link>
+                  </Button>
+                  <Button variant="whatsapp" asChild>
+                    <a
+                      href="https://wa.me/5519974158342?text=Olá! Tenho uma dúvida sobre contabilidade para profissionais da saúde."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      WhatsApp
+                    </a>
+                  </Button>
+                </div>
+              </motion.div>
+            </StaggerItem>
+          </StaggerContainer>
 
           {/* Right - Accordion */}
           <div>
             <Accordion type="single" collapsible className="space-y-4">
               {faqs.map((faq, index) => (
-                <AccordionItem
+                <motion.div
                   key={index}
-                  value={`item-${index}`}
-                  className="bg-card rounded-xl border border-border px-6 data-[state=open]:border-secondary/50 data-[state=open]:shadow-soft transition-all"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                  transition={{ delay: 0.1 + index * 0.08, duration: 0.4 }}
                 >
-                  <AccordionTrigger className="text-left font-semibold hover:text-secondary py-5">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
+                  <AccordionItem
+                    value={`item-${index}`}
+                    className="bg-card rounded-xl border border-border px-6 data-[state=open]:border-secondary/50 data-[state=open]:shadow-soft transition-all hover:border-secondary/30 hover:-translate-y-0.5"
+                  >
+                    <AccordionTrigger className="text-left font-semibold hover:text-secondary py-5">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                </motion.div>
               ))}
             </Accordion>
           </div>

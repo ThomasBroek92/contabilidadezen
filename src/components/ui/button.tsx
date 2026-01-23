@@ -9,17 +9,18 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-soft hover:shadow-card",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-soft hover:shadow-card hover:-translate-y-0.5",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-soft",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-soft hover:-translate-y-0.5",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-secondary underline-offset-4 hover:underline",
-        zen: "bg-gradient-to-r from-zen-teal to-zen-blue text-secondary-foreground hover:opacity-90 shadow-soft hover:shadow-glow",
-        "zen-outline": "border-2 border-secondary bg-transparent text-secondary hover:bg-secondary hover:text-secondary-foreground",
-        hero: "bg-gradient-to-r from-zen-teal to-zen-blue text-secondary-foreground hover:opacity-90 shadow-card hover:shadow-glow text-base",
-        "hero-outline": "border-2 border-secondary bg-secondary/10 text-secondary hover:bg-secondary hover:text-secondary-foreground text-base",
-        whatsapp: "bg-[hsl(142_70%_45%)] text-primary-foreground hover:bg-[hsl(142_70%_40%)] shadow-soft",
+        zen: "bg-gradient-to-r from-zen-teal to-zen-blue text-secondary-foreground hover:opacity-90 shadow-soft hover:shadow-glow hover:-translate-y-0.5 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
+        "zen-outline": "border-2 border-secondary bg-transparent text-secondary hover:bg-secondary hover:text-secondary-foreground hover:-translate-y-0.5",
+        hero: "bg-gradient-to-r from-zen-teal to-zen-blue text-secondary-foreground hover:opacity-90 shadow-card hover:shadow-glow text-base hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
+        "hero-outline": "border-2 border-secondary bg-secondary/10 text-secondary hover:bg-secondary hover:text-secondary-foreground text-base hover:-translate-y-1",
+        whatsapp: "bg-[hsl(142_70%_45%)] text-primary-foreground hover:bg-[hsl(142_70%_40%)] shadow-soft hover:-translate-y-0.5",
+        "cta-glow": "bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground shadow-lg hover:shadow-glow hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700 animate-[glow_3s_ease-in-out_infinite]",
       },
       size: {
         default: "h-10 px-4 py-2",

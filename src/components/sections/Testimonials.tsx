@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -11,7 +13,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { useRef } from "react";
+import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
+
 // Fallback testimonials for when no GMB reviews are available
 const fallbackTestimonials = [
   {
@@ -93,6 +96,9 @@ interface GMBStats {
 }
 
 export function Testimonials() {
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  
   // Autoplay plugin ref
   const autoplayPlugin = useRef(
     Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })
@@ -166,153 +172,184 @@ export function Testimonials() {
   };
 
   return (
-    <section className="py-16 lg:py-24 bg-background">
+    <section ref={sectionRef} className="py-16 lg:py-24 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
-          <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
-            Depoimentos
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 mb-6 text-foreground">
-            O que nossos clientes{" "}
-            <span className="text-gradient">dizem</span>
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            {hasGMBReviews 
-              ? "Veja o que nossos clientes estão dizendo sobre a Contabilidade Zen no Google."
-              : "Mais de 500 profissionais da saúde já confiam na Contabilidade Zen. Veja o que eles têm a dizer sobre nossa parceria."}
-          </p>
+        <StaggerContainer className="text-center max-w-3xl mx-auto mb-12 lg:mb-16" staggerDelay={0.1}>
+          <StaggerItem type="slide">
+            <span className="text-secondary font-semibold text-sm uppercase tracking-wider">
+              Depoimentos
+            </span>
+          </StaggerItem>
+          <StaggerItem type="hybrid">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 mb-6 text-foreground">
+              O que nossos clientes{" "}
+              <span className="text-gradient">dizem</span>
+            </h2>
+          </StaggerItem>
+          <StaggerItem type="slide">
+            <p className="text-lg text-muted-foreground">
+              {hasGMBReviews 
+                ? "Veja o que nossos clientes estão dizendo sobre a Contabilidade Zen no Google."
+                : "Mais de 500 profissionais da saúde já confiam na Contabilidade Zen. Veja o que eles têm a dizer sobre nossa parceria."}
+            </p>
+          </StaggerItem>
 
           {/* Google Reviews Badge */}
           {gmbStats && (
-            <a
-              href="https://g.co/kgs/contabilidadezen"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 mt-6 px-5 py-3 bg-card border border-border rounded-xl hover:border-secondary/50 hover:shadow-card transition-all duration-300 group"
-            >
-              <GoogleLogo className="h-6 w-6" />
-              <div className="flex items-center gap-2">
-                <div className="flex gap-0.5">
-                  {renderStars(Math.round(gmbStats.average_rating))}
+            <StaggerItem type="scale">
+              <motion.a
+                href="https://g.co/kgs/contabilidadezen"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 mt-6 px-5 py-3 bg-card border border-border rounded-xl hover:border-secondary/50 hover:shadow-card transition-all duration-300 group"
+                whileHover={{ scale: 1.02, y: -2 }}
+              >
+                <GoogleLogo className="h-6 w-6" />
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-0.5">
+                    {renderStars(Math.round(gmbStats.average_rating))}
+                  </div>
+                  <span className="font-bold text-foreground text-lg">
+                    {gmbStats.average_rating.toFixed(1)}
+                  </span>
                 </div>
-                <span className="font-bold text-foreground text-lg">
-                  {gmbStats.average_rating.toFixed(1)}
+                <span className="text-muted-foreground">•</span>
+                <span className="text-muted-foreground">
+                  {gmbStats.total_reviews} avaliações
                 </span>
-              </div>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-muted-foreground">
-                {gmbStats.total_reviews} avaliações
-              </span>
-              <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-secondary transition-colors" />
-            </a>
+                <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-secondary transition-colors" />
+              </motion.a>
+            </StaggerItem>
           )}
-        </div>
+        </StaggerContainer>
 
         {/* Testimonials Carousel */}
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          plugins={[autoplayPlugin.current]}
-          className="w-full"
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
         >
-          <CarouselContent className="-ml-4">
-            {displayFallback ? (
-              // Fallback testimonials
-              fallbackTestimonials.map((testimonial, index) => (
-                <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                  <div className="bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-secondary/50 hover:shadow-card transition-all duration-300 h-full">
-                    {/* Quote Icon */}
-                    <Quote className="h-8 w-8 text-secondary/30 mb-4" />
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            plugins={[autoplayPlugin.current]}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4">
+              {displayFallback ? (
+                // Fallback testimonials
+                fallbackTestimonials.map((testimonial, index) => (
+                  <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                    <motion.div 
+                      className="bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-secondary/50 transition-all duration-300 h-full"
+                      whileHover={{ y: -4, boxShadow: "var(--shadow-card)" }}
+                    >
+                      {/* Quote Icon */}
+                      <motion.div
+                        initial={{ rotate: 0 }}
+                        whileHover={{ rotate: 10, scale: 1.1 }}
+                      >
+                        <Quote className="h-8 w-8 text-secondary/30 mb-4" />
+                      </motion.div>
 
-                    {/* Content */}
-                    <p className="text-foreground/80 leading-relaxed mb-6 line-clamp-4">
-                      "{testimonial.content}"
-                    </p>
+                      {/* Content */}
+                      <p className="text-foreground/80 leading-relaxed mb-6 line-clamp-4">
+                        "{testimonial.content}"
+                      </p>
 
-                    {/* Rating */}
-                    <div className="flex gap-1 mb-4">
-                      {renderStars(testimonial.rating)}
-                    </div>
-
-                    {/* Author */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-foreground">{testimonial.name}</p>
-                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                        <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                      {/* Rating */}
+                      <div className="flex gap-1 mb-4">
+                        {renderStars(testimonial.rating)}
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Economia</p>
-                        <p className="font-bold text-secondary">{testimonial.savings}</p>
-                      </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))
-            ) : (
-              // GMB Reviews
-              gmbReviews?.map((review) => (
-                <CarouselItem key={review.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                  <div className="bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-secondary/50 hover:shadow-card transition-all duration-300 relative h-full">
-                    {/* Google Badge */}
-                    <div className="absolute top-4 right-4 flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-                      <GoogleLogo className="h-3.5 w-3.5" />
-                      <span>Google</span>
-                    </div>
 
-                    {/* Quote Icon */}
-                    <Quote className="h-8 w-8 text-secondary/30 mb-4" />
-
-                    {/* Content */}
-                    <p className="text-foreground/80 leading-relaxed mb-6 line-clamp-4">
-                      "{review.comment || 'Excelente serviço!'}"
-                    </p>
-
-                    {/* Rating */}
-                    <div className="flex gap-1 mb-4">
-                      {renderStars(review.rating)}
-                    </div>
-
-                    {/* Author */}
-                    <div className="flex items-center gap-3">
-                      {review.reviewer_photo_url ? (
-                        <img 
-                          src={review.reviewer_photo_url} 
-                          alt={review.reviewer_name}
-                          className="w-10 h-10 rounded-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
-                          <span className="text-secondary font-semibold text-sm">
-                            {review.reviewer_name.charAt(0).toUpperCase()}
-                          </span>
+                      {/* Author */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-foreground">{testimonial.name}</p>
+                          <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                          <p className="text-xs text-muted-foreground">{testimonial.location}</p>
                         </div>
-                      )}
-                      <div>
-                        <p className="font-semibold text-foreground">{review.reviewer_name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatRelativeTime(review.review_time)}
-                        </p>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Economia</p>
+                          <p className="font-bold text-secondary">{testimonial.savings}</p>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))
-            )}
-          </CarouselContent>
-          <div className="flex justify-center gap-2 mt-8">
-            <CarouselPrevious className="static translate-y-0" />
-            <CarouselNext className="static translate-y-0" />
-          </div>
-        </Carousel>
+                    </motion.div>
+                  </CarouselItem>
+                ))
+              ) : (
+                // GMB Reviews
+                gmbReviews?.map((review) => (
+                  <CarouselItem key={review.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                    <motion.div 
+                      className="bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-secondary/50 transition-all duration-300 relative h-full"
+                      whileHover={{ y: -4, boxShadow: "var(--shadow-card)" }}
+                    >
+                      {/* Google Badge */}
+                      <div className="absolute top-4 right-4 flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
+                        <GoogleLogo className="h-3.5 w-3.5" />
+                        <span>Google</span>
+                      </div>
+
+                      {/* Quote Icon */}
+                      <Quote className="h-8 w-8 text-secondary/30 mb-4" />
+
+                      {/* Content */}
+                      <p className="text-foreground/80 leading-relaxed mb-6 line-clamp-4">
+                        "{review.comment || 'Excelente serviço!'}"
+                      </p>
+
+                      {/* Rating */}
+                      <div className="flex gap-1 mb-4">
+                        {renderStars(review.rating)}
+                      </div>
+
+                      {/* Author */}
+                      <div className="flex items-center gap-3">
+                        {review.reviewer_photo_url ? (
+                          <img 
+                            src={review.reviewer_photo_url} 
+                            alt={review.reviewer_name}
+                            className="w-10 h-10 rounded-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
+                            <span className="text-secondary font-semibold text-sm">
+                              {review.reviewer_name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-semibold text-foreground">{review.reviewer_name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatRelativeTime(review.review_time)}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </CarouselItem>
+                ))
+              )}
+            </CarouselContent>
+            <div className="flex justify-center gap-2 mt-8">
+              <CarouselPrevious className="static translate-y-0" />
+              <CarouselNext className="static translate-y-0" />
+            </div>
+          </Carousel>
+        </motion.div>
 
         {/* View all reviews link */}
         {hasGMBReviews && (
-          <div className="text-center mt-10">
+          <motion.div 
+            className="text-center mt-10"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ delay: 0.6 }}
+          >
             <a
               href="https://g.co/kgs/contabilidadezen"
               target="_blank"
@@ -322,7 +359,7 @@ export function Testimonials() {
               Ver todas as avaliações no Google
               <ExternalLink className="h-4 w-4" />
             </a>
-          </div>
+          </motion.div>
         )}
       </div>
     </section>

@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, Star, MessageCircle } from "lucide-react";
+import { Check, Star, MessageCircle, Clock } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { StaggerContainer, StaggerItem, Parallax } from "@/components/ui/scroll-animation";
 
 export function FinalCTA() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  
   const whatsappNumber = "5519974158342";
   const whatsappMessage = encodeURIComponent(
     "Olá! Gostaria de falar com um especialista sobre contabilidade para minha empresa."
@@ -15,80 +21,131 @@ export function FinalCTA() {
   ];
 
   return (
-    <section className="py-16 lg:py-24 bg-gradient-to-b from-muted/30 to-background">
+    <section ref={ref} className="py-16 lg:py-24 bg-gradient-to-b from-muted/30 to-background overflow-hidden">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Coluna Esquerda: Conteúdo */}
-          <div className="order-2 lg:order-1">
+          <StaggerContainer className="order-2 lg:order-1" staggerDelay={0.12}>
             {/* Título */}
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4">
-              <span className="text-foreground">Pronto para pagar menos impostos</span>
-              <br className="hidden lg:block" />
-              <span className="text-secondary"> de forma legal?</span>
-            </h2>
+            <StaggerItem type="hybrid">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4">
+                <span className="text-foreground">Pronto para pagar menos impostos</span>
+                <br className="hidden lg:block" />
+                <span className="text-secondary"> de forma legal?</span>
+              </h2>
+            </StaggerItem>
 
             {/* Subtítulo */}
-            <p className="text-lg text-muted-foreground mb-8 max-w-lg">
-              Faça seu cadastro digital ou converse com um dos nossos especialistas
-              em contabilidade. Sem compromisso, 100% gratuito.
-            </p>
+            <StaggerItem type="slide">
+              <p className="text-lg text-muted-foreground mb-8 max-w-lg">
+                Faça seu cadastro digital ou converse com um dos nossos especialistas
+                em contabilidade. Sem compromisso, 100% gratuito.
+              </p>
+            </StaggerItem>
 
             {/* Lista de Benefícios */}
-            <ul className="space-y-3 mb-10">
-              {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-4 h-4 text-secondary" />
-                  </div>
-                  <span className="text-foreground/80">{benefit}</span>
-                </li>
-              ))}
-            </ul>
+            <StaggerItem type="slide">
+              <ul className="space-y-3 mb-10">
+                {benefits.map((benefit, index) => (
+                  <motion.li 
+                    key={index} 
+                    className="flex items-center gap-3"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                    transition={{ delay: 0.4 + index * 0.1 }}
+                  >
+                    <motion.div 
+                      className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0"
+                      whileHover={{ scale: 1.2, backgroundColor: "hsl(var(--secondary) / 0.3)" }}
+                    >
+                      <Check className="w-4 h-4 text-secondary" />
+                    </motion.div>
+                    <span className="text-foreground/80">{benefit}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </StaggerItem>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild variant="zen" size="xl">
-                <Link to="/abrir-empresa">Abra sua empresa</Link>
-              </Button>
-              <Button asChild variant="zen-outline" size="xl">
-                <a
-                  href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  Fale com um especialista
-                </a>
-              </Button>
-            </div>
-          </div>
+            <StaggerItem type="scale">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button asChild variant="cta-glow" size="xl">
+                  <Link to="/abrir-empresa">Abra sua empresa</Link>
+                </Button>
+                <Button asChild variant="zen-outline" size="xl">
+                  <a
+                    href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    Fale com um especialista
+                  </a>
+                </Button>
+              </div>
+            </StaggerItem>
+          </StaggerContainer>
 
           {/* Coluna Direita: Imagem */}
-          <div className="order-1 lg:order-2 relative">
-            <div className="relative w-full aspect-square max-w-md mx-auto">
+          <Parallax speed={0.15} className="order-1 lg:order-2 relative">
+            <motion.div 
+              className="relative w-full aspect-square max-w-md mx-auto"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
               {/* Container circular com sombra */}
-              <div className="absolute inset-0 rounded-full overflow-hidden shadow-2xl border-4 border-secondary/20">
+              <motion.div 
+                className="absolute inset-0 rounded-full overflow-hidden shadow-2xl border-4 border-secondary/20"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+              >
                 <img
                   src="/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png"
                   alt="Especialista em Contabilidade Zen"
                   className="w-full h-full object-cover"
                 />
-              </div>
+              </motion.div>
 
               {/* Badge flutuante */}
-              <div className="absolute bottom-8 right-0 lg:-right-4 bg-secondary text-secondary-foreground px-5 py-3 rounded-full shadow-xl flex items-center gap-2 animate-float">
+              <motion.div 
+                className="absolute bottom-8 right-0 lg:-right-4 bg-secondary text-secondary-foreground px-5 py-3 rounded-full shadow-xl flex items-center gap-2"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+                transition={{ delay: 0.8, type: "spring", stiffness: 300 }}
+                whileHover={{ scale: 1.05 }}
+              >
                 <Star className="w-5 h-5 fill-current" />
                 <span className="font-semibold text-sm whitespace-nowrap">Atendimento Humanizado</span>
-              </div>
+              </motion.div>
+
+              {/* Badge de urgência */}
+              <motion.div 
+                className="absolute top-8 left-0 lg:-left-4 bg-accent text-accent-foreground px-4 py-2 rounded-full shadow-xl flex items-center gap-2"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+                transition={{ delay: 1, type: "spring", stiffness: 300 }}
+              >
+                <Clock className="w-4 h-4" />
+                <span className="font-semibold text-xs whitespace-nowrap">Resposta em 2h</span>
+              </motion.div>
 
               {/* Elemento decorativo de fundo */}
               <div className="absolute inset-0 -z-10 scale-110">
-                <div className="absolute top-0 right-0 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+                <motion.div 
+                  className="absolute top-0 right-0 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"
+                  animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
+                  transition={{ duration: 4, repeat: Infinity }}
+                />
+                <motion.div 
+                  className="absolute bottom-0 left-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl"
+                  animate={{ scale: [1.1, 1, 1.1], opacity: [0.2, 0.4, 0.2] }}
+                  transition={{ duration: 5, repeat: Infinity }}
+                />
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </Parallax>
         </div>
       </div>
     </section>

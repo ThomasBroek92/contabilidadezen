@@ -1,180 +1,490 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, MessageCircle, ChevronDown, Calendar, Gift } from "lucide-react";
+import { 
+  Menu, 
+  X, 
+  MessageCircle, 
+  ChevronDown, 
+  Gift, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Search,
+  User,
+  Instagram,
+  Facebook,
+  Youtube
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import logoFull from "@/assets/logo-full.png";
-const navLinks = [{
-  name: "Início",
-  href: "/"
-}, {
-  name: "Serviços",
-  href: "/servicos"
-}, {
-  name: "Blog",
-  href: "/blog"
-}, {
-  name: "Sobre",
-  href: "/sobre"
-}, {
-  name: "Contato",
-  href: "/contato"
-}];
-const segmentosLinks = [{
-  name: "Contabilidade para Médicos",
-  href: "/segmentos/contabilidade-para-medicos"
-}, {
-  name: "Contabilidade para Dentistas",
-  href: "/segmentos/contabilidade-para-dentistas"
-}, {
-  name: "Contabilidade para Psicólogos",
-  href: "/segmentos/contabilidade-para-psicologos"
-}];
-const conteudoLinks = [{
-  name: "Calculadora Salário PJ x CLT",
-  href: "/conteudo/calculadora-pj-clt"
-}, {
-  name: "Comparativo Tributário",
-  href: "/conteudo/comparativo-tributario"
-}, {
-  name: "Gerador de RPA",
-  href: "/conteudo/gerador-rpa"
-}];
+
+// Navigation links configuration
+const navLinks = [
+  { name: "Home", href: "/" },
+  { name: "Abrir Empresa", href: "/abrir-empresa" },
+];
+
+const solucoesLinks = [
+  { name: "Contabilidade para Médicos", href: "/segmentos/contabilidade-para-medicos" },
+  { name: "Contabilidade para Dentistas", href: "/segmentos/contabilidade-para-dentistas" },
+  { name: "Contabilidade para Psicólogos", href: "/segmentos/contabilidade-para-psicologos" },
+  { name: "Todos os Serviços", href: "/servicos" },
+];
+
+const conteudoLinks = [
+  { name: "Blog", href: "/blog" },
+  { name: "Calculadora PJ x CLT", href: "/conteudo/calculadora-pj-clt" },
+  { name: "Comparativo Tributário", href: "/conteudo/comparativo-tributario" },
+  { name: "Gerador de RPA", href: "/conteudo/gerador-rpa" },
+];
+
+// Contact info
+const contactInfo = {
+  address: "Campinas, SP",
+  addressLink: "https://maps.google.com/?q=Campinas,SP",
+  phone: "(19) 97415-8342",
+  phoneLink: "tel:+5519974158342",
+  email: "contato@contabilidadezen.com.br",
+  emailLink: "mailto:contato@contabilidadezen.com.br",
+};
+
+// Social links
+const socialLinks = [
+  { name: "Instagram", icon: Instagram, href: "https://instagram.com/contabilidadezen" },
+  { name: "Facebook", icon: Facebook, href: "https://facebook.com/contabilidadezen" },
+  { name: "WhatsApp", icon: MessageCircle, href: "https://wa.me/5519974158342" },
+  { name: "YouTube", icon: Youtube, href: "https://youtube.com/@contabilidadezen" },
+];
+
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSegmentosOpen, setIsSegmentosOpen] = useState(false);
+  const [isSolucoesOpen, setIsSolucoesOpen] = useState(false);
   const [isConteudoOpen, setIsConteudoOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
+
   const isActive = (href: string) => location.pathname === href;
-  const isSegmentoActive = () => segmentosLinks.some(link => location.pathname === link.href);
+  const isSolucoesActive = () => solucoesLinks.some(link => location.pathname === link.href);
   const isConteudoActive = () => conteudoLinks.some(link => location.pathname === link.href);
-  return <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:h-20">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logoFull} alt="Contabilidade Zen" className="h-10 lg:h-12 w-auto" width={240} height={48} loading="eager" decoding="async" />
-        </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-8">
-          {navLinks.slice(0, 2).map(link => {})}
-          
-          {/* Segmentos Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-secondary ${isSegmentoActive() ? "text-secondary" : "text-foreground/80"}`}>
-                Segmentos
-                <ChevronDown className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-64 bg-card border-border">
-              {segmentosLinks.map(link => <DropdownMenuItem key={link.href} asChild>
-                  <Link to={link.href} className={`w-full cursor-pointer ${isActive(link.href) ? "text-secondary" : ""}`}>
-                    {link.name}
-                  </Link>
-                </DropdownMenuItem>)}
-            </DropdownMenuContent>
-          </DropdownMenu>
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Navigate to blog with search query
+      window.location.href = `/blog?search=${encodeURIComponent(searchQuery)}`;
+      setIsSearchOpen(false);
+    }
+  };
 
-          {/* Conteúdo Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-secondary ${isConteudoActive() ? "text-secondary" : "text-foreground/80"}`}>
-                Conteúdo
-                <ChevronDown className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-64 bg-card border-border">
-              {conteudoLinks.map(link => <DropdownMenuItem key={link.href} asChild>
-                  <Link to={link.href} className={`w-full cursor-pointer ${isActive(link.href) ? "text-secondary" : ""}`}>
-                    {link.name}
-                  </Link>
-                </DropdownMenuItem>)}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          {navLinks.slice(2).map(link => <Link key={link.name} to={link.href} className={`text-sm font-medium transition-colors hover:text-secondary ${isActive(link.href) ? "text-secondary" : "text-foreground/80"}`}>
-              {link.name}
-            </Link>)}
-        </nav>
+  return (
+    <>
+      {/* Pre-header - Top bar */}
+      <div className="hidden lg:block bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-10 text-xs">
+            {/* Left side - Contact info */}
+            <div className="flex items-center gap-6">
+              <a 
+                href={contactInfo.addressLink} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 hover:text-secondary transition-colors"
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                <span>{contactInfo.address}</span>
+              </a>
+              <a 
+                href={contactInfo.phoneLink}
+                className="flex items-center gap-1.5 hover:text-secondary transition-colors"
+              >
+                <Phone className="h-3.5 w-3.5" />
+                <span>{contactInfo.phone}</span>
+              </a>
+              <a 
+                href={contactInfo.emailLink}
+                className="flex items-center gap-1.5 hover:text-secondary transition-colors"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                <span>{contactInfo.email}</span>
+              </a>
+            </div>
 
-        {/* Desktop CTA */}
-        <div className="hidden lg:flex items-center gap-3">
-          <Button variant="outline" size="sm" asChild className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground animate-pulse">
-            <Link to="/indique-e-ganhe">
-              <Gift className="h-4 w-4" />
-              Indique e Ganhe
-            </Link>
-          </Button>
-          <Button variant="whatsapp" size="sm" asChild>
-            
-          </Button>
-          <Button variant="hero" size="sm" asChild>
-            <Link to="/abrir-empresa">Abrir Empresa Grátis</Link>
-          </Button>
+            {/* Right side - Social icons */}
+            <div className="flex items-center gap-3">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="hover:text-secondary transition-colors p-1"
+                >
+                  <social.icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
-
-        {/* Mobile Menu Button */}
-        <button className="lg:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
       </div>
 
-      {/* Mobile Navigation */}
-      {isMenuOpen && <div className="lg:hidden border-t border-border bg-background animate-slide-up">
-          <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
-            {navLinks.slice(0, 2).map(link => <Link key={link.name} to={link.href} className={`text-base font-medium py-2 transition-colors ${isActive(link.href) ? "text-secondary" : "text-foreground/80"}`} onClick={() => setIsMenuOpen(false)}>
-                {link.name}
-              </Link>)}
-            
-            {/* Mobile Segmentos Accordion */}
-            <div className="border-t border-border pt-2">
-              <button onClick={() => setIsSegmentosOpen(!isSegmentosOpen)} className={`flex items-center justify-between w-full text-base font-medium py-2 transition-colors ${isSegmentoActive() ? "text-secondary" : "text-foreground/80"}`}>
-                Segmentos
-                <ChevronDown className={`h-4 w-4 transition-transform ${isSegmentosOpen ? "rotate-180" : ""}`} />
-              </button>
-              {isSegmentosOpen && <div className="pl-4 space-y-2 pb-2">
-                  {segmentosLinks.map(link => <Link key={link.href} to={link.href} className={`block text-sm py-2 transition-colors ${isActive(link.href) ? "text-secondary" : "text-muted-foreground"}`} onClick={() => setIsMenuOpen(false)}>
-                      {link.name}
-                    </Link>)}
-                </div>}
-            </div>
+      {/* Main Header */}
+      <header className="sticky top-0 z-50 w-full bg-background shadow-sm">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:h-20">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <img 
+              src={logoFull} 
+              alt="Contabilidade Zen" 
+              className="h-10 lg:h-12 w-auto" 
+              width={240} 
+              height={48} 
+              loading="eager" 
+              decoding="async" 
+            />
+          </Link>
 
-            {/* Mobile Conteúdo Accordion */}
-            <div className="border-t border-border pt-2">
-              <button onClick={() => setIsConteudoOpen(!isConteudoOpen)} className={`flex items-center justify-between w-full text-base font-medium py-2 transition-colors ${isConteudoActive() ? "text-secondary" : "text-foreground/80"}`}>
-                Conteúdo
-                <ChevronDown className={`h-4 w-4 transition-transform ${isConteudoOpen ? "rotate-180" : ""}`} />
-              </button>
-              {isConteudoOpen && <div className="pl-4 space-y-2 pb-2">
-                  {conteudoLinks.map(link => <Link key={link.href} to={link.href} className={`block text-sm py-2 transition-colors ${isActive(link.href) ? "text-secondary" : "text-muted-foreground"}`} onClick={() => setIsMenuOpen(false)}>
-                      {link.name}
-                    </Link>)}
-                </div>}
-            </div>
-            
-            {navLinks.slice(2).map(link => <Link key={link.name} to={link.href} className={`text-base font-medium py-2 transition-colors ${isActive(link.href) ? "text-secondary" : "text-foreground/80"}`} onClick={() => setIsMenuOpen(false)}>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+            {/* Home and Abrir Empresa */}
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                className={`text-sm font-medium transition-colors hover:text-secondary ${
+                  isActive(link.href) ? "text-secondary" : "text-foreground/80"
+                }`}
+              >
                 {link.name}
-              </Link>)}
-            
-            <div className="flex flex-col gap-3 pt-4 border-t border-border">
-              <Button variant="outline" asChild className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground">
-                <Link to="/indique-e-ganhe" onClick={() => setIsMenuOpen(false)}>
-                  <Gift className="h-4 w-4" />
-                  Indique e Ganhe
-                </Link>
-              </Button>
-              <Button variant="whatsapp" asChild>
-                <a href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde." target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="h-4 w-4" />
-                  WhatsApp
-                </a>
-              </Button>
-              <Button variant="hero" asChild>
-                <Link to="/abrir-empresa">Abrir Empresa Grátis</Link>
-              </Button>
-            </div>
+              </Link>
+            ))}
+
+            {/* Soluções Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-secondary ${
+                    isSolucoesActive() ? "text-secondary" : "text-foreground/80"
+                  }`}
+                >
+                  Soluções
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64 bg-card border-border z-[60]">
+                {solucoesLinks.map((link) => (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link 
+                      to={link.href} 
+                      className={`w-full cursor-pointer ${
+                        isActive(link.href) ? "text-secondary" : ""
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Conteúdos Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-secondary ${
+                    isConteudoActive() ? "text-secondary" : "text-foreground/80"
+                  }`}
+                >
+                  Conteúdos
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64 bg-card border-border z-[60]">
+                {conteudoLinks.map((link) => (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link 
+                      to={link.href} 
+                      className={`w-full cursor-pointer ${
+                        isActive(link.href) ? "text-secondary" : ""
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Contato */}
+            <Link
+              to="/contato"
+              className={`text-sm font-medium transition-colors hover:text-secondary ${
+                isActive("/contato") ? "text-secondary" : "text-foreground/80"
+              }`}
+            >
+              Contato
+            </Link>
           </nav>
-        </div>}
-    </header>;
+
+          {/* Desktop CTA Area */}
+          <div className="hidden lg:flex items-center gap-2 xl:gap-3">
+            {/* Search Button */}
+            <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-foreground/70 hover:text-secondary"
+                  aria-label="Buscar"
+                >
+                  <Search className="h-5 w-5" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Pesquisar no site</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSearch} className="flex gap-2 mt-4">
+                  <Input
+                    placeholder="O que você procura?"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1"
+                    autoFocus
+                  />
+                  <Button type="submit" variant="secondary">
+                    Buscar
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            {/* Indique e Ganhe */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              asChild 
+              className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground"
+            >
+              <Link to="/indique-e-ganhe">
+                <Gift className="h-4 w-4 mr-1" />
+                <span className="hidden xl:inline">Indique e Ganhe</span>
+                <span className="xl:hidden">Indique</span>
+              </Link>
+            </Button>
+
+            {/* Área do Cliente */}
+            <Button 
+              variant="default" 
+              size="sm" 
+              asChild
+              className="bg-primary hover:bg-primary/90"
+            >
+              <a 
+                href="https://app.contabilidadezen.com.br" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <User className="h-4 w-4 mr-1" />
+                <span className="hidden xl:inline">Área do Cliente</span>
+                <span className="xl:hidden">Cliente</span>
+              </a>
+            </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button 
+            className="lg:hidden p-2 text-foreground" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)} 
+            aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="lg:hidden border-t border-border bg-background animate-slide-up">
+            <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
+              {/* Search on mobile */}
+              <form onSubmit={handleSearch} className="flex gap-2 pb-4 border-b border-border">
+                <Input
+                  placeholder="Buscar..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1"
+                />
+                <Button type="submit" variant="secondary" size="icon">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </form>
+
+              {/* Main nav links */}
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className={`text-base font-medium py-3 transition-colors ${
+                    isActive(link.href) ? "text-secondary" : "text-foreground/80"
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+
+              {/* Mobile Soluções Accordion */}
+              <div className="border-t border-border pt-2">
+                <button
+                  onClick={() => setIsSolucoesOpen(!isSolucoesOpen)}
+                  className={`flex items-center justify-between w-full text-base font-medium py-3 transition-colors ${
+                    isSolucoesActive() ? "text-secondary" : "text-foreground/80"
+                  }`}
+                >
+                  Soluções
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isSolucoesOpen ? "rotate-180" : ""}`} />
+                </button>
+                {isSolucoesOpen && (
+                  <div className="pl-4 space-y-1 pb-2">
+                    {solucoesLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        className={`block text-sm py-2 transition-colors ${
+                          isActive(link.href) ? "text-secondary" : "text-muted-foreground"
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {link.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Conteúdos Accordion */}
+              <div className="border-t border-border pt-2">
+                <button
+                  onClick={() => setIsConteudoOpen(!isConteudoOpen)}
+                  className={`flex items-center justify-between w-full text-base font-medium py-3 transition-colors ${
+                    isConteudoActive() ? "text-secondary" : "text-foreground/80"
+                  }`}
+                >
+                  Conteúdos
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isConteudoOpen ? "rotate-180" : ""}`} />
+                </button>
+                {isConteudoOpen && (
+                  <div className="pl-4 space-y-1 pb-2">
+                    {conteudoLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        className={`block text-sm py-2 transition-colors ${
+                          isActive(link.href) ? "text-secondary" : "text-muted-foreground"
+                        }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {link.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Contato */}
+              <Link
+                to="/contato"
+                className={`text-base font-medium py-3 border-t border-border transition-colors ${
+                  isActive("/contato") ? "text-secondary" : "text-foreground/80"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contato
+              </Link>
+
+              {/* Mobile CTAs */}
+              <div className="flex flex-col gap-3 pt-4 border-t border-border">
+                <Button variant="outline" asChild className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground">
+                  <Link to="/indique-e-ganhe" onClick={() => setIsMenuOpen(false)}>
+                    <Gift className="h-4 w-4 mr-2" />
+                    Indique e Ganhe
+                  </Link>
+                </Button>
+                <Button variant="whatsapp" asChild>
+                  <a 
+                    href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre os serviços da Contabilidade Zen." 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Fale no WhatsApp
+                  </a>
+                </Button>
+                <Button variant="default" asChild className="bg-primary hover:bg-primary/90">
+                  <a 
+                    href="https://app.contabilidadezen.com.br" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Área do Cliente
+                  </a>
+                </Button>
+              </div>
+
+              {/* Mobile contact info */}
+              <div className="flex flex-col gap-2 pt-4 border-t border-border text-sm text-muted-foreground">
+                <a 
+                  href={contactInfo.phoneLink}
+                  className="flex items-center gap-2 hover:text-secondary transition-colors"
+                >
+                  <Phone className="h-4 w-4" />
+                  {contactInfo.phone}
+                </a>
+                <a 
+                  href={contactInfo.emailLink}
+                  className="flex items-center gap-2 hover:text-secondary transition-colors"
+                >
+                  <Mail className="h-4 w-4" />
+                  {contactInfo.email}
+                </a>
+              </div>
+
+              {/* Mobile social links */}
+              <div className="flex items-center gap-4 pt-4">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.name}
+                    className="text-muted-foreground hover:text-secondary transition-colors"
+                  >
+                    <social.icon className="h-5 w-5" />
+                  </a>
+                ))}
+              </div>
+            </nav>
+          </div>
+        )}
+      </header>
+    </>
+  );
 }

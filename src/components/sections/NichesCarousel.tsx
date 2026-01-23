@@ -61,7 +61,12 @@ const niches = [
     icon: Briefcase,
     title: "REPRESENTANTES COMERCIAIS",
     subtitle: "Representação e Vendas",
-    features: [],
+    features: [
+      "Registro no CORE",
+      "Múltiplas representadas",
+      "Comissões e reembolsos",
+      "Lucro Presumido otimizado",
+    ],
     href: "/contato",
     // Laranja: vendas, energia, dinamismo comercial
     gradient: "from-orange-500 to-orange-400",
@@ -248,9 +253,9 @@ export function NichesCarousel() {
                   >
                     <HoverLift lift={8} className="h-full">
                       <div 
-                        className={`group relative h-[420px] rounded-2xl overflow-hidden bg-gradient-to-br ${niche.gradient} p-6 flex flex-col justify-between transition-all duration-300`}
+                        className={`group relative h-[420px] rounded-2xl overflow-hidden ${!niche.backgroundImage ? `bg-gradient-to-br ${niche.gradient}` : ''} p-6 flex flex-col justify-between transition-all duration-300`}
                       >
-                        {/* Background Image with Gradient Overlay */}
+                        {/* Background Image with Gradient Overlay from bottom */}
                         {niche.backgroundImage && (
                           <>
                             <img 
@@ -258,23 +263,26 @@ export function NichesCarousel() {
                               alt="" 
                               className="absolute inset-0 w-full h-full object-cover"
                             />
-                            <div className={`absolute inset-0 bg-gradient-to-br ${niche.gradient} opacity-80`} />
+                            <div className="absolute inset-0 bg-gradient-to-t from-orange-600 via-orange-500/70 to-transparent" />
                           </>
                         )}
                         
-                        {/* Content */}
+                        {/* Icon - always at top */}
                         <div className="relative z-10">
-                          <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                          <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             <niche.icon className="h-7 w-7 text-white" />
                           </div>
-                          
+                        </div>
+
+                        {/* Content - at bottom for cards with background image */}
+                        <div className="relative z-10">
                           {/* Title */}
                           <h3 className="text-lg font-bold text-white mb-1">{niche.title}</h3>
                           <p className="text-white/80 text-sm mb-4">{niche.subtitle}</p>
                           
                           {/* Features - only show if features exist */}
                           {niche.features.length > 0 && (
-                            <ul className="space-y-2">
+                            <ul className="space-y-2 mb-4">
                               {niche.features.map((feature, idx) => (
                                 <li key={idx} className="flex items-start gap-2 text-white/90 text-sm">
                                   <span className="text-white/60">•</span>
@@ -283,19 +291,19 @@ export function NichesCarousel() {
                               ))}
                             </ul>
                           )}
-                        </div>
 
-                        {/* CTA */}
-                        <Button 
-                          variant="secondary" 
-                          className="relative z-10 w-full mt-4 bg-white/20 hover:bg-white/30 text-white border-white/20 group-hover:bg-white/30"
-                          asChild
-                        >
-                          <Link to={niche.href}>
-                            Saiba mais
-                            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                          </Link>
-                        </Button>
+                          {/* CTA */}
+                          <Button 
+                            variant="secondary" 
+                            className="w-full bg-white/20 hover:bg-white/30 text-white border-white/20 group-hover:bg-white/30"
+                            asChild
+                          >
+                            <Link to={niche.href}>
+                              Saiba mais
+                              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                          </Button>
+                        </div>
                       </div>
                     </HoverLift>
                   </motion.div>

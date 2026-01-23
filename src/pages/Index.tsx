@@ -10,6 +10,7 @@ import { CitiesSection } from "@/components/sections/CitiesSection";
 import { Benefits } from "@/components/sections/Benefits";
 import { WhySpecialized } from "@/components/sections/WhySpecialized";
 import { Testimonials } from "@/components/sections/Testimonials";
+import { PJCalculatorSection } from "@/components/sections/PJCalculatorSection";
 import { Pricing } from "@/components/sections/Pricing";
 import { FAQ } from "@/components/sections/FAQ";
 import { BlogPreview } from "@/components/sections/BlogPreview";
@@ -69,6 +70,10 @@ const Index = () => {
           
           <ScrollAnimation delay={0.1}>
             <Testimonials />
+          </ScrollAnimation>
+
+          <ScrollAnimation delay={0.1}>
+            <PJCalculatorSection />
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>

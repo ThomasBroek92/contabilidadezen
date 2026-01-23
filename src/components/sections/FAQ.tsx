@@ -15,10 +15,6 @@ const faqs = [
     answer: "Contabilidade digital é um modelo 100% online onde você gerencia toda a contabilidade da sua empresa pela internet, sem precisar ir ao escritório. Através de uma plataforma exclusiva, você envia documentos, acompanha impostos, emite notas fiscais e recebe atendimento especializado via WhatsApp. É mais ágil, econômico e transparente que a contabilidade tradicional.",
   },
   {
-    question: "Por que escolher uma contabilidade online?",
-    answer: "A contabilidade online oferece mais agilidade, economia e transparência. Você tem acesso 24/7 aos seus dados, suporte rápido por WhatsApp, economia de até 40% comparado a escritórios tradicionais, e tudo sem burocracia de deslocamento. Ideal para empreendedores modernos que precisam de soluções práticas e eficientes.",
-  },
-  {
     question: "Como funciona o atendimento na contabilidade digital?",
     answer: "Nosso atendimento é feito principalmente via WhatsApp durante horário comercial (9h-18h, seg-sex), com tempo médio de resposta de 2 horas. Você terá um contador dedicado que conhece seu negócio, acesso ao portal do cliente 24/7 e pode agendar reuniões online sempre que precisar. Simples, rápido e humanizado.",
   },

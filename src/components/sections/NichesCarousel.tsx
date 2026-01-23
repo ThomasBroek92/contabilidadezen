@@ -200,8 +200,8 @@ const niches = [
 
 export function NichesCarousel() {
   return (
-    <section className="py-20 lg:py-28 bg-background relative z-10 overflow-visible -mt-8 pt-28">
-      <div className="container mx-auto px-4 overflow-visible">
+    <section className="py-20 lg:py-28 pb-28 lg:pb-36 bg-background relative z-10 overflow-visible -mt-8 pt-28">
+      <div className="container mx-auto px-4 overflow-visible py-4">
         {/* Header */}
         <StaggerContainer className="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
           <StaggerItem type="slide">
@@ -259,9 +259,9 @@ export function NichesCarousel() {
                             <img 
                               src={niche.backgroundImage} 
                               alt="" 
-                              className="absolute inset-0 w-full h-full object-cover"
+                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-orange-600 via-orange-500/70 to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-orange-600 via-orange-500/60 to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300" />
                           </>
                         )}
                         

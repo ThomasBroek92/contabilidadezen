@@ -4,7 +4,7 @@ import { Check, MessageCircle } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { StaggerContainer, StaggerItem, Parallax } from "@/components/ui/scroll-animation";
-import thomasBroekFinalCta from "@/assets/thomas-broek-final-cta.png";
+import youtubersCreatorsBg from "@/assets/youtubers-creators-bg.jpg";
 
 export function FinalCTA() {
   const ref = useRef(null);
@@ -103,8 +103,8 @@ export function FinalCTA() {
                 transition={{ duration: 0.3 }}
               >
                 <img
-                  src={thomasBroekFinalCta}
-                  alt="Thomas Broek - Especialista em Contabilidade Zen"
+                  src={youtubersCreatorsBg}
+                  alt="Contabilidade para YouTubers e Criadores de Conteúdo"
                   className="w-full h-full object-cover"
                 />
               </motion.div>

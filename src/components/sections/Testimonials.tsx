@@ -199,7 +199,7 @@ export function Testimonials() {
           {gmbStats && (
             <StaggerItem type="scale">
               <motion.a
-                href="https://g.co/kgs/contabilidadezen"
+                href="https://g.page/r/CSe4RMezF61hEAI/review"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 mt-6 px-5 py-3 bg-card border border-border rounded-xl hover:border-secondary/50 hover:shadow-card transition-all duration-300 group"
@@ -351,7 +351,7 @@ export function Testimonials() {
             transition={{ delay: 0.6 }}
           >
             <a
-              href="https://g.co/kgs/contabilidadezen"
+              href="https://g.page/r/CSe4RMezF61hEAI/review"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-secondary hover:text-secondary/80 font-medium transition-colors"

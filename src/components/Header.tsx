@@ -12,8 +12,7 @@ import {
   Search,
   User,
   Instagram,
-  Facebook,
-  Youtube
+  Linkedin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -64,10 +63,9 @@ const contactInfo = {
 
 // Social links
 const socialLinks = [
-  { name: "Instagram", icon: Instagram, href: "https://instagram.com/contabilidadezen" },
-  { name: "Facebook", icon: Facebook, href: "https://facebook.com/contabilidadezen" },
+  { name: "Instagram", icon: Instagram, href: "https://www.instagram.com/thomasbroek.contador/" },
+  { name: "LinkedIn", icon: Linkedin, href: "https://www.linkedin.com/company/contabilidade-zen" },
   { name: "WhatsApp", icon: MessageCircle, href: "https://wa.me/5519974158342" },
-  { name: "YouTube", icon: Youtube, href: "https://youtube.com/@contabilidadezen" },
 ];
 
 export function Header() {

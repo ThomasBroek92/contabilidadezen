@@ -136,10 +136,10 @@ export function Footer() {
         <div className="border-t border-primary-foreground/20 mt-12 pt-8">
           <div className="text-center mb-6">
             <p className="text-sm text-primary-foreground/70">
-              <strong>Contabilidade Zen</strong> — Contabilidade Especializada para Profissionais da Saúde
+              <strong>Contabilidade Zen</strong> — Contabilidade digital em todo o Brasil
             </p>
             <p className="text-xs text-primary-foreground/50 mt-2">
-              CNPJ: XX.XXX.XXX/0001-XX • Responsável Técnico: CRC-SP XXXXXX/O
+              CNPJ: 46.466.747/0001-30 • Responsável Técnico: CRC-SP 337693/O-7
             </p>
           </div>
           

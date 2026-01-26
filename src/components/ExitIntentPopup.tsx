@@ -133,7 +133,11 @@ export function ExitIntentPopup() {
               <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-primary/20">
                 <img 
                   src={supportImage} 
-                  alt="Atendimento Contabilidade Zen" 
+                  alt="Atendimento Contabilidade Zen"
+                  width={192}
+                  height={192}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </div>

@@ -168,6 +168,11 @@ export function HeroMultiNiche() {
                 <img
                   src={heroFounder}
                   alt="Thomas Broek - Contador responsável da Contabilidade Zen"
+                  width={512}
+                  height={640}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full max-w-lg h-auto object-cover drop-shadow-2xl"
                 />
                 
@@ -212,6 +217,11 @@ export function HeroMultiNiche() {
               <img
                 src={heroFounder}
                 alt="Thomas Broek - Contador responsável da Contabilidade Zen"
+                width={288}
+                height={360}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
                 className="w-72 h-auto object-cover drop-shadow-xl"
               />
               

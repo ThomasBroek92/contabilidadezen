@@ -105,6 +105,10 @@ export function FinalCTA() {
                 <img
                   src={youtubersCreatorsBg}
                   alt="Contabilidade para YouTubers e Criadores de Conteúdo"
+                  width={448}
+                  height={448}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </motion.div>

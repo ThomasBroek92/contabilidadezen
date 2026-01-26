@@ -36,16 +36,6 @@ const comparisonData = [
     zen: true,
   },
   {
-    feature: "Emissão de notas fiscais",
-    traditional: "Manual",
-    zen: "Automática",
-  },
-  {
-    feature: "Dashboard financeiro",
-    traditional: false,
-    zen: true,
-  },
-  {
     feature: "Consultoria tributária",
     traditional: "Cobrado à parte",
     zen: "Incluso",

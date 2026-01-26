@@ -92,142 +92,150 @@ export function AbrirEmpresaHero() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-muted/50 to-background py-20 lg:py-28">
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Content */}
+        <div className="flex flex-col gap-10">
+          {/* Main Hero Grid */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="space-y-6"
+            >
+              <Badge variant="secondary" className="bg-zen-light-teal text-secondary px-4 py-2 text-sm font-medium">
+                Sua contabilidade sem estresse
+              </Badge>
+
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
+                Foque no seu negócio.{" "}
+                <span className="text-gradient">A burocracia</span> é por nossa conta.
+              </h1>
+
+              <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
+                Contabilidade completa, humanizada e digital para sua empresa crescer com tranquilidade.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button variant="hero" size="xl" asChild>
+                  <Link to="/contato">
+                    Começar Agora
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Google Reviews Badge */}
+              <a
+                href="https://g.page/r/CSe4RMezF61hEAI/review"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-4 py-2.5 bg-card border border-border rounded-xl hover:border-secondary/50 hover:shadow-card transition-all duration-300 group"
+              >
+                <GoogleLogo className="h-6 w-6" />
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-0.5">
+                    {renderStars(Math.round(gmbStats?.average_rating || 5))}
+                  </div>
+                  <span className="font-bold text-foreground text-lg">
+                    {gmbStats?.average_rating?.toFixed(1) || '5.0'}
+                  </span>
+                </div>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-sm text-muted-foreground">
+                  {gmbStats?.total_reviews || 0} avaliações no Google
+                </span>
+              </a>
+            </motion.div>
+
+            {/* Visual */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="relative bg-card rounded-3xl shadow-card p-8 backdrop-blur border border-border/50">
+                {/* Glass effect dashboard mockup */}
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
+                        <Shield className="w-6 h-6 text-secondary-foreground" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground">Dashboard Zen</p>
+                        <p className="text-sm text-muted-foreground">Tudo sob controle</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-secondary/10 text-secondary border-0">Ativo</Badge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-muted/50 rounded-2xl p-4">
+                      <p className="text-sm text-muted-foreground">Impostos</p>
+                      <p className="text-2xl font-bold text-foreground">R$ 0,00</p>
+                      <p className="text-xs text-secondary">Em dia ✓</p>
+                    </div>
+                    <div className="bg-muted/50 rounded-2xl p-4">
+                      <p className="text-sm text-muted-foreground">Documentos</p>
+                      <p className="text-2xl font-bold text-foreground">12</p>
+                      <p className="text-xs text-secondary">Organizados ✓</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-secondary/10 to-accent/10 rounded-2xl p-4 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
+                      <Zap className="w-5 h-5 text-secondary-foreground" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Próximo passo</p>
+                      <p className="text-sm text-muted-foreground">Nenhuma pendência</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Decorative elements */}
+                <div className="absolute -top-4 -right-4 w-24 h-24 bg-secondary/20 rounded-full blur-2xl" />
+                <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-accent/20 rounded-full blur-2xl" />
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Benefits Carousel - Full Width */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-6"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="w-full"
           >
-            <Badge variant="secondary" className="bg-zen-light-teal text-secondary px-4 py-2 text-sm font-medium">
-              Sua contabilidade sem estresse
-            </Badge>
-
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
-              Foque no seu negócio.{" "}
-              <span className="text-gradient">A burocracia</span> é por nossa conta.
-            </h1>
-
-            <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
-              Contabilidade completa, humanizada e digital para sua empresa crescer com tranquilidade.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="hero" size="xl" asChild>
-                <Link to="/contato">
-                  Começar Agora
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
-
-            {/* Google Reviews Badge */}
-            <a
-              href="https://g.page/r/CSe4RMezF61hEAI/review"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-4 py-2.5 bg-card border border-border rounded-xl hover:border-secondary/50 hover:shadow-card transition-all duration-300 group"
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[autoplayPlugin.current]}
+              className="w-full"
             >
-              <GoogleLogo className="h-6 w-6" />
-              <div className="flex items-center gap-2">
-                <div className="flex gap-0.5">
-                  {renderStars(Math.round(gmbStats?.average_rating || 5))}
-                </div>
-                <span className="font-bold text-foreground text-lg">
-                  {gmbStats?.average_rating?.toFixed(1) || '5.0'}
-                </span>
-              </div>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-sm text-muted-foreground">
-                {gmbStats?.total_reviews || 0} avaliações no Google
-              </span>
-            </a>
-
-            {/* Benefits Carousel */}
-            <div className="pt-4 w-full">
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: true,
-                }}
-                plugins={[autoplayPlugin.current]}
-                className="w-full"
-              >
-                <CarouselContent className="-ml-3">
-                  {benefits.map((benefit, index) => (
-                    <CarouselItem key={index} className="pl-3 basis-1/2 md:basis-1/3">
-                      <div className="flex items-center gap-3 bg-card border border-border/50 rounded-xl p-3 shadow-soft h-full">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center shrink-0">
-                          <benefit.icon className="w-5 h-5 text-secondary-foreground" />
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="text-sm font-semibold text-foreground truncate">
-                            {benefit.title}
-                          </h3>
-                          <p className="text-xs text-muted-foreground line-clamp-2">
-                            {benefit.description}
-                          </p>
-                        </div>
+              <CarouselContent className="-ml-4">
+                {benefits.map((benefit, index) => (
+                  <CarouselItem key={index} className="pl-4 basis-1/2 lg:basis-1/3">
+                    <div className="flex items-center gap-4 bg-card border border-border/50 rounded-xl p-4 shadow-soft h-full">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center shrink-0">
+                        <benefit.icon className="w-6 h-6 text-secondary-foreground" />
                       </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </div>
-          </motion.div>
-
-          {/* Visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative"
-          >
-            <div className="relative bg-card rounded-3xl shadow-card p-8 backdrop-blur border border-border/50">
-              {/* Glass effect dashboard mockup */}
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
-                      <Shield className="w-6 h-6 text-secondary-foreground" />
+                      <div className="min-w-0">
+                        <h3 className="text-base font-semibold text-foreground">
+                          {benefit.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {benefit.description}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-foreground">Dashboard Zen</p>
-                      <p className="text-sm text-muted-foreground">Tudo sob controle</p>
-                    </div>
-                  </div>
-                  <Badge className="bg-secondary/10 text-secondary border-0">Ativo</Badge>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-muted/50 rounded-2xl p-4">
-                    <p className="text-sm text-muted-foreground">Impostos</p>
-                    <p className="text-2xl font-bold text-foreground">R$ 0,00</p>
-                    <p className="text-xs text-secondary">Em dia ✓</p>
-                  </div>
-                  <div className="bg-muted/50 rounded-2xl p-4">
-                    <p className="text-sm text-muted-foreground">Documentos</p>
-                    <p className="text-2xl font-bold text-foreground">12</p>
-                    <p className="text-xs text-secondary">Organizados ✓</p>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-secondary/10 to-accent/10 rounded-2xl p-4 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-secondary-foreground" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">Próximo passo</p>
-                    <p className="text-sm text-muted-foreground">Nenhuma pendência</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Decorative elements */}
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-secondary/20 rounded-full blur-2xl" />
-              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-accent/20 rounded-full blur-2xl" />
-            </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
           </motion.div>
         </div>
       </div>

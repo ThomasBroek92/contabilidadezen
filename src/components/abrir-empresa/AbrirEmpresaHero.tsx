@@ -156,7 +156,7 @@ export function AbrirEmpresaHero() {
               >
                 <CarouselContent className="-ml-3">
                   {benefits.map((benefit, index) => (
-                    <CarouselItem key={index} className="pl-3 basis-1/3">
+                    <CarouselItem key={index} className="pl-3 basis-1/2 md:basis-1/3">
                       <div className="flex items-center gap-3 bg-card border border-border/50 rounded-xl p-3 shadow-soft h-full">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center shrink-0">
                           <benefit.icon className="w-5 h-5 text-secondary-foreground" />

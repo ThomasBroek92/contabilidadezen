@@ -252,7 +252,7 @@ export function HomePageSEO() {
   return (
     <SEOHead
       title="Contabilidade Zen - Contabilidade para Profissionais da Saúde | Médicos, Dentistas, Psicólogos"
-      description="Contabilidade especializada para médicos, dentistas, psicólogos e profissionais da saúde. Reduza seus impostos legalmente. Abertura de empresa grátis, planejamento tributário e contabilidade 100% digital."
+      description="Contabilidade especializada para médicos, dentistas, psicólogos e profissionais da saúde. Reduza seus impostos legalmente. Planejamento tributário e contabilidade 100% digital."
       keywords="contabilidade para médicos, contabilidade para dentistas, contabilidade para psicólogos, contabilidade para profissionais da saúde, médico PJ, abertura de empresa médica"
       canonical="/"
       pageType="home"

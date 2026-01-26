@@ -207,26 +207,13 @@ export function AbrirEmpresaLeadForm() {
               
               <div className="grid sm:grid-cols-2 gap-5">
                 <div className="space-y-2">
-                  <Label>Qual é sua profissão?</Label>
-                  <Select 
-                    value={formData.profissao} 
-                    onValueChange={(value) => setFormData({...formData, profissao: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="medico">Médico(a)</SelectItem>
-                      <SelectItem value="dentista">Dentista</SelectItem>
-                      <SelectItem value="psicologo">Psicólogo(a)</SelectItem>
-                      <SelectItem value="fisioterapeuta">Fisioterapeuta</SelectItem>
-                      <SelectItem value="nutricionista">Nutricionista</SelectItem>
-                      <SelectItem value="enfermeiro">Enfermeiro(a)</SelectItem>
-                      <SelectItem value="veterinario">Veterinário(a)</SelectItem>
-                      <SelectItem value="outro-saude">Outro profissional da saúde</SelectItem>
-                      <SelectItem value="outro">Outra área</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="profissao">Qual é sua profissão?</Label>
+                  <Input 
+                    id="profissao"
+                    placeholder="Ex: Médico, Advogado, Desenvolvedor..."
+                    value={formData.profissao}
+                    onChange={(e) => setFormData({...formData, profissao: e.target.value})}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Situação atual</Label>

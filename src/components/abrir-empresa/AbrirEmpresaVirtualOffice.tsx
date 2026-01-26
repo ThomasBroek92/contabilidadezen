@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Building2, MapPin, Sparkles, Gift, CheckCircle2 } from "lucide-react";
+import { Building2, MapPin, Sparkles, Gift, CheckCircle2, CreditCard, Banknote } from "lucide-react";
 
 export function AbrirEmpresaVirtualOffice() {
   return (
@@ -48,9 +48,12 @@ export function AbrirEmpresaVirtualOffice() {
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 className="shrink-0"
               >
-                <div className="relative">
-                  <div className="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center shadow-lg">
-                    <Building2 className="w-12 h-12 md:w-14 md:h-14 text-secondary-foreground" />
+                <div className="relative flex gap-3">
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center shadow-lg">
+                    <Building2 className="w-10 h-10 md:w-12 md:h-12 text-secondary-foreground" />
+                  </div>
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center shadow-lg">
+                    <CreditCard className="w-10 h-10 md:w-12 md:h-12 text-secondary-foreground" />
                   </div>
                   <motion.div
                     animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
@@ -70,29 +73,57 @@ export function AbrirEmpresaVirtualOffice() {
                 </div>
 
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3">
-                  Ganhe sua{" "}
-                  <span className="text-gradient">Sede Virtual Gratuita!</span>
+                  Ganhe{" "}
+                  <span className="text-gradient">Sede Virtual + Conta PJ!</span>
                 </h2>
 
                 <p className="text-muted-foreground text-base md:text-lg mb-6">
                   Ao abrir sua empresa conosco, você recebe um endereço comercial completo 
-                  sem custo adicional. Ideal para quem trabalha de casa ou precisa de um 
-                  endereço profissional.
+                  e uma conta digital PJ 100% gratuita, sem mensalidade. Ideal para quem 
+                  trabalha de casa e quer uma estrutura profissional sem custos extras.
                 </p>
 
-                {/* Benefits list */}
-                <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm">
-                  <div className="flex items-center gap-2 text-foreground">
-                    <CheckCircle2 className="w-5 h-5 text-secondary" />
-                    <span>Endereço comercial</span>
+                {/* Benefits list - Sede Virtual */}
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-secondary" />
+                    Sede Virtual:
+                  </p>
+                  <div className="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-foreground">
+                      <CheckCircle2 className="w-4 h-4 text-secondary" />
+                      <span>Endereço comercial</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-foreground">
+                      <CheckCircle2 className="w-4 h-4 text-secondary" />
+                      <span>Correspondências</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-foreground">
+                      <CheckCircle2 className="w-4 h-4 text-secondary" />
+                      <span>Uso no CNPJ</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-foreground">
-                    <CheckCircle2 className="w-5 h-5 text-secondary" />
-                    <span>Recebimento de correspondências</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-foreground">
-                    <CheckCircle2 className="w-5 h-5 text-secondary" />
-                    <span>Uso no CNPJ</span>
+                </div>
+
+                {/* Benefits list - Conta PJ */}
+                <div>
+                  <p className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-secondary" />
+                    Conta Digital PJ:
+                  </p>
+                  <div className="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-foreground">
+                      <CheckCircle2 className="w-4 h-4 text-secondary" />
+                      <span>PIX ilimitado</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-foreground">
+                      <CheckCircle2 className="w-4 h-4 text-secondary" />
+                      <span>TED gratuito</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-foreground">
+                      <CheckCircle2 className="w-4 h-4 text-secondary" />
+                      <span>Boletos sem custo</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -100,8 +131,11 @@ export function AbrirEmpresaVirtualOffice() {
               {/* Price highlight */}
               <div className="shrink-0 text-center">
                 <div className="bg-muted/50 rounded-2xl p-6 border border-border">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Economia de até
+                  </p>
                   <p className="text-sm text-muted-foreground line-through mb-1">
-                    R$ 99/mês
+                    R$ 200/mês
                   </p>
                   <p className="text-4xl md:text-5xl font-bold text-secondary">
                     R$ 0

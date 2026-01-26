@@ -5,7 +5,7 @@ import { AbrirEmpresaHero } from "@/components/abrir-empresa/AbrirEmpresaHero";
 import { AbrirEmpresaVirtualOffice } from "@/components/abrir-empresa/AbrirEmpresaVirtualOffice";
 import { AbrirEmpresaComparison } from "@/components/abrir-empresa/AbrirEmpresaComparison";
 import { AbrirEmpresaLeadForm } from "@/components/abrir-empresa/AbrirEmpresaLeadForm";
-import { AbrirEmpresaCTA } from "@/components/abrir-empresa/AbrirEmpresaCTA";
+
 
 import { AbrirEmpresaFinancialServices } from "@/components/abrir-empresa/AbrirEmpresaFinancialServices";
 import { AbrirEmpresaFAQ } from "@/components/abrir-empresa/AbrirEmpresaFAQ";
@@ -71,7 +71,6 @@ export default function AbrirEmpresa() {
         
         <AbrirEmpresaFinancialServices />
         <CustomerJourney />
-        <AbrirEmpresaCTA />
         <AbrirEmpresaFAQ />
       </main>
 

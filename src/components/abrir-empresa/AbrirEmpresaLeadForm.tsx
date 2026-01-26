@@ -347,7 +347,7 @@ export function AbrirEmpresaLeadForm() {
               ))}
             </div>
             
-            <div className="p-6 bg-gradient-to-r from-secondary/10 to-accent/10 rounded-xl border border-secondary/20 space-y-4">
+            <div className="p-6 bg-gradient-to-r from-secondary/10 to-accent/10 rounded-xl border border-secondary/20 space-y-4 text-center">
               <p className="text-lg font-semibold text-foreground">
                 💡 Economia garantida desde o primeiro mês
               </p>
@@ -356,19 +356,19 @@ export function AbrirEmpresaLeadForm() {
                 com nosso planejamento tributário especializado.
               </p>
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <div className="bg-card/60 rounded-lg p-3 text-center">
+                <div className="bg-card/60 rounded-lg p-3">
                   <p className="text-xl font-bold text-secondary">Fator R</p>
                   <p className="text-xs text-muted-foreground">Pró-labore otimizado para pagar menos impostos</p>
                 </div>
-                <div className="bg-card/60 rounded-lg p-3 text-center">
+                <div className="bg-card/60 rounded-lg p-3">
                   <p className="text-xl font-bold text-secondary">6% a 15%</p>
                   <p className="text-xs text-muted-foreground">Alíquota efetiva no Simples Nacional</p>
                 </div>
-                <div className="bg-card/60 rounded-lg p-3 text-center">
+                <div className="bg-card/60 rounded-lg p-3">
                   <p className="text-xl font-bold text-secondary">-50%</p>
                   <p className="text-xs text-muted-foreground">Redução média vs. Pessoa Física</p>
                 </div>
-                <div className="bg-card/60 rounded-lg p-3 text-center">
+                <div className="bg-card/60 rounded-lg p-3">
                   <p className="text-xl font-bold text-secondary">100%</p>
                   <p className="text-xs text-muted-foreground">Legal e dentro das normas fiscais</p>
                 </div>

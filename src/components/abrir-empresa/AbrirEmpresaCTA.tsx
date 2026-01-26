@@ -18,7 +18,7 @@ export function AbrirEmpresaCTA() {
             Pronto para ter paz de espírito com sua contabilidade?
           </h2>
           <p className="text-lg text-primary-foreground/80">
-            Abra sua empresa grátis e tenha a contabilidade mais moderna do Brasil ao seu lado.
+            Abra sua empresa e tenha a contabilidade mais moderna do Brasil ao seu lado.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -29,7 +29,7 @@ export function AbrirEmpresaCTA() {
               asChild
             >
               <Link to="/contato">
-                Abrir Empresa Grátis
+                Abrir Minha Empresa
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>

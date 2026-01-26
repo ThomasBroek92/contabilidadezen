@@ -13,7 +13,7 @@ const comparisonData = [
   {
     feature: "Abertura de empresa",
     traditional: "R$ 500 a R$ 1.500",
-    zen: "Grátis",
+    zen: "Incluso no plano",
   },
   {
     feature: "Tempo para abrir CNPJ",

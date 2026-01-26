@@ -18,7 +18,7 @@ const faqSchema = {
       "name": "Quanto custa abrir uma empresa PJ?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Na Contabilidade Zen, a abertura de empresa para profissionais da saúde é gratuita! Você só paga a mensalidade da contabilidade a partir de R$ 297,90/mês."
+        "text": "Na Contabilidade Zen, oferecemos planos a partir de R$ 297,90/mês com todo suporte necessário para abertura e gestão contábil da sua empresa."
       }
     },
     {
@@ -44,14 +44,14 @@ export default function AbrirEmpresa() {
   return (
     <>
       <Helmet>
-        <title>Abrir Empresa Grátis | Contabilidade Zen - Abertura de CNPJ Simples</title>
+        <title>Abrir Empresa | Contabilidade Zen - Abertura de CNPJ Simples</title>
         <meta
           name="description"
-          content="Abra sua empresa grátis com a Contabilidade Zen. Processo 100% digital, sem burocracia. CNPJ em até 15 dias úteis. Contabilidade completa e humanizada."
+          content="Abra sua empresa com a Contabilidade Zen. Processo 100% digital, sem burocracia. CNPJ em até 15 dias úteis. Contabilidade completa e humanizada."
         />
         <meta
           name="keywords"
-          content="abrir empresa, abertura de CNPJ, abrir MEI, abrir empresa grátis, contabilidade online, abertura de empresa"
+          content="abrir empresa, abertura de CNPJ, abrir MEI, contabilidade online, abertura de empresa"
         />
         <link rel="canonical" href="https://www.contabilidadezen.com.br/abrir-empresa" />
         <script type="application/ld+json">

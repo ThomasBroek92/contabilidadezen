@@ -121,8 +121,8 @@ export function AbrirEmpresaLeadForm() {
   const benefits = [
     {
       icon: Sparkles,
-      title: "Abertura Gratuita",
-      description: "Sem taxas de serviço para abrir sua empresa"
+      title: "Processo Simplificado",
+      description: "Abertura ágil e sem complicações"
     },
     {
       icon: Clock,
@@ -146,7 +146,7 @@ export function AbrirEmpresaLeadForm() {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Abra sua empresa <span className="text-secondary">gratuitamente</span>
+            Abra sua empresa com <span className="text-secondary">especialistas</span>
           </h2>
           <p className="text-lg text-muted-foreground">
             Preencha o formulário abaixo e nossa equipe entrará em contato para iniciar o processo de abertura da sua empresa.
@@ -305,7 +305,7 @@ export function AbrirEmpresaLeadForm() {
                 ) : (
                   <>
                     <Send className="h-4 w-4 mr-2" />
-                    Solicitar Abertura Gratuita
+                    Solicitar Abertura
                   </>
                 )}
               </Button>

@@ -7,7 +7,7 @@ import { AbrirEmpresaComparison } from "@/components/abrir-empresa/AbrirEmpresaC
 import { AbrirEmpresaBenefits } from "@/components/abrir-empresa/AbrirEmpresaBenefits";
 import { AbrirEmpresaLeadForm } from "@/components/abrir-empresa/AbrirEmpresaLeadForm";
 import { AbrirEmpresaCTA } from "@/components/abrir-empresa/AbrirEmpresaCTA";
-import { AbrirEmpresaDigitalAccount } from "@/components/abrir-empresa/AbrirEmpresaDigitalAccount";
+
 import { AbrirEmpresaFinancialServices } from "@/components/abrir-empresa/AbrirEmpresaFinancialServices";
 import { AbrirEmpresaFAQ } from "@/components/abrir-empresa/AbrirEmpresaFAQ";
 import { CustomerJourney } from "@/components/sections/CustomerJourney";
@@ -71,7 +71,7 @@ export default function AbrirEmpresa() {
         <AbrirEmpresaComparison />
         
         <AbrirEmpresaBenefits />
-        <AbrirEmpresaDigitalAccount />
+        
         <AbrirEmpresaFinancialServices />
         <CustomerJourney />
         <AbrirEmpresaCTA />

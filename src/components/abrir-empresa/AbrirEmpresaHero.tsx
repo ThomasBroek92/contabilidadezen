@@ -145,27 +145,27 @@ export function AbrirEmpresaHero() {
             </a>
 
             {/* Benefits Carousel */}
-            <div className="pt-2">
+            <div className="pt-4 w-full">
               <Carousel
                 opts={{
                   align: "start",
                   loop: true,
                 }}
                 plugins={[autoplayPlugin.current]}
-                className="w-full max-w-md"
+                className="w-full"
               >
-                <CarouselContent>
+                <CarouselContent className="-ml-3">
                   {benefits.map((benefit, index) => (
-                    <CarouselItem key={index} className="basis-full">
-                      <div className="flex items-center gap-4 bg-card border border-border/50 rounded-xl p-4 shadow-soft">
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center shrink-0">
+                    <CarouselItem key={index} className="pl-3 basis-1/3">
+                      <div className="flex items-center gap-3 bg-card border border-border/50 rounded-xl p-3 shadow-soft h-full">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center shrink-0">
                           <benefit.icon className="w-5 h-5 text-secondary-foreground" />
                         </div>
-                        <div>
-                          <h3 className="text-sm font-semibold text-foreground">
+                        <div className="min-w-0">
+                          <h3 className="text-sm font-semibold text-foreground truncate">
                             {benefit.title}
                           </h3>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground line-clamp-2">
                             {benefit.description}
                           </p>
                         </div>

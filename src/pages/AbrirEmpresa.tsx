@@ -73,9 +73,9 @@ export default function AbrirEmpresa() {
         <AbrirEmpresaBenefits />
         <AbrirEmpresaDigitalAccount />
         <AbrirEmpresaFinancialServices />
-        <AbrirEmpresaFAQ />
         <CustomerJourney />
         <AbrirEmpresaCTA />
+        <AbrirEmpresaFAQ />
       </main>
 
       <Footer />

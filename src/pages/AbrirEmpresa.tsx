@@ -6,7 +6,7 @@ import { AbrirEmpresaVirtualOffice } from "@/components/abrir-empresa/AbrirEmpre
 import { AbrirEmpresaComparison } from "@/components/abrir-empresa/AbrirEmpresaComparison";
 
 import { AbrirEmpresaBenefits } from "@/components/abrir-empresa/AbrirEmpresaBenefits";
-import { AbrirEmpresaTimeline } from "@/components/abrir-empresa/AbrirEmpresaTimeline";
+
 import { AbrirEmpresaLeadForm } from "@/components/abrir-empresa/AbrirEmpresaLeadForm";
 import { AbrirEmpresaCTA } from "@/components/abrir-empresa/AbrirEmpresaCTA";
 const faqSchema = {
@@ -68,7 +68,7 @@ export default function AbrirEmpresa() {
         <AbrirEmpresaComparison />
         
         <AbrirEmpresaBenefits />
-        <AbrirEmpresaTimeline />
+        
         <AbrirEmpresaCTA />
       </main>
 

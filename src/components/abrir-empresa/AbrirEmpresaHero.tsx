@@ -1,10 +1,46 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Star, Shield, Zap } from "lucide-react";
+import { ArrowRight, Star, Shield, Zap, ShieldCheck, Smartphone, HeadphonesIcon, TrendingUp, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import { useRef } from "react";
+
+const benefits = [
+  {
+    icon: ShieldCheck,
+    title: "Segurança Total",
+    description: "Seus dados protegidos com criptografia de ponta.",
+  },
+  {
+    icon: Smartphone,
+    title: "100% Digital",
+    description: "Gerencie sua empresa de qualquer lugar.",
+  },
+  {
+    icon: Zap,
+    title: "Rápido e Eficiente",
+    description: "Processos automatizados para você focar no que importa.",
+  },
+  {
+    icon: HeadphonesIcon,
+    title: "Suporte Humanizado",
+    description: "Atendimento real com pessoas que entendem você.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Economia de Impostos",
+    description: "Pague menos impostos legalmente.",
+  },
+  {
+    icon: FileText,
+    title: "Documentos Organizados",
+    description: "Tudo em um só lugar, sempre acessível.",
+  },
+];
 
 // Google logo SVG component
 function GoogleLogo({ className = "h-5 w-5" }: { className?: string }) {
@@ -19,6 +55,10 @@ function GoogleLogo({ className = "h-5 w-5" }: { className?: string }) {
 }
 
 export function AbrirEmpresaHero() {
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: false })
+  );
+
   // Fetch GMB stats
   const { data: gmbStats } = useQuery({
     queryKey: ['gmb-stats-hero'],
@@ -48,6 +88,7 @@ export function AbrirEmpresaHero() {
       />
     ));
   };
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-muted/50 to-background py-20 lg:py-28">
       <div className="container mx-auto px-4">
@@ -57,7 +98,7 @@ export function AbrirEmpresaHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="space-y-8"
+            className="space-y-6"
           >
             <Badge variant="secondary" className="bg-zen-light-teal text-secondary px-4 py-2 text-sm font-medium">
               Sua contabilidade sem estresse
@@ -102,6 +143,38 @@ export function AbrirEmpresaHero() {
                 {gmbStats?.total_reviews || 0} avaliações no Google
               </span>
             </a>
+
+            {/* Benefits Carousel */}
+            <div className="pt-2">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                plugins={[autoplayPlugin.current]}
+                className="w-full max-w-md"
+              >
+                <CarouselContent>
+                  {benefits.map((benefit, index) => (
+                    <CarouselItem key={index} className="basis-full">
+                      <div className="flex items-center gap-4 bg-card border border-border/50 rounded-xl p-4 shadow-soft">
+                        <div className="w-11 h-11 rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center shrink-0">
+                          <benefit.icon className="w-5 h-5 text-secondary-foreground" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground">
+                            {benefit.title}
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            {benefit.description}
+                          </p>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
+            </div>
           </motion.div>
 
           {/* Visual */}

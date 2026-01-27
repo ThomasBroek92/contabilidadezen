@@ -41,8 +41,8 @@ Allow: /*.jpeg$
 Allow: /*.webp$
 Allow: /*.svg$
 
-# Sitemap
-Sitemap: https://www.contabilidadezen.com.br/sitemap.xml
+# Sitemap (Edge Function dinâmica)
+Sitemap: https://xqlkjoajrefbvbhkusdn.supabase.co/functions/v1/sitemap
 
 # Host preferencial
 Host: https://www.contabilidadezen.com.br

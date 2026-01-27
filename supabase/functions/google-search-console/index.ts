@@ -259,6 +259,34 @@ async function fetchSitemaps(accessToken: string, siteUrl: string) {
   return response.json();
 }
 
+// Submit sitemap to Google Search Console
+async function submitSitemap(accessToken: string, siteUrl: string, sitemapUrl: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await fetch(
+      `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(sitemapUrl)}`,
+      {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error(`Sitemap submission error: ${error}`);
+      return { success: false, message: error };
+    }
+
+    console.log(`Sitemap submitted successfully: ${sitemapUrl}`);
+    return { success: true, message: `Sitemap submetido com sucesso: ${sitemapUrl}` };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, message };
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -377,6 +405,111 @@ serve(async (req) => {
       return new Response(JSON.stringify({
         success: true,
         data: sitemaps,
+        siteUrl
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Submit sitemap to Google Search Console
+    if (action === 'submit-sitemap') {
+      // Need webmasters scope for sitemap submission
+      const webmastersToken = await getAccessToken(credentials, "https://www.googleapis.com/auth/webmasters");
+      
+      const body = await req.json().catch(() => ({}));
+      const cleanSiteUrl = siteUrl.replace(/\/$/, ''); // Remove trailing slash
+      const finalSitemapUrl = body.sitemapUrl || `${cleanSiteUrl}/sitemap.xml`;
+      
+      const result = await submitSitemap(webmastersToken, siteUrl, finalSitemapUrl);
+      
+      return new Response(JSON.stringify({
+        success: result.success,
+        message: result.message,
+        sitemapUrl: finalSitemapUrl,
+        siteUrl
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Bulk add URLs to indexing queue
+    if (action === 'queue-all-pages') {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      
+      // Static pages to index
+      const staticPages = [
+        "/",
+        "/servicos",
+        "/sobre",
+        "/contato",
+        "/blog",
+        "/abrir-empresa",
+        "/medicos",
+        "/indique-e-ganhe",
+        "/segmentos/contabilidade-para-medicos",
+        "/segmentos/contabilidade-para-dentistas",
+        "/segmentos/contabilidade-para-psicologos",
+        "/segmentos/contabilidade-para-representantes-comerciais",
+        "/conteudo/calculadora-pj-clt",
+        "/conteudo/comparativo-tributario",
+        "/conteudo/gerador-rpa",
+        "/politica-de-privacidade",
+        "/termos"
+      ];
+
+      // Fetch published blog posts
+      const { data: blogPosts, error: blogError } = await supabase
+        .from("blog_posts")
+        .select("slug")
+        .eq("status", "published");
+
+      if (blogError) {
+        console.error("Error fetching blog posts:", blogError);
+      }
+
+      // Build full URLs - remove trailing slash from siteUrl
+      const cleanSiteUrl = siteUrl.replace(/\/$/, '');
+      const allUrls: string[] = [];
+      
+      for (const page of staticPages) {
+        allUrls.push(`${cleanSiteUrl}${page}`);
+      }
+      
+      if (blogPosts) {
+        for (const post of blogPosts) {
+          allUrls.push(`${cleanSiteUrl}/blog/${post.slug}`);
+        }
+      }
+
+      console.log(`Queueing ${allUrls.length} URLs for indexing`);
+
+      // Add to indexing queue
+      const queueItems = allUrls.map(url => ({
+        url,
+        action: "URL_UPDATED",
+        status: "pending",
+        retry_count: 0
+      }));
+
+      // Delete existing pending items to avoid duplicates
+      await supabase
+        .from("indexing_queue")
+        .delete()
+        .eq("status", "pending");
+
+      // Insert new items
+      const { error: insertError } = await supabase
+        .from("indexing_queue")
+        .insert(queueItems);
+
+      if (insertError) {
+        throw new Error(`Failed to queue URLs: ${insertError.message}`);
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: `${allUrls.length} URLs adicionadas à fila de indexação`,
+        urls: allUrls,
         siteUrl
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

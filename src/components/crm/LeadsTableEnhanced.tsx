@@ -34,6 +34,7 @@ interface Lead {
   gmv_total: number | null;
   media_compra_mensal: number | null;
   qtd_compras: number | null;
+  observacoes: string | null;
   created_at: string;
 }
 
@@ -146,7 +147,7 @@ export function LeadsTable({ onSelectLead }: LeadsTableProps) {
   const exportToCSV = () => {
     const headers = [
       'Nome', 'Email', 'WhatsApp', 'Empresa', 'Cargo', 'Segmento', 
-      'Etapa', 'Valor do Negócio', 'Faturamento Mensal', 'Data'
+      'Etapa', 'Valor do Negócio', 'Faturamento Mensal', 'Observações', 'Data'
     ];
     const rows = filteredLeads.map((lead) => [
       lead.nome,
@@ -158,6 +159,7 @@ export function LeadsTable({ onSelectLead }: LeadsTableProps) {
       stageLabels[lead.pipeline_stage || 'primeiro_contato'],
       lead.valor_negocio?.toString() || '',
       lead.faturamento_mensal?.toString() || '',
+      lead.observacoes || '',
       format(new Date(lead.created_at), 'dd/MM/yyyy HH:mm'),
     ]);
 
@@ -341,6 +343,11 @@ export function LeadsTable({ onSelectLead }: LeadsTableProps) {
                           <p className="text-xs text-muted-foreground flex items-center gap-1">
                             <Building2 className="h-3 w-3" />
                             {lead.empresa}
+                          </p>
+                        )}
+                        {lead.observacoes && (
+                          <p className="text-xs text-muted-foreground mt-1 truncate max-w-[200px]" title={lead.observacoes}>
+                            📝 {lead.observacoes}
                           </p>
                         )}
                       </div>

@@ -74,12 +74,23 @@ export function RepresentantesLeadForm() {
     setIsSubmitting(true);
     
     try {
+      // Monta informações adicionais para o campo observacoes
+      const infoAdicionais: string[] = [];
+      if (formData.profissao) infoAdicionais.push(`Profissão: ${formData.profissao}`);
+      if (formData.atividade) infoAdicionais.push(`Tipo de Atividade: ${formData.atividade}`);
+      if (formData.tributacao) infoAdicionais.push(`Tributação Atual: ${formData.tributacao}`);
+      if (formData.faturamento) infoAdicionais.push(`Faturamento: ${formData.faturamento}`);
+      if (formData.cidadeEstado) infoAdicionais.push(`Cidade/Estado: ${formData.cidadeEstado}`);
+      if (formData.registroCORE) infoAdicionais.push(`Registro CORE: ${formData.registroCORE}`);
+
       const { error } = await supabase.from('leads').insert({
         nome: result.data.nome,
         email: result.data.email,
         whatsapp: result.data.telefone,
         segmento: 'representantes',
-        fonte: 'lead_form',
+        fonte: 'landing-page-representantes',
+        cargo: formData.profissao || null,
+        observacoes: infoAdicionais.length > 0 ? infoAdicionais.join(' | ') : null,
       });
 
       if (error) throw error;

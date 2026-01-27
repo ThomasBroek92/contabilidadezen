@@ -1,17 +1,16 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 
 export default function PoliticaPrivacidade() {
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Política de Privacidade | Contabilidade Zen</title>
-        <meta
-          name="description"
-          content="Política de Privacidade da Contabilidade Zen. Saiba como coletamos, usamos e protegemos seus dados pessoais."
-        />
-      </Helmet>
+      <SEOHead
+        title="Política de Privacidade"
+        description="Política de Privacidade da Contabilidade Zen. Saiba como coletamos, usamos e protegemos seus dados pessoais."
+        canonical="/politica-de-privacidade"
+        pageType="legal"
+      />
       
       <Header />
       

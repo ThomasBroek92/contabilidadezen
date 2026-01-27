@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -408,13 +408,12 @@ export default function GeradorRPA() {
 
   return (
     <>
-      <Helmet>
-        <title>Gerador de RPA 2026 - Recibo de Pagamento a Autônomo | Contabilidade Zen</title>
-        <meta
-          name="description"
-          content="Gere RPA (Recibo de Pagamento a Autônomo) com cálculo automático de INSS e IRRF. Ferramenta gratuita atualizada com a nova legislação tributária 2026, incluindo isenção para quem ganha até R$ 5.000."
-        />
-      </Helmet>
+      <SEOHead
+        title="Gerador de RPA 2026 - Recibo de Pagamento a Autônomo"
+        description="Gere RPA (Recibo de Pagamento a Autônomo) com cálculo automático de INSS e IRRF. Ferramenta gratuita atualizada com a nova legislação tributária 2026, incluindo isenção para quem ganha até R$ 5.000."
+        canonical="/conteudo/gerador-rpa"
+        pageType="tool"
+      />
 
       <Header />
 

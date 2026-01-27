@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { SEOHead, ToolPageSEO } from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -343,20 +343,18 @@ export default function CalculadoraPJCLT() {
 
   return (
     <TooltipProvider>
-      <Helmet>
-        <title>Calculadora PJ x Autônomo | Economize sendo PJ | Contabilidade Zen</title>
-        <meta
-          name="description"
-          content="Descubra quanto você pode economizar migrando de Autônomo para PJ. Calculadora gratuita mostra a economia real com impostos reduzidos no Simples Nacional."
-        />
-        <meta
-          name="keywords"
-          content="calculadora pj x autonomo, economia pj, simples nacional, abrir empresa, contabilidade para médicos, reduzir impostos"
-        />
-        <script type="application/ld+json">
-          {JSON.stringify(faqSchema)}
-        </script>
-      </Helmet>
+      <SEOHead
+        title="Calculadora PJ x Autônomo | Economize sendo PJ"
+        description="Descubra quanto você pode economizar migrando de Autônomo para PJ. Calculadora gratuita mostra a economia real com impostos reduzidos no Simples Nacional."
+        keywords="calculadora pj x autonomo, economia pj, simples nacional, abrir empresa, contabilidade para médicos, reduzir impostos"
+        canonical="/conteudo/calculadora-pj-clt"
+        pageType="tool"
+        faqs={[
+          { question: "Quanto tempo leva para abrir a empresa?", answer: "O processo completo leva em média 7 a 15 dias úteis." },
+          { question: "O que é o Fator R e como me beneficia?", answer: "O Fator R permite que profissionais paguem impostos menores no Simples Nacional se a folha de pagamento for 28% ou mais do faturamento." },
+          { question: "Posso continuar atendendo nos mesmos lugares sendo PJ?", answer: "Sim! A diferença é que você emite nota fiscal pela empresa." }
+        ]}
+      />
 
       <Header />
 

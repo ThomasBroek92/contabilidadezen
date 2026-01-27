@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -70,21 +70,13 @@ export default function Blog() {
 
   return (
     <>
-      <Helmet>
-        <title>Blog | Contabilidade Zen - Dicas de Contabilidade para Saúde</title>
-        <meta 
-          name="description" 
-          content="Blog com dicas de contabilidade, impostos e gestão financeira para médicos, dentistas e profissionais da saúde. Conteúdo especializado e atualizado." 
-        />
-        <meta 
-          name="keywords" 
-          content="blog contabilidade, dicas impostos médicos, contabilidade saúde, tributação PJ, planejamento tributário" 
-        />
-        <link rel="canonical" href="https://www.contabilidadezen.com.br/blog" />
-        <meta property="og:title" content="Blog | Contabilidade Zen" />
-        <meta property="og:description" content="Dicas de contabilidade, impostos e gestão financeira para profissionais da saúde." />
-        <meta property="og:type" content="website" />
-      </Helmet>
+      <SEOHead
+        title="Blog | Dicas de Contabilidade para Saúde"
+        description="Blog com dicas de contabilidade, impostos e gestão financeira para médicos, dentistas e profissionais da saúde. Conteúdo especializado e atualizado."
+        keywords="blog contabilidade, dicas impostos médicos, contabilidade saúde, tributação PJ, planejamento tributário"
+        canonical="/blog"
+        pageType="blog"
+      />
       <div className="min-h-screen bg-background">
       <Header />
       

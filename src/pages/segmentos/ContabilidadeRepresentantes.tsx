@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { RepresentantesHero } from "@/components/segmentos/representantes/RepresentantesHero";
@@ -14,22 +14,14 @@ import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxCompar
 export default function ContabilidadeRepresentantes() {
   return (
     <>
-      <Helmet>
-        <title>Contabilidade para Representantes Comerciais | Reduza Impostos</title>
-        <meta 
-          name="description" 
-          content="Contabilidade especializada para representantes comerciais. Reduza impostos, organize comissões de múltiplas representadas e mantenha conformidade com o CORE." 
-        />
-        <meta 
-          name="keywords" 
-          content="contabilidade para representantes comerciais, representante comercial PJ, contabilidade para representação, planejamento tributário representante, CORE representante comercial" 
-        />
-        <link rel="canonical" href="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-representantes-comerciais" />
-        <meta property="og:title" content="Contabilidade para Representantes Comerciais | Reduza Impostos" />
-        <meta property="og:description" content="Contabilidade especializada para representantes comerciais. Reduza até 50% dos impostos com planejamento tributário." />
-        <meta property="og:url" content="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-representantes-comerciais" />
-        <meta property="og:type" content="website" />
-      </Helmet>
+      <SEOHead
+        title="Contabilidade para Representantes Comerciais | Reduza Impostos"
+        description="Contabilidade especializada para representantes comerciais. Reduza impostos, organize comissões de múltiplas representadas e mantenha conformidade com o CORE."
+        keywords="contabilidade para representantes comerciais, representante comercial PJ, contabilidade para representação, planejamento tributário representante, CORE representante comercial"
+        canonical="/segmentos/contabilidade-para-representantes-comerciais"
+        pageType="service"
+        includeLocalBusiness
+      />
       
       <Header />
       

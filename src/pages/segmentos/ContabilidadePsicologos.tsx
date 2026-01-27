@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { PsicologosHero } from "@/components/segmentos/psicologos/PsicologosHero";
@@ -14,22 +14,14 @@ import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxCompar
 export default function ContabilidadePsicologos() {
   return (
     <>
-      <Helmet>
-        <title>Contabilidade para Psicólogos e Clínicas de Psicologia | Reduza Impostos</title>
-        <meta 
-          name="description" 
-          content="Contabilidade especializada para psicólogos e clínicas de psicologia. Reduza impostos, elimine burocracias e aumente seus lucros com planejamento tributário personalizado." 
-        />
-        <meta 
-          name="keywords" 
-          content="contabilidade para psicólogos, contabilidade para clínicas de psicologia, psicólogo PJ contabilidade, planejamento tributário psicólogo, contabilidade online para psicólogos" 
-        />
-        <link rel="canonical" href="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-psicologos" />
-        <meta property="og:title" content="Contabilidade para Psicólogos e Clínicas de Psicologia | Reduza Impostos" />
-        <meta property="og:description" content="Contabilidade especializada para psicólogos. Reduza até 40% dos impostos com planejamento tributário." />
-        <meta property="og:url" content="https://www.contabilidadezen.com.br/segmentos/contabilidade-para-psicologos" />
-        <meta property="og:type" content="website" />
-      </Helmet>
+      <SEOHead
+        title="Contabilidade para Psicólogos e Clínicas de Psicologia | Reduza Impostos"
+        description="Contabilidade especializada para psicólogos e clínicas de psicologia. Reduza impostos, elimine burocracias e aumente seus lucros com planejamento tributário personalizado."
+        keywords="contabilidade para psicólogos, contabilidade para clínicas de psicologia, psicólogo PJ contabilidade, planejamento tributário psicólogo, contabilidade online para psicólogos"
+        canonical="/segmentos/contabilidade-para-psicologos"
+        pageType="service"
+        includeLocalBusiness
+      />
       
       <Header />
       

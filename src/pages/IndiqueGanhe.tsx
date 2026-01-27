@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -173,14 +173,14 @@ export default function IndiqueGanhe() {
 
   return (
     <>
-      <Helmet>
-        <title>Indique e Ganhe | Programa de Parceria Contábil | Contabilidade Zen</title>
-        <meta 
-          name="description" 
-          content="Transforme suas indicações em renda extra! Ganhe 100% da primeira mensalidade via PIX ao indicar empresas para a Contabilidade Zen." 
-        />
-        <meta name="keywords" content="programa de indicação, parceria contábil, ganhe dinheiro indicando, contabilidade, PIX" />
-      </Helmet>
+      <SEOHead
+        title="Indique e Ganhe | Programa de Parceria Contábil"
+        description="Transforme suas indicações em renda extra! Ganhe 100% da primeira mensalidade via PIX ao indicar empresas para a Contabilidade Zen."
+        keywords="programa de indicação, parceria contábil, ganhe dinheiro indicando, contabilidade, PIX"
+        canonical="/indique-e-ganhe"
+        pageType="service"
+        faqs={faqs}
+      />
 
       <Header />
 

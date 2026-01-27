@@ -1,17 +1,16 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 
 export default function Termos() {
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Termos de Uso | Contabilidade Zen</title>
-        <meta
-          name="description"
-          content="Termos de Uso da Contabilidade Zen. Conheça os termos e condições de uso dos nossos serviços contábeis."
-        />
-      </Helmet>
+      <SEOHead
+        title="Termos de Uso"
+        description="Termos de Uso da Contabilidade Zen. Conheça os termos e condições de uso dos nossos serviços contábeis."
+        canonical="/termos"
+        pageType="legal"
+      />
       
       <Header />
       

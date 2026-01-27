@@ -22,6 +22,7 @@ const staticPages = [
   { url: "/segmentos/contabilidade-para-medicos", priority: "0.9", changefreq: "monthly" },
   { url: "/segmentos/contabilidade-para-dentistas", priority: "0.9", changefreq: "monthly" },
   { url: "/segmentos/contabilidade-para-psicologos", priority: "0.9", changefreq: "monthly" },
+  { url: "/segmentos/contabilidade-para-representantes-comerciais", priority: "0.9", changefreq: "monthly" },
   // Ferramentas e calculadoras
   { url: "/conteudo/calculadora-pj-clt", priority: "0.8", changefreq: "monthly" },
   { url: "/conteudo/comparativo-tributario", priority: "0.8", changefreq: "monthly" },

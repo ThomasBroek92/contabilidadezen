@@ -20,8 +20,26 @@ Allow: /
 
 # Bloquear páginas administrativas e de autenticação
 Disallow: /admin
+Disallow: /admin/
 Disallow: /auth
+Disallow: /auth/
 Disallow: /parceiro/dashboard
+Disallow: /parceiro/
+
+# Bloquear arquivos internos e assets desnecessários
+Disallow: /lovable-uploads/
+Disallow: /*.json$
+Disallow: /*?*
+
+# Permitir recursos essenciais para renderização
+Allow: /assets/
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.webp$
+Allow: /*.svg$
 
 # Sitemap
 Sitemap: https://www.contabilidadezen.com.br/sitemap.xml

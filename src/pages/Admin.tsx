@@ -4,6 +4,7 @@ import { useAuth, AppRole } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { SEOHead } from '@/components/SEOHead';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Loader2, 
@@ -235,7 +236,14 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <>
+      <SEOHead
+        title="Painel Administrativo | Contabilidade Zen"
+        description="Área administrativa restrita da Contabilidade Zen."
+        noindex={true}
+        nofollow={true}
+      />
+      <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
       <aside 
         className={cn(
@@ -404,6 +412,7 @@ export default function Admin() {
           </Suspense>
         </main>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

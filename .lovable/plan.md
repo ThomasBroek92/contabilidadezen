@@ -1,314 +1,375 @@
 
-# Plano de Implementacao - Fases 2, 3 e 4 de Otimizacao de Performance
+# Plano de Implementação - Fases 5 e 6: Redução de DOM e Virtualização
 
-## Resumo
+## Diagnóstico Atual
 
-Este plano implementa as fases de otimizacao de JavaScript, CSS/Fontes e Resource Hints para atingir a pontuacao de 90+ no PageSpeed Insights.
+### Problema Identificado pelo PageSpeed
+O relatório mostra **1.841 elementos DOM** na página, com destaque para:
+- `CitiesWordCloud`: **78 filhos diretos** (todas as cidades renderizadas simultaneamente)
+- Cada cidade tem animação Framer Motion individual (motion.span com variants)
+- 44 animações não-compostas identificadas
 
----
+### Contagem de Elementos Atual
 
-## Fase 2: Otimizacao de JavaScript
-
-### 2.1 Code Splitting com React.lazy() na Index.tsx
-
-**Objetivo:** Carregar componentes abaixo da dobra sob demanda, reduzindo o bundle inicial.
-
-**Componentes a serem lazy-loaded:**
-- NichesCarousel
-- MainServices
-- CustomerJourney
-- RoutineCarousel
-- CitiesSection
-- Testimonials
-- PJCalculatorSection
-- Benefits
-- FAQ
-- BlogPreview
-- FinalCTA
-
-**Arquivo:** `src/pages/Index.tsx`
-
-**Mudanca:**
-```tsx
-import { lazy, Suspense } from "react";
-
-// Lazy load de componentes abaixo da dobra
-const NichesCarousel = lazy(() => import("@/components/sections/NichesCarousel"));
-const MainServices = lazy(() => import("@/components/sections/MainServices"));
-const CustomerJourney = lazy(() => import("@/components/sections/CustomerJourney"));
-const RoutineCarousel = lazy(() => import("@/components/sections/RoutineCarousel"));
-const CitiesSection = lazy(() => import("@/components/sections/CitiesSection"));
-const Testimonials = lazy(() => import("@/components/sections/Testimonials"));
-const PJCalculatorSection = lazy(() => import("@/components/sections/PJCalculatorSection"));
-const Benefits = lazy(() => import("@/components/sections/Benefits"));
-const FAQ = lazy(() => import("@/components/sections/FAQ"));
-const BlogPreview = lazy(() => import("@/components/sections/BlogPreview"));
-const FinalCTA = lazy(() => import("@/components/sections/FinalCTA"));
-
-// Wrapper com Suspense
-<Suspense fallback={<div className="min-h-[200px]" />}>
-  <NichesCarousel />
-</Suspense>
-```
-
-### 2.2 Otimizar Framer Motion com LazyMotion
-
-**Objetivo:** Reduzir o bundle do Framer Motion de ~90KB para ~30KB.
-
-**Arquivo:** `src/main.tsx`
-
-**Mudanca:**
-```tsx
-import { LazyMotion, domAnimation } from "framer-motion";
-
-createRoot(document.getElementById("root")!).render(
-  <LazyMotion features={domAnimation} strict>
-    <App />
-  </LazyMotion>
-);
-```
-
-### 2.3 Lazy Loading de Componentes Globais
-
-**Arquivo:** `src/App.tsx`
-
-**Mudanca:** Carregar CookieConsent e ExitIntentPopup apenas apos interacao do usuario ou apos 3 segundos:
-
-```tsx
-const CookieConsent = lazy(() => import("@/components/CookieConsent").then(m => ({ default: m.CookieConsent })));
-const ExitIntentPopup = lazy(() => import("@/components/ExitIntentPopup").then(m => ({ default: m.ExitIntentPopup })));
-
-// Com Suspense e delay
-<Suspense fallback={null}>
-  <CookieConsent />
-  <ExitIntentPopup />
-</Suspense>
-```
-
-### 2.4 Deferir Analytics para requestIdleCallback
-
-**Arquivo:** `src/hooks/use-analytics.ts`
-
-**Mudanca:** Usar `requestIdleCallback` para inicializar GA de forma nao-bloqueante.
+| Componente | Elementos | Problema |
+|------------|-----------|----------|
+| CitiesWordCloud (filtro "todas") | 87 cidades | Renderiza TODAS simultaneamente |
+| CitiesWordCloud (filtro "rmc") | 20 cidades | OK |
+| CitiesWordCloud (filtro "sul-sudeste") | 59 cidades | Alto |
+| CitiesWordCloud (filtro "outras") | 15 cidades | OK |
+| FAQ | 9 itens | Cada item com motion.div |
+| Testimonials | 6-10 cards | Usa Carousel (OK) |
+| NichesCarousel | 12 cards | Usa Carousel (OK) |
 
 ---
 
-## Fase 3: Otimizacao de CSS e Fontes
+## Fase 5: Otimização do CitiesWordCloud
 
-### 3.1 Self-Host da Fonte Inter
+### 5.1 Limitar Cidades Visíveis por Filtro
 
-**Objetivo:** Eliminar round-trip para Google Fonts (bloqueador de render).
+**Objetivo:** Reduzir de 87 para máximo 30 cidades visíveis no filtro "todas"
 
-**Acoes:**
-1. Criar pasta `public/fonts/`
-2. A fonte Inter ja esta sendo carregada via Google Fonts CDN
-3. Substituir pelo formato inline com `font-display: swap`
+**Estratégia:**
+- Filtro "todas": mostrar apenas as **30 cidades mais importantes** (primary + top secondary)
+- Filtro "sul-sudeste": mostrar apenas **35 cidades** (RMC completa + capitais principais)
+- Adicionar indicador "+X cidades" para comunicar que há mais
 
-**Arquivo:** `index.html`
+**Arquivo:** `src/components/sections/CitiesSection/CitiesWordCloud.tsx`
 
-**Remover:**
-```html
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-```
-
-**Adicionar (inline no head):**
-```html
-<style>
-  @font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('https://fonts.gstatic.com/s/inter/v18/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7SUc.woff2') format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0300-0301, U+0303-0304, U+0309, U+0323, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-  }
-  @font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url('https://fonts.gstatic.com/s/inter/v18/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7SUc.woff2') format('woff2');
-    unicode-range: U+0000-00FF;
-  }
-  @font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url('https://fonts.gstatic.com/s/inter/v18/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7SUc.woff2') format('woff2');
-    unicode-range: U+0000-00FF;
-  }
-  @font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url('https://fonts.gstatic.com/s/inter/v18/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7SUc.woff2') format('woff2');
-    unicode-range: U+0000-00FF;
-  }
-</style>
-```
-
-### 3.2 Corrigir Animacao border-glow (Nao Composta)
-
-**Problema:** A animacao `border-glow` usa `box-shadow`, que nao e uma propriedade composta e causa jank.
-
-**Arquivo:** `src/index.css`
-
-**Antes (linhas 233-246):**
-```css
-@keyframes border-glow {
-  0%, 100% {
-    --tw-ring-color: hsl(168 76% 42% / 0.6);
-    box-shadow: 0 0 8px hsl(168 76% 42% / 0.2);
-  }
-  50% {
-    --tw-ring-color: hsl(199 89% 48% / 0.7);
-    box-shadow: 0 0 12px hsl(199 89% 48% / 0.25);
-  }
-}
-```
-
-**Depois (usando apenas opacity e transform - propriedades compostas):**
-```css
-@keyframes border-glow {
-  0%, 100% {
-    opacity: 0.85;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-```
-
-### 3.3 Corrigir Animacao glow
-
-**Arquivo:** `src/index.css`
-
-**Antes (linhas 224-230):**
-```css
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px hsl(168 76% 42% / 0.3), 0 0 40px hsl(168 76% 42% / 0.1);
-  }
-  50% {
-    box-shadow: 0 0 30px hsl(168 76% 42% / 0.5), 0 0 60px hsl(168 76% 42% / 0.2);
-  }
-}
-```
-
-**Depois:**
-```css
-@keyframes glow {
-  0%, 100% {
-    opacity: 0.8;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-}
-```
-
-### 3.4 Atualizar Botao cta-glow
-
-**Arquivo:** `src/components/ui/button.tsx`
-
-**Antes (linha 23):**
+**Mudanças:**
 ```tsx
-"cta-glow": "bg-secondary ... animate-border-glow",
+// Constantes de limite por filtro
+const LIMITS = {
+  todas: 30,
+  rmc: 20, // já é o total
+  "sul-sudeste": 35,
+  outras: 15, // já é o total
+};
+
+// Aplicar limite nas cidades filtradas
+const visibleCities = useMemo(() => {
+  const limit = LIMITS[activeFilter];
+  return shuffledCities.slice(0, limit);
+}, [shuffledCities, activeFilter]);
+
+// Calcular quantas cidades não estão visíveis
+const hiddenCount = shuffledCities.length - visibleCities.length;
 ```
 
-**Depois (remover animacao de box-shadow, usar apenas shimmer de CSS):**
+### 5.2 Remover Animações Individuais de Entrada
+
+**Problema:** Cada cidade tem `motion.span` com `variants` que cria overhead de animação.
+
+**Solução:** Substituir animação individual por animação CSS simples no container.
+
+**Antes (pesado - 87 motion.span):**
 ```tsx
-"cta-glow": "bg-secondary text-secondary-foreground shadow-md hover:shadow-lg hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700 ring-2 ring-secondary/50 ring-offset-2 ring-offset-background",
+{shuffledCities.map((city) => (
+  <motion.span
+    key={city.name}
+    variants={itemVariants}
+    onMouseEnter={() => setHoveredCity(city.name)}
+    onMouseLeave={() => setHoveredCity(null)}
+    whileHover={{ scale: 1.1 }}
+    className={...}
+  >
+    {city.name}
+  </motion.span>
+))}
+```
+
+**Depois (leve - spans simples com CSS):**
+```tsx
+{visibleCities.map((city) => (
+  <span
+    key={city.name}
+    className={cn(
+      "cursor-default select-none transition-transform duration-200 hover:scale-110",
+      getCitySize(city, activeFilter),
+      getCityStyles(city),
+    )}
+  >
+    {city.name}
+  </span>
+))}
+
+{hiddenCount > 0 && (
+  <span className="text-sm text-muted-foreground ml-2">
+    +{hiddenCount} cidades
+  </span>
+)}
+```
+
+### 5.3 Simplificar Container Animation
+
+**Antes:** AnimatePresence com staggerChildren (pesado)
+**Depois:** Transição simples de opacity no container
+
+```tsx
+// Remover staggerChildren e usar CSS transition
+<div 
+  key={activeFilter}
+  className="relative z-10 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 md:gap-x-3 md:gap-y-2 animate-fade-in"
+>
+```
+
+Adicionar ao CSS:
+```css
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+```
+
+### 5.4 Remover Hover State Individual
+
+**Problema:** `hoveredCity` state causa re-render a cada mouse move.
+
+**Solução:** Usar apenas CSS para hover effects, remover state.
+
+```tsx
+// REMOVER
+const [hoveredCity, setHoveredCity] = useState<string | null>(null);
+
+// REMOVER dos spans
+onMouseEnter={() => setHoveredCity(city.name)}
+onMouseLeave={() => setHoveredCity(null)}
 ```
 
 ---
 
-## Fase 4: Resource Hints (Preconnects e Preloads)
+## Fase 6: Otimização do FAQ
 
-### 4.1 Atualizar index.html com Preconnects Corretos
+### 6.1 Remover Animação Individual de Cada Item
 
-**Arquivo:** `index.html`
+**Problema:** Cada FAQ item tem `motion.div` com animação baseada em index.
 
-**Adicionar preconnects para APIs usadas:**
+**Arquivo:** `src/components/sections/FAQ.tsx`
 
-```html
-<!-- Supabase API (obrigatorio - usado em todas as paginas) -->
-<link rel="preconnect" href="https://xqlkjoajrefbvbhkusdn.supabase.co" crossorigin />
-<link rel="dns-prefetch" href="https://xqlkjoajrefbvbhkusdn.supabase.co" />
-
-<!-- Google User Content (avatars de reviews) -->
-<link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin />
-<link rel="dns-prefetch" href="https://lh3.googleusercontent.com" />
-
-<!-- WhatsApp API (CTA) -->
-<link rel="dns-prefetch" href="https://wa.me" />
+**Antes (9 motion.div):**
+```tsx
+{faqs.map((faq, index) => (
+  <motion.div
+    key={index}
+    initial={{ opacity: 0, x: 20 }}
+    animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+    transition={{ delay: 0.1 + index * 0.08, duration: 0.4 }}
+  >
+    <AccordionItem>...</AccordionItem>
+  </motion.div>
+))}
 ```
 
-### 4.2 Otimizar Preload da Imagem LCP
-
-**Arquivo:** `index.html`
-
-**Antes:**
-```html
-<link rel="preload" as="image" href="/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png" fetchpriority="high" />
+**Depois (div simples com CSS):**
+```tsx
+{faqs.map((faq, index) => (
+  <div key={index} className="animate-slide-in" style={{ animationDelay: `${index * 50}ms` }}>
+    <AccordionItem>...</AccordionItem>
+  </div>
+))}
 ```
 
-**Depois (adicionar type e imagesrcset para responsividade):**
-```html
-<link rel="preload" as="image" href="/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png" fetchpriority="high" type="image/png" />
+Adicionar ao CSS:
+```css
+@keyframes slide-in {
+  from { 
+    opacity: 0; 
+    transform: translateX(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+.animate-slide-in {
+  animation: slide-in 0.4s ease-out forwards;
+  opacity: 0; /* initial state */
+}
 ```
 
-### 4.3 Remover Preconnects Desnecessarios
+---
 
-**Arquivo:** `index.html`
+## Fase 6: Otimização Adicional de DOM (Testimonials)
 
-**Remover (Google Fonts nao sera mais usado via CDN):**
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-```
+### 6.2 Limitar Fallback Testimonials
+
+**Problema:** 6 testimonials de fallback sempre carregados, mesmo quando GMB reviews existem.
+
+**Arquivo:** `src/components/sections/Testimonials.tsx`
+
+**Solução:** Já usa Carousel com limit(10) do banco. OK, não precisa mudança.
 
 ---
 
 ## Arquivos a Modificar
 
-| Arquivo | Fase | Acao |
-|---------|------|------|
-| `src/pages/Index.tsx` | 2.1 | Adicionar React.lazy e Suspense |
-| `src/main.tsx` | 2.2 | Adicionar LazyMotion wrapper |
-| `src/App.tsx` | 2.3 | Lazy load CookieConsent e ExitIntentPopup |
-| `index.html` | 3.1, 4.1, 4.2, 4.3 | Self-host fonts, preconnects |
-| `src/index.css` | 3.2, 3.3 | Corrigir animacoes nao compostas |
-| `src/components/ui/button.tsx` | 3.4 | Remover animate-border-glow |
+| Arquivo | Ação | Impacto |
+|---------|------|---------|
+| `src/components/sections/CitiesSection/CitiesWordCloud.tsx` | Limitar cidades, remover motion.span | **Alto** |
+| `src/components/sections/FAQ.tsx` | Substituir motion.div por CSS | **Médio** |
+| `src/index.css` | Adicionar animações CSS leves | **Baixo** |
+
+---
+
+## Código Final Proposto
+
+### CitiesWordCloud.tsx (versão otimizada)
+
+```tsx
+import { useState, useMemo } from "react";
+import { citiesData, rmcCities, sulSudesteCities, outrasCities, type FilterType, type CityData } from "./citiesData";
+import { cn } from "@/lib/utils";
+import { MapPin } from "lucide-react";
+
+const filters: { id: FilterType; label: string; icon?: boolean }[] = [
+  { id: "todas", label: "Todas" },
+  { id: "rmc", label: "Região de Campinas", icon: true },
+  { id: "sul-sudeste", label: "Sul e Sudeste" },
+  { id: "outras", label: "Outras Regiões" },
+];
+
+// Limites por filtro para reduzir DOM
+const LIMITS: Record<FilterType, number> = {
+  todas: 30,
+  rmc: 20,
+  "sul-sudeste": 35,
+  outras: 15,
+};
+
+function getCitySize(city: CityData, filter: FilterType): string {
+  // ... (manter lógica existente)
+}
+
+function getCityStyles(city: CityData): string {
+  // ... (manter lógica existente)
+}
+
+export function CitiesWordCloud() {
+  const [activeFilter, setActiveFilter] = useState<FilterType>("todas");
+
+  const getFilteredCities = (): CityData[] => {
+    switch (activeFilter) {
+      case "rmc": return rmcCities;
+      case "sul-sudeste": return sulSudesteCities;
+      case "outras": return outrasCities;
+      default: return citiesData;
+    }
+  };
+
+  const filteredCities = getFilteredCities();
+
+  const sortedCities = useMemo(() => {
+    return [...filteredCities].sort((a, b) => {
+      if (a.name === "Campinas") return -1;
+      if (b.name === "Campinas") return 1;
+      if (a.priority === "primary" && b.priority !== "primary") return -1;
+      if (b.priority === "primary" && a.priority !== "primary") return 1;
+      if (a.priority === "secondary" && b.priority === "tertiary") return -1;
+      if (b.priority === "secondary" && a.priority === "tertiary") return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [filteredCities]);
+
+  // Aplicar limite
+  const limit = LIMITS[activeFilter];
+  const visibleCities = sortedCities.slice(0, limit);
+  const hiddenCount = sortedCities.length - visibleCities.length;
+
+  const getContainerClasses = () => {
+    if (activeFilter === "todas") return "max-h-[200px] md:max-h-[280px]";
+    if (activeFilter === "outras") return "max-h-[150px] md:max-h-[200px]";
+    return "max-h-[180px] md:max-h-[250px]";
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Filter Tabs - botões simples sem motion */}
+      <div className="flex flex-wrap gap-2 justify-center">
+        {filters.map((filter) => (
+          <button
+            key={filter.id}
+            onClick={() => setActiveFilter(filter.id)}
+            className={cn(
+              "px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 hover:scale-103 active:scale-97",
+              activeFilter === filter.id
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                : "bg-card border border-border hover:border-primary/50 hover:bg-muted text-foreground"
+            )}
+          >
+            {filter.icon && <MapPin className="h-3.5 w-3.5" />}
+            {filter.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Word Cloud Container - sem AnimatePresence */}
+      <div className={cn(
+        "relative rounded-xl bg-gradient-to-br from-muted/20 via-background to-muted/10 border border-border/30 p-4 md:p-6 overflow-hidden",
+        getContainerClasses()
+      )}>
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
+          <div className="absolute top-5 left-10 w-20 h-20 bg-primary/5 rounded-full blur-2xl" />
+          <div className="absolute bottom-5 right-10 w-24 h-24 bg-accent/5 rounded-full blur-2xl" />
+        </div>
+
+        {/* Cities - spans simples com CSS transitions */}
+        <div 
+          key={activeFilter}
+          className="relative z-10 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 md:gap-x-3 md:gap-y-2 animate-fade-in"
+        >
+          {visibleCities.map((city) => (
+            <span
+              key={city.name}
+              className={cn(
+                "cursor-default select-none transition-transform duration-200 hover:scale-110 whitespace-nowrap",
+                getCitySize(city, activeFilter),
+                getCityStyles(city),
+              )}
+            >
+              {city.name}
+            </span>
+          ))}
+          
+          {/* Indicador de cidades ocultas */}
+          {hiddenCount > 0 && (
+            <span className="text-xs md:text-sm text-muted-foreground/70 ml-1">
+              +{hiddenCount} cidades
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
 
 ---
 
 ## Impacto Esperado
 
-| Metrica | Antes | Depois | Melhoria |
+| Métrica | Antes | Depois | Melhoria |
 |---------|-------|--------|----------|
-| TBT (Total Blocking Time) | 170ms | ~80ms | -53% |
-| JS Bundle Inicial | ~550KB | ~250KB | -55% |
-| Render-blocking Resources | 2 | 0 | -100% |
-| Non-composited Animations | 44 | 0 | -100% |
-| Performance Score | 61 | ~80 | +19 |
+| Elementos DOM (CitiesWordCloud) | 87 spans | 30 spans | **-65%** |
+| motion.span components | 87 | 0 | **-100%** |
+| Elementos DOM (FAQ) | 9 motion.div | 9 div | ~igual mas mais leve |
+| Re-renders por hover | ~87/section | 0 | **-100%** |
+| Animações Framer Motion | ~100 | ~20 | **-80%** |
+| DOM Total Estimado | 1.841 | ~1.450 | **-21%** |
 
 ---
 
-## Observacoes Tecnicas
+## Observações Técnicas
 
-1. **Framer Motion LazyMotion:** A opcao `strict` garante que apenas as features de `domAnimation` sejam usadas, reduzindo o bundle.
+1. **CSS vs Framer Motion:** Animações CSS são processadas diretamente pelo browser (compositor), enquanto Framer Motion adiciona overhead de JavaScript e virtual DOM.
 
-2. **React.lazy:** Cada componente lazy-loaded cria um chunk separado que so e carregado quando necessario.
+2. **Hover com CSS:** `transition-transform` + `hover:scale-110` é processado na GPU, sem re-renders React.
 
-3. **Font-display: swap:** Garante que o texto seja exibido imediatamente com uma fonte de fallback enquanto a Inter carrega.
+3. **Limites de Cidades:** 30 cidades no filtro "todas" é suficiente para transmitir cobertura nacional sem sobrecarregar o DOM.
 
-4. **Animacoes Compostas:** Apenas `transform`, `opacity` e `filter` sao animadas na GPU sem causar reflow/repaint.
+4. **Indicador "+X cidades":** Mantém transparência com o usuário sobre a quantidade total de cidades atendidas.
 
-5. **Preconnects:** Estabelecem conexao TCP/TLS antecipadamente, economizando ~100-300ms por recurso.
+5. **animate-fade-in:** Uma única animação CSS no container é muito mais eficiente que staggerChildren em 87 elementos.

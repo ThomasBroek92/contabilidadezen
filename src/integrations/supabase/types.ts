@@ -559,6 +559,39 @@ export type Database = {
           },
         ]
       }
+      indexing_stats: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          fail_count: number
+          id: string
+          processed_at: string
+          quota_exceeded: boolean
+          success_count: number
+          total_processed: number
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          fail_count?: number
+          id?: string
+          processed_at?: string
+          quota_exceeded?: boolean
+          success_count?: number
+          total_processed?: number
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          fail_count?: number
+          id?: string
+          processed_at?: string
+          quota_exceeded?: boolean
+          success_count?: number
+          total_processed?: number
+        }
+        Relationships: []
+      }
       lead_interactions: {
         Row: {
           created_at: string

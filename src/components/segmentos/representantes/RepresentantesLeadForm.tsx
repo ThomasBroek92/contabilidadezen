@@ -170,7 +170,21 @@ export function RepresentantesLeadForm() {
                     id="telefone"
                     placeholder="(00) 00000-0000"
                     value={formData.telefone}
-                    onChange={(e) => setFormData({...formData, telefone: e.target.value})}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "");
+                      let formatted = "";
+                      if (value.length <= 2) {
+                        formatted = value.length > 0 ? `(${value}` : "";
+                      } else if (value.length <= 6) {
+                        formatted = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                      } else if (value.length <= 10) {
+                        formatted = `(${value.slice(0, 2)}) ${value.slice(2, 6)}-${value.slice(6)}`;
+                      } else {
+                        formatted = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7, 11)}`;
+                      }
+                      setFormData({...formData, telefone: formatted});
+                    }}
+                    maxLength={16}
                     className={errors.telefone ? "border-destructive" : ""}
                   />
                   {errors.telefone && <p className="text-xs text-destructive">{errors.telefone}</p>}

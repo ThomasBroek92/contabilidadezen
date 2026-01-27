@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -189,10 +189,12 @@ export default function PartnerDashboard() {
 
   return (
     <>
-      <Helmet>
-        <title>Dashboard do Parceiro | Contabilidade Zen</title>
-        <meta name="description" content="Acompanhe suas indicações e ganhos em tempo real no programa Indique e Ganhe." />
-      </Helmet>
+      <SEOHead
+        title="Dashboard do Parceiro | Contabilidade Zen"
+        description="Acompanhe suas indicações e ganhos em tempo real no programa Indique e Ganhe."
+        noindex={true}
+        nofollow={true}
+      />
 
       <Header />
 

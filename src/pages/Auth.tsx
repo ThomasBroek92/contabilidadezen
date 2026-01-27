@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SEOHead } from '@/components/SEOHead';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import logoFull from '@/assets/logo-full.png';
@@ -110,7 +111,14 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+    <>
+      <SEOHead
+        title="Login | Contabilidade Zen"
+        description="Área de acesso restrito da Contabilidade Zen."
+        noindex={true}
+        nofollow={true}
+      />
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <img src={logoFull} alt="Contabilidade Zen" className="h-12 mx-auto mb-4" />
@@ -202,6 +210,7 @@ export default function Auth() {
           </Tabs>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }

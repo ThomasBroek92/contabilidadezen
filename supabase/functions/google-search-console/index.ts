@@ -417,8 +417,21 @@ serve(async (req) => {
       const webmastersToken = await getAccessToken(credentials, "https://www.googleapis.com/auth/webmasters");
       
       const body = await req.json().catch(() => ({}));
-      const cleanSiteUrl = siteUrl.replace(/\/$/, ''); // Remove trailing slash
-      const finalSitemapUrl = body.sitemapUrl || `${cleanSiteUrl}/sitemap.xml`;
+      
+      // For domain properties (sc-domain:...), the sitemap URL must be the actual HTTP URL
+      // Domain properties don't have a URL prefix, so we need to construct the sitemap URL differently
+      let finalSitemapUrl: string;
+      if (body.sitemapUrl) {
+        finalSitemapUrl = body.sitemapUrl;
+      } else if (siteUrl.startsWith('sc-domain:')) {
+        // Extract domain from sc-domain: format and use https://www.
+        const domain = siteUrl.replace('sc-domain:', '');
+        finalSitemapUrl = `https://www.${domain}/sitemap.xml`;
+      } else {
+        // URL-prefix property: use the site URL directly
+        const cleanSiteUrl = siteUrl.replace(/\/$/, '');
+        finalSitemapUrl = `${cleanSiteUrl}/sitemap.xml`;
+      }
       
       const result = await submitSitemap(webmastersToken, siteUrl, finalSitemapUrl);
       
@@ -467,17 +480,25 @@ serve(async (req) => {
         console.error("Error fetching blog posts:", blogError);
       }
 
-      // Build full URLs - remove trailing slash from siteUrl
-      const cleanSiteUrl = siteUrl.replace(/\/$/, '');
+      // Build full URLs - handle domain property format (sc-domain:)
+      let baseUrl: string;
+      if (siteUrl.startsWith('sc-domain:')) {
+        // Extract domain from sc-domain: format and use https://www.
+        const domain = siteUrl.replace('sc-domain:', '');
+        baseUrl = `https://www.${domain}`;
+      } else {
+        baseUrl = siteUrl.replace(/\/$/, ''); // Remove trailing slash
+      }
+      
       const allUrls: string[] = [];
       
       for (const page of staticPages) {
-        allUrls.push(`${cleanSiteUrl}${page}`);
+        allUrls.push(`${baseUrl}${page}`);
       }
       
       if (blogPosts) {
         for (const post of blogPosts) {
-          allUrls.push(`${cleanSiteUrl}/blog/${post.slug}`);
+          allUrls.push(`${baseUrl}/blog/${post.slug}`);
         }
       }
 

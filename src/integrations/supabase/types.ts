@@ -664,6 +664,7 @@ export type Database = {
           id: string
           media_compra_mensal: number | null
           nome: string
+          observacoes: string | null
           origem: Database["public"]["Enums"]["lead_origin"] | null
           pipeline_stage: Database["public"]["Enums"]["pipeline_stage"] | null
           probabilidade_fechamento: number | null
@@ -690,6 +691,7 @@ export type Database = {
           id?: string
           media_compra_mensal?: number | null
           nome: string
+          observacoes?: string | null
           origem?: Database["public"]["Enums"]["lead_origin"] | null
           pipeline_stage?: Database["public"]["Enums"]["pipeline_stage"] | null
           probabilidade_fechamento?: number | null
@@ -716,6 +718,7 @@ export type Database = {
           id?: string
           media_compra_mensal?: number | null
           nome?: string
+          observacoes?: string | null
           origem?: Database["public"]["Enums"]["lead_origin"] | null
           pipeline_stage?: Database["public"]["Enums"]["pipeline_stage"] | null
           probabilidade_fechamento?: number | null

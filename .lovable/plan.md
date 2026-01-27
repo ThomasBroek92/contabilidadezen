@@ -1,375 +1,363 @@
 
-# Plano de Implementação - Fases 5 e 6: Redução de DOM e Virtualização
 
-## Diagnóstico Atual
+# Auditoria de Otimizacao PageSpeed: Status e Plano de Acao
 
-### Problema Identificado pelo PageSpeed
-O relatório mostra **1.841 elementos DOM** na página, com destaque para:
-- `CitiesWordCloud`: **78 filhos diretos** (todas as cidades renderizadas simultaneamente)
-- Cada cidade tem animação Framer Motion individual (motion.span com variants)
-- 44 animações não-compostas identificadas
+## Resumo Executivo
 
-### Contagem de Elementos Atual
-
-| Componente | Elementos | Problema |
-|------------|-----------|----------|
-| CitiesWordCloud (filtro "todas") | 87 cidades | Renderiza TODAS simultaneamente |
-| CitiesWordCloud (filtro "rmc") | 20 cidades | OK |
-| CitiesWordCloud (filtro "sul-sudeste") | 59 cidades | Alto |
-| CitiesWordCloud (filtro "outras") | 15 cidades | OK |
-| FAQ | 9 itens | Cada item com motion.div |
-| Testimonials | 6-10 cards | Usa Carousel (OK) |
-| NichesCarousel | 12 cards | Usa Carousel (OK) |
+Apos analise detalhada do codigo, identifiquei o status de cada item do prompt de otimizacao. Vou listar o que foi FEITO, o que NAO foi feito, e gerar um plano de acao para os itens pendentes. Tambem identificarei o que precisa ser adicionado a base de conhecimento.
 
 ---
 
-## Fase 5: Otimização do CitiesWordCloud
+## 1. STATUS DE CADA ITEM
 
-### 5.1 Limitar Cidades Visíveis por Filtro
+### 1.1 OTIMIZACOES DE DESEMPENHO
 
-**Objetivo:** Reduzir de 87 para máximo 30 cidades visíveis no filtro "todas"
+| Item | Status | Evidencia |
+|------|--------|-----------|
+| Code Splitting (React.lazy) | FEITO | `src/pages/Index.tsx` usa lazy() para 11 componentes |
+| LazyMotion (Framer Motion) | FEITO | `src/main.tsx` usa LazyMotion com domAnimation |
+| Lazy CookieConsent/ExitIntent | FEITO | `src/App.tsx` carrega via Suspense |
+| Imagens com loading="lazy" | PARCIAL | NichesCarousel, FinalCTA, ExitIntent tem, mas outras faltam |
+| Imagens com width/height explicitos | PARCIAL | Hero, NichesCarousel tem, mas inconsistente |
+| Imagens em WebP/AVIF | NAO FEITO | Todas as imagens em `src/assets/` sao JPG/PNG |
+| Eliminar animacoes nao-compostas | PARCIAL | Corrigido glow e border-glow em CSS, mas Framer Motion ainda usa |
+| Limitar DOM (CitiesWordCloud) | FEITO | Limite de 30 cidades + indicador "+X" |
+| FAQ sem motion.div | FEITO | Usa CSS animate-slide-in |
+| Preconnects/dns-prefetch | FEITO | Supabase, Google, WhatsApp no index.html |
+| Self-host fontes (Inter) | FEITO | @font-face inline no index.html |
+| requestIdleCallback para GA | FEITO | `src/hooks/use-analytics.ts` |
+| CSS critico inline | PARCIAL | Fontes inline, mas CSS principal via Tailwind |
+| Defer scripts nao-criticos | FEITO | Lazy loading implementado |
 
-**Estratégia:**
-- Filtro "todas": mostrar apenas as **30 cidades mais importantes** (primary + top secondary)
-- Filtro "sul-sudeste": mostrar apenas **35 cidades** (RMC completa + capitais principais)
-- Adicionar indicador "+X cidades" para comunicar que há mais
+### 1.2 OTIMIZACOES DE ACESSIBILIDADE
 
-**Arquivo:** `src/components/sections/CitiesSection/CitiesWordCloud.tsx`
+| Item | Status | Evidencia |
+|------|--------|-----------|
+| Botoes com aria-label | PARCIAL | Header, Footer, FloatingWhatsApp tem, mas ExitIntentPopup falta |
+| Contraste de cores | NAO VERIFICADO | Precisa auditoria manual |
+| Hierarquia de headings | PARCIAL | Algumas paginas podem ter H2 antes de H1 |
+| Navegacao por teclado | PARCIAL | Focus-visible presente nos botoes |
+| Skip links | NAO FEITO | Nao existe skip link para conteudo principal |
 
-**Mudanças:**
-```tsx
-// Constantes de limite por filtro
-const LIMITS = {
-  todas: 30,
-  rmc: 20, // já é o total
-  "sul-sudeste": 35,
-  outras: 15, // já é o total
-};
+### 1.3 PRATICAS DE SEGURANCA
 
-// Aplicar limite nas cidades filtradas
-const visibleCities = useMemo(() => {
-  const limit = LIMITS[activeFilter];
-  return shuffledCities.slice(0, limit);
-}, [shuffledCities, activeFilter]);
+| Item | Status | Evidencia |
+|------|--------|-----------|
+| Content-Security-Policy (CSP) | NAO FEITO | Nenhuma referencia encontrada |
+| HSTS | NAO FEITO | Configuracao de servidor/CDN, nao codigo |
+| X-Frame-Options | NAO FEITO | Configuracao de servidor/CDN |
+| Trusted Types | NAO FEITO | Avancado, baixa prioridade |
 
-// Calcular quantas cidades não estão visíveis
-const hiddenCount = shuffledCities.length - visibleCities.length;
+### 1.4 SEO
+
+| Item | Status | Evidencia |
+|------|--------|-----------|
+| Dados estruturados (JSON-LD) | FEITO | SEOHead implementa Organization, LocalBusiness, FAQPage, Article |
+| Meta tags dinamicas | FEITO | SEOHead centraliza title, description, OG, canonical |
+| robots.txt | FEITO | Configurado corretamente em `public/robots.txt` |
+| Sitemap | FEITO | Edge function em `supabase/functions/sitemap/` |
+| Core Web Vitals | EM PROGRESSO | Otimizacoes implementadas, precisa medicao |
+
+---
+
+## 2. ITENS PENDENTES (NAO FEITOS)
+
+### 2.1 CRITICO - Conversao de Imagens para WebP
+
+**Problema:** Todas as 18 imagens em `src/assets/` sao JPG/PNG, causando:
+- LCP alto (24,5s reportado)
+- Economia potencial: ~11.378 KiB
+
+**Arquivos afetados:**
+```text
+src/assets/
+- advogados-bg.jpg
+- clinicas-consultorios-bg.jpg
+- ecommerce-bg.jpg
+- exit-intent-support.jpg
+- exportacao-servicos-bg.jpg
+- hero-founder.jpg
+- hero-healthcare.jpg
+- logo-full.png
+- logo-icon.png
+- outros-segmentos-bg.jpg
+- prestadores-servico-bg.jpg
+- produtores-digitais-bg.jpg
+- profissionais-pj-bg.jpg
+- profissionais-saude-bg.jpg
+- profissionais-ti-bg.jpg
+- representante-comercial-bg.jpg
+- thomas-broek-final-cta.png
+- youtubers-creators-bg.jpg
 ```
 
-### 5.2 Remover Animações Individuais de Entrada
+**Acao necessaria:**
+1. Converter todas as imagens para WebP (ferramenta externa)
+2. Atualizar imports nos componentes
+3. Adicionar fallback JPG para navegadores antigos (opcional)
 
-**Problema:** Cada cidade tem `motion.span` com `variants` que cria overhead de animação.
+### 2.2 MEDIO - Skip Links para Acessibilidade
 
-**Solução:** Substituir animação individual por animação CSS simples no container.
+**Problema:** Nao existe skip link para navegacao por teclado
 
-**Antes (pesado - 87 motion.span):**
+**Acao necessaria:**
+Adicionar em `src/App.tsx` ou layout global:
 ```tsx
-{shuffledCities.map((city) => (
-  <motion.span
-    key={city.name}
-    variants={itemVariants}
-    onMouseEnter={() => setHoveredCity(city.name)}
-    onMouseLeave={() => setHoveredCity(null)}
-    whileHover={{ scale: 1.1 }}
-    className={...}
-  >
-    {city.name}
-  </motion.span>
-))}
+<a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 z-50">
+  Pular para o conteudo principal
+</a>
 ```
 
-**Depois (leve - spans simples com CSS):**
+E adicionar `id="main-content"` no `<main>` de cada pagina.
+
+### 2.3 MEDIO - aria-label em Botoes
+
+**Problema:** Botao de fechar no ExitIntentPopup nao tem aria-label
+
+**Arquivo:** `src/components/ExitIntentPopup.tsx` (linha 115-120)
+
+**Acao necessaria:**
 ```tsx
-{visibleCities.map((city) => (
-  <span
-    key={city.name}
-    className={cn(
-      "cursor-default select-none transition-transform duration-200 hover:scale-110",
-      getCitySize(city, activeFilter),
-      getCityStyles(city),
-    )}
-  >
-    {city.name}
-  </span>
-))}
-
-{hiddenCount > 0 && (
-  <span className="text-sm text-muted-foreground ml-2">
-    +{hiddenCount} cidades
-  </span>
-)}
-```
-
-### 5.3 Simplificar Container Animation
-
-**Antes:** AnimatePresence com staggerChildren (pesado)
-**Depois:** Transição simples de opacity no container
-
-```tsx
-// Remover staggerChildren e usar CSS transition
-<div 
-  key={activeFilter}
-  className="relative z-10 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 md:gap-x-3 md:gap-y-2 animate-fade-in"
+<button
+  onClick={() => setIsOpen(false)}
+  className="..."
+  aria-label="Fechar popup"  // ADICIONAR
 >
 ```
 
-Adicionar ao CSS:
+### 2.4 BAIXO - Cabecalhos de Seguranca
+
+**Problema:** CSP, HSTS, X-Frame-Options nao configurados
+
+**Observacao:** Estes sao configurados no servidor/CDN (Netlify, Vercel, etc), nao no codigo da aplicacao. Requer configuracao na plataforma de hospedagem.
+
+### 2.5 BAIXO - Hierarquia de Headings
+
+**Problema potencial:** Verificar se todas as paginas tem exatamente 1 H1 e headings em ordem
+
+**Acao necessaria:** Auditoria manual de cada pagina
+
+---
+
+## 3. ATUALIZACAO DA BASE DE CONHECIMENTO
+
+A base de conhecimento atual (Custom Knowledge) precisa ser atualizada com as seguintes instrucoes:
+
+### 3.1 Adicionar Secao: #IMAGE_OPTIMIZATION_RULES
+
+```text
+#IMAGE_OPTIMIZATION_RULES
+
+## Regras Obrigatorias de Imagens
+
+1. **Formato obrigatorio: WebP**
+   - Todas as imagens devem estar em formato WebP
+   - Fallback JPG apenas para navegadores muito antigos (opcional)
+   - NUNCA subir imagens em JPG/PNG para producao
+
+2. **Tamanho maximo: 200 KB**
+   - Hero/Banner: max 150 KB
+   - Cards/Thumbnails: max 50 KB
+   - Logos: max 20 KB
+
+3. **Dimensoes maximas por contexto:**
+   - Hero desktop: 1200x800
+   - Hero mobile: 600x400
+   - Cards de nicho: 400x420
+   - Thumbnails: 400x300
+   - Logos: 346x70
+
+4. **Atributos obrigatorios em <img>:**
+   - width e height explicitos
+   - loading="lazy" (exceto hero)
+   - loading="eager" + fetchPriority="high" para LCP
+   - decoding="async"
+   - alt descritivo (nunca vazio)
+
+5. **Exemplo correto:**
+```tsx
+<img
+  src={heroImage}
+  alt="Descricao da imagem"
+  width={512}
+  height={640}
+  loading="eager"
+  fetchPriority="high"
+  decoding="async"
+  className="..."
+/>
+```
+```
+
+### 3.2 Adicionar Secao: #ACCESSIBILITY_RULES
+
+```text
+#ACCESSIBILITY_RULES
+
+## Regras Obrigatorias de Acessibilidade
+
+1. **Botoes e Links Interativos**
+   - Todo botao deve ter texto visivel OU aria-label
+   - Botoes com apenas icone DEVEM ter aria-label
+   - Exemplo: `<button aria-label="Fechar modal">X</button>`
+
+2. **Skip Links**
+   - Toda pagina deve ter skip link no topo
+   - Texto: "Pular para o conteudo principal"
+   - Componente: usar SkipLink padrao do projeto
+
+3. **Hierarquia de Headings**
+   - Exatamente 1 H1 por pagina
+   - H2 vem depois de H1, H3 depois de H2 (nunca pular)
+   - H1 deve descrever o proposito da pagina
+
+4. **Contraste de Cores**
+   - Texto normal: minimo 4.5:1
+   - Texto grande: minimo 3:1
+   - Testar com ferramenta de contraste antes de publicar
+
+5. **Focus Visible**
+   - Todos os elementos interativos devem ter focus-visible
+   - Nunca usar outline: none sem alternativa
+   - Testar navegacao completa apenas com teclado
+```
+
+### 3.3 Adicionar Secao: #ANIMATION_PERFORMANCE_RULES
+
+```text
+#ANIMATION_PERFORMANCE_RULES
+
+## Regras de Animacoes Performaticas
+
+1. **Propriedades Permitidas para Animacao**
+   - transform (translateX, translateY, scale, rotate)
+   - opacity
+   - filter (com moderacao)
+
+2. **Propriedades PROIBIDAS para Animacao**
+   - width, height, top, left, right, bottom
+   - margin, padding
+   - box-shadow (usar opacity em pseudo-elemento)
+   - border-width
+
+3. **Framer Motion - Uso Moderado**
+   - Usar CSS transitions quando possivel
+   - motion.div apenas para animacoes complexas
+   - Preferir CSS @keyframes para animacoes simples
+   - Nunca mais de 20 motion.* por pagina
+
+4. **Exemplo Correto de Hover:**
 ```css
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* CERTO */
+.card {
+  transition: transform 0.3s, opacity 0.3s;
 }
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+.card:hover {
+  transform: translateY(-4px);
+  opacity: 0.9;
+}
+
+/* ERRADO */
+.card:hover {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  margin-top: -4px;
 }
 ```
+```
 
-### 5.4 Remover Hover State Individual
+### 3.4 Atualizar Secao Existente: #PERFORMANCE_OPTIMIZATION
 
-**Problema:** `hoveredCity` state causa re-render a cada mouse move.
+Adicionar ao final da secao existente:
 
-**Solução:** Usar apenas CSS para hover effects, remover state.
+```text
+### 10. Code Splitting Obrigatorio
 
+**Componentes que DEVEM usar React.lazy():**
+- NichesCarousel
+- MainServices
+- CustomerJourney
+- RoutineCarousel
+- CitiesSection
+- Testimonials
+- PJCalculatorSection
+- Benefits
+- FAQ
+- BlogPreview
+- FinalCTA
+
+**Componentes globais lazy-loaded:**
+- CookieConsent
+- ExitIntentPopup
+
+**Exemplo de implementacao:**
 ```tsx
-// REMOVER
-const [hoveredCity, setHoveredCity] = useState<string | null>(null);
+const NichesCarousel = lazy(() => 
+  import("@/components/sections/NichesCarousel").then(m => ({ default: m.NichesCarousel }))
+);
 
-// REMOVER dos spans
-onMouseEnter={() => setHoveredCity(city.name)}
-onMouseLeave={() => setHoveredCity(null)}
+// No render
+<Suspense fallback={<SectionFallback />}>
+  <NichesCarousel />
+</Suspense>
+```
 ```
 
 ---
 
-## Fase 6: Otimização do FAQ
+## 4. PLANO DE ACAO PRIORIZADO
 
-### 6.1 Remover Animação Individual de Cada Item
+### Fase 1 - Impacto Alto (LCP/Performance)
 
-**Problema:** Cada FAQ item tem `motion.div` com animação baseada em index.
+| Tarefa | Arquivo | Impacto | Complexidade |
+|--------|---------|---------|--------------|
+| Converter imagens para WebP | src/assets/*.jpg/png | CRITICO | EXTERNO |
+| Atualizar imports de imagens | Componentes que usam assets | ALTO | BAIXO |
 
-**Arquivo:** `src/components/sections/FAQ.tsx`
+### Fase 2 - Acessibilidade
 
-**Antes (9 motion.div):**
-```tsx
-{faqs.map((faq, index) => (
-  <motion.div
-    key={index}
-    initial={{ opacity: 0, x: 20 }}
-    animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
-    transition={{ delay: 0.1 + index * 0.08, duration: 0.4 }}
-  >
-    <AccordionItem>...</AccordionItem>
-  </motion.div>
-))}
-```
+| Tarefa | Arquivo | Impacto | Complexidade |
+|--------|---------|---------|--------------|
+| aria-label no ExitIntentPopup | ExitIntentPopup.tsx | MEDIO | BAIXO |
+| Skip link global | App.tsx ou Layout | MEDIO | BAIXO |
+| Auditoria de headings | Todas as paginas | MEDIO | MEDIO |
 
-**Depois (div simples com CSS):**
-```tsx
-{faqs.map((faq, index) => (
-  <div key={index} className="animate-slide-in" style={{ animationDelay: `${index * 50}ms` }}>
-    <AccordionItem>...</AccordionItem>
-  </div>
-))}
-```
+### Fase 3 - Seguranca (Configuracao Externa)
 
-Adicionar ao CSS:
-```css
-@keyframes slide-in {
-  from { 
-    opacity: 0; 
-    transform: translateX(20px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateX(0); 
-  }
-}
-.animate-slide-in {
-  animation: slide-in 0.4s ease-out forwards;
-  opacity: 0; /* initial state */
-}
-```
+| Tarefa | Local | Impacto | Complexidade |
+|--------|-------|---------|--------------|
+| CSP headers | Plataforma de hospedagem | BAIXO | MEDIO |
+| HSTS | Plataforma de hospedagem | BAIXO | BAIXO |
+| X-Frame-Options | Plataforma de hospedagem | BAIXO | BAIXO |
 
 ---
 
-## Fase 6: Otimização Adicional de DOM (Testimonials)
+## 5. RESUMO DE ALTERACOES NA BASE DE CONHECIMENTO
 
-### 6.2 Limitar Fallback Testimonials
-
-**Problema:** 6 testimonials de fallback sempre carregados, mesmo quando GMB reviews existem.
-
-**Arquivo:** `src/components/sections/Testimonials.tsx`
-
-**Solução:** Já usa Carousel com limit(10) do banco. OK, não precisa mudança.
+1. **ADICIONAR** secao `#IMAGE_OPTIMIZATION_RULES`
+2. **ADICIONAR** secao `#ACCESSIBILITY_RULES`
+3. **ADICIONAR** secao `#ANIMATION_PERFORMANCE_RULES`
+4. **ATUALIZAR** secao `#PERFORMANCE_OPTIMIZATION` com code splitting
+5. **MANTER** secoes existentes: `#SEO_TECHNICAL_RULES`, `#GOOGLE_INDEXING_AUTOMATION`
 
 ---
 
-## Arquivos a Modificar
+## 6. CONCLUSAO
 
-| Arquivo | Ação | Impacto |
-|---------|------|---------|
-| `src/components/sections/CitiesSection/CitiesWordCloud.tsx` | Limitar cidades, remover motion.span | **Alto** |
-| `src/components/sections/FAQ.tsx` | Substituir motion.div por CSS | **Médio** |
-| `src/index.css` | Adicionar animações CSS leves | **Baixo** |
+### Status Geral de Implementacao
 
----
+| Categoria | Implementado | Pendente |
+|-----------|--------------|----------|
+| JavaScript Optimization | 90% | 10% (refinamentos) |
+| CSS/Fonts | 85% | 15% (animacoes residuais) |
+| Imagens | 30% | 70% (conversao WebP) |
+| Acessibilidade | 60% | 40% (aria-labels, skip links) |
+| Seguranca | 20% | 80% (headers de servidor) |
+| SEO | 95% | 5% (monitoring) |
 
-## Código Final Proposto
+### Proximos Passos Recomendados
 
-### CitiesWordCloud.tsx (versão otimizada)
+1. **IMEDIATO:** Converter imagens para WebP (maior impacto no LCP)
+2. **CURTO PRAZO:** Adicionar aria-labels e skip links
+3. **MEDIO PRAZO:** Configurar headers de seguranca na plataforma
+4. **CONTINUO:** Monitorar Core Web Vitals apos cada deploy
 
-```tsx
-import { useState, useMemo } from "react";
-import { citiesData, rmcCities, sulSudesteCities, outrasCities, type FilterType, type CityData } from "./citiesData";
-import { cn } from "@/lib/utils";
-import { MapPin } from "lucide-react";
-
-const filters: { id: FilterType; label: string; icon?: boolean }[] = [
-  { id: "todas", label: "Todas" },
-  { id: "rmc", label: "Região de Campinas", icon: true },
-  { id: "sul-sudeste", label: "Sul e Sudeste" },
-  { id: "outras", label: "Outras Regiões" },
-];
-
-// Limites por filtro para reduzir DOM
-const LIMITS: Record<FilterType, number> = {
-  todas: 30,
-  rmc: 20,
-  "sul-sudeste": 35,
-  outras: 15,
-};
-
-function getCitySize(city: CityData, filter: FilterType): string {
-  // ... (manter lógica existente)
-}
-
-function getCityStyles(city: CityData): string {
-  // ... (manter lógica existente)
-}
-
-export function CitiesWordCloud() {
-  const [activeFilter, setActiveFilter] = useState<FilterType>("todas");
-
-  const getFilteredCities = (): CityData[] => {
-    switch (activeFilter) {
-      case "rmc": return rmcCities;
-      case "sul-sudeste": return sulSudesteCities;
-      case "outras": return outrasCities;
-      default: return citiesData;
-    }
-  };
-
-  const filteredCities = getFilteredCities();
-
-  const sortedCities = useMemo(() => {
-    return [...filteredCities].sort((a, b) => {
-      if (a.name === "Campinas") return -1;
-      if (b.name === "Campinas") return 1;
-      if (a.priority === "primary" && b.priority !== "primary") return -1;
-      if (b.priority === "primary" && a.priority !== "primary") return 1;
-      if (a.priority === "secondary" && b.priority === "tertiary") return -1;
-      if (b.priority === "secondary" && a.priority === "tertiary") return 1;
-      return a.name.localeCompare(b.name);
-    });
-  }, [filteredCities]);
-
-  // Aplicar limite
-  const limit = LIMITS[activeFilter];
-  const visibleCities = sortedCities.slice(0, limit);
-  const hiddenCount = sortedCities.length - visibleCities.length;
-
-  const getContainerClasses = () => {
-    if (activeFilter === "todas") return "max-h-[200px] md:max-h-[280px]";
-    if (activeFilter === "outras") return "max-h-[150px] md:max-h-[200px]";
-    return "max-h-[180px] md:max-h-[250px]";
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Filter Tabs - botões simples sem motion */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        {filters.map((filter) => (
-          <button
-            key={filter.id}
-            onClick={() => setActiveFilter(filter.id)}
-            className={cn(
-              "px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 hover:scale-103 active:scale-97",
-              activeFilter === filter.id
-                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                : "bg-card border border-border hover:border-primary/50 hover:bg-muted text-foreground"
-            )}
-          >
-            {filter.icon && <MapPin className="h-3.5 w-3.5" />}
-            {filter.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Word Cloud Container - sem AnimatePresence */}
-      <div className={cn(
-        "relative rounded-xl bg-gradient-to-br from-muted/20 via-background to-muted/10 border border-border/30 p-4 md:p-6 overflow-hidden",
-        getContainerClasses()
-      )}>
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
-          <div className="absolute top-5 left-10 w-20 h-20 bg-primary/5 rounded-full blur-2xl" />
-          <div className="absolute bottom-5 right-10 w-24 h-24 bg-accent/5 rounded-full blur-2xl" />
-        </div>
-
-        {/* Cities - spans simples com CSS transitions */}
-        <div 
-          key={activeFilter}
-          className="relative z-10 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 md:gap-x-3 md:gap-y-2 animate-fade-in"
-        >
-          {visibleCities.map((city) => (
-            <span
-              key={city.name}
-              className={cn(
-                "cursor-default select-none transition-transform duration-200 hover:scale-110 whitespace-nowrap",
-                getCitySize(city, activeFilter),
-                getCityStyles(city),
-              )}
-            >
-              {city.name}
-            </span>
-          ))}
-          
-          {/* Indicador de cidades ocultas */}
-          {hiddenCount > 0 && (
-            <span className="text-xs md:text-sm text-muted-foreground/70 ml-1">
-              +{hiddenCount} cidades
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-```
-
----
-
-## Impacto Esperado
-
-| Métrica | Antes | Depois | Melhoria |
-|---------|-------|--------|----------|
-| Elementos DOM (CitiesWordCloud) | 87 spans | 30 spans | **-65%** |
-| motion.span components | 87 | 0 | **-100%** |
-| Elementos DOM (FAQ) | 9 motion.div | 9 div | ~igual mas mais leve |
-| Re-renders por hover | ~87/section | 0 | **-100%** |
-| Animações Framer Motion | ~100 | ~20 | **-80%** |
-| DOM Total Estimado | 1.841 | ~1.450 | **-21%** |
-
----
-
-## Observações Técnicas
-
-1. **CSS vs Framer Motion:** Animações CSS são processadas diretamente pelo browser (compositor), enquanto Framer Motion adiciona overhead de JavaScript e virtual DOM.
-
-2. **Hover com CSS:** `transition-transform` + `hover:scale-110` é processado na GPU, sem re-renders React.
-
-3. **Limites de Cidades:** 30 cidades no filtro "todas" é suficiente para transmitir cobertura nacional sem sobrecarregar o DOM.
-
-4. **Indicador "+X cidades":** Mantém transparência com o usuário sobre a quantidade total de cidades atendidas.
-
-5. **animate-fade-in:** Uma única animação CSS no container é muito mais eficiente que staggerChildren em 87 elementos.

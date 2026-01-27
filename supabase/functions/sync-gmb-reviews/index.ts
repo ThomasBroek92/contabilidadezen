@@ -33,6 +33,39 @@ interface PlaceDetailsResponse {
   };
 }
 
+// Verify admin authentication
+async function verifyAdminAuth(req: Request, supabaseUrl: string, supabaseServiceKey: string): Promise<boolean> {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    console.log('No authorization header provided');
+    return false;
+  }
+  
+  const token = authHeader.replace('Bearer ', '');
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  
+  const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+  if (userError || !user) {
+    console.log('Failed to get user from token:', userError?.message);
+    return false;
+  }
+  
+  // Check if user has admin role
+  const { data: roleData, error: roleError } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .eq('role', 'admin')
+    .maybeSingle();
+    
+  if (roleError) {
+    console.log('Error checking admin role:', roleError.message);
+    return false;
+  }
+  
+  return !!roleData;
+}
+
 async function getAccessToken(serviceAccountJson: string): Promise<string> {
   const serviceAccount = JSON.parse(serviceAccountJson);
   
@@ -145,21 +178,35 @@ Deno.serve(async (req) => {
   try {
     console.log('Starting GMB reviews sync...');
     
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Supabase credentials not configured');
+    }
+
+    // Verify admin authentication before proceeding
+    const isAdmin = await verifyAdminAuth(req, supabaseUrl, supabaseServiceKey);
+    if (!isAdmin) {
+      console.log('Unauthorized access attempt to sync-gmb-reviews');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin access required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log('Admin authentication verified');
+    
     const serviceAccountJson = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON');
     // For Places API, we use the Place ID instead of account/location IDs
     // The locationId field will now store the Google Place ID (e.g., ChIJ...)
     const placeId = Deno.env.get('GOOGLE_BUSINESS_PROFILE_LOCATION_ID');
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!serviceAccountJson) {
       throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not configured');
     }
     if (!placeId) {
       throw new Error('GOOGLE_BUSINESS_PROFILE_LOCATION_ID not configured. Please set this to your Google Place ID (starts with ChIJ...)');
-    }
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Supabase credentials not configured');
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);

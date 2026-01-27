@@ -17,7 +17,7 @@ const leadSchema = z.object({
 });
 
 interface TaxComparisonCalculatorProps {
-  profession: "médico" | "dentista" | "psicólogo";
+  profession: "médico" | "dentista" | "psicólogo" | "representante comercial";
 }
 
 const faixasFaturamento = [

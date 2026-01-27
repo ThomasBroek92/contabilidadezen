@@ -223,21 +223,21 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 20px hsl(168 76% 42% / 0.3), 0 0 40px hsl(168 76% 42% / 0.1);
+    opacity: 0.8;
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 30px hsl(168 76% 42% / 0.5), 0 0 60px hsl(168 76% 42% / 0.2);
+    opacity: 1;
+    transform: scale(1.02);
   }
 }
 
 @keyframes border-glow {
   0%, 100% {
-    --tw-ring-color: hsl(168 76% 42% / 0.6);
-    box-shadow: 0 0 8px hsl(168 76% 42% / 0.2);
+    opacity: 0.85;
   }
   50% {
-    --tw-ring-color: hsl(199 89% 48% / 0.7);
-    box-shadow: 0 0 12px hsl(199 89% 48% / 0.25);
+    opacity: 1;
   }
 }
 

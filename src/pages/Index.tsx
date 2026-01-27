@@ -1,25 +1,56 @@
+import { lazy, Suspense } from "react";
 import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { HeroMultiNiche } from "@/components/sections/HeroMultiNiche";
-import { NichesCarousel } from "@/components/sections/NichesCarousel";
-import { MainServices } from "@/components/sections/MainServices";
-import { CustomerJourney } from "@/components/sections/CustomerJourney";
-import { RoutineCarousel } from "@/components/sections/RoutineCarousel";
-import { CitiesSection } from "@/components/sections/CitiesSection";
-import { Benefits } from "@/components/sections/Benefits";
-import { WhySpecialized } from "@/components/sections/WhySpecialized";
-import { Testimonials } from "@/components/sections/Testimonials";
-import { PJCalculatorSection } from "@/components/sections/PJCalculatorSection";
-import { Pricing } from "@/components/sections/Pricing";
-import { FAQ } from "@/components/sections/FAQ";
-import { BlogPreview } from "@/components/sections/BlogPreview";
-import { FinalCTA } from "@/components/sections/FinalCTA";
 import { ScrollAnimation } from "@/components/ui/scroll-animation";
 import { homeFAQs } from "@/lib/seo-schemas";
 
+// Lazy load de componentes abaixo da dobra para reduzir bundle inicial
+const NichesCarousel = lazy(() => 
+  import("@/components/sections/NichesCarousel").then(m => ({ default: m.NichesCarousel }))
+);
+const MainServices = lazy(() => 
+  import("@/components/sections/MainServices").then(m => ({ default: m.MainServices }))
+);
+const CustomerJourney = lazy(() => 
+  import("@/components/sections/CustomerJourney").then(m => ({ default: m.CustomerJourney }))
+);
+const RoutineCarousel = lazy(() => 
+  import("@/components/sections/RoutineCarousel").then(m => ({ default: m.RoutineCarousel }))
+);
+const CitiesSection = lazy(() => 
+  import("@/components/sections/CitiesSection").then(m => ({ default: m.CitiesSection }))
+);
+const Testimonials = lazy(() => 
+  import("@/components/sections/Testimonials").then(m => ({ default: m.Testimonials }))
+);
+const PJCalculatorSection = lazy(() => 
+  import("@/components/sections/PJCalculatorSection").then(m => ({ default: m.PJCalculatorSection }))
+);
+const Benefits = lazy(() => 
+  import("@/components/sections/Benefits").then(m => ({ default: m.Benefits }))
+);
+const FAQ = lazy(() => 
+  import("@/components/sections/FAQ").then(m => ({ default: m.FAQ }))
+);
+const BlogPreview = lazy(() => 
+  import("@/components/sections/BlogPreview").then(m => ({ default: m.BlogPreview }))
+);
+const FinalCTA = lazy(() => 
+  import("@/components/sections/FinalCTA").then(m => ({ default: m.FinalCTA }))
+);
+
+// Fallback minimalista para Suspense
+const SectionFallback = () => (
+  <div className="min-h-[200px] flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
+
 const Index = () => {
-  return <>
+  return (
+    <>
       <SEOHead
         title="Contabilidade Zen - Contabilidade Especializada para Profissionais e Empresas | Economize até 50% em Impostos"
         description="Contabilidade digital nichada para médicos, advogados, TI, produtores digitais, e-commerce e mais. Reduza seus impostos legalmente em até 50%. 100% online."
@@ -36,51 +67,75 @@ const Index = () => {
           <HeroMultiNiche />
           
           <ScrollAnimation>
-            <NichesCarousel />
+            <Suspense fallback={<SectionFallback />}>
+              <NichesCarousel />
+            </Suspense>
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            <MainServices />
+            <Suspense fallback={<SectionFallback />}>
+              <MainServices />
+            </Suspense>
           </ScrollAnimation>
           
           <ScrollAnimation>
-            <CustomerJourney />
+            <Suspense fallback={<SectionFallback />}>
+              <CustomerJourney />
+            </Suspense>
           </ScrollAnimation>
           
           <ScrollAnimation>
-            <RoutineCarousel />
+            <Suspense fallback={<SectionFallback />}>
+              <RoutineCarousel />
+            </Suspense>
           </ScrollAnimation>
           
           <ScrollAnimation>
-            <CitiesSection />
+            <Suspense fallback={<SectionFallback />}>
+              <CitiesSection />
+            </Suspense>
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            <Testimonials />
+            <Suspense fallback={<SectionFallback />}>
+              <Testimonials />
+            </Suspense>
           </ScrollAnimation>
 
           <ScrollAnimation delay={0.1}>
-            <PJCalculatorSection />
+            <Suspense fallback={<SectionFallback />}>
+              <PJCalculatorSection />
+            </Suspense>
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            <Benefits />
+            <Suspense fallback={<SectionFallback />}>
+              <Benefits />
+            </Suspense>
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            <FAQ />
+            <Suspense fallback={<SectionFallback />}>
+              <FAQ />
+            </Suspense>
           </ScrollAnimation>
           
           <ScrollAnimation>
-            <BlogPreview />
+            <Suspense fallback={<SectionFallback />}>
+              <BlogPreview />
+            </Suspense>
           </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
-            <FinalCTA />
+            <Suspense fallback={<SectionFallback />}>
+              <FinalCTA />
+            </Suspense>
           </ScrollAnimation>
         </main>
         <Footer />
       </div>
-    </>;
+    </>
+  );
 };
+
 export default Index;

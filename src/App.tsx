@@ -1,13 +1,12 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { CookieConsent } from "@/components/CookieConsent";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
-import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 import Index from "./pages/Index";
 import Medicos from "./pages/Medicos";
 import Servicos from "./pages/Servicos";
@@ -30,6 +29,14 @@ import Admin from "./pages/Admin";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import Termos from "./pages/Termos";
 import NotFound from "./pages/NotFound";
+
+// Lazy load componentes não-críticos para reduzir bundle inicial
+const CookieConsent = lazy(() => 
+  import("@/components/CookieConsent").then(m => ({ default: m.CookieConsent }))
+);
+const ExitIntentPopup = lazy(() => 
+  import("@/components/ExitIntentPopup").then(m => ({ default: m.ExitIntentPopup }))
+);
 
 const queryClient = new QueryClient();
 
@@ -66,9 +73,12 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           <AnalyticsTracker />
-          <CookieConsent />
+          {/* Componentes não-críticos carregados após o conteúdo principal */}
+          <Suspense fallback={null}>
+            <CookieConsent />
+            <ExitIntentPopup />
+          </Suspense>
           <FloatingWhatsApp />
-          <ExitIntentPopup />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

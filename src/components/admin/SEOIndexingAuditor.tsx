@@ -76,11 +76,22 @@ interface QueueItem {
   retry_count: number;
 }
 
+interface IndexingStats {
+  id: string;
+  processed_at: string;
+  total_processed: number;
+  success_count: number;
+  fail_count: number;
+  quota_exceeded: boolean;
+  error_message: string | null;
+}
+
 export function SEOIndexingAuditor() {
   const { toast } = useToast();
   const [isAuditing, setIsAuditing] = useState(false);
   const [isIndexing, setIsIndexing] = useState(false);
   const [isProcessingQueue, setIsProcessingQueue] = useState(false);
+  const [isRequeueingAll, setIsRequeueingAll] = useState(false);
   const [auditResults, setAuditResults] = useState<PageAuditResult[]>([]);
   const [summary, setSummary] = useState<AuditSummary | null>(null);
   const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
@@ -91,6 +102,7 @@ export function SEOIndexingAuditor() {
   const [queueItems, setQueueItems] = useState<QueueItem[]>([]);
   const [isLoadingQueue, setIsLoadingQueue] = useState(false);
   const [activeTab, setActiveTab] = useState('audit');
+  const [lastStats, setLastStats] = useState<IndexingStats | null>(null);
 
   const fetchQueue = async () => {
     setIsLoadingQueue(true);
@@ -110,9 +122,26 @@ export function SEOIndexingAuditor() {
     }
   };
 
+  const fetchLastStats = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('indexing_stats')
+        .select('*')
+        .order('processed_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      setLastStats(data);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'queue') {
       fetchQueue();
+      fetchLastStats();
     }
   }, [activeTab]);
 
@@ -124,11 +153,13 @@ export function SEOIndexingAuditor() {
       if (error) throw error;
       
       if (data?.success) {
+        const quotaMsg = data.quotaExceeded ? ' (quota esgotada)' : '';
         toast({
           title: 'Fila processada!',
-          description: `${data.successCount || 0} URLs indexadas, ${data.failCount || 0} falhas`
+          description: `${data.successCount || 0} URLs indexadas, ${data.failCount || 0} falhas${quotaMsg}`
         });
         fetchQueue();
+        fetchLastStats();
       } else {
         throw new Error(data?.error || 'Erro desconhecido');
       }
@@ -141,6 +172,36 @@ export function SEOIndexingAuditor() {
       });
     } finally {
       setIsProcessingQueue(false);
+    }
+  };
+
+  const requeueAllPages = async () => {
+    setIsRequeueingAll(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('google-search-console', {
+        body: { action: 'queue-all-pages' }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.success) {
+        toast({
+          title: 'Fila repopulada!',
+          description: `${data.queued || 0} URLs adicionadas à fila de indexação`
+        });
+        fetchQueue();
+      } else {
+        throw new Error(data?.error || 'Erro desconhecido');
+      }
+    } catch (error) {
+      console.error('Error requeuing all pages:', error);
+      toast({
+        title: 'Erro ao repopular fila',
+        description: error instanceof Error ? error.message : 'Falha ao repopular',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsRequeueingAll(false);
     }
   };
 
@@ -527,20 +588,63 @@ export function SEOIndexingAuditor() {
         </TabsContent>
 
         <TabsContent value="queue" className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h3 className="text-lg font-semibold">Fila de Indexação Automática</h3>
-              <p className="text-sm text-muted-foreground">Posts publicados ou atualizados são adicionados automaticamente e processados a cada 30 min.</p>
+              <p className="text-sm text-muted-foreground">
+                Posts publicados são adicionados automaticamente. Processamento diário às 3h BRT.
+              </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button variant="outline" onClick={fetchQueue} disabled={isLoadingQueue} className="gap-2">
                 <RefreshCw className={`h-4 w-4 ${isLoadingQueue ? 'animate-spin' : ''}`} />Atualizar
+              </Button>
+              <Button variant="outline" onClick={requeueAllPages} disabled={isRequeueingAll} className="gap-2">
+                {isRequeueingAll ? <><Loader2 className="h-4 w-4 animate-spin" />Repopulando...</> : <><Globe className="h-4 w-4" />Requeue Todas</>}
               </Button>
               <Button onClick={processQueueNow} disabled={isProcessingQueue || pendingQueueItems.length === 0} className="gap-2">
                 {isProcessingQueue ? <><Loader2 className="h-4 w-4 animate-spin" />Processando...</> : <><Play className="h-4 w-4" />Processar Agora</>}
               </Button>
             </div>
           </div>
+
+          {/* Last Processing Stats */}
+          {lastStats && (
+            <Card className="border-primary/20">
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Activity className="h-5 w-5 text-primary" />
+                  <span className="font-medium">Último Processamento</span>
+                  <span className="text-sm text-muted-foreground ml-auto">
+                    {new Date(lastStats.processed_at).toLocaleString('pt-BR')}
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-3 text-sm">
+                  <div className="p-2 rounded bg-muted/50">
+                    <span className="text-muted-foreground">Total</span>
+                    <p className="font-bold">{lastStats.total_processed}</p>
+                  </div>
+                  <div className="p-2 rounded bg-green-500/10">
+                    <span className="text-green-700">Sucesso</span>
+                    <p className="font-bold text-green-700">{lastStats.success_count}</p>
+                  </div>
+                  <div className="p-2 rounded bg-red-500/10">
+                    <span className="text-red-700">Falhas</span>
+                    <p className="font-bold text-red-700">{lastStats.fail_count}</p>
+                  </div>
+                  <div className={`p-2 rounded ${lastStats.quota_exceeded ? 'bg-amber-500/10' : 'bg-muted/50'}`}>
+                    <span className={lastStats.quota_exceeded ? 'text-amber-700' : 'text-muted-foreground'}>Quota</span>
+                    <p className={`font-bold ${lastStats.quota_exceeded ? 'text-amber-700' : ''}`}>
+                      {lastStats.quota_exceeded ? 'Esgotada' : 'OK'}
+                    </p>
+                  </div>
+                </div>
+                {lastStats.error_message && (
+                  <p className="text-sm text-red-600 mt-2">{lastStats.error_message}</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           <div className="grid grid-cols-3 gap-4">
             <Card className="p-4">
@@ -579,7 +683,7 @@ export function SEOIndexingAuditor() {
                         {item.status === 'pending' && <Clock className="h-5 w-5 text-amber-600" />}
                         {item.status === 'failed' && <XCircle className="h-5 w-5 text-red-600" />}
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate text-sm">{item.url.replace('https://contabilidadezen.com.br', '')}</p>
+                          <p className="font-medium truncate text-sm">{item.url.replace('https://contabilidadezen.com.br', '').replace('https://www.contabilidadezen.com.br', '')}</p>
                           <p className="text-xs text-muted-foreground">
                             Criado: {new Date(item.created_at).toLocaleString('pt-BR')}
                             {item.processed_at && ` • Processado: ${new Date(item.processed_at).toLocaleString('pt-BR')}`}
@@ -597,11 +701,12 @@ export function SEOIndexingAuditor() {
 
           <Alert>
             <CalendarClock className="h-4 w-4" />
-            <AlertTitle>Re-indexação Automática</AlertTitle>
+            <AlertTitle>Sistema de Indexação Automatizada</AlertTitle>
             <AlertDescription className="space-y-2">
-              <p><strong>Automático:</strong> Posts publicados/atualizados são adicionados à fila.</p>
-              <p><strong>Processamento:</strong> Fila processada a cada 30 minutos via cron.</p>
-              <p><strong>Retentativas:</strong> Falhas são reprocessadas até 3 vezes.</p>
+              <p><strong>Automático:</strong> Posts publicados/atualizados são adicionados à fila via trigger.</p>
+              <p><strong>Processamento Diário:</strong> CRON executa às 6h UTC (3h BRT) quando a quota do Google renova.</p>
+              <p><strong>Requeue Semanal:</strong> Todas as páginas são repopuladas às segundas 5h UTC (2h BRT).</p>
+              <p><strong>Limite:</strong> Máximo 200 URLs/dia (quota Google Indexing API).</p>
             </AlertDescription>
           </Alert>
         </TabsContent>

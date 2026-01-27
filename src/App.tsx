@@ -18,6 +18,7 @@ import Contato from "./pages/Contato";
 import ContabilidadeMedicos from "./pages/segmentos/ContabilidadeMedicos";
 import ContabilidadeDentistas from "./pages/segmentos/ContabilidadeDentistas";
 import ContabilidadePsicologos from "./pages/segmentos/ContabilidadePsicologos";
+import ContabilidadeRepresentantes from "./pages/segmentos/ContabilidadeRepresentantes";
 import CalculadoraPJCLT from "./pages/conteudo/CalculadoraPJCLT";
 import GeradorRPA from "./pages/conteudo/GeradorRPA";
 import ComparativoTributario from "./pages/conteudo/ComparativoTributario";
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/segmentos/contabilidade-para-medicos" element={<ContabilidadeMedicos />} />
             <Route path="/segmentos/contabilidade-para-dentistas" element={<ContabilidadeDentistas />} />
             <Route path="/segmentos/contabilidade-para-psicologos" element={<ContabilidadePsicologos />} />
+            <Route path="/segmentos/contabilidade-para-representantes-comerciais" element={<ContabilidadeRepresentantes />} />
             <Route path="/conteudo/calculadora-pj-clt" element={<CalculadoraPJCLT />} />
             <Route path="/conteudo/gerador-rpa" element={<GeradorRPA />} />
             <Route path="/conteudo/comparativo-tributario" element={<ComparativoTributario />} />

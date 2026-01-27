@@ -76,7 +76,7 @@ const niches = [
       "Registro no CORE",
       "Múltiplas representadas",
     ],
-    href: "/contato",
+    href: "/segmentos/contabilidade-para-representantes-comerciais",
     // Laranja: vendas, energia, dinamismo comercial
     gradient: "from-orange-500 to-orange-400",
     backgroundImage: representanteComercialBg,

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -297,11 +297,13 @@ export default function ComparativoTributario() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Comparativo de Regimes Tributários | Simples Nacional, Lucro Presumido, CLT | Contabilidade Zen</title>
-        <meta name="description" content="Compare Simples Nacional Anexo III e V, Lucro Presumido, CLT e Autônomo. Calculadora de Fator R e simulador de economia tributária para profissionais da saúde." />
-        <meta name="keywords" content="comparativo tributário, simples nacional, anexo 3, anexo 5, fator r, lucro presumido, CLT, autônomo, médico, dentista, psicólogo" />
-      </Helmet>
+      <SEOHead
+        title="Comparativo de Regimes Tributários | Simples Nacional, Lucro Presumido, CLT"
+        description="Compare Simples Nacional Anexo III e V, Lucro Presumido, CLT e Autônomo. Calculadora de Fator R e simulador de economia tributária para profissionais da saúde."
+        keywords="comparativo tributário, simples nacional, anexo 3, anexo 5, fator r, lucro presumido, CLT, autônomo, médico, dentista, psicólogo"
+        canonical="/conteudo/comparativo-tributario"
+        pageType="tool"
+      />
 
       <Header />
 

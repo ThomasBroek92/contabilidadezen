@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -64,8 +64,17 @@ const services = [
 
 export default function Medicos() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <>
+      <SEOHead
+        title="Contabilidade para Médicos | Especialistas em Saúde"
+        description="Somos especialistas em contabilidade para médicos. Clínicos, especialistas, plantonistas ou médicos PJ - entendemos sua rotina e suas necessidades específicas."
+        keywords="contabilidade para médicos, contabilidade médica, médico PJ, planejamento tributário médico"
+        canonical="/medicos"
+        pageType="service"
+        includeLocalBusiness
+      />
+      <div className="min-h-screen bg-background">
+        <Header />
       
       <main>
         {/* Hero */}
@@ -264,6 +273,7 @@ export default function Medicos() {
       </main>
 
       <Footer />
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { HeroMultiNiche } from "@/components/sections/HeroMultiNiche";
@@ -16,33 +16,20 @@ import { FAQ } from "@/components/sections/FAQ";
 import { BlogPreview } from "@/components/sections/BlogPreview";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { ScrollAnimation } from "@/components/ui/scroll-animation";
-import { homePageSchema, generateFAQSchema, homeFAQs } from "@/lib/seo-schemas";
+import { homeFAQs } from "@/lib/seo-schemas";
+
 const Index = () => {
-  // Combine all schemas for maximum rich snippet potential
-  const combinedSchema = {
-    ...homePageSchema,
-    "@graph": [...homePageSchema["@graph"], generateFAQSchema(homeFAQs)]
-  };
   return <>
-      <Helmet>
-        <title>Contabilidade Zen - Contabilidade Especializada para Profissionais e Empresas | Economize até 50% em Impostos</title>
-        <meta name="description" content="Contabilidade digital nichada para médicos, advogados, TI, produtores digitais, e-commerce e mais. Reduza seus impostos legalmente em até 50%. 100% online, abertura de empresa grátis." />
-        <meta name="keywords" content="contabilidade para médicos, contabilidade para advogados, contabilidade para TI, contabilidade para produtores digitais, contabilidade para e-commerce, contabilidade online, abertura de empresa, planejamento tributário" />
-        <link rel="canonical" href="https://www.contabilidadezen.com.br" />
-        <meta property="og:title" content="Contabilidade Zen - Economize até 50% em Impostos" />
-        <meta property="og:description" content="Contabilidade digital especializada por nicho. Médicos, advogados, TI, produtores digitais e mais. 100% online, 0% burocracia." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.contabilidadezen.com.br" />
-        <meta property="og:image" content="https://www.contabilidadezen.com.br/og-image.png" />
-        <meta property="og:locale" content="pt_BR" />
-        <meta property="og:site_name" content="Contabilidade Zen" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Contabilidade Zen - Economize até 50% em Impostos" />
-        <meta name="twitter:description" content="Contabilidade digital especializada por nicho. 100% online, máxima economia tributária." />
-        <script type="application/ld+json">
-          {JSON.stringify(combinedSchema)}
-        </script>
-      </Helmet>
+      <SEOHead
+        title="Contabilidade Zen - Contabilidade Especializada para Profissionais e Empresas | Economize até 50% em Impostos"
+        description="Contabilidade digital nichada para médicos, advogados, TI, produtores digitais, e-commerce e mais. Reduza seus impostos legalmente em até 50%. 100% online."
+        keywords="contabilidade para médicos, contabilidade para advogados, contabilidade para TI, contabilidade para produtores digitais, contabilidade para e-commerce, contabilidade online, abertura de empresa, planejamento tributário"
+        canonical="/"
+        pageType="home"
+        includeOrganization
+        includeLocalBusiness
+        faqs={homeFAQs}
+      />
       <div className="min-h-screen bg-background">
         <Header />
         <main>

@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -185,21 +185,15 @@ export default function Contato() {
 
   return (
     <>
-      <Helmet>
-        <title>Contato | Contabilidade Zen - Fale Conosco</title>
-        <meta 
-          name="description" 
-          content="Entre em contato com a Contabilidade Zen. Agende uma consulta gratuita com nossos especialistas em contabilidade para profissionais da saúde. WhatsApp: (19) 97415-8342." 
-        />
-        <meta 
-          name="keywords" 
-          content="contato contabilidade zen, agendar consulta, contabilidade saúde contato, whatsapp contador" 
-        />
-        <link rel="canonical" href="https://www.contabilidadezen.com.br/contato" />
-        <meta property="og:title" content="Contato | Contabilidade Zen" />
-        <meta property="og:description" content="Agende uma consulta gratuita com nossos especialistas em contabilidade para profissionais da saúde." />
-        <meta property="og:type" content="website" />
-      </Helmet>
+      <SEOHead
+        title="Contato | Fale Conosco"
+        description="Entre em contato com a Contabilidade Zen. Agende uma consulta gratuita com nossos especialistas em contabilidade para profissionais da saúde. WhatsApp: (19) 97415-8342."
+        keywords="contato contabilidade zen, agendar consulta, contabilidade saúde contato, whatsapp contador"
+        canonical="/contato"
+        pageType="contact"
+        includeOrganization
+        includeLocalBusiness
+      />
       <div className="min-h-screen bg-background">
       <Header />
       

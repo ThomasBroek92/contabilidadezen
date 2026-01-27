@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { citiesData, rmcCities, sulSudesteCities, outrasCities, type FilterType, type CityData } from "./citiesData";
 import { cn } from "@/lib/utils";
 import { MapPin } from "lucide-react";
@@ -10,6 +9,14 @@ const filters: { id: FilterType; label: string; icon?: boolean }[] = [
   { id: "sul-sudeste", label: "Sul e Sudeste" },
   { id: "outras", label: "Outras Regiões" },
 ];
+
+// Limites por filtro para reduzir DOM
+const LIMITS: Record<FilterType, number> = {
+  todas: 30,
+  rmc: 20,
+  "sul-sudeste": 35,
+  outras: 15,
+};
 
 function getCitySize(city: CityData, filter: FilterType): string {
   // Compact sizes for "todas" filter
@@ -69,7 +76,6 @@ function getCityStyles(city: CityData): string {
 
 export function CitiesWordCloud() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("todas");
-  const [hoveredCity, setHoveredCity] = useState<string | null>(null);
 
   const getFilteredCities = (): CityData[] => {
     switch (activeFilter) {
@@ -87,7 +93,7 @@ export function CitiesWordCloud() {
   const filteredCities = getFilteredCities();
 
   // Sort cities with Campinas and primary first
-  const shuffledCities = useMemo(() => {
+  const sortedCities = useMemo(() => {
     return [...filteredCities].sort((a, b) => {
       if (a.name === "Campinas") return -1;
       if (b.name === "Campinas") return 1;
@@ -99,34 +105,10 @@ export function CitiesWordCloud() {
     });
   }, [filteredCities]);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.015,
-        delayChildren: 0.05,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 25,
-      },
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 0.8,
-      transition: { duration: 0.15 },
-    },
-  };
+  // Aplicar limite por filtro
+  const limit = LIMITS[activeFilter];
+  const visibleCities = sortedCities.slice(0, limit);
+  const hiddenCount = sortedCities.length - visibleCities.length;
 
   // Dynamic container height based on filter
   const getContainerClasses = () => {
@@ -141,16 +123,14 @@ export function CitiesWordCloud() {
 
   return (
     <div className="space-y-6">
-      {/* Filter Tabs */}
+      {/* Filter Tabs - botões simples sem motion */}
       <div className="flex flex-wrap gap-2 justify-center">
         {filters.map((filter) => (
-          <motion.button
+          <button
             key={filter.id}
             onClick={() => setActiveFilter(filter.id)}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
             className={cn(
-              "px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 flex items-center gap-1.5",
+              "px-3 py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 hover:scale-[1.03] active:scale-[0.97]",
               activeFilter === filter.id
                 ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                 : "bg-card border border-border hover:border-primary/50 hover:bg-muted text-foreground"
@@ -158,11 +138,11 @@ export function CitiesWordCloud() {
           >
             {filter.icon && <MapPin className="h-3.5 w-3.5" />}
             {filter.label}
-          </motion.button>
+          </button>
         ))}
       </div>
 
-      {/* Word Cloud Container - Compact */}
+      {/* Word Cloud Container - sem AnimatePresence */}
       <div className={cn(
         "relative rounded-xl bg-gradient-to-br from-muted/20 via-background to-muted/10 border border-border/30 p-4 md:p-6 overflow-hidden",
         getContainerClasses()
@@ -173,42 +153,31 @@ export function CitiesWordCloud() {
           <div className="absolute bottom-5 right-10 w-24 h-24 bg-accent/5 rounded-full blur-2xl" />
         </div>
 
-        {/* Cities */}
-        <AnimatePresence mode="wait">
-          <motion.div 
-            key={activeFilter}
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            className="relative z-10 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 md:gap-x-3 md:gap-y-2"
-          >
-            {shuffledCities.map((city, index) => {
-              const isHovered = hoveredCity === city.name;
-              
-              return (
-                <motion.span
-                  key={city.name}
-                  variants={itemVariants}
-                  onMouseEnter={() => setHoveredCity(city.name)}
-                  onMouseLeave={() => setHoveredCity(null)}
-                  whileHover={{ 
-                    scale: 1.1,
-                    transition: { type: "spring", stiffness: 400, damping: 15 },
-                  }}
-                  className={cn(
-                    "cursor-default select-none transition-all duration-200 relative whitespace-nowrap",
-                    getCitySize(city, activeFilter),
-                    getCityStyles(city),
-                    isHovered && "z-20"
-                  )}
-                >
-                  {city.name}
-                </motion.span>
-              );
-            })}
-          </motion.div>
-        </AnimatePresence>
+        {/* Cities - spans simples com CSS transitions */}
+        <div 
+          key={activeFilter}
+          className="relative z-10 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 md:gap-x-3 md:gap-y-2 animate-fade-in"
+        >
+          {visibleCities.map((city) => (
+            <span
+              key={city.name}
+              className={cn(
+                "cursor-default select-none transition-transform duration-200 hover:scale-110 whitespace-nowrap",
+                getCitySize(city, activeFilter),
+                getCityStyles(city),
+              )}
+            >
+              {city.name}
+            </span>
+          ))}
+          
+          {/* Indicador de cidades ocultas */}
+          {hiddenCount > 0 && (
+            <span className="text-xs md:text-sm text-muted-foreground/70 ml-1">
+              +{hiddenCount} cidades
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -7,8 +7,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
 import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
 
 const faqs = [
@@ -55,11 +53,8 @@ const faqs = [
 ];
 
 export function FAQ() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section ref={ref} className="py-16 lg:py-24 bg-background">
+    <section className="py-16 lg:py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Left - Header */}
@@ -83,11 +78,7 @@ export function FAQ() {
             </StaggerItem>
 
             <StaggerItem type="scale">
-              <motion.div 
-                className="bg-zen-light-teal rounded-2xl p-6 lg:p-8"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-              >
+              <div className="bg-zen-light-teal rounded-2xl p-6 lg:p-8 transition-transform duration-200 hover:scale-[1.02]">
                 <h3 className="font-semibold text-lg mb-3 text-foreground">
                   Ainda tem dúvidas?
                 </h3>
@@ -110,19 +101,18 @@ export function FAQ() {
                     </a>
                   </Button>
                 </div>
-              </motion.div>
+              </div>
             </StaggerItem>
           </StaggerContainer>
 
-          {/* Right - Accordion */}
+          {/* Right - Accordion with CSS animations */}
           <div>
             <Accordion type="single" collapsible className="space-y-4">
               {faqs.map((faq, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
-                  transition={{ delay: 0.1 + index * 0.08, duration: 0.4 }}
+                  className="animate-slide-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <AccordionItem
                     value={`item-${index}`}
@@ -135,7 +125,7 @@ export function FAQ() {
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
-                </motion.div>
+                </div>
               ))}
             </Accordion>
           </div>

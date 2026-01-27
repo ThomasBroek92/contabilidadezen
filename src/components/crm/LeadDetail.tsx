@@ -40,6 +40,7 @@ interface Lead {
   media_compra_mensal: number | null;
   faturamento_mensal: number | null;
   economia_anual: number | null;
+  observacoes: string | null;
   created_at: string;
   updated_at: string | null;
   origem: string | null;
@@ -492,6 +493,20 @@ export function LeadDetail({ leadId, onClose, onUpdate }: LeadDetailProps) {
                     <p className="text-lg font-semibold">{formatCurrency(lead.faturamento_mensal)}</p>
                   </div>
                 </div>
+
+                {/* Observações */}
+                {lead.observacoes && (
+                  <div className="pt-4 border-t">
+                    <Label className="text-muted-foreground">Observações (Informações Adicionais)</Label>
+                    <div className="mt-2 p-3 bg-muted/50 rounded-lg text-sm">
+                      {lead.observacoes.split(' | ').map((obs, idx) => (
+                        <p key={idx} className="text-foreground">
+                          • {obs}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex justify-end">
                   <Button onClick={handleSaveLead} disabled={saving}>

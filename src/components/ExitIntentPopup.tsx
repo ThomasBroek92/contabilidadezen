@@ -115,6 +115,7 @@ export function ExitIntentPopup() {
         <button
           onClick={() => setIsOpen(false)}
           className="absolute right-4 top-4 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100"
+          aria-label="Fechar popup"
         >
           <X className="h-5 w-5" />
         </button>

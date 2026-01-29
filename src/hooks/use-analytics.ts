@@ -22,36 +22,38 @@ const scheduleIdleTask = (callback: () => void) => {
 export function initializeGA() {
   if (isInitialized || typeof window === "undefined") return;
 
-  // Usar requestIdleCallback para não bloquear a thread principal
+  // Inicializa apenas o dataLayer - GTM já carrega o GA4
   scheduleIdleTask(() => {
-    // Load the GA4 script
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-    document.head.appendChild(script);
-
-    // Initialize dataLayer and gtag
     window.dataLayer = window.dataLayer || [];
     window.gtag = function gtag(...args: unknown[]) {
       window.dataLayer.push(args);
     };
 
-    window.gtag("js", new Date());
-    window.gtag("config", GA_MEASUREMENT_ID, {
-      anonymize_ip: true, // LGPD compliance
-      cookie_flags: "SameSite=None;Secure",
-    });
-
     isInitialized = true;
+    console.log("[Analytics] DataLayer initialized for GTM");
   });
 }
 
 export function trackPageView(path: string) {
-  if (!isInitialized || typeof window === "undefined") return;
+  if (typeof window === "undefined") return;
   
-  window.gtag("config", GA_MEASUREMENT_ID, {
+  // Garante que dataLayer existe
+  window.dataLayer = window.dataLayer || [];
+  
+  // Push evento de page_view para o GTM (SPA History Change)
+  window.dataLayer.push({
+    event: 'page_view',
     page_path: path,
+    page_location: window.location.href,
+    page_title: document.title
   });
+  
+  // Também dispara via gtag se disponível (fallback)
+  if (window.gtag) {
+    window.gtag("config", GA_MEASUREMENT_ID, {
+      page_path: path,
+    });
+  }
 }
 
 export function trackEvent(
@@ -60,13 +62,45 @@ export function trackEvent(
   label?: string,
   value?: number
 ) {
-  if (!isInitialized || typeof window === "undefined") return;
+  if (typeof window === "undefined") return;
 
-  window.gtag("event", action, {
+  // Push para dataLayer (GTM)
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: action,
     event_category: category,
     event_label: label,
-    value: value,
+    event_value: value
   });
+
+  // Também via gtag se disponível
+  if (window.gtag) {
+    window.gtag("event", action, {
+      event_category: category,
+      event_label: label,
+      value: value,
+    });
+  }
+}
+
+// Evento específico para conversão do WhatsApp
+export function trackWhatsAppClick(source: string, message?: string) {
+  if (typeof window === "undefined") return;
+  
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'contato_whatsapp',
+    whatsapp_source: source,
+    whatsapp_message: message || 'Contato geral'
+  });
+  
+  // Também via gtag
+  if (window.gtag) {
+    window.gtag("event", "contato_whatsapp", {
+      event_category: "Conversão",
+      event_label: source,
+    });
+  }
 }
 
 export function useAnalytics() {
@@ -74,5 +108,6 @@ export function useAnalytics() {
     initializeGA,
     trackPageView,
     trackEvent,
+    trackWhatsAppClick,
   };
 }

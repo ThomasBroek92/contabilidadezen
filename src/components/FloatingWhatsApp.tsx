@@ -1,6 +1,7 @@
 import { MessageCircle, X } from "lucide-react";
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { trackWhatsAppClick } from "@/hooks/use-analytics";
 
 const WHATSAPP_NUMBER = "5519974158342";
 const WHATSAPP_MESSAGE = "Olá! Gostaria de mais informações sobre os serviços de contabilidade.";
@@ -11,6 +12,11 @@ export function FloatingWhatsApp() {
   const [tooltipDismissed, setTooltipDismissed] = useState(false);
   const controls = useAnimation();
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+  
+  // Track WhatsApp click
+  const handleWhatsAppClick = () => {
+    trackWhatsAppClick('floating_button', WHATSAPP_MESSAGE);
+  };
 
   // Show tooltip after a short delay on page load
   useEffect(() => {
@@ -101,8 +107,12 @@ export function FloatingWhatsApp() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleWhatsAppClick}
         className="fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl hover:shadow-2xl transition-all duration-300"
         aria-label="Fale conosco pelo WhatsApp"
+        data-gtm-category="Conversão"
+        data-gtm-action="contato_whatsapp"
+        data-gtm-label="floating_button"
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1, ...controls }}
         transition={{ delay: 0.5, duration: 0.4, ease: "easeOut" }}

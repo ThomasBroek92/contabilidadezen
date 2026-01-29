@@ -420,13 +420,14 @@ serve(async (req) => {
       
       // For domain properties (sc-domain:...), the sitemap URL must be the actual HTTP URL
       // Domain properties don't have a URL prefix, so we need to construct the sitemap URL differently
+      // IMPORTANT: Use https:// WITHOUT www to match verified domain
       let finalSitemapUrl: string;
       if (body.sitemapUrl) {
         finalSitemapUrl = body.sitemapUrl;
       } else if (siteUrl.startsWith('sc-domain:')) {
-        // Extract domain from sc-domain: format and use https://www.
+        // Extract domain from sc-domain: format and use https:// (no www)
         const domain = siteUrl.replace('sc-domain:', '');
-        finalSitemapUrl = `https://www.${domain}/sitemap.xml`;
+        finalSitemapUrl = `https://${domain}/sitemap.xml`;
       } else {
         // URL-prefix property: use the site URL directly
         const cleanSiteUrl = siteUrl.replace(/\/$/, '');
@@ -481,11 +482,12 @@ serve(async (req) => {
       }
 
       // Build full URLs - handle domain property format (sc-domain:)
+      // IMPORTANT: Use https:// WITHOUT www to match the domain verified in Google Search Console
       let baseUrl: string;
       if (siteUrl.startsWith('sc-domain:')) {
-        // Extract domain from sc-domain: format and use https://www.
+        // Extract domain from sc-domain: format and use https:// (no www)
         const domain = siteUrl.replace('sc-domain:', '');
-        baseUrl = `https://www.${domain}`;
+        baseUrl = `https://${domain}`;
       } else {
         baseUrl = siteUrl.replace(/\/$/, ''); // Remove trailing slash
       }
@@ -591,13 +593,23 @@ serve(async (req) => {
         error?: string;
       }
       
+      // Build base URL for audit - handle domain property format (sc-domain:)
+      // IMPORTANT: Use https:// WITHOUT www to match verified domain
+      let auditBaseUrl: string;
+      if (siteUrl.startsWith('sc-domain:')) {
+        const domain = siteUrl.replace('sc-domain:', '');
+        auditBaseUrl = `https://${domain}`;
+      } else {
+        auditBaseUrl = siteUrl.replace(/\/$/, '');
+      }
+      
       // Get all URLs to audit from the request or use default pages
       const pagesToAudit = urls && Array.isArray(urls) ? urls : [
-        siteUrl,
-        `${siteUrl}/sobre`,
-        `${siteUrl}/servicos`,
-        `${siteUrl}/contato`,
-        `${siteUrl}/blog`,
+        auditBaseUrl,
+        `${auditBaseUrl}/sobre`,
+        `${auditBaseUrl}/servicos`,
+        `${auditBaseUrl}/contato`,
+        `${auditBaseUrl}/blog`,
       ];
       
       console.log(`Starting audit for ${pagesToAudit.length} URLs`);

@@ -1,5 +1,5 @@
 import { MessageCircle, X } from "lucide-react";
-import { motion, useAnimation, AnimatePresence } from "framer-motion";
+import { m, useAnimation, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { trackWhatsAppClick } from "@/hooks/use-analytics";
 
@@ -64,7 +64,7 @@ export function FloatingWhatsApp() {
       {/* CTA Tooltip Bubble */}
       <AnimatePresence>
         {showTooltip && !tooltipDismissed && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: 20, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.9 }}
@@ -98,12 +98,12 @@ export function FloatingWhatsApp() {
               {/* Arrow pointing to button */}
               <div className="absolute -bottom-2 right-8 w-4 h-4 bg-card border-r border-b border-border transform rotate-45" />
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Main Button */}
-      <motion.a
+      <m.a
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -127,7 +127,7 @@ export function FloatingWhatsApp() {
         
         {/* Emphasis glow ring */}
         {isEmphasized && (
-          <motion.span
+          <m.span
             className="absolute -inset-3 rounded-full border-2 border-[#25D366]"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: [1, 1.4, 1], opacity: [0.8, 0, 0.8] }}
@@ -149,7 +149,7 @@ export function FloatingWhatsApp() {
         <MessageCircle className="h-8 w-8 relative z-10" fill="currentColor" />
         
         {/* Online badge */}
-        <motion.span 
+        <m.span 
           className="absolute -top-1 -right-1 flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full shadow-lg bg-card text-foreground border border-border"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -157,8 +157,8 @@ export function FloatingWhatsApp() {
         >
           <span className="w-2 h-2 bg-[#25D366] rounded-full animate-pulse" />
           Online
-        </motion.span>
-      </motion.a>
+        </m.span>
+      </m.a>
     </>
   );
 }

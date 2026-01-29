@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useHoneypot } from "@/hooks/use-honeypot";
+import { trackFormSubmit, trackCalculatorUse } from "@/hooks/use-analytics";
 
 const leadSchema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
@@ -90,6 +91,12 @@ export function LeadGatedCalculator({ variant = "full", source = "calculadora-se
       monthlyIncome: income,
     });
 
+    // Track calculator usage
+    trackCalculatorUse("calculadora-pj-clt", {
+      savings: Math.max(0, savings),
+      monthlyIncome: income,
+    });
+
     setStep("lead-capture");
   };
 
@@ -113,6 +120,13 @@ export function LeadGatedCalculator({ variant = "full", source = "calculadora-se
       });
 
       if (error) throw error;
+
+      // Track form submission
+      trackFormSubmit("calculadora-lead-form", {
+        segmento: "geral",
+        fonte: source,
+        economia: result?.savings || 0,
+      });
 
       toast({
         title: "Dados salvos!",

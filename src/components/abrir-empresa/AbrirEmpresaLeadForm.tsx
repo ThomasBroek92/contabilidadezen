@@ -10,6 +10,7 @@ import { useHoneypot } from "@/hooks/use-honeypot";
 import { Send, CheckCircle2, Building2, Clock, FileCheck, Sparkles } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { trackFormSubmit } from "@/hooks/use-analytics";
 
 const leadSchema = z.object({
   nome: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
@@ -81,6 +82,12 @@ export function AbrirEmpresaLeadForm() {
       });
 
       if (error) throw error;
+
+      // Track form submission
+      trackFormSubmit("abertura-empresa-form", {
+        segmento: formData.profissao || 'abertura-empresa',
+        fonte: 'abertura_empresa_form',
+      });
 
       // Trigger WhatsApp notification for team
       openWhatsAppNotification({

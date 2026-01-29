@@ -103,11 +103,68 @@ export function trackWhatsAppClick(source: string, message?: string) {
   }
 }
 
+// Evento específico para envio de formulário de lead
+export function trackFormSubmit(formName: string, formData?: {
+  segmento?: string;
+  fonte?: string;
+  economia?: number;
+}) {
+  if (typeof window === "undefined") return;
+  
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'envio_formulario',
+    form_name: formName,
+    form_segmento: formData?.segmento || 'Geral',
+    form_fonte: formData?.fonte || formName,
+    form_economia: formData?.economia || 0
+  });
+  
+  // Também via gtag como evento de conversão
+  if (window.gtag) {
+    window.gtag("event", "generate_lead", {
+      event_category: "Conversão",
+      event_label: formName,
+      value: formData?.economia || 0,
+    });
+  }
+  
+  console.log(`[Analytics] Form submitted: ${formName}`, formData);
+}
+
+// Evento para calculadora PJ/CLT
+export function trackCalculatorUse(calculatorType: string, result?: {
+  savings?: number;
+  monthlyIncome?: number;
+}) {
+  if (typeof window === "undefined") return;
+  
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'uso_calculadora',
+    calculator_type: calculatorType,
+    calculator_savings: result?.savings || 0,
+    calculator_income: result?.monthlyIncome || 0
+  });
+  
+  if (window.gtag) {
+    window.gtag("event", "uso_calculadora", {
+      event_category: "Engajamento",
+      event_label: calculatorType,
+      value: result?.savings || 0,
+    });
+  }
+  
+  console.log(`[Analytics] Calculator used: ${calculatorType}`, result);
+}
+
 export function useAnalytics() {
   return {
     initializeGA,
     trackPageView,
     trackEvent,
     trackWhatsAppClick,
+    trackFormSubmit,
+    trackCalculatorUse,
   };
 }

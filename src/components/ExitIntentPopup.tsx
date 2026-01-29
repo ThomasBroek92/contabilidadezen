@@ -8,6 +8,7 @@ import { MessageCircle, Phone, X } from "lucide-react";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { toast } from "sonner";
 import supportImage from "@/assets/exit-intent-support.jpg";
+import { trackFormSubmit } from "@/hooks/use-analytics";
 
 const cidades = [
   "São Paulo",
@@ -93,15 +94,23 @@ export function ExitIntentPopup() {
       return;
     }
 
+    const fonte = `Exit Intent - Preferência: ${preferencia === "whatsapp" ? "WhatsApp" : "Ligação"} - Cidade: ${formData.cidade}`;
+
     const success = await saveLead({
       nome: formData.nome,
       email: formData.email,
       whatsapp: formData.celular,
       segmento: formData.atividade || "Geral",
-      fonte: `Exit Intent - Preferência: ${preferencia === "whatsapp" ? "WhatsApp" : "Ligação"} - Cidade: ${formData.cidade}`,
+      fonte,
     });
 
     if (success) {
+      // Track form submission
+      trackFormSubmit("exit-intent-popup", {
+        segmento: formData.atividade || "Geral",
+        fonte,
+      });
+
       toast.success("Obrigado! Entraremos em contato em breve.");
       setIsOpen(false);
     } else {

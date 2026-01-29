@@ -28,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWhatsAppNotification } from "@/hooks/use-whatsapp-notification";
 import { useHoneypot } from "@/hooks/use-honeypot";
 import { z } from "zod";
+import { trackFormSubmit } from "@/hooks/use-analytics";
 
 const leadSchema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
@@ -141,6 +142,12 @@ export default function Contato() {
       });
 
       if (error) throw error;
+
+      // Track form submission
+      trackFormSubmit("contato-form", {
+        segmento: formData.profession || "Contato Geral",
+        fonte: `Formulário de Contato - ${formData.service || "Não especificado"}`,
+      });
 
       // Send WhatsApp notification
       openWhatsAppNotification({

@@ -8,30 +8,6 @@ const corsHeaders = {
 
 const SITE_URL = "https://www.contabilidadezen.com.br";
 
-// Static pages with their priorities and change frequencies
-const staticPages = [
-  { url: "/", priority: "1.0", changefreq: "weekly" },
-  { url: "/servicos", priority: "0.9", changefreq: "monthly" },
-  { url: "/sobre", priority: "0.8", changefreq: "monthly" },
-  { url: "/contato", priority: "0.8", changefreq: "monthly" },
-  { url: "/blog", priority: "0.9", changefreq: "daily" },
-  { url: "/abrir-empresa", priority: "0.9", changefreq: "monthly" },
-  { url: "/medicos", priority: "0.8", changefreq: "monthly" },
-  { url: "/indique-e-ganhe", priority: "0.7", changefreq: "monthly" },
-  // Segmentos - Landing pages por profissão
-  { url: "/segmentos/contabilidade-para-medicos", priority: "0.9", changefreq: "monthly" },
-  { url: "/segmentos/contabilidade-para-dentistas", priority: "0.9", changefreq: "monthly" },
-  { url: "/segmentos/contabilidade-para-psicologos", priority: "0.9", changefreq: "monthly" },
-  { url: "/segmentos/contabilidade-para-representantes-comerciais", priority: "0.9", changefreq: "monthly" },
-  // Ferramentas e calculadoras
-  { url: "/conteudo/calculadora-pj-clt", priority: "0.8", changefreq: "monthly" },
-  { url: "/conteudo/comparativo-tributario", priority: "0.8", changefreq: "monthly" },
-  { url: "/conteudo/gerador-rpa", priority: "0.8", changefreq: "monthly" },
-  // Páginas legais
-  { url: "/politica-de-privacidade", priority: "0.3", changefreq: "yearly" },
-  { url: "/termos", priority: "0.3", changefreq: "yearly" },
-];
-
 serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -44,33 +20,94 @@ serve(async (req: Request) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Check for action parameter (for updating pages)
+    const url = new URL(req.url);
+    const action = url.searchParams.get("action");
+    const path = url.searchParams.get("path");
+
+    // Handle update-page action
+    if (action === "update-page" && path) {
+      const { error } = await supabase
+        .from("page_metadata")
+        .update({ last_modified: new Date().toISOString() })
+        .eq("path", path);
+
+      if (error) {
+        console.error("Error updating page:", error);
+        return new Response(
+          JSON.stringify({ error: "Failed to update page", details: error.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, message: `Updated lastmod for ${path}` }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Handle update-all action
+    if (action === "update-all") {
+      const { error } = await supabase
+        .from("page_metadata")
+        .update({ last_modified: new Date().toISOString() })
+        .neq("path", "");
+
+      if (error) {
+        console.error("Error updating all pages:", error);
+        return new Response(
+          JSON.stringify({ error: "Failed to update all pages", details: error.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Updated lastmod for all pages" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Fetch static pages from page_metadata
+    const { data: staticPages, error: staticError } = await supabase
+      .from("page_metadata")
+      .select("path, last_modified, priority, changefreq")
+      .order("priority", { ascending: false });
+
+    if (staticError) {
+      console.error("Error fetching page_metadata:", staticError);
+    }
+
     // Fetch published blog posts
-    const { data: blogPosts, error } = await supabase
+    const { data: blogPosts, error: blogError } = await supabase
       .from("blog_posts")
       .select("slug, updated_at, published_at")
       .eq("status", "published")
       .order("published_at", { ascending: false });
 
-    if (error) {
-      console.error("Error fetching blog posts:", error);
+    if (blogError) {
+      console.error("Error fetching blog posts:", blogError);
     }
-
-    const currentDate = new Date().toISOString().split("T")[0];
 
     // Build sitemap XML
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
-    // Add static pages
-    for (const page of staticPages) {
-      sitemap += `  <url>
-    <loc>${SITE_URL}${page.url}</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
+    // Add static pages from database
+    if (staticPages && staticPages.length > 0) {
+      for (const page of staticPages) {
+        const lastmod = page.last_modified 
+          ? new Date(page.last_modified).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0];
+
+        sitemap += `  <url>
+    <loc>${SITE_URL}${page.path}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${page.changefreq || 'monthly'}</changefreq>
+    <priority>${page.priority || '0.5'}</priority>
   </url>
 `;
+      }
     }
 
     // Add blog posts
@@ -80,7 +117,7 @@ serve(async (req: Request) => {
           ? new Date(post.updated_at).toISOString().split("T")[0]
           : post.published_at 
             ? new Date(post.published_at).toISOString().split("T")[0]
-            : currentDate;
+            : new Date().toISOString().split("T")[0];
 
         sitemap += `  <url>
     <loc>${SITE_URL}/blog/${post.slug}</loc>
@@ -93,6 +130,8 @@ serve(async (req: Request) => {
     }
 
     sitemap += `</urlset>`;
+
+    console.log(`Generated sitemap with ${(staticPages?.length || 0) + (blogPosts?.length || 0)} URLs`);
 
     return new Response(sitemap, {
       headers: {

@@ -764,6 +764,33 @@ export type Database = {
         }
         Relationships: []
       }
+      page_metadata: {
+        Row: {
+          changefreq: string | null
+          created_at: string | null
+          id: string
+          last_modified: string | null
+          path: string
+          priority: number | null
+        }
+        Insert: {
+          changefreq?: string | null
+          created_at?: string | null
+          id?: string
+          last_modified?: string | null
+          path: string
+          priority?: number | null
+        }
+        Update: {
+          changefreq?: string | null
+          created_at?: string | null
+          id?: string
+          last_modified?: string | null
+          path?: string
+          priority?: number | null
+        }
+        Relationships: []
+      }
       partner_referrals: {
         Row: {
           commission_value: number | null

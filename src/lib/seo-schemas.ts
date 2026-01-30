@@ -18,7 +18,7 @@ export const organizationSchema = {
     "height": 900
   },
   "image": LOGO_URL,
-  "description": "Contabilidade especializada para profissionais da saúde: médicos, dentistas, psicólogos e clínicas médicas.",
+  "description": "Contabilidade digital especializada para profissionais e empresas. Médicos, advogados, TI, produtores digitais, e-commerce e mais. Reduza sua carga tributária em até 50%.",
   "email": "contato@contabilidadezen.com.br",
   "telephone": "+55-19-97415-8342",
   "foundingDate": "2015",
@@ -27,7 +27,7 @@ export const organizationSchema = {
     "minValue": 5,
     "maxValue": 20
   },
-  "slogan": "Você cuida da saúde, nós cuidamos dos números",
+  "slogan": "Economize até 50% em impostos com especialistas",
   "sameAs": [
     "https://www.instagram.com/contabilidadezen",
     "https://www.linkedin.com/company/contabilidadezen",

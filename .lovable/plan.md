@@ -1,100 +1,120 @@
 
-# Sitemap Dinâmico - Documentação
 
-## Status: ✅ IMPLEMENTADO (2026-01-29)
+# Plano: Atualizar Aparência no Google Search
 
----
-
-## Arquitetura
-
-```
-+------------------+       +-------------------+       +------------------+
-|  Blog Post       | ----> | Trigger PostgreSQL| ----> | page_metadata    |
-|  Publicado/Edit  |       | blog_sitemap_     |       | (last_modified)  |
-+------------------+       | trigger           |       +------------------+
-                           +-------------------+               |
-                                                               v
-                           +-------------------+       +------------------+
-                           | Edge Function     | <---- | blog_posts       |
-                           | /sitemap          |       | (updated_at)     |
-                           +-------------------+       +------------------+
-                                    |
-                                    v
-                           +-------------------+
-                           | XML com lastmod   |
-                           | preciso para      |
-                           | todas as URLs     |
-                           +-------------------+
-```
+## Objetivo
+Fazer com que os resultados de busca do Google exibam:
+1. O logo da Contabilidade Zen (ícone "CZ") ao invés do logo do Lovable
+2. Meta description alinhada com a proposta de valor do Hero (redução de carga tributária para diversos nichos)
 
 ---
 
-## Componentes
+## Parte 1: Correção do Favicon
 
-### 1. Tabela `page_metadata`
-- **Propósito**: Armazena datas de modificação das 17 páginas estáticas
-- **Colunas**: `path`, `last_modified`, `priority`, `changefreq`
-- **RLS**: Leitura pública, escrita via service_role
+### Diagnóstico
+O Google pode estar exibindo o favicon antigo do Lovable por um destes motivos:
+- Cache do Google ainda não atualizou
+- O arquivo `favicon.ico` ainda contém o ícone antigo
+- Falta de referência explícita no HTML
 
-### 2. Edge Function `/sitemap`
-- **URL**: `https://xqlkjoajrefbvbhkusdn.supabase.co/functions/v1/sitemap`
-- **Funcionalidades**:
-  - Gera XML dinâmico com lastmod preciso
-  - Actions: `?action=update-page&path=/servicos` ou `?action=update-all`
-- **Cache**: 1 hora (Cache-Control: public, max-age=3600)
+### Ações
+1. **Verificar e atualizar `favicon.ico`**
+   - Garantir que `public/favicon.ico` contenha o ícone "CZ" da Contabilidade Zen
+   - Caso necessário, gerar nova versão a partir do `logo-icon.png`
 
-### 3. Trigger `blog_sitemap_trigger`
-- **Tabela**: `blog_posts`
-- **Evento**: AFTER INSERT OR UPDATE (quando status = 'published')
-- **Ação**: Atualiza `last_modified` de `/blog` na `page_metadata`
+2. **Adicionar referência explícita no index.html**
+   - Incluir ambas as referências (PNG e ICO) para máxima compatibilidade
 
-### 4. robots.txt
-- **Sitemap dinâmico**: `https://xqlkjoajrefbvbhkusdn.supabase.co/functions/v1/sitemap`
-- **Sitemap estático** (fallback): `https://www.contabilidadezen.com.br/sitemap.xml`
-
----
-
-## URLs do Sitemap
-
-| Tipo | Quantidade | Fonte |
-|------|------------|-------|
-| Páginas estáticas | 17 | `page_metadata` |
-| Blog posts | ~52+ | `blog_posts` (status=published) |
-| **Total** | **69+** | — |
-
----
-
-## Manutenção
-
-### Adicionar nova página estática
-```sql
-INSERT INTO page_metadata (path, priority, changefreq) 
-VALUES ('/nova-pagina', 0.8, 'monthly');
-```
-
-### Atualizar lastmod de uma página
-```bash
-curl "https://xqlkjoajrefbvbhkusdn.supabase.co/functions/v1/sitemap?action=update-page&path=/servicos"
-```
-
-### Atualizar todas as páginas
-```bash
-curl "https://xqlkjoajrefbvbhkusdn.supabase.co/functions/v1/sitemap?action=update-all"
+```html
+<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
 ```
 
 ---
 
-## Google Search Console
+## Parte 2: Atualização das Meta Tags
 
-O sitemap dinâmico deve ser submetido no GSC:
-1. Acessar https://search.google.com/search-console
-2. Ir em "Sitemaps"
-3. Adicionar: `https://xqlkjoajrefbvbhkusdn.supabase.co/functions/v1/sitemap`
+### Problema Atual
+Existem **duas fontes** de meta description em conflito:
+- `index.html` (estático): Foca em "médicos, dentistas, psicólogos"
+- `SEOHead` no `Index.tsx` (dinâmico): Já está mais genérica
+
+O Google prioriza o conteúdo estático do `index.html` no primeiro carregamento.
+
+### Nova Meta Description (alinhada ao Hero)
+**Proposta** (max 160 caracteres):
+
+> "Economize até 50% em impostos com contabilidade digital especializada. Médicos, advogados, TI, produtores digitais e mais. 100% online, 0% burocracia."
+
+### Arquivos a Atualizar
+
+**1. index.html (meta tags estáticas)**
+```html
+<title>Contabilidade Zen | Economize até 50% em Impostos | Contabilidade Digital</title>
+<meta name="description" content="Economize até 50% em impostos com contabilidade digital especializada. Médicos, advogados, TI, produtores digitais e mais. 100% online, 0% burocracia." />
+<meta name="keywords" content="contabilidade digital, redução de impostos, planejamento tributário, contabilidade online, abrir empresa, MEI, Simples Nacional" />
+```
+
+**2. SEOHead em Index.tsx**
+```tsx
+<SEOHead
+  title="Contabilidade Zen | Economize até 50% em Impostos | Contabilidade Digital"
+  description="Economize até 50% em impostos com contabilidade digital especializada. Médicos, advogados, TI, produtores digitais e mais. 100% online, 0% burocracia."
+  keywords="contabilidade digital, redução de impostos, planejamento tributário, contabilidade online, abrir empresa, MEI, Simples Nacional, contabilidade para médicos, contabilidade para advogados"
+  ...
+/>
+```
+
+**3. Open Graph (index.html e SEOHead)**
+```html
+<meta property="og:title" content="Contabilidade Zen | Economize até 50% em Impostos" />
+<meta property="og:description" content="Contabilidade digital que reduz sua carga tributária em até 50%. Para profissionais e empresas de diversos nichos. Atendimento humanizado e 100% online." />
+```
 
 ---
 
-## Notas Técnicas
+## Parte 3: Atualização dos Schemas JSON-LD
 
-- **Por que Edge Function?** O Google aceita sitemaps em qualquer URL, não apenas no domínio principal
-- **Por que manter sitemap estático?** Fallback caso a Edge Function esteja indisponível
-- **Automação**: O trigger garante que o `/blog` seja atualizado automaticamente quando posts são publicados/editados
+### Arquivo: src/lib/seo-schemas.ts
+
+Atualizar as descrições para refletir a proposta de valor multi-nicho:
+
+```typescript
+organizationSchema.description = 
+  "Contabilidade digital especializada para profissionais e empresas. Médicos, advogados, TI, produtores digitais, e-commerce e mais. Reduza sua carga tributária em até 50%.";
+
+organizationSchema.slogan = 
+  "Economize até 50% em impostos com especialistas";
+```
+
+---
+
+## Resumo das Alterações
+
+| Arquivo | Alteração |
+|---------|-----------|
+| `index.html` | Atualizar title, meta description, OG tags |
+| `src/pages/Index.tsx` | Atualizar props do SEOHead |
+| `src/lib/seo-schemas.ts` | Atualizar description e slogan do Organization |
+| `public/favicon.ico` | Verificar/substituir pelo ícone CZ |
+
+---
+
+## Seção Técnica
+
+### Sobre o Cache do Google
+- O Google pode levar de **1 a 4 semanas** para atualizar o favicon nos resultados de busca
+- Para acelerar, após publicar:
+  1. Acessar Google Search Console
+  2. Solicitar nova indexação da página inicial
+  3. O favicon será atualizado automaticamente após o recrawl
+
+### Verificação Pós-Publicação
+Após publicar as alterações:
+1. Testar em [Google Rich Results Test](https://search.google.com/test/rich-results)
+2. Verificar meta tags com [metatags.io](https://metatags.io)
+3. Solicitar reindexação no Google Search Console
+4. Aguardar 1-2 semanas para atualização completa nos resultados
+

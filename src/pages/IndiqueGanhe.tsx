@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
+import { PartnerEarningsCalculator } from "@/components/indique-ganhe/PartnerEarningsCalculator";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -362,6 +363,9 @@ export default function IndiqueGanhe() {
             </div>
           </div>
         </section>
+
+        {/* Calculadora de Ganhos */}
+        <PartnerEarningsCalculator />
 
         {/* Como Funciona */}
         <section className="py-16 lg:py-24 bg-background">

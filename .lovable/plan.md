@@ -1,113 +1,129 @@
 
 
-# Plano: Calculadora de Ganhos para Parceiros
+# Plano: Timeline Animada para "Como Funciona" no Indique e Ganhe
 
 ## Objetivo
-Criar uma calculadora interativa na página "Indique e Ganhe" posicionada logo abaixo do Hero, permitindo ao parceiro visualizar seus ganhos potenciais.
+Substituir a seção "Como Funciona" atual (layout de 3 cards horizontais) pelo mesmo layout de timeline vertical animada usado no `CustomerJourney` da homepage, adaptando o conteúdo para o programa de indicação.
 
 ---
 
-## Especificações da Calculadora
+## Componente de Referência
 
-### 1. Campos de Entrada
+O componente `CustomerJourney` (`src/components/sections/CustomerJourney.tsx`) possui:
 
-**Campo 1: Valor da Mensalidade (Select)**
-- Opções pré-definidas:
-  - R$ 197/mês (MEI / Autônomo)
-  - R$ 397/mês (Simples Nacional)
-  - R$ 597/mês (Profissional Liberal)
-  - R$ 997/mês (Empresas / Lucro Presumido)
-
-**Campo 2: Número de Indicações**
-- Input numérico livre (mínimo 1, sem limite máximo)
-- Default: 3
-
-**Campo 3: Período para cálculo recorrente (Slider)**
-- Range: 6 a 36 meses
-- Default: 12 meses
-
-### 2. Modelos de Comissionamento (Tabs)
-
-| Modelo | Descrição | Cálculo |
-|--------|-----------|---------|
-| **100% do 1º Honorário** | Recebe valor integral da primeira mensalidade | `mensalidade × qtd_clientes` |
-| **10% Recorrente** | Recebe 10% enquanto o cliente permanecer ativo | `mensalidade × 10% × qtd_clientes × meses` |
-
-### 3. Resultados Exibidos
-
-- Ganho total (formatado em BRL)
-- Descrição contextual do cálculo
-- CTA para cadastro
+- **Timeline vertical** com linha de progresso animada pelo scroll
+- **Cards com bordas coloridas** (laranja, violeta, verde)
+- **Ícones em caixas gradiente** conectados pela linha
+- **Animações de entrada** (fade + slide) usando Framer Motion
+- **Badges** com cores correspondentes
+- **Lista de benefícios** com checkmarks
+- **CTA final** para WhatsApp
 
 ---
 
-## Posicionamento na Página
+## Novo Componente a Criar
 
-A calculadora será inserida como **nova seção logo após o Hero**, antes de "Como funciona".
+`src/components/indique-ganhe/PartnerJourney.tsx`
+
+### Conteúdo Adaptado (3 passos do programa de indicação)
+
+| Passo | Badge | Título | Ícone | Cor | Descrição | Benefícios |
+|-------|-------|--------|-------|-----|-----------|------------|
+| 1º | CADASTRO | Torne-se Embaixador! | Users | Laranja | Ao se cadastrar como parceiro, você terá acesso a: | • Link exclusivo de indicação • Materiais de divulgação • Dashboard para acompanhar indicações • Suporte dedicado via WhatsApp |
+| 2º | INDICAÇÃO | Compartilhe! | Send | Violeta | Indique empresas e profissionais da sua rede: | • Envie seu link exclusivo • Ou passe os dados via WhatsApp • Acompanhe o status em tempo real • Receba notificações de cada etapa |
+| 3º | RECEBIMENTO | Receba seu PIX! | BadgeDollarSign | Verde | Após a confirmação do pagamento da primeira mensalidade: | • Valor integral (100%) via PIX • Pagamento em até 5 dias úteis • Comprovante enviado por WhatsApp • Sem limite de indicações |
+
+---
+
+## Estrutura Visual (mantendo layout original)
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  [PROGRAMA DE PARCERIA]                                         │
+│                                                                 │
+│     Como funciona o Indique e Ganhe                             │
+│     Do cadastro ao seu PIX, em 3 passos simples.                │
+│                                                                 │
+│  ┌───┐                                                          │
+│  │ 👥│─── [CADASTRO] Primeiro Passo ─────────────────────────┐ │
+│  └─┬─┘    Torne-se Embaixador!                               │ │
+│    │      • Link exclusivo                                    │ │
+│    │      • Materiais de divulgação                          │ │
+│    │      • Dashboard para acompanhar                        │ │
+│    │      • Suporte dedicado                                 │ │
+│    │      └──────────────────────────────────────────────────┘ │
+│    │                                                            │
+│  ┌─┴─┐                                                          │
+│  │ 📤│─── [INDICAÇÃO] Segundo Passo ─────────────────────────┐ │
+│  └─┬─┘    Compartilhe!                                       │ │
+│    │      • Envie seu link                                    │ │
+│    │      • Ou passe dados via WhatsApp                      │ │
+│    │      • Acompanhe status                                 │ │
+│    │      • Notificações em tempo real                       │ │
+│    │      └──────────────────────────────────────────────────┘ │
+│    │                                                            │
+│  ┌─┴─┐                                                          │
+│  │ 💰│─── [RECEBIMENTO] Terceiro Passo ──────────────────────┐ │
+│  └───┘    Receba seu PIX!                                    │ │
+│           • 100% da 1ª mensalidade                           │ │
+│           • PIX em até 5 dias                                │ │
+│           • Comprovante via WhatsApp                         │ │
+│           • Sem limite de indicações                         │ │
+│           └──────────────────────────────────────────────────┘ │
+│                                                                 │
+│           [ Quero me cadastrar agora ]                          │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Implementação Técnica
 
 ### Arquivo a criar:
-`src/components/indique-ganhe/PartnerEarningsCalculator.tsx`
+`src/components/indique-ganhe/PartnerJourney.tsx`
 
-### Estrutura do componente:
-
-```text
-┌─────────────────────────────────────────────────────────┐
-│  💰 Calcule seus Ganhos                                 │
-├─────────────────────────────────────────────────────────┤
-│  ┌─────────────────┐  ┌─────────────────┐              │
-│  │ 100% do 1º Mês  │  │ 10% Recorrente  │   ← Tabs    │
-│  └─────────────────┘  └─────────────────┘              │
-│                                                         │
-│  Valor da mensalidade:  [Select dropdown]               │
-│  Quantas indicações?    [Input number - livre]          │
-│  Período (se recorrente): [Slider 6-36 meses]           │
-│                                                         │
-│  ┌─────────────────────────────────────────────────────┐│
-│  │  🎉 Seu potencial: R$ X.XXX                         ││
-│  │  Detalhamento do cálculo                            ││
-│  └─────────────────────────────────────────────────────┘│
-│                                                         │
-│  [  Quero me cadastrar  ]                               │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Componentes UI utilizados:
-- `Card` / `CardContent`
-- `Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`
-- `Select` / `SelectTrigger` / `SelectContent` / `SelectItem`
-- `Input` (type="number", min=1, sem max)
-- `Slider`
-- `Button`
-- `Label`
-
-### Lógica de cálculo:
+### Estrutura baseada no CustomerJourney:
 
 ```typescript
-const planos = [
-  { valor: 197, label: "R$ 197/mês", descricao: "MEI / Autônomo" },
-  { valor: 397, label: "R$ 397/mês", descricao: "Simples Nacional" },
-  { valor: 597, label: "R$ 597/mês", descricao: "Profissional Liberal" },
-  { valor: 997, label: "R$ 997/mês", descricao: "Empresas / Lucro Presumido" }
+// Dados adaptados para o programa de indicação
+const journeySteps = [
+  {
+    id: 1,
+    badge: "CADASTRO",
+    title: "Torne-se Embaixador!",
+    icon: Users,
+    gradient: "from-orange-500 to-orange-400",
+    badgeBg: "bg-orange-100",
+    badgeText: "text-orange-600",
+    borderColor: "border-orange-500",
+    description: "Ao se cadastrar como parceiro embaixador, você terá acesso a:",
+    benefits: [
+      "Link exclusivo de indicação personalizado",
+      "Materiais de divulgação prontos para usar",
+      "Dashboard para acompanhar suas indicações",
+      "Suporte dedicado via WhatsApp",
+    ],
+    conclusion: "Em menos de 60 segundos você está pronto para começar a indicar e ganhar.",
+    step: "Primeiro Passo",
+    stepLabel: "Iniciando sua parceria",
+  },
+  // ... (demais passos)
 ];
-
-// Modelo 100% do 1º Honorário
-const ganhoImediato = mensalidade * qtdIndicacoes;
-
-// Modelo 10% Recorrente
-const ganhoMensal = mensalidade * 0.10 * qtdIndicacoes;
-const ganhoTotal = ganhoMensal * meses;
 ```
+
+### Componentes reutilizados:
+- `TimelineCard` (mesma estrutura do CustomerJourney)
+- Animações com `framer-motion` (useInView, useScroll, useTransform)
+- Linha de progresso animada pelo scroll
+- CTA scroll para seção de cadastro
 
 ---
 
 ## Alterações em `src/pages/IndiqueGanhe.tsx`
 
-1. Importar o novo componente `PartnerEarningsCalculator`
-2. Adicionar nova seção **logo após o Hero** (antes de "Como Funciona")
+1. **Remover** a seção "Como Funciona" atual (linhas ~370-398)
+2. **Importar** o novo componente `PartnerJourney`
+3. **Adicionar** `<PartnerJourney />` no lugar da seção removida
 
 ---
 
@@ -115,16 +131,38 @@ const ganhoTotal = ganhoMensal * meses;
 
 | Arquivo | Ação |
 |---------|------|
-| `src/components/indique-ganhe/PartnerEarningsCalculator.tsx` | **Criar** - Componente da calculadora |
-| `src/pages/IndiqueGanhe.tsx` | **Editar** - Importar e adicionar seção após Hero |
+| `src/components/indique-ganhe/PartnerJourney.tsx` | **Criar** - Timeline animada adaptada |
+| `src/pages/IndiqueGanhe.tsx` | **Editar** - Substituir seção "Como Funciona" pelo novo componente |
 
 ---
 
-## Características Técnicas
+## Características Mantidas do Original
 
-- **Input livre**: Número de indicações sem limite máximo (apenas mínimo 1)
-- **Tempo real**: Resultados atualizam automaticamente ao alterar valores
-- **Mobile-first**: Layout responsivo
-- **Acessibilidade**: Labels associados, contraste adequado
-- **Conversão**: CTA scroll para o formulário de cadastro
+| Característica | Descrição |
+|----------------|-----------|
+| Timeline vertical | Linha conectando os passos com progresso animado |
+| Animação de scroll | Linha preenche conforme usuário rola a página |
+| Animação de entrada | Cards entram com fade + slide ao entrar na viewport |
+| Cores por etapa | Laranja → Violeta → Verde (mesma paleta) |
+| Cards com borda | Borda colorida correspondente a cada etapa |
+| Lista com checkmarks | Benefícios com ícone CheckCircle na cor da etapa |
+| Responsivo | Layout adaptado para mobile e desktop |
+
+---
+
+## Seção Técnica
+
+### Dependências utilizadas (já instaladas):
+- `framer-motion` - Animações
+- `lucide-react` - Ícones
+
+### Hooks do Framer Motion:
+- `useInView` - Detectar quando elemento entra na viewport
+- `useScroll` - Acompanhar progresso do scroll
+- `useTransform` - Transformar valores de scroll em animações
+
+### Performance:
+- Animações com `transform` e `opacity` apenas (GPU-accelerated)
+- `once: true` no useInView para animar apenas uma vez
+- Componente lazy-loadable se necessário
 

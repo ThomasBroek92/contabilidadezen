@@ -1,75 +1,53 @@
 
-
-# Plano: Timeline Animada para "Como Funciona" no Indique e Ganhe
+# Plano: Visual de Carrossel para "O que você ganha"
 
 ## Objetivo
-Substituir a seção "Como Funciona" atual (layout de 3 cards horizontais) pelo mesmo layout de timeline vertical animada usado no `CustomerJourney` da homepage, adaptando o conteúdo para o programa de indicação.
+Transformar a seção "O que você ganha" de grid estático (4 cards) para um carrossel animado no estilo do `RoutineCarousel`, **mantendo exatamente o mesmo conteúdo** dos 4 benefícios atuais.
 
 ---
 
-## Componente de Referência
+## Conteúdo a Manter (sem alterações)
 
-O componente `CustomerJourney` (`src/components/sections/CustomerJourney.tsx`) possui:
-
-- **Timeline vertical** com linha de progresso animada pelo scroll
-- **Cards com bordas coloridas** (laranja, violeta, verde)
-- **Ícones em caixas gradiente** conectados pela linha
-- **Animações de entrada** (fade + slide) usando Framer Motion
-- **Badges** com cores correspondentes
-- **Lista de benefícios** com checkmarks
-- **CTA final** para WhatsApp
+| # | Ícone | Título | Descrição |
+|---|-------|--------|-----------|
+| 01 | Gift | 100% da Primeira Mensalidade | Receba o valor integral da primeira mensalidade do seu indicado diretamente via PIX. Pagamento em até 5 dias úteis. |
+| 02 | TrendingUp | 10% de Recorrência | Opte por receber 10% de todas as mensalidades enquanto o indicado permanecer cliente ativo. |
+| 03 | Sparkles | Certificado Digital Grátis | A cada 3 indicações confirmadas, ganhe um Certificado Digital e-CPF ou e-CNPJ. |
+| 04 | Shield | IRPF Gratuito | Clientes parceiros que indicam 5 ou mais empresas ganham declaração de IRPF grátis. |
 
 ---
 
-## Novo Componente a Criar
+## Mudança Visual
 
-`src/components/indique-ganhe/PartnerJourney.tsx`
+**De:** Grid estático com 4 cards (md:2 cols, lg:4 cols)
 
-### Conteúdo Adaptado (3 passos do programa de indicação)
-
-| Passo | Badge | Título | Ícone | Cor | Descrição | Benefícios |
-|-------|-------|--------|-------|-----|-----------|------------|
-| 1º | CADASTRO | Torne-se Embaixador! | Users | Laranja | Ao se cadastrar como parceiro, você terá acesso a: | • Link exclusivo de indicação • Materiais de divulgação • Dashboard para acompanhar indicações • Suporte dedicado via WhatsApp |
-| 2º | INDICAÇÃO | Compartilhe! | Send | Violeta | Indique empresas e profissionais da sua rede: | • Envie seu link exclusivo • Ou passe os dados via WhatsApp • Acompanhe o status em tempo real • Receba notificações de cada etapa |
-| 3º | RECEBIMENTO | Receba seu PIX! | BadgeDollarSign | Verde | Após a confirmação do pagamento da primeira mensalidade: | • Valor integral (100%) via PIX • Pagamento em até 5 dias úteis • Comprovante enviado por WhatsApp • Sem limite de indicações |
+**Para:** Carrossel animado com:
+- Cards numerados (01, 02, 03, 04)
+- Ícones em caixas gradiente (estilo teal da marca)
+- Animações de entrada com Framer Motion
+- Autoplay com navegação por dots
+- Responsivo (1 card mobile, 2 tablet, 3 desktop)
 
 ---
 
-## Estrutura Visual (mantendo layout original)
+## Estrutura Visual Proposta
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
 │  [PROGRAMA DE PARCERIA]                                         │
 │                                                                 │
-│     Como funciona o Indique e Ganhe                             │
-│     Do cadastro ao seu PIX, em 3 passos simples.                │
+│     O que você ganha                                            │
+│     Escolha: 100% da 1ª mensalidade OU 10% de recorrência       │
 │                                                                 │
-│  ┌───┐                                                          │
-│  │ 👥│─── [CADASTRO] Primeiro Passo ─────────────────────────┐ │
-│  └─┬─┘    Torne-se Embaixador!                               │ │
-│    │      • Link exclusivo                                    │ │
-│    │      • Materiais de divulgação                          │ │
-│    │      • Dashboard para acompanhar                        │ │
-│    │      • Suporte dedicado                                 │ │
-│    │      └──────────────────────────────────────────────────┘ │
-│    │                                                            │
-│  ┌─┴─┐                                                          │
-│  │ 📤│─── [INDICAÇÃO] Segundo Passo ─────────────────────────┐ │
-│  └─┬─┘    Compartilhe!                                       │ │
-│    │      • Envie seu link                                    │ │
-│    │      • Ou passe dados via WhatsApp                      │ │
-│    │      • Acompanhe status                                 │ │
-│    │      • Notificações em tempo real                       │ │
-│    │      └──────────────────────────────────────────────────┘ │
-│    │                                                            │
-│  ┌─┴─┐                                                          │
-│  │ 💰│─── [RECEBIMENTO] Terceiro Passo ──────────────────────┐ │
-│  └───┘    Receba seu PIX!                                    │ │
-│           • 100% da 1ª mensalidade                           │ │
-│           • PIX em até 5 dias                                │ │
-│           • Comprovante via WhatsApp                         │ │
-│           • Sem limite de indicações                         │ │
-│           └──────────────────────────────────────────────────┘ │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ← carousel  │
+│  │         01  │  │         02  │  │         03  │              │
+│  │   [🎁]      │  │   [📈]      │  │   [✨]      │              │
+│  │ 100% da 1ª  │  │ 10% de      │  │ Certificado │              │
+│  │ Mensalidade │  │ Recorrência │  │ Digital     │              │
+│  │ Descrição   │  │ Descrição   │  │ Descrição   │              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
+│                                                                 │
+│              ● ● ● ●    (navigation dots)                       │
 │                                                                 │
 │           [ Quero me cadastrar agora ]                          │
 └─────────────────────────────────────────────────────────────────┘
@@ -80,50 +58,74 @@ O componente `CustomerJourney` (`src/components/sections/CustomerJourney.tsx`) p
 ## Implementação Técnica
 
 ### Arquivo a criar:
-`src/components/indique-ganhe/PartnerJourney.tsx`
+`src/components/indique-ganhe/PartnerBenefitsCarousel.tsx`
 
-### Estrutura baseada no CustomerJourney:
+### Estrutura do componente:
 
 ```typescript
-// Dados adaptados para o programa de indicação
-const journeySteps = [
+interface BenefitStep {
+  number: string;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+}
+
+const benefitSteps: BenefitStep[] = [
   {
-    id: 1,
-    badge: "CADASTRO",
-    title: "Torne-se Embaixador!",
-    icon: Users,
-    gradient: "from-orange-500 to-orange-400",
-    badgeBg: "bg-orange-100",
-    badgeText: "text-orange-600",
-    borderColor: "border-orange-500",
-    description: "Ao se cadastrar como parceiro embaixador, você terá acesso a:",
-    benefits: [
-      "Link exclusivo de indicação personalizado",
-      "Materiais de divulgação prontos para usar",
-      "Dashboard para acompanhar suas indicações",
-      "Suporte dedicado via WhatsApp",
-    ],
-    conclusion: "Em menos de 60 segundos você está pronto para começar a indicar e ganhar.",
-    step: "Primeiro Passo",
-    stepLabel: "Iniciando sua parceria",
+    number: "01",
+    title: "100% da Primeira Mensalidade",
+    description: "Receba o valor integral da primeira mensalidade do seu indicado diretamente via PIX. Pagamento em até 5 dias úteis.",
+    icon: Gift,
   },
-  // ... (demais passos)
+  {
+    number: "02",
+    title: "10% de Recorrência",
+    description: "Opte por receber 10% de todas as mensalidades enquanto o indicado permanecer cliente ativo.",
+    icon: TrendingUp,
+  },
+  {
+    number: "03",
+    title: "Certificado Digital Grátis",
+    description: "A cada 3 indicações confirmadas, ganhe um Certificado Digital e-CPF ou e-CNPJ.",
+    icon: Sparkles,
+  },
+  {
+    number: "04",
+    title: "IRPF Gratuito",
+    description: "Clientes parceiros que indicam 5 ou mais empresas ganham declaração de IRPF grátis.",
+    icon: Shield,
+  },
 ];
 ```
 
 ### Componentes reutilizados:
-- `TimelineCard` (mesma estrutura do CustomerJourney)
-- Animações com `framer-motion` (useInView, useScroll, useTransform)
-- Linha de progresso animada pelo scroll
-- CTA scroll para seção de cadastro
+- `Carousel`, `CarouselContent`, `CarouselItem` (do Embla)
+- `Autoplay` do embla-carousel-autoplay
+- `motion` do framer-motion
+- Cores: gradiente teal (secondary) da marca
+
+### Características visuais (baseadas no RoutineCarousel):
+- Cards com borda sutil e hover effect
+- Número grande no canto superior direito
+- Ícone em caixa gradiente teal
+- Título em destaque
+- Descrição em texto muted
+- Elemento decorativo no canto inferior
+
+---
+
+## Destaque dos Modelos de Comissão
+
+No subtítulo da seção, enfatizar claramente:
+> "Escolha: **100% da 1ª mensalidade** OU **10% de recorrência**"
 
 ---
 
 ## Alterações em `src/pages/IndiqueGanhe.tsx`
 
-1. **Remover** a seção "Como Funciona" atual (linhas ~370-398)
-2. **Importar** o novo componente `PartnerJourney`
-3. **Adicionar** `<PartnerJourney />` no lugar da seção removida
+1. **Importar** o novo componente `PartnerBenefitsCarousel`
+2. **Substituir** a seção "Benefícios" (linhas 375-400) pelo novo componente
+3. **Manter** o array `benefits` no arquivo (usado pelo novo componente)
 
 ---
 
@@ -131,38 +133,35 @@ const journeySteps = [
 
 | Arquivo | Ação |
 |---------|------|
-| `src/components/indique-ganhe/PartnerJourney.tsx` | **Criar** - Timeline animada adaptada |
-| `src/pages/IndiqueGanhe.tsx` | **Editar** - Substituir seção "Como Funciona" pelo novo componente |
+| `src/components/indique-ganhe/PartnerBenefitsCarousel.tsx` | **Criar** - Carrossel estilo RoutineCarousel |
+| `src/pages/IndiqueGanhe.tsx` | **Editar** - Substituir grid por novo componente |
 
 ---
 
-## Características Mantidas do Original
+## Diferença Visual: Antes vs Depois
 
-| Característica | Descrição |
-|----------------|-----------|
-| Timeline vertical | Linha conectando os passos com progresso animado |
-| Animação de scroll | Linha preenche conforme usuário rola a página |
-| Animação de entrada | Cards entram com fade + slide ao entrar na viewport |
-| Cores por etapa | Laranja → Violeta → Verde (mesma paleta) |
-| Cards com borda | Borda colorida correspondente a cada etapa |
-| Lista com checkmarks | Benefícios com ícone CheckCircle na cor da etapa |
-| Responsivo | Layout adaptado para mobile e desktop |
+| Característica | Antes | Depois |
+|----------------|-------|--------|
+| Layout | Grid 4 colunas | Carrossel animado |
+| Numeração | Sem | Com (01, 02, 03, 04) |
+| Ícones | Caixa simples | Caixa gradiente |
+| Animação | Nenhuma | Entrada + autoplay |
+| Navegação | Nenhuma | Dots clicáveis |
+| Interatividade | Hover simples | Hover + scale |
+| Responsividade | Grid adaptativo | 1/2/3 cards por viewport |
 
 ---
 
 ## Seção Técnica
 
 ### Dependências utilizadas (já instaladas):
-- `framer-motion` - Animações
-- `lucide-react` - Ícones
-
-### Hooks do Framer Motion:
-- `useInView` - Detectar quando elemento entra na viewport
-- `useScroll` - Acompanhar progresso do scroll
-- `useTransform` - Transformar valores de scroll em animações
+- `embla-carousel-react`
+- `embla-carousel-autoplay`
+- `framer-motion`
+- `lucide-react`
 
 ### Performance:
-- Animações com `transform` e `opacity` apenas (GPU-accelerated)
-- `once: true` no useInView para animar apenas uma vez
+- Animações GPU-accelerated (transform, opacity)
+- `once: true` no useInView
 - Componente lazy-loadable se necessário
 

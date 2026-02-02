@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { PartnerEarningsCalculator } from "@/components/indique-ganhe/PartnerEarningsCalculator";
+import { PartnerJourney } from "@/components/indique-ganhe/PartnerJourney";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -367,36 +368,8 @@ export default function IndiqueGanhe() {
         {/* Calculadora de Ganhos */}
         <PartnerEarningsCalculator />
 
-        {/* Como Funciona */}
-        <section className="py-16 lg:py-24 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Como <span className="text-gradient">funciona</span>
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Em apenas 3 passos simples você começa a ganhar
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              {steps.map((step, index) => (
-                <div key={index} className="relative text-center">
-                  <div className="w-20 h-20 mx-auto mb-6 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow">
-                    <step.icon className="h-10 w-10 text-primary-foreground" />
-                  </div>
-                  <div className="absolute top-10 left-[60%] hidden md:block w-[calc(100%-60px)] h-0.5 bg-border -z-10" 
-                       style={{ display: index === 2 ? 'none' : undefined }} />
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-secondary-foreground text-sm font-bold mb-3">
-                    {index + 1}
-                  </span>
-                  <h3 className="text-xl font-bold text-foreground mb-2">{step.title}</h3>
-                  <p className="text-muted-foreground">{step.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Como Funciona - Timeline Animada */}
+        <PartnerJourney />
 
         {/* Benefícios */}
         <section className="py-16 lg:py-24 bg-muted/30">

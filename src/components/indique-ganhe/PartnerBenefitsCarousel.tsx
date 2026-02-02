@@ -162,13 +162,22 @@ export function PartnerBenefitsCarousel() {
           plugins={[autoplayPlugin]}
           className="w-full"
         >
-          <CarouselContent className="-ml-4">
+          <CarouselContent className="-ml-4 items-stretch">
             {benefitSteps.map((step, index) => (
               <CarouselItem 
                 key={step.number} 
-                className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
+                className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 relative"
               >
                 <BenefitCard step={step} index={index} />
+                
+                {/* "OU" indicator between first two cards */}
+                {index === 0 && (
+                  <div className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 hidden sm:flex">
+                    <div className="bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                      OU
+                    </div>
+                  </div>
+                )}
               </CarouselItem>
             ))}
           </CarouselContent>

@@ -1,120 +1,130 @@
 
 
-# Plano: Atualizar Aparência no Google Search
+# Plano: Calculadora de Ganhos para Parceiros
 
 ## Objetivo
-Fazer com que os resultados de busca do Google exibam:
-1. O logo da Contabilidade Zen (ícone "CZ") ao invés do logo do Lovable
-2. Meta description alinhada com a proposta de valor do Hero (redução de carga tributária para diversos nichos)
+Criar uma calculadora interativa na página "Indique e Ganhe" posicionada logo abaixo do Hero, permitindo ao parceiro visualizar seus ganhos potenciais.
 
 ---
 
-## Parte 1: Correção do Favicon
+## Especificações da Calculadora
 
-### Diagnóstico
-O Google pode estar exibindo o favicon antigo do Lovable por um destes motivos:
-- Cache do Google ainda não atualizou
-- O arquivo `favicon.ico` ainda contém o ícone antigo
-- Falta de referência explícita no HTML
+### 1. Campos de Entrada
 
-### Ações
-1. **Verificar e atualizar `favicon.ico`**
-   - Garantir que `public/favicon.ico` contenha o ícone "CZ" da Contabilidade Zen
-   - Caso necessário, gerar nova versão a partir do `logo-icon.png`
+**Campo 1: Valor da Mensalidade (Select)**
+- Opções pré-definidas:
+  - R$ 197/mês (MEI / Autônomo)
+  - R$ 397/mês (Simples Nacional)
+  - R$ 597/mês (Profissional Liberal)
+  - R$ 997/mês (Empresas / Lucro Presumido)
 
-2. **Adicionar referência explícita no index.html**
-   - Incluir ambas as referências (PNG e ICO) para máxima compatibilidade
+**Campo 2: Número de Indicações**
+- Input numérico livre (mínimo 1, sem limite máximo)
+- Default: 3
 
-```html
-<link rel="icon" type="image/x-icon" href="/favicon.ico" />
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
-```
+**Campo 3: Período para cálculo recorrente (Slider)**
+- Range: 6 a 36 meses
+- Default: 12 meses
 
----
+### 2. Modelos de Comissionamento (Tabs)
 
-## Parte 2: Atualização das Meta Tags
+| Modelo | Descrição | Cálculo |
+|--------|-----------|---------|
+| **100% do 1º Honorário** | Recebe valor integral da primeira mensalidade | `mensalidade × qtd_clientes` |
+| **10% Recorrente** | Recebe 10% enquanto o cliente permanecer ativo | `mensalidade × 10% × qtd_clientes × meses` |
 
-### Problema Atual
-Existem **duas fontes** de meta description em conflito:
-- `index.html` (estático): Foca em "médicos, dentistas, psicólogos"
-- `SEOHead` no `Index.tsx` (dinâmico): Já está mais genérica
+### 3. Resultados Exibidos
 
-O Google prioriza o conteúdo estático do `index.html` no primeiro carregamento.
-
-### Nova Meta Description (alinhada ao Hero)
-**Proposta** (max 160 caracteres):
-
-> "Economize até 50% em impostos com contabilidade digital especializada. Médicos, advogados, TI, produtores digitais e mais. 100% online, 0% burocracia."
-
-### Arquivos a Atualizar
-
-**1. index.html (meta tags estáticas)**
-```html
-<title>Contabilidade Zen | Economize até 50% em Impostos | Contabilidade Digital</title>
-<meta name="description" content="Economize até 50% em impostos com contabilidade digital especializada. Médicos, advogados, TI, produtores digitais e mais. 100% online, 0% burocracia." />
-<meta name="keywords" content="contabilidade digital, redução de impostos, planejamento tributário, contabilidade online, abrir empresa, MEI, Simples Nacional" />
-```
-
-**2. SEOHead em Index.tsx**
-```tsx
-<SEOHead
-  title="Contabilidade Zen | Economize até 50% em Impostos | Contabilidade Digital"
-  description="Economize até 50% em impostos com contabilidade digital especializada. Médicos, advogados, TI, produtores digitais e mais. 100% online, 0% burocracia."
-  keywords="contabilidade digital, redução de impostos, planejamento tributário, contabilidade online, abrir empresa, MEI, Simples Nacional, contabilidade para médicos, contabilidade para advogados"
-  ...
-/>
-```
-
-**3. Open Graph (index.html e SEOHead)**
-```html
-<meta property="og:title" content="Contabilidade Zen | Economize até 50% em Impostos" />
-<meta property="og:description" content="Contabilidade digital que reduz sua carga tributária em até 50%. Para profissionais e empresas de diversos nichos. Atendimento humanizado e 100% online." />
-```
+- Ganho total (formatado em BRL)
+- Descrição contextual do cálculo
+- CTA para cadastro
 
 ---
 
-## Parte 3: Atualização dos Schemas JSON-LD
+## Posicionamento na Página
 
-### Arquivo: src/lib/seo-schemas.ts
+A calculadora será inserida como **nova seção logo após o Hero**, antes de "Como funciona".
 
-Atualizar as descrições para refletir a proposta de valor multi-nicho:
+---
+
+## Implementação Técnica
+
+### Arquivo a criar:
+`src/components/indique-ganhe/PartnerEarningsCalculator.tsx`
+
+### Estrutura do componente:
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│  💰 Calcule seus Ganhos                                 │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐              │
+│  │ 100% do 1º Mês  │  │ 10% Recorrente  │   ← Tabs    │
+│  └─────────────────┘  └─────────────────┘              │
+│                                                         │
+│  Valor da mensalidade:  [Select dropdown]               │
+│  Quantas indicações?    [Input number - livre]          │
+│  Período (se recorrente): [Slider 6-36 meses]           │
+│                                                         │
+│  ┌─────────────────────────────────────────────────────┐│
+│  │  🎉 Seu potencial: R$ X.XXX                         ││
+│  │  Detalhamento do cálculo                            ││
+│  └─────────────────────────────────────────────────────┘│
+│                                                         │
+│  [  Quero me cadastrar  ]                               │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Componentes UI utilizados:
+- `Card` / `CardContent`
+- `Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`
+- `Select` / `SelectTrigger` / `SelectContent` / `SelectItem`
+- `Input` (type="number", min=1, sem max)
+- `Slider`
+- `Button`
+- `Label`
+
+### Lógica de cálculo:
 
 ```typescript
-organizationSchema.description = 
-  "Contabilidade digital especializada para profissionais e empresas. Médicos, advogados, TI, produtores digitais, e-commerce e mais. Reduza sua carga tributária em até 50%.";
+const planos = [
+  { valor: 197, label: "R$ 197/mês", descricao: "MEI / Autônomo" },
+  { valor: 397, label: "R$ 397/mês", descricao: "Simples Nacional" },
+  { valor: 597, label: "R$ 597/mês", descricao: "Profissional Liberal" },
+  { valor: 997, label: "R$ 997/mês", descricao: "Empresas / Lucro Presumido" }
+];
 
-organizationSchema.slogan = 
-  "Economize até 50% em impostos com especialistas";
+// Modelo 100% do 1º Honorário
+const ganhoImediato = mensalidade * qtdIndicacoes;
+
+// Modelo 10% Recorrente
+const ganhoMensal = mensalidade * 0.10 * qtdIndicacoes;
+const ganhoTotal = ganhoMensal * meses;
 ```
+
+---
+
+## Alterações em `src/pages/IndiqueGanhe.tsx`
+
+1. Importar o novo componente `PartnerEarningsCalculator`
+2. Adicionar nova seção **logo após o Hero** (antes de "Como Funciona")
 
 ---
 
 ## Resumo das Alterações
 
-| Arquivo | Alteração |
-|---------|-----------|
-| `index.html` | Atualizar title, meta description, OG tags |
-| `src/pages/Index.tsx` | Atualizar props do SEOHead |
-| `src/lib/seo-schemas.ts` | Atualizar description e slogan do Organization |
-| `public/favicon.ico` | Verificar/substituir pelo ícone CZ |
+| Arquivo | Ação |
+|---------|------|
+| `src/components/indique-ganhe/PartnerEarningsCalculator.tsx` | **Criar** - Componente da calculadora |
+| `src/pages/IndiqueGanhe.tsx` | **Editar** - Importar e adicionar seção após Hero |
 
 ---
 
-## Seção Técnica
+## Características Técnicas
 
-### Sobre o Cache do Google
-- O Google pode levar de **1 a 4 semanas** para atualizar o favicon nos resultados de busca
-- Para acelerar, após publicar:
-  1. Acessar Google Search Console
-  2. Solicitar nova indexação da página inicial
-  3. O favicon será atualizado automaticamente após o recrawl
-
-### Verificação Pós-Publicação
-Após publicar as alterações:
-1. Testar em [Google Rich Results Test](https://search.google.com/test/rich-results)
-2. Verificar meta tags com [metatags.io](https://metatags.io)
-3. Solicitar reindexação no Google Search Console
-4. Aguardar 1-2 semanas para atualização completa nos resultados
+- **Input livre**: Número de indicações sem limite máximo (apenas mínimo 1)
+- **Tempo real**: Resultados atualizam automaticamente ao alterar valores
+- **Mobile-first**: Layout responsivo
+- **Acessibilidade**: Labels associados, contraste adequado
+- **Conversão**: CTA scroll para o formulário de cadastro
 

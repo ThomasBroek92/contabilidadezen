@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { PartnerEarningsCalculator } from "@/components/indique-ganhe/PartnerEarningsCalculator";
 import { PartnerJourney } from "@/components/indique-ganhe/PartnerJourney";
+import { PartnerBenefitsCarousel } from "@/components/indique-ganhe/PartnerBenefitsCarousel";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -371,33 +372,8 @@ export default function IndiqueGanhe() {
         {/* Como Funciona - Timeline Animada */}
         <PartnerJourney />
 
-        {/* Benefícios */}
-        <section className="py-16 lg:py-24 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                O que você <span className="text-gradient">ganha</span>
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Recompensas reais para quem indica
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {benefits.map((benefit, index) => (
-                <Card key={index} className="border-border/50 hover:border-secondary/50 transition-colors hover:shadow-card">
-                  <CardContent className="p-6">
-                    <div className="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mb-4">
-                      <benefit.icon className="h-7 w-7 text-secondary" />
-                    </div>
-                    <h3 className="text-lg font-bold text-foreground mb-2">{benefit.title}</h3>
-                    <p className="text-sm text-muted-foreground">{benefit.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Benefícios - Carrossel */}
+        <PartnerBenefitsCarousel />
 
         {/* Depoimentos */}
         <section className="py-16 lg:py-24 bg-background">

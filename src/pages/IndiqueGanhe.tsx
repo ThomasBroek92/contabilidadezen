@@ -108,7 +108,7 @@ const faqs = [
   },
   {
     question: "Qual o valor mínimo de faturamento do indicado?",
-    answer: "Aceitamos empresas com faturamento a partir de R$ 5.000/mês. Profissionais da saúde têm prioridade."
+    answer: "Não há valor mínimo para indicados. Aceitamos empresas e profissionais de qualquer porte."
   },
   {
     question: "Posso indicar quantas empresas quiser?",

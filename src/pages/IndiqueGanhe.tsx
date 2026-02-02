@@ -59,12 +59,12 @@ const benefits = [
   {
     icon: Gift,
     title: "100% da Primeira Mensalidade",
-    description: "Receba o valor integral da primeira mensalidade do seu indicado diretamente via PIX."
+    description: "Receba o valor integral da primeira mensalidade do seu indicado diretamente via PIX. Pagamento em até 5 dias úteis."
   },
   {
     icon: TrendingUp,
-    title: "Desconto Progressivo",
-    description: "Acumule indicações e ganhe descontos crescentes na sua própria mensalidade contábil."
+    title: "10% de Recorrência",
+    description: "Opte por receber 10% de todas as mensalidades enquanto o indicado permanecer cliente ativo."
   },
   {
     icon: Sparkles,

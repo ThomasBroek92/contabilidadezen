@@ -39,7 +39,7 @@ const benefitCards = [
 ];
 
 const stats = [
-  { icon: Users, value: "500+", label: "Clientes Ativos" },
+  { icon: Users, value: "100+", label: "Clientes Ativos" },
   { icon: Award, value: "10+", label: "Anos no Mercado" },
   { icon: Star, value: "4.9⭐", label: "Avaliação Google" },
 ];
@@ -82,7 +82,7 @@ export function HeroMultiNiche() {
             {/* Subheadline */}
             <StaggerItem type="slide">
               <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
-                Mais de 500 profissionais e empresas em todo Brasil já reduziram sua carga tributária 
+                Mais de 100 profissionais e empresas em todo Brasil já reduziram sua carga tributária 
                 com nossa contabilidade digital nichada.{" "}
                 <span className="font-semibold text-foreground">100% online, 0% burocracia.</span>
               </p>

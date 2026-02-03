@@ -1,216 +1,122 @@
 
-# Plano: Criar Pagina de Modelo de Contrato PJ
 
-## Resumo
+# Plano: Implementar Scroll to Top Automatico em Navegacao
 
-Criar uma nova landing page em `/conteudo/modelo-contrato-pj` para disponibilizar um modelo gratuito de contrato para prestadores de servicos PJ. A pagina seguira o padrao visual das outras ferramentas de conteudo (GeradorInvoice, AbrirEmpresa), com Hero de 2 colunas, carrossel de beneficios e secoes de conversao.
+## Problema Identificado
 
-**Link do Google Docs fornecido:**
-`https://docs.google.com/document/d/1umsJsgYNg56nZdjO9Ysg6YFjaudNFgHL/edit?usp=sharing...`
+Quando o usuario clica em um link ou botao que navega para outra pagina do site, a nova pagina abre na mesma posicao de scroll da pagina anterior, em vez de abrir no topo. Isso acontece porque o React Router mantem a posicao de scroll entre navegacoes por padrao.
+
+## Solucao
+
+Criar um componente `ScrollToTop` que escuta mudancas de rota e automaticamente rola a pagina para o topo. Este componente sera adicionado ao `App.tsx` e funcionara globalmente para todas as rotas.
 
 ---
 
 ## Arquivos a Criar/Modificar
 
-### 1. CRIAR: `src/pages/conteudo/ModeloContratoPJ.tsx`
+### 1. CRIAR: `src/components/ScrollToTop.tsx`
 
-Pagina completa (~800 linhas) seguindo o padrao do GeradorInvoice/AbrirEmpresa.
+Componente simples que usa `useLocation` do React Router para detectar mudancas de rota e executar `window.scrollTo(0, 0)`.
+
+```text
++------------------------------------------+
+|  ScrollToTop Component                   |
++------------------------------------------+
+|  - Importa useLocation e useEffect       |
+|  - Escuta mudancas em location.pathname  |
+|  - Executa window.scrollTo(0, 0)         |
+|  - Retorna null (nao renderiza nada)     |
++------------------------------------------+
+```
 
 ### 2. MODIFICAR: `src/App.tsx`
 
-Adicionar import e rota `/conteudo/modelo-contrato-pj`.
-
----
-
-## Estrutura da Pagina
-
-### Hero Section (Padrao GeradorInvoice)
+Importar e adicionar o componente `ScrollToTop` dentro do `BrowserRouter`, junto com o `AnalyticsTracker`.
 
 ```text
-+--------------------------------------------------+
-|  GRID 2 COLUNAS                                  |
-+--------------------------------------------------+
-| COLUNA ESQUERDA:              | COLUNA DIREITA:  |
-| - Badge "100% gratuita"       | - Card mockup    |
-| - H1 com gradiente            |   contrato       |
-| - Subtitulo                   | - Header gradient|
-| - CTA "Baixar Modelo"         | - Preview dados  |
-| - Google Reviews Badge        | - Footer Zen     |
-+--------------------------------------------------+
-|  CARROSSEL DE BENEFICIOS (6 itens, autoplay)     |
-+--------------------------------------------------+
-```
+ANTES (linha 82-83):
+          </Routes>
+          <AnalyticsTracker />
 
-**6 Beneficios do Carrossel:**
-1. 100% Gratuito - Sem custo para download
-2. Pronto para Usar - Modelo profissional completo
-3. Editavel - Facil personalizacao no Google Docs
-4. Seguranca Juridica - Clausulas essenciais inclusas
-5. Sem Cadastro - Nenhuma conta necessaria
-6. Formato Universal - Compativel com qualquer editor
-
----
-
-### Secao: O que esta incluido
-
-| Clausulas (lista)                     | Aviso Importante (card amber)         |
-|---------------------------------------|---------------------------------------|
-| - Objeto e escopo do servico          | Este modelo e um ponto de partida.    |
-| - Condicoes de pagamento              | Recomendamos revisao juridica para    |
-| - Prazo de vigencia e rescisao        | adequacao ao seu caso especifico.     |
-| - Responsabilidades das partes        |                                       |
-| - Confidencialidade                   |                                       |
-| - Foro e legislacao aplicavel         |                                       |
-| - Orientacoes para personalizacao     |                                       |
-
----
-
-### Secao: Download (Lead Capture)
-
-```text
-+------------------------------------------+
-|  CARD CENTRAL (max-w-xl)                 |
-+------------------------------------------+
-|  [Icone FileText]                        |
-|  Baixe Seu Modelo de Contrato            |
-|                                          |
-|  Nome: [________________]                |
-|  Email: [________________]               |
-|  WhatsApp: [(00) 00000-0000]             |
-|                                          |
-|  [ ] Aceito a Politica de Privacidade    |
-|                                          |
-|  [  BAIXAR MODELO GRATUITO  ]            |
-+------------------------------------------+
-
-APOS SUBMIT:
-+------------------------------------------+
-|  [Icone CheckCircle verde]               |
-|  Pronto! Seu modelo esta disponivel      |
-|                                          |
-|  [ ABRIR MODELO NO GOOGLE DOCS ]         |
-|                                          |
-|  O documento abrira em nova aba.         |
-+------------------------------------------+
+DEPOIS:
+          </Routes>
+          <ScrollToTop />
+          <AnalyticsTracker />
 ```
 
 ---
 
-### Secao: Para quem e este contrato
+## Implementacao Tecnica
 
-| Profissionais da Saude | Profissionais de TI    | Outros Prestadores     |
-|------------------------|------------------------|------------------------|
-| - Medicos              | - Desenvolvedores      | - Advogados            |
-| - Dentistas            | - Designers            | - Arquitetos           |
-| - Psicologos           | - Infoprodutores       | - Representantes       |
-| - Fisioterapeutas      | - Consultores digitais | - Consultores          |
-
----
-
-### Secao: Como usar este modelo
-
-```text
-   [1]                    [2]                    [3]
-   BAIXE              PERSONALIZE           REVISE E ASSINE
-   
-   Clique e acesse    Preencha os dados     Confira tudo e
-   o Google Docs      da sua empresa        colete assinaturas
-```
-
----
-
-### Secao: Servicos Relacionados
-
-| Abertura de Empresa     | Planejamento Tributario | Migracao de Contabilidade |
-|-------------------------|-------------------------|---------------------------|
-| CNPJ em 7 dias uteis    | Economize ate 50%       | Sem burocracia            |
-| Sede virtual gratuita   | Fator R otimizado       | 100% digital              |
-| -> /abrir-empresa       | -> /contato             | -> /contato               |
-
----
-
-### Secao: Badges de Confianca
-
-| 100+ Clientes | 10+ Anos | 5.0 Google | CRC-SP 337693/O-7 |
-
----
-
-### Secao: FAQ
-
-1. **O modelo de contrato e realmente gratuito?**
-   Sim, 100% gratuito. Voce pode baixar, editar e usar quantas vezes quiser.
-
-2. **Preciso de advogado para usar este contrato?**
-   O modelo e um ponto de partida completo. Para casos especificos, recomendamos revisao juridica.
-
-3. **Posso editar as clausulas do modelo?**
-   Sim! O documento esta em formato editavel no Google Docs.
-
-4. **O contrato serve para qualquer tipo de servico?**
-   O modelo e generico e cobre a maioria dos casos de prestacao de servicos.
-
----
-
-### CTA Final
-
-```text
-+--------------------------------------------------+
-|  FUNDO GRADIENTE PRIMARY                         |
-|                                                  |
-|  Pronto para formalizar seus contratos?          |
-|                                                  |
-|  [ BAIXAR MODELO ]  [ FALAR COM ESPECIALISTA ]   |
-|                                                  |
-|  - Analise gratuita do seu caso                  |
-|  - Sem compromisso                               |
-|  - Especialistas dedicados                       |
-+--------------------------------------------------+
-```
-
----
-
-## Detalhes Tecnicos
-
-### SEO
+### Componente ScrollToTop
 
 ```typescript
-<ToolPageSEO
-  title="Modelo de Contrato PJ Gratuito | Download em PDF/Word"
-  description="Baixe gratuitamente um modelo de contrato para prestadores de servicos PJ..."
-  canonical="/conteudo/modelo-contrato-pj"
-  faqs={faqData}
-/>
+// src/components/ScrollToTop.tsx
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+export function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    // Scroll para o topo quando a rota mudar
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 ```
 
-### Componentes Reutilizados
+### Consideracoes
 
-- Header, Footer, ToolPageSEO
-- Button, Input, Label, Checkbox, Badge
-- Carousel, CarouselContent, CarouselItem
-- motion (framer-motion) + Autoplay
-- useLeadCapture hook
-- useQuery (GMB stats)
+1. **Comportamento padrao**: Scroll instantaneo para o topo (sem animacao), pois o usuario espera ver o inicio da nova pagina imediatamente.
 
-### Icones Lucide
+2. **Excecao para hash links**: Se a URL contiver um hash (ex: `/pagina#secao`), o navegador cuida do scroll para o elemento. O componente nao interfere com esse comportamento nativo.
 
-Download, FileText, Edit, FileCheck, CheckCircle2, AlertTriangle, Stethoscope, Code, Briefcase, Building2, Calculator, RefreshCw, Star, ArrowRight, MessageCircle, Shield, FileDown, UserX, Globe
+3. **Back/Forward do navegador**: O componente rola para o topo mesmo ao usar os botoes voltar/avancar. Se preferir manter a posicao ao voltar, podemos usar `scrollRestoration: 'manual'` do History API.
 
 ---
 
-## Fluxo de Captura de Lead
+## Ordem de Implementacao
 
-1. Usuario preenche nome, email, whatsapp
-2. Aceita checkbox de privacidade
-3. Clica em "Baixar Modelo Gratuito"
-4. Sistema salva lead com fonte "Modelo Contrato PJ"
-5. Mostra botao para abrir Google Docs
-6. Google Docs abre em nova aba
+1. Criar arquivo `src/components/ScrollToTop.tsx`
+2. Importar e adicionar ao `src/App.tsx`
+3. Testar navegacao entre paginas
 
 ---
 
-## Atualizacoes Pos-Implementacao
+## Atualizacao do Custom Knowledge
 
-1. Adicionar entrada na tabela `page_metadata` para sitemap
-2. Incluir no array `staticPages` da Edge Function sitemap
-3. Incluir no array `staticPages` do google-search-console
+Apos a implementacao, o seguinte sera adicionado ao Custom Knowledge do projeto para evitar que este problema ocorra novamente:
+
+```text
+#NAVIGATION_SCROLL_RULES
+
+## Regras de Navegacao e Scroll
+
+1. **Scroll to Top Automatico**
+   - O componente ScrollToTop.tsx garante que toda navegacao inicia no topo da pagina
+   - Localizado em: src/components/ScrollToTop.tsx
+   - Adicionado ao App.tsx dentro do BrowserRouter
+
+2. **NUNCA remover o ScrollToTop**
+   - Este componente e essencial para UX
+   - Sem ele, paginas abrem no meio do scroll
+
+3. **Smooth scroll interno**
+   - Para scroll dentro da mesma pagina, usar scrollIntoView({ behavior: "smooth" })
+   - Exemplo: document.getElementById("secao")?.scrollIntoView({ behavior: "smooth" })
+
+4. **Hash links**
+   - Links com # (ex: /pagina#faq) funcionam normalmente
+   - O navegador cuida do scroll para o elemento com id correspondente
+```
+
+---
+
+## Resultado Esperado
+
+- Todas as navegacoes via Link, navigate(), ou clique em botoes que mudam de rota iniciarao no topo da pagina
+- Comportamento consistente em todo o site
+- Diretriz documentada para manutencao futura
 

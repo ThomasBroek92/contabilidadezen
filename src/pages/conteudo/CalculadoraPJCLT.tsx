@@ -1305,35 +1305,6 @@ export default function CalculadoraPJCLT() {
           </div>
         </section>
 
-        {/* Final CTA */}
-        <section className="py-16 lg:py-24 bg-gradient-to-br from-primary to-primary/80">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-2xl md:text-4xl font-bold text-primary-foreground mb-6">
-              Abrir empresa é com a Contabilidade Zen
-            </h2>
-            <p className="text-lg text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Somos especialistas em contabilidade para profissionais da saúde. 
-              Sua empresa fica 100% regularizada pagando o mínimo de impostos.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="secondary" size="lg" asChild>
-                <Link to="/contato">
-                  Abrir minha empresa
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10" asChild>
-                <a
-                  href="https://wa.me/5519974158342"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Falar no WhatsApp
-                </a>
-              </Button>
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer />

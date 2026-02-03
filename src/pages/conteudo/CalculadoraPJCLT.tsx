@@ -581,11 +581,10 @@ export default function CalculadoraPJCLT() {
               >
                 <CarouselContent className="-ml-2 md:-ml-4">
                   {[
-                    { icon: Percent, title: "Impostos de 6% a 15%", subtitle: "vs 27,5% como autônomo" },
+                    { icon: Percent, title: "Impostos a partir de 6%", subtitle: "vs 27,5% como autônomo" },
                     { icon: PiggyBank, title: "Economia Real", subtitle: "Milhares por ano" },
                     { icon: Zap, title: "Cálculo Instantâneo", subtitle: "Resultado na hora" },
                     { icon: Shield, title: "Fator R Aplicado", subtitle: "Menor tributação" },
-                    { icon: Clock, title: "Abertura Gratuita", subtitle: "Sem taxas ocultas" },
                     { icon: CheckCircle, title: "100% Gratuito", subtitle: "Sem cadastro" },
                   ].map((benefit, index) => (
                     <CarouselItem key={index} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/6">

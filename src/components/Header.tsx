@@ -29,7 +29,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import logoFull from "@/assets/logo-full.png";
+import logoFull from "@/assets/logo-full.webp";
 
 // Navigation links configuration
 const navLinks = [

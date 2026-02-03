@@ -49,6 +49,7 @@ const conteudoLinks = [
   { name: "Blog", href: "/blog" },
   { name: "Calculadora PJ x CLT", href: "/conteudo/calculadora-pj-clt" },
   { name: "Gerador de RPA", href: "/conteudo/gerador-rpa" },
+  { name: "Gerador de Invoice/Fatura", href: "/conteudo/gerador-invoice" },
   { name: "Tabela CNAEs Simples Nacional", href: "/conteudo/tabela-simples-nacional" },
 ];
 

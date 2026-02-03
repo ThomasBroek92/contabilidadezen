@@ -24,6 +24,7 @@ import GeradorRPA from "./pages/conteudo/GeradorRPA";
 import GeradorInvoice from "./pages/conteudo/GeradorInvoice";
 import ComparativoTributario from "./pages/conteudo/ComparativoTributario";
 import TabelaSimplesNacional from "./pages/conteudo/TabelaSimplesNacional";
+import ModeloContratoPJ from "./pages/conteudo/ModeloContratoPJ";
 import AbrirEmpresa from "./pages/AbrirEmpresa";
 import IndiqueGanhe from "./pages/IndiqueGanhe";
 import PartnerDashboard from "./pages/PartnerDashboard";
@@ -68,6 +69,7 @@ const App = () => (
             <Route path="/conteudo/gerador-invoice" element={<GeradorInvoice />} />
             <Route path="/conteudo/comparativo-tributario" element={<ComparativoTributario />} />
             <Route path="/conteudo/tabela-simples-nacional" element={<TabelaSimplesNacional />} />
+            <Route path="/conteudo/modelo-contrato-pj" element={<ModeloContratoPJ />} />
             <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
             <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />
             <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />

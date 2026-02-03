@@ -26,18 +26,18 @@ import {
 } from "lucide-react";
 import { StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/scroll-animation";
 import { motion } from "framer-motion";
-import representanteComercialBg from "@/assets/representante-comercial-bg.jpg";
-import advogadosBg from "@/assets/advogados-bg.jpg";
-import profissionaisSaudeBg from "@/assets/profissionais-saude-bg.jpg";
-import outrosSegmentosBg from "@/assets/outros-segmentos-bg.jpg";
-import youtubersBg from "@/assets/youtubers-creators-bg.jpg";
-import clinicasConsultoriosBg from "@/assets/clinicas-consultorios-bg.jpg";
-import ecommerceBg from "@/assets/ecommerce-bg.jpg";
-import profissionaisPjBg from "@/assets/profissionais-pj-bg.jpg";
-import prestadoresServicoBg from "@/assets/prestadores-servico-bg.jpg";
-import produtoresDigitaisBg from "@/assets/produtores-digitais-bg.jpg";
-import profissionaisTiBg from "@/assets/profissionais-ti-bg.jpg";
-import exportacaoServicosBg from "@/assets/exportacao-servicos-bg.jpg";
+import representanteComercialBg from "@/assets/representante-comercial-bg.webp";
+import advogadosBg from "@/assets/advogados-bg.webp";
+import profissionaisSaudeBg from "@/assets/profissionais-saude-bg.webp";
+import outrosSegmentosBg from "@/assets/outros-segmentos-bg.webp";
+import youtubersBg from "@/assets/youtubers-creators-bg.webp";
+import clinicasConsultoriosBg from "@/assets/clinicas-consultorios-bg.webp";
+import ecommerceBg from "@/assets/ecommerce-bg.webp";
+import profissionaisPjBg from "@/assets/profissionais-pj-bg.webp";
+import prestadoresServicoBg from "@/assets/prestadores-servico-bg.webp";
+import produtoresDigitaisBg from "@/assets/produtores-digitais-bg.webp";
+import profissionaisTiBg from "@/assets/profissionais-ti-bg.webp";
+import exportacaoServicosBg from "@/assets/exportacao-servicos-bg.webp";
 
 const niches = [
   {

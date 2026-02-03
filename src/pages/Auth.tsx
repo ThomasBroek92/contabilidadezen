@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SEOHead } from '@/components/SEOHead';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import logoFull from '@/assets/logo-full.png';
+import logoFull from '@/assets/logo-full.webp';
 
 const authSchema = z.object({
   email: z.string().trim().email('E-mail inválido').max(255, 'E-mail muito longo'),

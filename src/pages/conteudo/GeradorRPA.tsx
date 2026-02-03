@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { FileText, Calculator, AlertTriangle, User, Building2, Download, RefreshCw, Printer } from "lucide-react";
 import jsPDF from "jspdf";
-import logoFull from "@/assets/logo-full.png";
+import logoFull from "@/assets/logo-full.webp";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 
 // Tabela IRRF 2026 - Atualizada conforme legislação vigente

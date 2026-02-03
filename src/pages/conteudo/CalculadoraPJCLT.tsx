@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SEOHead, ToolPageSEO } from "@/components/SEOHead";
+import { SEOHead } from "@/components/SEOHead";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -11,12 +11,10 @@ import {
   Calculator, 
   CheckCircle, 
   FileText, 
-  Calendar, 
   DollarSign,
   Building2,
-  User,
+  Briefcase,
   ArrowRight,
-  Info,
   TrendingUp,
   HelpCircle,
   Star,
@@ -24,7 +22,10 @@ import {
   Zap,
   PiggyBank,
   Shield,
-  Clock
+  Clock,
+  MessageCircle,
+  Users,
+  AlertCircle
 } from "lucide-react";
 import {
   Tooltip,
@@ -38,6 +39,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Carousel,
   CarouselContent,
@@ -99,7 +109,7 @@ function GoogleReviewsBadge() {
   );
 }
 
-// Tabela INSS 2024
+// Tabela INSS 2024 (para cálculo CLT)
 const INSS_FAIXAS = [
   { limite: 1412.00, aliquota: 0.075 },
   { limite: 2666.68, aliquota: 0.09 },
@@ -124,30 +134,20 @@ const PLANOS_ZEN = [
     description: "Ideal para autônomos ou PJ sem funcionários",
     ideal: "Faturamento até R$ 15.000/mês",
   },
-  {
-    name: "Clínica / Consultório",
-    price: 447.90,
-    description: "Para clínicas físicas com necessidades específicas",
-    ideal: "Faturamento até R$ 50.000/mês",
-    popular: true,
-  },
-  {
-    name: "Empresarial",
-    price: 597.90,
-    description: "Para clínicas maiores com funcionários",
-    ideal: "Faturamento acima de R$ 50.000/mês",
-  },
 ];
 
-interface ResultadoCalculo {
-  // Autônomo
-  salarioBrutoAutonomo: number;
-  inss: number;
-  irrf: number;
-  salarioLiquidoAutonomo: number;
+interface ResultadoCalculoCLT {
+  // CLT
+  salarioBrutoCLT: number;
+  inssCLT: number;
+  irrfCLT: number;
+  salarioLiquidoCLT: number;
+  feriasMensal: number;
+  decimoTerceiroMensal: number;
+  fgtsMensal: number;
   beneficiosTotais: number;
-  totalAnualAutonomo: number;
-  totalMensalEquivalenteAutonomo: number;
+  totalMensalCLT: number;
+  totalAnualCLT: number;
   
   // PJ
   faturamentoPJ: number;
@@ -157,7 +157,7 @@ interface ResultadoCalculo {
   salarioLiquidoPJ: number;
   totalAnualPJ: number;
   
-  // Comparação - economia ao migrar para PJ
+  // Economia
   economiaMensal: number;
   economiaAnual: number;
   percentualEconomia: number;
@@ -169,8 +169,9 @@ export default function CalculadoraPJCLT() {
   const [valeTransporte, setValeTransporte] = useState("");
   const [planoSaude, setPlanoSaude] = useState("");
   const [outrosBeneficios, setOutrosBeneficios] = useState("");
-  const [resultado, setResultado] = useState<ResultadoCalculo | null>(null);
+  const [resultado, setResultado] = useState<ResultadoCalculoCLT | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [formError, setFormError] = useState("");
   
   // Lead capture fields
   const [nome, setNome] = useState("");
@@ -249,56 +250,70 @@ export default function CalculadoraPJCLT() {
   };
 
   const calcular = () => {
+    setFormError("");
+    const salario = parseCurrency(salarioBruto);
+    
+    // Validação: salário mínimo R$ 1.412
+    if (salario < 1412) {
+      setFormError("O salário bruto deve ser no mínimo R$ 1.412,00 (salário mínimo 2024)");
+      return;
+    }
+
     setIsCalculating(true);
     
     setTimeout(() => {
-      const salario = parseCurrency(salarioBruto);
       const vr = parseCurrency(valeRefeicao);
       const vt = parseCurrency(valeTransporte);
       const ps = parseCurrency(planoSaude);
       const outros = parseCurrency(outrosBeneficios);
 
-      if (salario <= 0) {
-        setIsCalculating(false);
-        return;
-      }
-
-      // Cálculos Autônomo (sem empresa)
-      const inss = calcularINSS(salario);
-      const irrf = calcularIRRF(salario, inss);
-      const salarioLiquidoAutonomo = salario - inss - irrf;
+      // Cálculos CLT
+      const inssCLT = calcularINSS(salario);
+      const irrfCLT = calcularIRRF(salario, inssCLT);
+      const salarioLiquidoCLT = salario - inssCLT - irrfCLT;
+      
+      // Benefícios CLT anualizados (divididos por 12 para mensal equivalente)
+      const feriasMensal = (salario / 12) + (salario / 12 * 0.3333); // 1/12 férias + 1/3
+      const decimoTerceiroMensal = salario / 12; // 1/12 do 13º
+      const fgtsMensal = salario * 0.08; // 8% FGTS
       
       const beneficiosTotais = vr + vt + ps + outros;
       
-      const totalMensalEquivalenteAutonomo = salarioLiquidoAutonomo + beneficiosTotais;
-      const totalAnualAutonomo = totalMensalEquivalenteAutonomo * 12;
+      // Total mensal CLT = líquido + benefícios trabalhistas mensalizados + benefícios informados
+      const totalMensalCLT = salarioLiquidoCLT + feriasMensal + decimoTerceiroMensal + fgtsMensal + beneficiosTotais;
+      const totalAnualCLT = totalMensalCLT * 12;
 
-      // Cálculos PJ - com mesmo faturamento bruto
-      // Usamos Simples Nacional com alíquota efetiva de ~6% (Fator R aplicável para serviços de saúde)
+      // Cálculos PJ - custo empresa equivalente ao CLT
+      // Custo empresa CLT ≈ salário bruto + encargos (≈40% extra: INSS patronal, FGTS, férias, 13º)
+      const custoEmpresaCLT = salario * 1.4;
+      const faturamentoPJ = custoEmpresaCLT; // PJ cobra o mesmo custo que empresa pagaria
+      
+      // Simples Nacional com Fator R (alíquota efetiva ~6%)
       const aliquotaSimples = 0.06;
       const proLabore = 1412; // 1 salário mínimo
       const inssPJ = proLabore * 0.11;
       const contabilidade = PLANOS_ZEN[0].price;
       
-      // Faturamento PJ = mesmo valor bruto do autônomo
-      const faturamentoPJ = salario;
       const impostosPJ = faturamentoPJ * aliquotaSimples;
-      const salarioLiquidoPJ = faturamentoPJ - impostosPJ - inssPJ - contabilidade + beneficiosTotais;
+      const salarioLiquidoPJ = faturamentoPJ - impostosPJ - inssPJ - contabilidade;
       const totalAnualPJ = salarioLiquidoPJ * 12;
 
       // Economia ao migrar para PJ
-      const economiaMensal = salarioLiquidoPJ - totalMensalEquivalenteAutonomo;
-      const economiaAnual = totalAnualPJ - totalAnualAutonomo;
-      const percentualEconomia = ((salarioLiquidoPJ / totalMensalEquivalenteAutonomo) - 1) * 100;
+      const economiaMensal = salarioLiquidoPJ - totalMensalCLT;
+      const economiaAnual = totalAnualPJ - totalAnualCLT;
+      const percentualEconomia = totalMensalCLT > 0 ? ((salarioLiquidoPJ / totalMensalCLT) - 1) * 100 : 0;
 
       setResultado({
-        salarioBrutoAutonomo: salario,
-        inss,
-        irrf,
-        salarioLiquidoAutonomo,
+        salarioBrutoCLT: salario,
+        inssCLT,
+        irrfCLT,
+        salarioLiquidoCLT,
+        feriasMensal,
+        decimoTerceiroMensal,
+        fgtsMensal,
         beneficiosTotais,
-        totalAnualAutonomo,
-        totalMensalEquivalenteAutonomo,
+        totalMensalCLT,
+        totalAnualCLT,
         faturamentoPJ,
         impostosPJ,
         inssPJ,
@@ -310,9 +325,13 @@ export default function CalculadoraPJCLT() {
         percentualEconomia,
       });
       
-      // Show lead capture form after calculation
       setShowLeadForm(true);
       setIsCalculating(false);
+      
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById("resultado-section")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     }, 800);
   };
 
@@ -332,8 +351,8 @@ export default function CalculadoraPJCLT() {
       nome: nome.trim(),
       email: email.trim(),
       whatsapp: telefone.trim(),
-      segmento: "PJ x Autônomo",
-      fonte: "Calculadora PJ x Autônomo",
+      segmento: "CLT x PJ",
+      fonte: "Calculadora CLT x PJ",
       faturamento_mensal: salario,
       economia_anual: resultado?.economiaAnual,
     });
@@ -349,58 +368,34 @@ export default function CalculadoraPJCLT() {
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Quanto custa abrir uma empresa PJ?",
+        "name": "A calculadora CLT x PJ é precisa?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Na Contabilidade Zen, a abertura de empresa para profissionais da saúde é gratuita! Você só paga a mensalidade da contabilidade a partir de R$ 297,90/mês. Os únicos custos iniciais são taxas governamentais (aproximadamente R$ 200-400), que variam conforme o estado e município."
+          "text": "Sim, mas os valores são estimativas genéricas. Cada caso é único e pode ter variações conforme município, atividade e regime tributário. Recomendamos consulta com contador para análise personalizada."
         }
       },
       {
         "@type": "Question",
-        "name": "Quanto tempo leva para abrir a empresa?",
+        "name": "Posso ser CLT e PJ ao mesmo tempo?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "O processo completo leva em média 7 a 15 dias úteis, dependendo da prefeitura e do conselho profissional da sua área. CNPJ: 1-3 dias úteis, Inscrição Municipal: 3-7 dias úteis, Alvará de Funcionamento: 3-10 dias úteis."
+          "text": "Sim! Não há impedimento legal, desde que não haja conflito de interesses com seu empregador CLT. Você pode manter seu emprego formal e ter uma empresa para prestar serviços extras."
         }
       },
       {
         "@type": "Question",
-        "name": "Quais documentos preciso para abrir uma empresa PJ?",
+        "name": "Quanto custa abrir um CNPJ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Você vai precisar de: RG e CPF, Comprovante de residência atualizado, Registro no conselho profissional (CRM, CRO, CRP, etc.) e Certificado digital."
+          "text": "As taxas variam por cidade (R$ 200 a R$ 800). Na Contabilidade Zen, a abertura é gratuita na contratação de 12 meses de contabilidade. Você só paga as taxas governamentais obrigatórias."
         }
       },
       {
         "@type": "Question",
-        "name": "O que é o Fator R e como me beneficia?",
+        "name": "Preciso de contador obrigatoriamente como PJ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "O Fator R é um cálculo que permite que profissionais de serviços (como médicos, dentistas e psicólogos) paguem impostos muito menores no Simples Nacional. Se a folha de pagamento for igual ou maior que 28% do faturamento, você é tributado pelo Anexo III (a partir de 6%) ao invés do Anexo V (a partir de 15,5%)."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Posso continuar atendendo nos mesmos lugares sendo PJ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sim! Ao abrir sua empresa PJ, você continua atendendo exatamente onde já atende. A diferença é que agora você emite nota fiscal pela sua empresa. Ter CNPJ pode abrir mais portas: muitos hospitais e convênios preferem contratar profissionais PJ."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "E a aposentadoria? Como fica o INSS sendo PJ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Você continua contribuindo para o INSS através do pró-labore, que é a retirada mensal obrigatória do sócio. Isso garante todos os benefícios previdenciários: aposentadoria, auxílio-doença, licença-maternidade e pensão por morte."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Preciso de contador? O que a contabilidade faz?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sim, toda empresa precisa de um contador responsável. A contabilidade cuida de: abertura e regularização da empresa, cálculo e pagamento de impostos, emissão de guias, declarações obrigatórias, planejamento tributário e suporte para dúvidas fiscais."
+          "text": "Sim, empresas no Simples Nacional são obrigadas por lei a ter contabilidade profissional. O contador cuida de impostos, declarações e garante que sua empresa esteja em dia com o fisco."
         }
       }
     ]
@@ -409,15 +404,15 @@ export default function CalculadoraPJCLT() {
   return (
     <TooltipProvider>
       <SEOHead
-        title="Calculadora PJ x Autônomo | Economize sendo PJ"
-        description="Descubra quanto você pode economizar migrando de Autônomo para PJ. Calculadora gratuita mostra a economia real com impostos reduzidos no Simples Nacional."
-        keywords="calculadora pj x autonomo, economia pj, simples nacional, abrir empresa, contabilidade para médicos, reduzir impostos"
+        title="Calculadora CLT x PJ | Compare e Economize"
+        description="Descubra quanto você pode ganhar a mais como PJ comparado ao CLT. Calculadora gratuita compara salário líquido, impostos e benefícios. Simule agora!"
+        keywords="calculadora clt pj, clt x pj, quanto ganha pj, vale a pena ser pj, comparar clt pj, simples nacional"
         canonical="/conteudo/calculadora-pj-clt"
         pageType="tool"
         faqs={[
-          { question: "Quanto tempo leva para abrir a empresa?", answer: "O processo completo leva em média 7 a 15 dias úteis." },
-          { question: "O que é o Fator R e como me beneficia?", answer: "O Fator R permite que profissionais paguem impostos menores no Simples Nacional se a folha de pagamento for 28% ou mais do faturamento." },
-          { question: "Posso continuar atendendo nos mesmos lugares sendo PJ?", answer: "Sim! A diferença é que você emite nota fiscal pela empresa." }
+          { question: "A calculadora CLT x PJ é precisa?", answer: "Sim, mas os valores são estimativas. Recomendamos consulta com contador para análise personalizada." },
+          { question: "Posso ser CLT e PJ ao mesmo tempo?", answer: "Sim! Não há impedimento legal, desde que não haja conflito de interesses." },
+          { question: "Quanto custa abrir um CNPJ?", answer: "Taxas variam de R$ 200 a R$ 800. Na Contabilidade Zen, a abertura é gratuita na contratação de 12 meses." }
         ]}
       />
 
@@ -431,11 +426,11 @@ export default function CalculadoraPJCLT() {
               Materiais
             </Link>
             <span className="mx-2">{">"}</span>
-            <span className="text-foreground font-medium">Calculadora</span>
+            <span className="text-foreground font-medium">Calculadora CLT x PJ</span>
           </nav>
         </div>
 
-        {/* Hero Section - Same style as GeradorInvoice */}
+        {/* ========== SEÇÃO 1 - HERO (MANTIDO) ========== */}
         <section className="relative overflow-hidden bg-gradient-to-br from-muted/50 to-background py-12 lg:py-20">
           {/* Decorative background */}
           <div className="absolute inset-0 overflow-hidden">
@@ -459,12 +454,12 @@ export default function CalculadoraPJCLT() {
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
                   Calcule sua economia.{" "}
-                  <span className="text-gradient whitespace-nowrap">PJ x Autônomo</span> na prática.
+                  <span className="text-gradient whitespace-nowrap">CLT x PJ</span> na prática.
                 </h1>
 
                 <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
-                  Descubra quanto você pode economizar migrando de autônomo para PJ. 
-                  Compare impostos de pessoa física (até 27,5%) com o Simples Nacional (a partir de 6%).
+                  Descubra quanto você pode ganhar a mais como PJ comparado ao regime CLT. 
+                  Compare impostos, benefícios e veja a economia real.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 pt-2">
@@ -473,7 +468,7 @@ export default function CalculadoraPJCLT() {
                     variant="hero"
                     onClick={() => document.getElementById("calculator-section")?.scrollIntoView({ behavior: "smooth" })}
                   >
-                    Calcular Economia
+                    Calcular Minha Economia
                     <ArrowRight className="h-5 w-5 ml-2" />
                   </Button>
                 </div>
@@ -504,7 +499,7 @@ export default function CalculadoraPJCLT() {
                         </div>
                         <div>
                           <p className="text-background font-bold text-lg">COMPARATIVO</p>
-                          <p className="text-background/80 text-sm">PJ x Autônomo</p>
+                          <p className="text-background/80 text-sm">CLT x PJ</p>
                         </div>
                       </div>
                       <Badge className="bg-background/20 text-background border-0">
@@ -514,23 +509,23 @@ export default function CalculadoraPJCLT() {
 
                     {/* Content */}
                     <div className="p-6 space-y-4">
-                      {/* Faturamento */}
+                      {/* Salário */}
                       <div className="flex justify-between items-center pb-4 border-b border-border">
-                        <span className="text-muted-foreground text-sm">FATURAMENTO MENSAL</span>
-                        <span className="font-bold text-lg text-foreground">R$ 15.000,00</span>
+                        <span className="text-muted-foreground text-sm">SALÁRIO BRUTO CLT</span>
+                        <span className="font-bold text-lg text-foreground">R$ 10.000,00</span>
                       </div>
 
                       {/* Comparison */}
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-destructive/10 rounded-xl text-center">
-                          <p className="text-xs text-muted-foreground mb-1">AUTÔNOMO (PF)</p>
-                          <p className="text-destructive font-bold text-xl">R$ 3.127</p>
-                          <p className="text-xs text-muted-foreground">impostos/mês</p>
+                        <div className="p-4 bg-muted/50 rounded-xl text-center">
+                          <p className="text-xs text-muted-foreground mb-1">LÍQUIDO CLT</p>
+                          <p className="text-muted-foreground font-bold text-xl">R$ 7.680</p>
+                          <p className="text-xs text-muted-foreground">mensal equivalente</p>
                         </div>
                         <div className="p-4 bg-secondary/10 rounded-xl text-center">
-                          <p className="text-xs text-muted-foreground mb-1">EMPRESA (PJ)</p>
-                          <p className="text-secondary font-bold text-xl">R$ 900</p>
-                          <p className="text-xs text-muted-foreground">impostos/mês</p>
+                          <p className="text-xs text-muted-foreground mb-1">LÍQUIDO PJ</p>
+                          <p className="text-secondary font-bold text-xl">R$ 12.760</p>
+                          <p className="text-xs text-muted-foreground">mensal</p>
                         </div>
                       </div>
 
@@ -539,11 +534,11 @@ export default function CalculadoraPJCLT() {
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="text-xs text-muted-foreground">ECONOMIA MENSAL</p>
-                            <p className="text-secondary font-bold text-2xl">R$ 2.227,00</p>
+                            <p className="text-secondary font-bold text-2xl">R$ 5.080</p>
                           </div>
                           <div className="text-right">
                             <p className="text-xs text-muted-foreground">ECONOMIA ANUAL</p>
-                            <p className="text-secondary font-bold text-2xl">R$ 26.724</p>
+                            <p className="text-secondary font-bold text-2xl">R$ 60.960</p>
                           </div>
                         </div>
                       </div>
@@ -581,10 +576,10 @@ export default function CalculadoraPJCLT() {
               >
                 <CarouselContent className="-ml-2 md:-ml-4 justify-center">
                   {[
-                    { icon: Percent, title: "Impostos a partir de 6%", subtitle: "vs 27,5% como autônomo" },
+                    { icon: Percent, title: "Impostos a partir de 6%", subtitle: "vs 27,5% como CLT" },
                     { icon: PiggyBank, title: "Economia Real", subtitle: "Milhares por ano" },
                     { icon: Zap, title: "Cálculo Instantâneo", subtitle: "Resultado na hora" },
-                    { icon: Shield, title: "Fator R Aplicado", subtitle: "Menor tributação" },
+                    { icon: Shield, title: "Suporte Especializado", subtitle: "Contadores dedicados" },
                     { icon: CheckCircle, title: "100% Gratuito", subtitle: "Sem cadastro" },
                   ].map((benefit, index) => (
                     <CarouselItem key={index} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/5">
@@ -601,11 +596,11 @@ export default function CalculadoraPJCLT() {
           </div>
         </section>
 
-        {/* Calculator Section */}
+        {/* ========== SEÇÃO 2 - FORMULÁRIO INTERATIVO ========== */}
         <section id="calculator-section" className="py-12 lg:py-16">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-card rounded-2xl border border-border p-6 lg:p-8 shadow-card">
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-card rounded-2xl border border-border p-6 lg:p-8 shadow-card relative">
                 {isCalculating && (
                   <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-2xl flex items-center justify-center z-10">
                     <div className="text-center">
@@ -615,14 +610,24 @@ export default function CalculadoraPJCLT() {
                   </div>
                 )}
 
-                <h2 className="text-xl font-semibold text-center mb-8">
-                  Informe seus rendimentos atuais como autônomo:
-                </h2>
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold mb-2">Preencha com seus dados CLT</h2>
+                  <p className="text-muted-foreground">Informe seu salário e benefícios atuais para ver a comparação</p>
+                </div>
 
-                <div className="grid md:grid-cols-3 gap-4 mb-6">
+                <div className="space-y-6">
+                  {/* Salário Bruto - Campo Principal */}
                   <div className="space-y-2">
-                    <Label htmlFor="salario" className="font-medium">
-                      Faturamento mensal bruto:
+                    <Label htmlFor="salario" className="font-semibold text-base flex items-center gap-2">
+                      Salário Bruto Mensal (CLT) *
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Valor antes dos descontos de INSS e IRRF</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </Label>
                     <Input
                       id="salario"
@@ -630,77 +635,101 @@ export default function CalculadoraPJCLT() {
                       placeholder="R$ 0,00"
                       value={salarioBruto}
                       onChange={(e) => handleInputChange(setSalarioBruto, e.target.value)}
-                      className="bg-background"
+                      className={`bg-background h-12 text-lg ${formError ? 'border-destructive' : ''}`}
                     />
+                    {formError && (
+                      <p className="text-sm text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-4 w-4" />
+                        {formError}
+                      </p>
+                    )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="vr" className="font-medium">
-                      Vale-refeição/alimentação (opcional):
-                    </Label>
-                    <Input
-                      id="vr"
-                      type="text"
-                      placeholder="R$ 0,00"
-                      value={valeRefeicao}
-                      onChange={(e) => handleInputChange(setValeRefeicao, e.target.value)}
-                      className="bg-background"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="vt" className="font-medium">
-                      Vale-transporte (opcional):
-                    </Label>
-                    <Input
-                      id="vt"
-                      type="text"
-                      placeholder="R$ 0,00"
-                      value={valeTransporte}
-                      onChange={(e) => handleInputChange(setValeTransporte, e.target.value)}
-                      className="bg-background"
-                    />
-                  </div>
-                </div>
 
-                <div className="grid md:grid-cols-2 gap-4 mb-8">
-                  <div className="space-y-2">
-                    <Label htmlFor="ps" className="font-medium">
-                      Plano de saúde (opcional):
-                    </Label>
-                    <Input
-                      id="ps"
-                      type="text"
-                      placeholder="R$ 0,00"
-                      value={planoSaude}
-                      onChange={(e) => handleInputChange(setPlanoSaude, e.target.value)}
-                      className="bg-background"
-                    />
+                  {/* Benefícios - Grid */}
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="vr" className="font-medium">
+                        Vale Refeição/Alimentação
+                        <span className="text-muted-foreground text-sm ml-1">(opcional)</span>
+                      </Label>
+                      <Input
+                        id="vr"
+                        type="text"
+                        placeholder="R$ 0,00"
+                        value={valeRefeicao}
+                        onChange={(e) => handleInputChange(setValeRefeicao, e.target.value)}
+                        className="bg-background"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="vt" className="font-medium">
+                        Vale Transporte
+                        <span className="text-muted-foreground text-sm ml-1">(opcional)</span>
+                      </Label>
+                      <Input
+                        id="vt"
+                        type="text"
+                        placeholder="R$ 0,00"
+                        value={valeTransporte}
+                        onChange={(e) => handleInputChange(setValeTransporte, e.target.value)}
+                        className="bg-background"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="ps" className="font-medium">
+                        Plano de Saúde
+                        <span className="text-muted-foreground text-sm ml-1">(opcional)</span>
+                      </Label>
+                      <Input
+                        id="ps"
+                        type="text"
+                        placeholder="R$ 0,00"
+                        value={planoSaude}
+                        onChange={(e) => handleInputChange(setPlanoSaude, e.target.value)}
+                        className="bg-background"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="outros" className="font-medium flex items-center gap-1">
+                        Outros Benefícios
+                        <span className="text-muted-foreground text-sm">(opcional)</span>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>PLR, bônus, auxílio-creche, etc.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </Label>
+                      <Input
+                        id="outros"
+                        type="text"
+                        placeholder="R$ 0,00"
+                        value={outrosBeneficios}
+                        onChange={(e) => handleInputChange(setOutrosBeneficios, e.target.value)}
+                        className="bg-background"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="outros" className="font-medium flex items-center gap-2">
-                      Outros benefícios (opcional):
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Inclua participação nos lucros, bônus, auxílio-creche, etc.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </Label>
-                    <Input
-                      id="outros"
-                      type="text"
-                      placeholder="R$ 0,00"
-                      value={outrosBeneficios}
-                      onChange={(e) => handleInputChange(setOutrosBeneficios, e.target.value)}
-                      className="bg-background"
-                    />
-                  </div>
-                </div>
 
-                <div className="text-center space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Ao utilizar esta ferramenta, você declara estar ciente de que os valores apresentados são apenas estimativas e concorda com a nossa{" "}
+                  {/* CTA Button */}
+                  <div className="pt-4">
+                    <Button
+                      variant="zen"
+                      size="xl"
+                      className="w-full"
+                      onClick={calcular}
+                      disabled={!salarioBruto || isCalculating}
+                    >
+                      Calcular Minha Economia
+                      <Calculator className="h-5 w-5 ml-2" />
+                    </Button>
+                  </div>
+
+                  {/* Disclaimer */}
+                  <p className="text-xs text-muted-foreground text-center">
+                    Ao clicar, você concorda com nossa{" "}
                     <Link to="/politica-privacidade" className="text-secondary hover:underline">
                       Política de Privacidade
                     </Link>{" "}
@@ -708,603 +737,695 @@ export default function CalculadoraPJCLT() {
                     <Link to="/termos-uso" className="text-secondary hover:underline">
                       Termos de Uso
                     </Link>
-                    .
+                    . Esta ferramenta é para consultas genéricas e não dispensa avaliação contábil profissional.
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    Para saber mais sobre os critérios utilizados nos cálculos,{" "}
-                    <button
-                      type="button"
-                      className="text-secondary hover:underline"
-                      onClick={() => document.getElementById("criterios")?.scrollIntoView({ behavior: "smooth" })}
-                    >
-                      clique aqui
-                    </button>
-                    .
-                  </p>
-
-                  <Button
-                    variant="zen-outline"
-                    size="lg"
-                    className="w-full md:w-auto min-w-64"
-                    onClick={calcular}
-                    disabled={!salarioBruto || isCalculating}
-                  >
-                    VER RESULTADO
-                  </Button>
                 </div>
               </div>
-
-              {/* Results Section */}
-              {resultado && (
-                <div className="mt-8 space-y-8 animate-fade-in">
-                  {/* Summary Card */}
-                  <div className="bg-gradient-to-br from-secondary/10 to-primary/10 rounded-2xl border border-secondary/20 p-6 lg:p-8">
-                    {/* Highlight savings banner */}
-                    {resultado.economiaMensal > 0 && (
-                      <div className="bg-secondary text-secondary-foreground rounded-xl p-4 mb-6 text-center">
-                        <p className="text-lg font-bold">
-                          🎉 Sendo PJ você economiza {formatCurrency(resultado.economiaMensal)}/mês
-                        </p>
-                        <p className="text-sm opacity-90">
-                          Isso equivale a {formatCurrency(resultado.economiaAnual)} por ano!
-                        </p>
-                      </div>
-                    )}
-
-                    <h3 className="text-2xl font-bold text-center mb-6">
-                      Resultado da Comparação
-                    </h3>
-                    
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {/* Autônomo Box */}
-                      <div className="bg-card rounded-xl p-6 border border-border opacity-75">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                            <User className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-lg">Autônomo</h4>
-                            <p className="text-sm text-muted-foreground">Pessoa Física</p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Faturamento Bruto:</span>
-                            <span className="font-medium">{formatCurrency(resultado.salarioBrutoAutonomo)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">INSS (até 14%):</span>
-                            <span className="font-medium text-destructive">-{formatCurrency(resultado.inss)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">IRRF (até 27,5%):</span>
-                            <span className="font-medium text-destructive">-{formatCurrency(resultado.irrf)}</span>
-                          </div>
-                          {resultado.beneficiosTotais > 0 && (
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Benefícios informados:</span>
-                              <span className="font-medium text-secondary">+{formatCurrency(resultado.beneficiosTotais)}</span>
-                            </div>
-                          )}
-                          <hr className="border-border" />
-                          <div className="flex justify-between font-bold">
-                            <span>Total Líquido/mês:</span>
-                            <span className="text-muted-foreground">{formatCurrency(resultado.totalMensalEquivalenteAutonomo)}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* PJ Box - Highlighted */}
-                      <div className="bg-card rounded-xl p-6 border-2 border-secondary shadow-glow relative">
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                          <span className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-xs font-semibold">
-                            <TrendingUp className="h-3 w-3" />
-                            Recomendado
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-secondary" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-lg">PJ</h4>
-                            <p className="text-sm text-muted-foreground">Pessoa Jurídica</p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Mesmo Faturamento:</span>
-                            <span className="font-bold text-secondary">{formatCurrency(resultado.faturamentoPJ)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Impostos Simples (~6%):</span>
-                            <span className="font-medium text-destructive">-{formatCurrency(resultado.impostosPJ)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">INSS (pró-labore mínimo):</span>
-                            <span className="font-medium text-destructive">-{formatCurrency(resultado.inssPJ)}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Contabilidade:</span>
-                            <span className="font-medium text-destructive">-{formatCurrency(resultado.contabilidade)}</span>
-                          </div>
-                          {resultado.beneficiosTotais > 0 && (
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Benefícios informados:</span>
-                              <span className="font-medium text-secondary">+{formatCurrency(resultado.beneficiosTotais)}</span>
-                            </div>
-                          )}
-                          <hr className="border-border" />
-                          <div className="flex justify-between font-bold">
-                            <span>Total Líquido PJ:</span>
-                            <span className="text-secondary">{formatCurrency(resultado.salarioLiquidoPJ)}</span>
-                          </div>
-                        </div>
-
-                        {resultado.economiaMensal > 0 && (
-                          <div className="mt-6 p-4 bg-secondary/10 rounded-lg">
-                            <p className="text-sm text-center">
-                              Você ganha{" "}
-                              <span className="font-bold text-secondary">
-                                {resultado.percentualEconomia.toFixed(0)}% a mais
-                              </span>{" "}
-                              sendo PJ com o mesmo faturamento!
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Annual Comparison */}
-                    <div className="mt-8 grid md:grid-cols-3 gap-4">
-                      <div className="bg-card rounded-xl p-4 text-center border border-border">
-                        <p className="text-sm text-muted-foreground mb-1">Total Anual Autônomo</p>
-                        <p className="text-xl font-bold text-muted-foreground">{formatCurrency(resultado.totalAnualAutonomo)}</p>
-                      </div>
-                      <div className="bg-card rounded-xl p-4 text-center border-2 border-secondary">
-                        <p className="text-sm text-muted-foreground mb-1">Total Anual PJ</p>
-                        <p className="text-xl font-bold text-secondary">{formatCurrency(resultado.totalAnualPJ)}</p>
-                      </div>
-                      <div className="bg-secondary rounded-xl p-4 text-center">
-                        <p className="text-sm text-secondary-foreground/80 mb-1">Sua Economia Anual</p>
-                        <p className="text-xl font-bold text-secondary-foreground">+{formatCurrency(resultado.economiaAnual)}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lead Capture CTA */}
-                  <div className="bg-card rounded-2xl border-2 border-secondary p-6 lg:p-8">
-                    <h3 className="text-xl font-bold mb-3 text-center">
-                      {leadSaved ? "Obrigado! Entraremos em contato." : "Quer uma análise personalizada gratuita?"}
-                    </h3>
-                    
-                    {!leadSaved ? (
-                      <>
-                        <p className="text-muted-foreground mb-6 text-center">
-                          Deixe seus dados e nossos especialistas farão uma análise completa do seu caso.
-                        </p>
-                        <div className="grid md:grid-cols-3 gap-4 mb-6">
-                          <div className="space-y-2">
-                            <Label htmlFor="nome">Seu nome *</Label>
-                            <Input
-                              id="nome"
-                              value={nome}
-                              onChange={(e) => setNome(e.target.value)}
-                              placeholder="Nome completo"
-                              className="bg-background"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="email">E-mail *</Label>
-                            <Input
-                              id="email"
-                              type="email"
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                              placeholder="seu@email.com"
-                              className="bg-background"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="telefone">WhatsApp *</Label>
-                            <Input
-                              id="telefone"
-                              value={telefone}
-                              onChange={(e) => setTelefone(formatPhone(e.target.value))}
-                              placeholder="(00) 00000-0000"
-                              className="bg-background"
-                            />
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <Button variant="zen" size="lg" onClick={handleLeadSubmit}>
-                            Quero análise gratuita
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-center">
-                        <CheckCircle className="h-12 w-12 text-secondary mx-auto mb-4" />
-                        <p className="text-muted-foreground mb-4">
-                          Em breve um especialista entrará em contato para discutir seu caso.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                          <Button variant="zen-outline" size="lg" asChild>
-                            <a
-                              href={`https://wa.me/5519974158342?text=Olá! Usei a calculadora PJ x Autônomo. Meu faturamento é ${salarioBruto} e gostaria de saber como economizar sendo PJ.`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              Falar agora no WhatsApp
-                            </a>
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </section>
 
-        {/* How to Calculate Section */}
-        <section className="py-12 lg:py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold mb-8">
-                Por que ser PJ vale a pena<span className="text-secondary">?</span>
-              </h2>
-              
-              <div className="prose prose-lg max-w-none">
-                <p className="text-muted-foreground mb-6">
-                  Profissionais autônomos pagam impostos altíssimos como pessoa física (INSS de até 14% + IRRF de até 27,5%). 
-                  Ao abrir uma empresa no Simples Nacional, especialmente com o benefício do Fator R, 
-                  você pode reduzir drasticamente essa carga tributária:
-                </p>
-
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
-                  <div className="bg-card rounded-xl p-6 border border-border opacity-75">
-                    <h4 className="font-semibold mb-4 flex items-center gap-2">
-                      <User className="h-5 w-5 text-muted-foreground" />
-                      Autônomo (Pessoa Física)
-                    </h4>
-                    <ul className="space-y-3 text-sm">
-                      <li className="flex gap-3">
-                        <span className="text-destructive">✗</span>
-                        <span><strong>INSS progressivo:</strong> até 14% do rendimento bruto</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <span className="text-destructive">✗</span>
-                        <span><strong>IRRF progressivo:</strong> até 27,5% sobre o lucro</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <span className="text-destructive">✗</span>
-                        <span><strong>Carnê-leão:</strong> obrigação de pagar mensalmente</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <span className="text-destructive">✗</span>
-                        <span><strong>Menor credibilidade:</strong> clientes preferem NF de empresa</span>
-                      </li>
-                    </ul>
+        {/* ========== SEÇÃO 3 - RESULTADO DA CALCULADORA ========== */}
+        {resultado && (
+          <section id="resultado-section" className="py-12 lg:py-16 bg-muted/30">
+            <div className="container mx-auto px-4">
+              <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
+                
+                {/* Card de Comparação Split */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Coluna CLT */}
+                  <div className="bg-card rounded-2xl p-6 border border-border">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                        <Briefcase className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">Seu salário CLT</h3>
+                        <p className="text-sm text-muted-foreground">Regime atual</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Salário Bruto:</span>
+                        <span className="font-medium">{formatCurrency(resultado.salarioBrutoCLT)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Desconto INSS:</span>
+                        <span className="font-medium text-destructive">-{formatCurrency(resultado.inssCLT)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Desconto IRRF:</span>
+                        <span className="font-medium text-destructive">-{formatCurrency(resultado.irrfCLT)}</span>
+                      </div>
+                      <hr className="border-border" />
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground font-medium">Salário Líquido:</span>
+                        <span className="font-bold text-secondary">{formatCurrency(resultado.salarioLiquidoCLT)}</span>
+                      </div>
+                      <hr className="border-border" />
+                      <p className="text-xs text-muted-foreground font-medium pt-2">Benefícios mensalizados:</p>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Férias + 1/3:</span>
+                        <span className="font-medium text-secondary">+{formatCurrency(resultado.feriasMensal)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">13º Salário:</span>
+                        <span className="font-medium text-secondary">+{formatCurrency(resultado.decimoTerceiroMensal)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">FGTS (8%):</span>
+                        <span className="font-medium text-secondary">+{formatCurrency(resultado.fgtsMensal)}</span>
+                      </div>
+                      {resultado.beneficiosTotais > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Benefícios informados:</span>
+                          <span className="font-medium text-secondary">+{formatCurrency(resultado.beneficiosTotais)}</span>
+                        </div>
+                      )}
+                      <hr className="border-border" />
+                      <div className="flex justify-between font-bold pt-2">
+                        <span>Ganho Mensal Total:</span>
+                        <span className="text-muted-foreground">{formatCurrency(resultado.totalMensalCLT)}</span>
+                      </div>
+                      <div className="flex justify-between font-bold text-lg pt-2 bg-muted/50 -mx-6 px-6 py-3 rounded-b-2xl">
+                        <span>Ganho Anual Total:</span>
+                        <span className="text-muted-foreground">{formatCurrency(resultado.totalAnualCLT)}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="bg-card rounded-xl p-6 border-2 border-secondary">
-                    <h4 className="font-semibold mb-4 flex items-center gap-2">
-                      <Building2 className="h-5 w-5 text-secondary" />
-                      PJ (Pessoa Jurídica)
-                    </h4>
-                    <ul className="space-y-3 text-sm">
-                      <li className="flex gap-3">
-                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
-                        <span><strong>Impostos reduzidos:</strong> a partir de 6% no Simples Nacional</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
-                        <span><strong>Fator R:</strong> profissionais de saúde podem pagar menos ainda</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
-                        <span><strong>Nota Fiscal:</strong> mais credibilidade com clientes e convênios</span>
-                      </li>
-                      <li className="flex gap-3">
-                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
-                        <span><strong>Conta PJ:</strong> acesso a linhas de crédito melhores</span>
-                      </li>
-                    </ul>
-
-                    <div className="mt-6 p-4 bg-secondary/10 rounded-lg">
-                      <p className="text-sm">
-                        💡 Com o <strong>Fator R</strong>, profissionais da saúde podem ter alíquota 
-                        inicial de apenas <strong>6%</strong> sobre o faturamento!
-                      </p>
+                  {/* Coluna PJ */}
+                  <div className="bg-card rounded-2xl p-6 border-2 border-secondary shadow-glow relative">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <span className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-xs font-semibold">
+                        <TrendingUp className="h-3 w-3" />
+                        Recomendado
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
+                        <Building2 className="h-6 w-6 text-secondary" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">Como PJ você receberia</h3>
+                        <p className="text-sm text-muted-foreground">Simples Nacional</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Faturamento Bruto:</span>
+                        <span className="font-bold text-secondary">{formatCurrency(resultado.faturamentoPJ)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Impostos Simples (~6%):</span>
+                        <span className="font-medium text-destructive">-{formatCurrency(resultado.impostosPJ)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">INSS (11% pró-labore):</span>
+                        <span className="font-medium text-destructive">-{formatCurrency(resultado.inssPJ)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Contabilidade:</span>
+                        <span className="font-medium text-destructive">-{formatCurrency(resultado.contabilidade)}</span>
+                      </div>
+                      <hr className="border-border" />
+                      <div className="flex justify-between font-bold pt-2">
+                        <span>Salário Líquido PJ:</span>
+                        <span className="text-secondary">{formatCurrency(resultado.salarioLiquidoPJ)}</span>
+                      </div>
+                      <div className="p-3 bg-secondary/10 rounded-lg text-sm mt-4">
+                        <p className="text-muted-foreground">
+                          Benefícios: <span className="font-medium">conforme contrato com cliente</span>
+                        </p>
+                      </div>
+                      <div className="flex justify-between font-bold text-lg pt-4 bg-secondary/10 -mx-6 px-6 py-3 rounded-b-2xl">
+                        <span>Ganho Anual Total:</span>
+                        <span className="text-secondary">{formatCurrency(resultado.totalAnualPJ)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-secondary/10 rounded-xl p-6 border border-secondary/20">
-                  <p className="text-foreground font-medium">
-                    ✅ Na prática, profissionais que faturam <strong>R$ 15.000/mês</strong> como autônomo 
-                    podem economizar <strong>mais de R$ 2.000/mês</strong> ao migrar para PJ. 
-                    Isso representa <strong>mais de R$ 24.000/ano</strong> no seu bolso!
+                {/* Card de Economia - Destaque Central */}
+                {resultado.economiaMensal > 0 && (
+                  <div className="bg-gradient-to-r from-secondary to-zen-blue rounded-2xl p-8 text-center text-secondary-foreground">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <TrendingUp className="h-8 w-8" />
+                      <h3 className="text-2xl font-bold">Sua Economia como PJ</h3>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-secondary-foreground/80 text-sm mb-1">Economia Anual</p>
+                        <p className="text-4xl font-bold">{formatCurrency(resultado.economiaAnual)}</p>
+                      </div>
+                      <div>
+                        <p className="text-secondary-foreground/80 text-sm mb-1">Você ganha a mais</p>
+                        <p className="text-4xl font-bold">{resultado.percentualEconomia.toFixed(0)}%</p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-secondary-foreground/90">
+                      Isso equivale a <strong>{formatCurrency(resultado.economiaMensal)}</strong> a mais por mês!
+                    </p>
+                  </div>
+                )}
+
+                {/* Observações Importantes - Accordion */}
+                <Accordion type="single" collapsible className="bg-card rounded-2xl border border-border">
+                  <AccordionItem value="observacoes" className="border-0">
+                    <AccordionTrigger className="px-6 hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <AlertCircle className="h-5 w-5 text-secondary" />
+                        <span className="font-semibold">Observações Importantes</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-6 pb-6">
+                      <ul className="space-y-3 text-sm text-muted-foreground">
+                        <li className="flex gap-3">
+                          <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                          <span>Cálculo considera <strong>Simples Nacional Anexo III</strong> com Fator R otimizado (alíquota efetiva ~6%)</span>
+                        </li>
+                        <li className="flex gap-3">
+                          <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                          <span>Como PJ, você pode <strong>deduzir despesas operacionais</strong> (contador, internet, equipamentos, etc.)</span>
+                        </li>
+                        <li className="flex gap-3">
+                          <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                          <span>Benefícios CLT (férias, 13º, FGTS) foram <strong>convertidos para valor mensal equivalente</strong></span>
+                        </li>
+                        <li className="flex gap-3">
+                          <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                          <span>Esses valores são <strong>estimativas</strong>. Consulte um contador para análise personalizada do seu caso</span>
+                        </li>
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+
+                {/* Lead Capture CTA */}
+                <div className="bg-card rounded-2xl border-2 border-secondary p-6 lg:p-8">
+                  <h3 className="text-xl font-bold mb-3 text-center">
+                    {leadSaved ? "Obrigado! Entraremos em contato." : "Quer uma análise personalizada gratuita?"}
+                  </h3>
+                  
+                  {!leadSaved ? (
+                    <>
+                      <p className="text-muted-foreground mb-6 text-center">
+                        Deixe seus dados e nossos especialistas farão uma análise completa do seu caso.
+                      </p>
+                      <div className="grid md:grid-cols-3 gap-4 mb-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="nome">Seu nome *</Label>
+                          <Input
+                            id="nome"
+                            value={nome}
+                            onChange={(e) => setNome(e.target.value)}
+                            placeholder="Nome completo"
+                            className="bg-background"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email">E-mail *</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="seu@email.com"
+                            className="bg-background"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="telefone">WhatsApp *</Label>
+                          <Input
+                            id="telefone"
+                            value={telefone}
+                            onChange={(e) => setTelefone(formatPhone(e.target.value))}
+                            placeholder="(00) 00000-0000"
+                            className="bg-background"
+                          />
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <Button variant="zen" size="lg" onClick={handleLeadSubmit}>
+                          Quero análise gratuita
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center">
+                      <CheckCircle className="h-12 w-12 text-secondary mx-auto mb-4" />
+                      <p className="text-muted-foreground mb-4">
+                        Em breve um especialista entrará em contato para discutir seu caso.
+                      </p>
+                      <Button variant="zen-outline" size="lg" asChild>
+                        <a
+                          href={`https://wa.me/5519974158342?text=Olá! Usei a calculadora CLT x PJ. Meu salário é ${salarioBruto} e gostaria de saber como economizar sendo PJ.`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Falar agora no WhatsApp
+                        </a>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ========== SEÇÃO 4 - CONTEÚDO EDUCATIVO (TABS) ========== */}
+        <section className="py-12 lg:py-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+                Como calcular seu salário PJ ideal<span className="text-secondary">?</span>
+              </h2>
+
+              <Tabs defaultValue="clt" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-8">
+                  <TabsTrigger value="clt" className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4" />
+                    <span className="hidden sm:inline">Entendendo o CLT</span>
+                    <span className="sm:hidden">CLT</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="pj" className="flex items-center gap-2">
+                    <Calculator className="h-4 w-4" />
+                    <span className="hidden sm:inline">Calculando o PJ</span>
+                    <span className="sm:hidden">PJ</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="diferencas" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    <span className="hidden sm:inline">Principais Diferenças</span>
+                    <span className="sm:hidden">Diferenças</span>
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="clt" className="bg-card rounded-2xl border border-border p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+                      <Briefcase className="h-5 w-5 text-secondary" />
+                    </div>
+                    <h3 className="text-xl font-bold">Composição do Salário CLT</h3>
+                  </div>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-4 p-3 bg-muted/50 rounded-lg">
+                      <DollarSign className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium">Salário Líquido CLT</p>
+                        <p className="text-sm text-muted-foreground">Salário bruto menos INSS (até 14%) e IRRF (até 27,5%)</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4 p-3 bg-muted/50 rounded-lg">
+                      <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium">+ 1/12 de Férias + 33,33% (terço constitucional)</p>
+                        <p className="text-sm text-muted-foreground">Direito a 30 dias de férias remuneradas por ano</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4 p-3 bg-muted/50 rounded-lg">
+                      <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium">+ 1/12 do 13º Salário</p>
+                        <p className="text-sm text-muted-foreground">Salário extra pago em novembro/dezembro</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4 p-3 bg-muted/50 rounded-lg">
+                      <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium">+ 8% de FGTS sobre salário bruto</p>
+                        <p className="text-sm text-muted-foreground">Depositado mensalmente pela empresa</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4 p-3 bg-muted/50 rounded-lg">
+                      <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium">+ Benefícios (VR, VT, plano de saúde)</p>
+                        <p className="text-sm text-muted-foreground">Valores adicionais oferecidos pela empresa</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4 p-4 bg-secondary/10 rounded-lg border border-secondary/20">
+                      <span className="text-xl font-bold text-secondary">=</span>
+                      <div>
+                        <p className="font-bold text-secondary">Total Anual CLT</p>
+                        <p className="text-sm text-muted-foreground">Some tudo para ter o valor real anual</p>
+                      </div>
+                    </li>
+                  </ul>
+                </TabsContent>
+
+                <TabsContent value="pj" className="bg-card rounded-2xl border border-border p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+                      <Calculator className="h-5 w-5 text-secondary" />
+                    </div>
+                    <h3 className="text-xl font-bold">Composição do Salário PJ</h3>
+                  </div>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-4 p-3 bg-muted/50 rounded-lg">
+                      <DollarSign className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium">Faturamento Bruto Mensal</p>
+                        <p className="text-sm text-muted-foreground">Valor total que você recebe do cliente por nota fiscal</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4 p-3 bg-destructive/10 rounded-lg">
+                      <span className="text-destructive font-bold">-</span>
+                      <div>
+                        <p className="font-medium">Impostos (6% a 33% conforme regime)</p>
+                        <p className="text-sm text-muted-foreground">No Simples Nacional com Fator R: a partir de 6%</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4 p-3 bg-destructive/10 rounded-lg">
+                      <span className="text-destructive font-bold">-</span>
+                      <div>
+                        <p className="font-medium">INSS (11% sobre pró-labore)</p>
+                        <p className="text-sm text-muted-foreground">Garante aposentadoria e benefícios previdenciários</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4 p-3 bg-destructive/10 rounded-lg">
+                      <span className="text-destructive font-bold">-</span>
+                      <div>
+                        <p className="font-medium">Custos Operacionais</p>
+                        <p className="text-sm text-muted-foreground">Contabilidade, certificado digital, software, etc.</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-4 p-4 bg-secondary/10 rounded-lg border border-secondary/20">
+                      <span className="text-xl font-bold text-secondary">=</span>
+                      <div>
+                        <p className="font-bold text-secondary">Líquido PJ Mensal</p>
+                        <p className="text-sm text-muted-foreground">O que sobra no seu bolso todo mês</p>
+                      </div>
+                    </li>
+                  </ul>
+                </TabsContent>
+
+                <TabsContent value="diferencas" className="bg-card rounded-2xl border border-border p-6 overflow-x-auto">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+                      <FileText className="h-5 w-5 text-secondary" />
+                    </div>
+                    <h3 className="text-xl font-bold">Comparativo CLT x PJ</h3>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[200px]">Aspecto</TableHead>
+                        <TableHead>CLT</TableHead>
+                        <TableHead>PJ</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Vínculo</TableCell>
+                        <TableCell>Empregatício (carteira assinada)</TableCell>
+                        <TableCell>Contrato de prestação de serviço</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Férias</TableCell>
+                        <TableCell>30 dias remunerados + 1/3</TableCell>
+                        <TableCell>Conforme contrato (sem obrigatoriedade)</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">13º Salário</TableCell>
+                        <TableCell>Obrigatório</TableCell>
+                        <TableCell>Não possui</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">FGTS</TableCell>
+                        <TableCell>8% mensal depositado</TableCell>
+                        <TableCell>Não possui</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Jornada</TableCell>
+                        <TableCell>Fixa (44h semanais)</TableCell>
+                        <TableCell>Flexível (acordo contratual)</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Impostos</TableCell>
+                        <TableCell>IRPF até 27,5% + INSS até 14%</TableCell>
+                        <TableCell>Simples 6-33% ou outros regimes</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Rescisão</TableCell>
+                        <TableCell>Multa 40% FGTS + aviso prévio</TableCell>
+                        <TableCell>Conforme contrato</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+        </section>
+
+        {/* ========== SEÇÃO 5 - CTA CONVERSÃO PRINCIPAL ========== */}
+        <section className="py-12 lg:py-16 bg-gradient-to-br from-secondary/10 to-primary/5">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+                Quer pagar menos impostos de forma 100% legal<span className="text-secondary">?</span>
+              </h2>
+              <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
+                Abra sua empresa em até 7 dias com a Contabilidade Zen
+              </p>
+
+              {/* 3 Colunas de Benefícios */}
+              <div className="grid md:grid-cols-3 gap-6 mb-10">
+                <div className="bg-card rounded-xl p-6 border border-border text-center">
+                  <div className="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Calculator className="h-7 w-7 text-secondary" />
+                  </div>
+                  <h3 className="font-bold mb-2">Planejamento Tributário</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Análise personalizada para pagar o mínimo de impostos legalmente
+                  </p>
+                </div>
+                <div className="bg-card rounded-xl p-6 border border-border text-center">
+                  <div className="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Clock className="h-7 w-7 text-secondary" />
+                  </div>
+                  <h3 className="font-bold mb-2">Processo Simplificado</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Abertura de empresa em até 7 dias úteis com suporte completo
+                  </p>
+                </div>
+                <div className="bg-card rounded-xl p-6 border border-border text-center">
+                  <div className="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageCircle className="h-7 w-7 text-secondary" />
+                  </div>
+                  <h3 className="font-bold mb-2">Suporte via WhatsApp</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Atendimento humanizado sempre que você precisar
                   </p>
                 </div>
               </div>
 
-              <div className="mt-8 text-center">
-                <Button variant="zen" size="lg" asChild>
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button variant="zen" size="xl" asChild>
                   <Link to="/abrir-empresa">
-                    Quero abrir minha empresa
-                    <ArrowRight className="h-4 w-4" />
+                    Abrir Minha Empresa
+                    <ArrowRight className="h-5 w-5 ml-2" />
                   </Link>
+                </Button>
+                <Button variant="zen-outline" size="xl" asChild>
+                  <a
+                    href="https://wa.me/5519974158342?text=Olá! Quero saber mais sobre como abrir uma empresa PJ."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Falar com Especialista
+                  </a>
                 </Button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Differences Section */}
+        {/* ========== SEÇÃO 6 - OBRIGAÇÕES PJ VS CLT (ACCORDION) ========== */}
         <section className="py-12 lg:py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold mb-8">
-                Vantagens de ser PJ<span className="text-secondary">.</span>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                O que você precisa saber antes de decidir<span className="text-secondary">.</span>
               </h2>
-
               <p className="text-muted-foreground mb-8">
-                Migrar de autônomo para PJ não é apenas sobre economia de impostos. 
-                Você ganha mais credibilidade, acesso a melhores oportunidades de negócio 
-                e pode escalar seus rendimentos de forma profissional.
+                Entenda as obrigações de cada regime para tomar a melhor decisão.
               </p>
 
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-secondary/5 rounded-xl p-6 border border-secondary/20 text-center">
-                  <div className="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <DollarSign className="h-8 w-8 text-secondary" />
-                  </div>
-                  <h3 className="font-bold mb-2">Economia Real</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Pague menos impostos legalmente. Alíquota de 6% vs até 27,5% como autônomo.
-                  </p>
-                </div>
+              <Accordion type="single" collapsible className="space-y-4">
+                <AccordionItem value="pj" className="bg-card rounded-xl border border-border px-6">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <Building2 className="h-5 w-5 text-secondary" />
+                      <span className="font-semibold">Obrigações como PJ</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4">
+                    <ul className="space-y-3 text-sm text-muted-foreground">
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Abrir um CNPJ (com ajuda do contador)</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Contratar contabilidade especializada</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Emitir notas fiscais mensalmente</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Pagar impostos (DAS, guias)</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Cumprir acordo contratual com clientes</span>
+                      </li>
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
 
-                <div className="bg-secondary/5 rounded-xl p-6 border border-secondary/20 text-center">
-                  <div className="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileText className="h-8 w-8 text-secondary" />
-                  </div>
-                  <h3 className="font-bold mb-2">Nota Fiscal</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Emita NF para hospitais, clínicas e convênios. Mais credibilidade profissional.
-                  </p>
-                </div>
+                <AccordionItem value="clt" className="bg-card rounded-xl border border-border px-6">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <Briefcase className="h-5 w-5 text-secondary" />
+                      <span className="font-semibold">Obrigações como CLT</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4">
+                    <ul className="space-y-3 text-sm text-muted-foreground">
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Cumprir jornada de trabalho (44h semanais)</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Exclusividade ao empregador (salvo exceções)</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Exames admissional/demissional obrigatórios</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Justificar faltas e atrasos</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span>Seguir normas internas da empresa</span>
+                      </li>
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
 
-                <div className="bg-secondary/5 rounded-xl p-6 border border-secondary/20 text-center">
-                  <div className="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <TrendingUp className="h-8 w-8 text-secondary" />
-                  </div>
-                  <h3 className="font-bold mb-2">Crescimento</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Acesso a crédito empresarial, conta PJ e possibilidade de contratar funcionários.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-8 bg-card rounded-xl p-6 border-2 border-secondary">
-                <h3 className="font-bold mb-4 text-center">Por que profissionais da saúde escolhem o PJ?</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="flex gap-3">
-                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Fator R reduz impostos para serviços de saúde</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Atendimento em múltiplos locais sem restrições</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Flexibilidade para definir sua agenda</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Aposentadoria garantida via pró-labore</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Reinvestimento do dinheiro economizado</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <CheckCircle className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Contabilidade especializada cuida de tudo</span>
-                  </div>
-                </div>
-              </div>
+                <AccordionItem value="quando-pj" className="bg-card rounded-xl border border-border px-6">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="h-5 w-5 text-secondary" />
+                      <span className="font-semibold">Quando vale a pena ser PJ?</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-2 pb-4">
+                    <ul className="space-y-3 text-sm text-muted-foreground">
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span><strong>Faturamento mensal superior a R$ 3.000</strong> - quanto maior, mais economia</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span><strong>Autonomia para negociar valores</strong> - você define seu preço</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span><strong>Múltiplos clientes/projetos</strong> - diversificar renda</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span><strong>Não depende de estabilidade CLT</strong> - aceita riscos do empreendedorismo</span>
+                      </li>
+                      <li className="flex gap-3">
+                        <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                        <span><strong>Quer flexibilidade de horários</strong> - trabalhar quando e onde quiser</span>
+                      </li>
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
         </section>
 
-        {/* FAQ Section - Abertura de Empresa PJ */}
+        {/* ========== SEÇÃO 7 - FAQ RÁPIDO ========== */}
         <section className="py-12 lg:py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                Dúvidas frequentes sobre abertura de empresa PJ<span className="text-secondary">.</span>
+                Dúvidas frequentes<span className="text-secondary">.</span>
               </h2>
               <p className="text-muted-foreground mb-8">
-                Tudo o que você precisa saber para migrar de autônomo para PJ e começar a economizar.
+                Respostas rápidas para as principais dúvidas sobre CLT x PJ.
               </p>
 
               <Accordion type="single" collapsible className="space-y-4">
-                <AccordionItem value="quanto-custa" className="bg-card rounded-xl border border-border px-6">
+                <AccordionItem value="faq-1" className="bg-card rounded-xl border border-border px-6">
                   <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <DollarSign className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">Quanto custa abrir uma empresa PJ?</span>
-                    </div>
+                    <span className="font-semibold text-left">A calculadora é precisa?</span>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Na Contabilidade Zen, a abertura de empresa para profissionais da saúde é <strong className="text-secondary">gratuita</strong>! 
-                      Você só paga a mensalidade da contabilidade a partir de R$ 297,90/mês.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Os únicos custos iniciais são taxas governamentais (aproximadamente R$ 200-400), que variam conforme 
-                      o estado e município. Nós cuidamos de toda a burocracia para você.
-                    </p>
+                  <AccordionContent className="pt-2 pb-4 text-muted-foreground">
+                    Sim, mas os valores são estimativas genéricas. Cada caso é único e pode ter variações 
+                    conforme município, atividade e regime tributário. Recomendamos consulta com contador 
+                    para análise personalizada do seu caso.
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="quanto-tempo" className="bg-card rounded-xl border border-border px-6">
+                <AccordionItem value="faq-2" className="bg-card rounded-xl border border-border px-6">
                   <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">Quanto tempo leva para abrir a empresa?</span>
-                    </div>
+                    <span className="font-semibold text-left">Posso ser CLT e PJ ao mesmo tempo?</span>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      O processo completo leva em média <strong className="text-secondary">7 a 15 dias úteis</strong>, dependendo 
-                      da prefeitura e do conselho profissional da sua área.
-                    </p>
-                    <ul className="text-sm text-muted-foreground space-y-2">
-                      <li>• <strong>CNPJ:</strong> 1-3 dias úteis</li>
-                      <li>• <strong>Inscrição Municipal:</strong> 3-7 dias úteis</li>
-                      <li>• <strong>Alvará de Funcionamento:</strong> 3-10 dias úteis</li>
-                      <li>• <strong>Registro no Conselho:</strong> varia por categoria</li>
-                    </ul>
+                  <AccordionContent className="pt-2 pb-4 text-muted-foreground">
+                    Sim! Não há impedimento legal, desde que não haja conflito de interesses com seu 
+                    empregador CLT. Você pode manter seu emprego formal e ter uma empresa para prestar 
+                    serviços extras a outros clientes.
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="documentos" className="bg-card rounded-xl border border-border px-6">
+                <AccordionItem value="faq-3" className="bg-card rounded-xl border border-border px-6">
                   <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">Quais documentos preciso para abrir?</span>
-                    </div>
+                    <span className="font-semibold text-left">Quanto custa abrir um CNPJ?</span>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      A documentação é simples. Você vai precisar de:
-                    </p>
-                    <ul className="text-sm text-muted-foreground space-y-2">
-                      <li>• RG e CPF</li>
-                      <li>• Comprovante de residência atualizado</li>
-                      <li>• Registro no conselho profissional (CRM, CRO, CRP, etc.)</li>
-                      <li>• Certificado digital (nós orientamos como obter)</li>
-                    </ul>
-                    <p className="text-sm text-muted-foreground mt-3">
-                      Nossa equipe te guia em cada etapa do processo!
-                    </p>
+                  <AccordionContent className="pt-2 pb-4 text-muted-foreground">
+                    As taxas variam por cidade (R$ 200 a R$ 800). Na Contabilidade Zen, a abertura é 
+                    gratuita na contratação de 12 meses de contabilidade. Você só paga as taxas 
+                    governamentais obrigatórias (Junta Comercial, Prefeitura, etc.).
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="fator-r" className="bg-card rounded-xl border border-border px-6">
+                <AccordionItem value="faq-4" className="bg-card rounded-xl border border-border px-6">
                   <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <TrendingUp className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">O que é o Fator R e como me beneficia?</span>
-                    </div>
+                    <span className="font-semibold text-left">Preciso de contador obrigatoriamente como PJ?</span>
                   </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      O Fator R é um cálculo que permite que profissionais de serviços (como médicos, dentistas e psicólogos) 
-                      paguem <strong className="text-secondary">impostos muito menores</strong> no Simples Nacional.
-                    </p>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Se a folha de pagamento (pró-labore + funcionários) for igual ou maior que 28% do faturamento, 
-                      você é tributado pelo Anexo III (a partir de 6%) ao invés do Anexo V (a partir de 15,5%).
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Nós fazemos o planejamento tributário para você sempre pagar o menor imposto possível!
-                    </p>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="posso-continuar" className="bg-card rounded-xl border border-border px-6">
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <Building2 className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">Posso continuar atendendo nos mesmos lugares?</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      <strong className="text-secondary">Sim!</strong> Ao abrir sua empresa PJ, você continua atendendo exatamente 
-                      onde já atende. A diferença é que agora você emite nota fiscal pela sua empresa.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Na verdade, ter CNPJ pode abrir mais portas: muitos hospitais e convênios preferem 
-                      contratar profissionais PJ, e você pode atender em quantos locais quiser.
-                    </p>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="aposentadoria" className="bg-card rounded-xl border border-border px-6">
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <User className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">E a aposentadoria? Como fica o INSS?</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Você continua contribuindo para o INSS através do <strong>pró-labore</strong>, que é a 
-                      retirada mensal obrigatória do sócio. Isso garante todos os benefícios previdenciários:
-                    </p>
-                    <ul className="text-sm text-muted-foreground space-y-2">
-                      <li>• Aposentadoria</li>
-                      <li>• Auxílio-doença</li>
-                      <li>• Licença-maternidade</li>
-                      <li>• Pensão por morte</li>
-                    </ul>
-                    <p className="text-sm text-muted-foreground mt-3">
-                      A vantagem é que você pode definir o valor do pró-labore de forma estratégica, 
-                      pagando menos INSS que como autônomo.
-                    </p>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="contabilidade" className="bg-card rounded-xl border border-border px-6">
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-secondary" />
-                      <span className="font-semibold">Preciso de contador? O que a contabilidade faz?</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pt-2 pb-4">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Sim, toda empresa precisa de um contador responsável. A boa notícia é que a contabilidade 
-                      cuida de <strong className="text-secondary">tudo</strong> para você:
-                    </p>
-                    <ul className="text-sm text-muted-foreground space-y-2">
-                      <li>• Abertura e regularização da empresa</li>
-                      <li>• Cálculo e pagamento de impostos</li>
-                      <li>• Emissão de guias (DAS, INSS, etc.)</li>
-                      <li>• Declarações obrigatórias</li>
-                      <li>• Planejamento tributário para pagar menos</li>
-                      <li>• Suporte para dúvidas fiscais</li>
-                    </ul>
-                    <p className="text-sm text-muted-foreground mt-3">
-                      Você foca no que faz de melhor: atender seus pacientes. Nós cuidamos do resto!
-                    </p>
+                  <AccordionContent className="pt-2 pb-4 text-muted-foreground">
+                    Sim, empresas no Simples Nacional são obrigadas por lei a ter contabilidade profissional. 
+                    O contador cuida de impostos, declarações, folha de pagamento e garante que sua empresa 
+                    esteja em dia com o fisco. Na Contabilidade Zen, planos a partir de R$ 297,90/mês.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
-
-              <div className="mt-8 text-center">
-                <Button variant="zen" size="lg" asChild>
-                  <Link to="/abrir-empresa">
-                    Quero abrir minha empresa agora
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
             </div>
           </div>
         </section>
 
+        {/* Schema FAQPage */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
       </main>
 
       <Footer />

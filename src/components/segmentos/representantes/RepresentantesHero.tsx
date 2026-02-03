@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Briefcase, TrendingDown, Shield, Clock } from "lucide-react";
-import representanteComercialBg from "@/assets/representante-comercial-bg.jpg";
+import representanteComercialBg from "@/assets/representante-comercial-bg.webp";
 
 export function RepresentantesHero() {
   const scrollToForm = () => {

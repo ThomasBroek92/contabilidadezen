@@ -4,7 +4,7 @@ import { Check, MessageCircle } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { StaggerContainer, StaggerItem, Parallax } from "@/components/ui/scroll-animation";
-import youtubersCreatorsBg from "@/assets/youtubers-creators-bg.jpg";
+import youtubersCreatorsBg from "@/assets/youtubers-creators-bg.webp";
 
 export function FinalCTA() {
   const ref = useRef(null);

@@ -1305,58 +1305,6 @@ export default function CalculadoraPJCLT() {
           </div>
         </section>
 
-        {/* Criteria Section */}
-        <section id="criterios" className="py-12 lg:py-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold mb-8">
-                Critérios utilizados nos cálculos<span className="text-secondary">.</span>
-              </h2>
-
-              <div className="bg-card rounded-xl p-6 border border-border">
-                <ul className="space-y-4 text-sm text-muted-foreground">
-                  <li className="flex gap-3">
-                    <Info className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Tabelas INSS e IRRF 2024:</strong> utilizamos as tabelas progressivas 
-                      atualizadas para cálculo dos descontos CLT
-                    </span>
-                  </li>
-                  <li className="flex gap-3">
-                    <Info className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Simples Nacional com Fator R:</strong> para profissionais de saúde, 
-                      aplicamos a alíquota efetiva de ~6% considerando o Fator R
-                    </span>
-                  </li>
-                  <li className="flex gap-3">
-                    <Info className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Pró-labore mínimo:</strong> consideramos 1 salário mínimo como pró-labore 
-                      para cálculo do INSS do PJ
-                    </span>
-                  </li>
-                  <li className="flex gap-3">
-                    <Info className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Contabilidade:</strong> utilizamos o valor do plano mais acessível da 
-                      Contabilidade Zen (R$ 297,90/mês)
-                    </span>
-                  </li>
-                  <li className="flex gap-3">
-                    <Info className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Estimativas:</strong> os valores apresentados são aproximados e podem 
-                      variar conforme situação específica de cada profissional
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
         {/* Final CTA */}
         <section className="py-16 lg:py-24 bg-gradient-to-br from-primary to-primary/80">
           <div className="container mx-auto px-4 text-center">

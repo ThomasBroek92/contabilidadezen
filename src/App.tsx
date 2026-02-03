@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { SkipLink } from "@/components/SkipLink";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Medicos from "./pages/Medicos";
 import Servicos from "./pages/Servicos";
@@ -80,6 +81,7 @@ const App = () => (
             <Route path="/termos" element={<Termos />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <ScrollToTop />
           <AnalyticsTracker />
           {/* Componentes não-críticos carregados após o conteúdo principal */}
           <Suspense fallback={null}>

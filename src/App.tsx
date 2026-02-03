@@ -21,6 +21,7 @@ import ContabilidadePsicologos from "./pages/segmentos/ContabilidadePsicologos";
 import ContabilidadeRepresentantes from "./pages/segmentos/ContabilidadeRepresentantes";
 import CalculadoraPJCLT from "./pages/conteudo/CalculadoraPJCLT";
 import GeradorRPA from "./pages/conteudo/GeradorRPA";
+import GeradorInvoice from "./pages/conteudo/GeradorInvoice";
 import ComparativoTributario from "./pages/conteudo/ComparativoTributario";
 import TabelaSimplesNacional from "./pages/conteudo/TabelaSimplesNacional";
 import AbrirEmpresa from "./pages/AbrirEmpresa";
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/segmentos/contabilidade-para-representantes-comerciais" element={<ContabilidadeRepresentantes />} />
             <Route path="/conteudo/calculadora-pj-clt" element={<CalculadoraPJCLT />} />
             <Route path="/conteudo/gerador-rpa" element={<GeradorRPA />} />
+            <Route path="/conteudo/gerador-invoice" element={<GeradorInvoice />} />
             <Route path="/conteudo/comparativo-tributario" element={<ComparativoTributario />} />
             <Route path="/conteudo/tabela-simples-nacional" element={<TabelaSimplesNacional />} />
             <Route path="/abrir-empresa" element={<AbrirEmpresa />} />

@@ -13,7 +13,7 @@ import {
   Star
 } from "lucide-react";
 import { Parallax, StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
-import heroFounder from "@/assets/hero-founder.jpg";
+import heroFounder from "@/assets/hero-founder.webp";
 
 const benefitCards = [
   {

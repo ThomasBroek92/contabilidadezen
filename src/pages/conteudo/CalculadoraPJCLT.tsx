@@ -358,7 +358,11 @@ export default function CalculadoraPJCLT() {
     });
 
     if (saved) {
-      toast.success("Dados salvos! Entraremos em contato em breve.");
+      toast.success("Pronto! Veja seu resultado completo abaixo.");
+      // Scroll to results after lead saved
+      setTimeout(() => {
+        document.getElementById("resultado-completo-section")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     }
   };
 
@@ -745,9 +749,90 @@ export default function CalculadoraPJCLT() {
           </div>
         </section>
 
-        {/* ========== SEÇÃO 3 - RESULTADO DA CALCULADORA ========== */}
-        {resultado && (
+        {/* ========== SEÇÃO 2.5 - LEAD CAPTURE FORM ========== */}
+        {showLeadForm && !leadSaved && (
           <section id="resultado-section" className="py-12 lg:py-16 bg-muted/30">
+            <div className="container mx-auto px-4">
+              <div className="max-w-xl mx-auto">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-card rounded-2xl border border-border p-6 lg:p-8 shadow-card"
+                >
+                  <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <TrendingUp className="h-8 w-8 text-secondary" />
+                    </div>
+                    <h2 className="text-2xl font-bold mb-2">Seu cálculo está pronto!</h2>
+                    <p className="text-muted-foreground">
+                      Preencha seus dados para ver o resultado completo e receber uma análise personalizada do nosso time.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="lead-nome" className="font-medium">Nome completo *</Label>
+                      <Input
+                        id="lead-nome"
+                        type="text"
+                        placeholder="Seu nome"
+                        value={nome}
+                        onChange={(e) => setNome(e.target.value)}
+                        className="bg-background h-12"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="lead-email" className="font-medium">E-mail *</Label>
+                      <Input
+                        id="lead-email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="bg-background h-12"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="lead-telefone" className="font-medium">WhatsApp *</Label>
+                      <Input
+                        id="lead-telefone"
+                        type="tel"
+                        placeholder="(00) 00000-0000"
+                        value={telefone}
+                        onChange={(e) => setTelefone(formatPhone(e.target.value))}
+                        className="bg-background h-12"
+                      />
+                    </div>
+
+                    <Button
+                      variant="zen"
+                      size="xl"
+                      className="w-full mt-4"
+                      onClick={handleLeadSubmit}
+                    >
+                      Ver Meu Resultado
+                      <ArrowRight className="h-5 w-5 ml-2" />
+                    </Button>
+
+                    <p className="text-xs text-muted-foreground text-center pt-2">
+                      Ao continuar, você concorda com nossa{" "}
+                      <Link to="/politica-privacidade" className="text-secondary hover:underline">
+                        Política de Privacidade
+                      </Link>
+                      . Seus dados estão protegidos.
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ========== SEÇÃO 3 - RESULTADO DA CALCULADORA ========== */}
+        {resultado && leadSaved && (
+          <section id="resultado-completo-section" className="py-12 lg:py-16 bg-muted/30">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
                 

@@ -1,204 +1,126 @@
 
-# Plano: Gerador de Invoice/Fatura Gratuito
+# Plano: Reformular Hero do Gerador de Invoice
 
-## Visao Geral
-
-Criacao de uma ferramenta web completa para geracao de invoices e faturas profissionais, 100% gratuita, integrada ao site da Contabilidade Zen. A ferramenta permitira operacoes nacionais e internacionais com suporte a 29 moedas, preview em tempo real e exportacao PDF.
+## Objetivo
+Transformar a seção hero do Gerador de Invoice para seguir o mesmo padrão visual da página de Abertura de Empresa, mantendo o layout em 2 colunas com visual mockup interativo à direita, benefícios em carrossel e badges de credibilidade.
 
 ---
 
-## Arquitetura de Componentes
+## Mudanças Visuais
+
+### Antes (Atual)
+- Hero simples com fundo gradiente azul escuro
+- Apenas badges e texto centralizado
+- Sem visual interativo ou mockup
+
+### Depois (Novo)
+- Layout em 2 colunas (texto à esquerda, mockup à direita)
+- Fundo gradiente suave (from-muted/50 to-background)
+- Badge "Ferramenta gratuita" estilo Zen
+- Mockup simulando uma invoice/fatura preenchida
+- Carrossel de benefícios abaixo (autoplay)
+- Badge de Google Reviews
+
+---
+
+## Estrutura do Novo Hero
 
 ```text
-src/
-├── pages/conteudo/
-│   └── GeradorInvoice.tsx          ← Pagina principal
-│
-├── components/gerador-invoice/
-│   ├── InvoiceDocumentTypeSelector.tsx  ← Toggle Invoice/Fatura
-│   ├── InvoiceProviderForm.tsx          ← Dados do prestador
-│   ├── InvoiceClientForm.tsx            ← Dados do cliente
-│   ├── InvoiceServiceForm.tsx           ← Detalhes financeiros
-│   ├── InvoiceBankingForm.tsx           ← SWIFT/IBAN (condicional)
-│   ├── InvoiceThemeSelector.tsx         ← Seletor de cores
-│   ├── InvoicePreview.tsx               ← Preview em tempo real
-│   ├── InvoiceCTASection.tsx            ← CTAs da Contabilidade Zen
-│   └── constants.ts                      ← Moedas, temas, validacoes
-│
-└── lib/
-    └── invoice-utils.ts                  ← Formatacao, mascaras, validacoes
+┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│  [Badge: Ferramenta gratuita]                                  │
+│                                                                │
+│  ┌──────────────────────────┐  ┌──────────────────────────┐   │
+│  │                          │  │    INVOICE/FATURA        │   │
+│  │  Crie invoices           │  │    ──────────────────    │   │
+│  │  profissionais em        │  │    Prestador: Sua Empresa│   │
+│  │  minutos.                │  │                          │   │
+│  │                          │  │    Cliente: Acme Corp    │   │
+│  │  Texto descritivo...     │  │                          │   │
+│  │                          │  │    Valor: $1,500.00      │   │
+│  │  [Começar Agora →]       │  │                          │   │
+│  │                          │  │    Contabilidade Zen     │   │
+│  │  ★★★★★ 5.0 - Google      │  └──────────────────────────┘   │
+│  └──────────────────────────┘                                  │
+│                                                                │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐              │
+│  │ 29      │ │ 100%    │ │ Bilíngue│ │ Download│              │
+│  │ Moedas  │ │ Gratuito│ │ PT/EN   │ │ PDF     │              │
+│  └─────────┘ └─────────┘ └─────────┘ └─────────┘              │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Funcionalidades Principais
+## Elementos do Novo Hero
 
-### 1. Seletor de Tipo de Documento
-- Toggle entre **Invoice** (operacoes internacionais) e **Fatura** (operacoes nacionais)
-- Labels e campos dinamicos conforme selecao
-- Secao de dados bancarios internacionais visivel apenas para Invoice
+### 1. Badge Superior
+- "Ferramenta 100% gratuita" com ícone de check
+- Estilo: bg-zen-light-teal text-secondary
 
-### 2. Formulario de Dados (Layout 2 colunas desktop)
+### 2. Título Principal (H1)
+- "Crie invoices profissionais. **A burocracia** é por nossa conta."
+- Texto gradient na palavra destacada
 
-**Secao 1: Dados do Prestador**
-- Codigo da Invoice (opcional)
-- Nome/Razao Social* (obrigatorio)
-- CNPJ (mascara: XX.XXX.XXX/XXXX-XX)
-- Endereco (opcional)
-- Telefone (mascara dinamica)
-- Email* (obrigatorio, validacao)
+### 3. Subtítulo
+- "Gere invoices e faturas em minutos para operações nacionais e internacionais. Suporte a 29 moedas, bilíngue (PT/EN) e download em PDF."
 
-**Secao 2: Dados do Cliente**
-- Nome do Cliente* (obrigatorio)
-- CPF ou CNPJ (mascara inteligente)
+### 4. CTA Principal
+- Botão "Começar Agora" com seta
+- Scroll suave para o formulário (id="form-section")
 
-**Secao 3: Informacoes Financeiras**
-- Moeda* (dropdown com 29 moedas)
-- Valor do Servico* (formatacao automatica)
-- Data de Emissao* (datepicker, default: hoje)
-- Data de Vencimento* (datepicker, validacao >= emissao)
-- Titulo do Servico* (max 100 caracteres)
-- Descricao* (textarea, 20-1000 caracteres, contador)
+### 5. Badge Google Reviews
+- Mesmo componente usado na AbrirEmpresaHero
+- Busca dados do GMB para exibir rating dinâmico
 
-**Secao 4: Dados Bancarios (condicional - Invoice)**
-- Codigo SWIFT/BIC (8-11 caracteres)
-- Codigo IBAN (max 34 caracteres)
+### 6. Mockup Visual (coluna direita)
+- Card simulando uma invoice preenchida
+- Elementos dinâmicos mostrando:
+  - Header colorido "INVOICE"
+  - Dados fictícios de prestador/cliente
+  - Valor destacado em USD ($1,500.00)
+  - Rodapé "Contabilidade Zen"
+- Efeitos decorativos (blurs coloridos)
 
-**Secao 5: Personalizacao Visual**
-- 6 temas de cores (Verde Zen, Azul, Vermelho, Amarelo, Cinza, Padrao)
-- Circulos coloridos clicaveis
-
-### 3. Preview em Tempo Real
-- Atualizacao com debounce 300ms
-- Estrutura A4 simulada
-- Aplicacao dinamica do tema selecionado
-- Responsivo: coluna lateral desktop, collapsible mobile
-- Marca d'agua "Gerado por Contabilidade Zen"
-
-### 4. Geracao de PDF
-- Biblioteca: jsPDF (ja instalado)
-- Formato A4 (210x297mm)
-- Elementos coloridos conforme tema
-- Logo da Contabilidade Zen no rodape
-- Nome do arquivo: `invoice-[codigo]-[cliente].pdf`
-
-### 5. Lead Capture (Opcional)
-- Checkbox: "Aceito receber informacoes sobre contabilidade"
-- Integracao com hook `useLeadCapture` existente
-- Tag: "Lead - Gerador Invoice"
-
----
-
-## Detalhes Tecnicos
-
-### Lista de Moedas (29)
-```text
-BRL, USD, EUR, GBP, JPY, CNY, CHF, CAD, AUD, NZD,
-INR, KRW, MXN, ARS, CLP, COP, PEN, UYU, ZAR, RUB,
-TRY, SEK, NOK, DKK, PLN, SGD, HKD, THB, MYR
-```
-
-### Temas de Cores
-| Tema      | Cor Principal |
-|-----------|---------------|
-| Verde Zen | #10B981       |
-| Azul      | #3B82F6       |
-| Vermelho  | #EF4444       |
-| Amarelo   | #F59E0B       |
-| Cinza     | #6B7280       |
-| Padrao    | #1F3A55       |
-
-### Validacoes
-- Campos obrigatorios: indicador visual (asterisco)
-- Validacao onBlur com mensagens especificas
-- CNPJ: formato XX.XXX.XXX/XXXX-XX
-- CPF: formato XXX.XXX.XXX-XX
-- Email: regex padrao
-- SWIFT: 8 ou 11 caracteres alfanumericos
-- IBAN: max 34 caracteres
-- Vencimento >= Emissao
-
-### Responsividade
-- Desktop (>= 1024px): 2 colunas (form + preview lado a lado)
-- Tablet (768-1023px): 2 colunas ajustadas
-- Mobile (< 768px): 1 coluna, preview em modal/drawer com botao flutuante
-
----
-
-## SEO e Analytics
-
-### Meta Tags
-- Title: "Gerador de Invoice e Fatura Gratuito | Contabilidade Zen"
-- Description: "Crie invoices e faturas profissionais gratuitamente..."
-- Schema: WebApplication (gratis)
-
-### Eventos de Analytics (dataLayer)
-- `page_view`: Acesso a ferramenta
-- `document_type_selected`: Invoice ou Fatura
-- `currency_selected`: Moeda escolhida
-- `pdf_generated`: Documento gerado
-- `lead_captured`: Lead salvo (se aceitar comunicacoes)
-
----
-
-## Integracao com Sistema Existente
-
-1. **Roteamento**: Adicionar rota `/conteudo/gerador-invoice` em App.tsx
-2. **Menu Header**: Adicionar link em `conteudoLinks`
-3. **Sitemap**: Atualizar edge function com nova pagina
-4. **page_metadata**: Inserir registro para SEO/indexacao
-
----
-
-## Arquivos a Criar
-
-| Arquivo | Descricao |
-|---------|-----------|
-| `src/pages/conteudo/GeradorInvoice.tsx` | Pagina principal com toda logica |
-| `src/components/gerador-invoice/InvoicePreview.tsx` | Componente de preview A4 |
-| `src/components/gerador-invoice/InvoiceDocumentTypeSelector.tsx` | Toggle Invoice/Fatura |
-| `src/components/gerador-invoice/InvoiceThemeSelector.tsx` | Seletor de 6 temas |
-| `src/components/gerador-invoice/constants.ts` | Moedas, temas, simbolos |
+### 7. Carrossel de Benefícios
+- 6 cards com autoplay (3s)
+- Benefícios:
+  1. 29 Moedas Suportadas
+  2. 100% Gratuito
+  3. Bilíngue (PT/EN)
+  4. Download PDF Instantâneo
+  5. Preview em Tempo Real
+  6. Sem Cadastro
 
 ---
 
 ## Arquivos a Modificar
 
-| Arquivo | Alteracao |
+| Arquivo | Alteração |
 |---------|-----------|
-| `src/App.tsx` | Adicionar rota e import |
-| `src/components/Header.tsx` | Adicionar link no menu Conteudos |
-| `supabase/functions/sitemap/index.ts` | Adicionar URL nova pagina |
+| `src/pages/conteudo/GeradorInvoice.tsx` | Substituir seção hero atual pela nova estrutura com 2 colunas, mockup, carrossel e Google Reviews |
 
 ---
 
-## Acessibilidade
+## Detalhes Técnicos
 
-- Labels associados a todos os inputs
-- aria-labels para botoes de icone
-- Focus visible em todos os elementos interativos
-- Mensagens de erro com aria-describedby
-- Contraste minimo 4.5:1
-- Navegacao por teclado completa
+### Componentes Reutilizados
+- `motion` do Framer Motion para animações de entrada
+- `Badge` para labels
+- `Button` com variant="hero" e size="xl"
+- `Carousel` com Autoplay para benefícios
+- Query ao GMB para rating dinâmico
 
----
+### Layout Responsivo
+- **Desktop (lg+)**: 2 colunas (50/50)
+- **Mobile**: 1 coluna, mockup oculto ou simplificado, carrossel com 2 itens
 
-## Estimativa de Complexidade
-
-- **Pagina principal + forms**: Media-alta (reutiliza padroes do GeradorRPA)
-- **Preview em tempo real**: Media (debounce + formatacao dinamica)
-- **Geracao PDF**: Media (ja temos exemplo no GeradorRPA)
-- **Responsividade mobile**: Media (drawer/modal para preview)
-
-**Total estimado**: 1 arquivo principal (~800-1000 linhas) + 4-5 componentes auxiliares
+### Acessibilidade
+- H1 único na página
+- Links e botões com foco visível
+- Aria-labels apropriados
 
 ---
 
-## Diferenciais da Ferramenta Zen
-
-1. Badge "100% Gratuito" destacado
-2. Tooltips educativos (SWIFT, IBAN, etc.)
-3. Link direto WhatsApp para duvidas
-4. CTA para calculadora e abertura de empresa
-5. Selo CRC-SP no rodape
-6. Mensagens contextuais sobre economia tributaria
+## Resultado Esperado
+Uma hero section moderna, alinhada com o estilo visual da página de Abertura de Empresa, transmitindo profissionalismo e confiança, com destaque para os benefícios da ferramenta gratuita de geração de invoices.

@@ -1,167 +1,68 @@
 
-# Plano: Visual de Carrossel para "O que você ganha"
+# Plano: Migração de Imagens JPG para WebP no NichesCarousel
 
 ## Objetivo
-Transformar a seção "O que você ganha" de grid estático (4 cards) para um carrossel animado no estilo do `RoutineCarousel`, **mantendo exatamente o mesmo conteúdo** dos 4 benefícios atuais.
+Substituir as 12 imagens de background do carrossel de nichos de JPG para WebP, reduzindo significativamente o tamanho dos arquivos e melhorando o LCP (Largest Contentful Paint).
 
----
+## Impacto Esperado
+- **Redução de payload**: ~60-80% menor (WebP vs JPG)
+- **Melhoria no LCP**: Impacto direto no PageSpeed Score
+- **Carregamento mais rápido**: Especialmente em dispositivos móveis
 
-## Conteúdo a Manter (sem alterações)
+## Mapeamento Completo das Imagens
 
-| # | Ícone | Título | Descrição |
-|---|-------|--------|-----------|
-| 01 | Gift | 100% da Primeira Mensalidade | Receba o valor integral da primeira mensalidade do seu indicado diretamente via PIX. Pagamento em até 5 dias úteis. |
-| 02 | TrendingUp | 10% de Recorrência | Opte por receber 10% de todas as mensalidades enquanto o indicado permanecer cliente ativo. |
-| 03 | Sparkles | Certificado Digital Grátis | A cada 3 indicações confirmadas, ganhe um Certificado Digital e-CPF ou e-CNPJ. |
-| 04 | Shield | IRPF Gratuito | Clientes parceiros que indicam 5 ou mais empresas ganham declaração de IRPF grátis. |
+| # | Arquivo Original (upload) | Destino | Segmento |
+|---|---|---|---|
+| 1 | `gynecologist-getting-ready-appointment-2.webp` | `profissionais-saude-bg.webp` | Profissionais da Saúde |
+| 2 | `serious-mature-male-lawyer-working-office-2.webp` | `advogados-bg.webp` | Advogados |
+| 3 | `medium-shot-woman-with-smartphone-2.webp` | `representante-comercial-bg.webp` | Representantes Comerciais |
+| 4 | `representation-user-experience-interface-design-2.webp` | `produtores-digitais-bg.webp` | Produtores Digitais |
+| 5 | `cheerful-man-server-hub-facility-inspecting-server-units-2.webp` | `profissionais-ti-bg.webp` | Profissionais de TI |
+| 6 | `car-mechanic-with-tablet-near-car-work-clothes-2.webp` | `exportacao-servicos-bg.webp` | Exportacao de Servicos |
+| 7 | `young-co-worker-spending-time-office.webp` | `prestadores-servico-bg.webp` | Prestadores de Servico |
+| 8 | `hacker-frowning-after-being-unable-phishing-attacks-trick-users-2.webp` | `profissionais-pj-bg.webp` | Profissionais PJs |
+| 9 | `front-view-woman-holding-smartphone-2.webp` | `ecommerce-bg.webp` | E-commerce |
+| 10 | `side-view-people-working-clinic-2.webp` | `clinicas-consultorios-bg.webp` | Clinicas e Consultorios |
+| 11 | `cheerful-small-girl-shooting-video-social-media-platform-using-cellphone-2.webp` | `youtubers-creators-bg.webp` | YouTubers/Creators |
+| 12 | `elegant-man-office-businessman-white-shirt-man-works-with-documents-2.webp` | `outros-segmentos-bg.webp` | Outros Segmentos |
 
----
+## Etapas de Implementacao
 
-## Mudança Visual
+### Etapa 1: Copiar Imagens WebP para src/assets/
+Copiar cada uma das 12 imagens enviadas para a pasta `src/assets/` com os nomes padronizados.
 
-**De:** Grid estático com 4 cards (md:2 cols, lg:4 cols)
-
-**Para:** Carrossel animado com:
-- Cards numerados (01, 02, 03, 04)
-- Ícones em caixas gradiente (estilo teal da marca)
-- Animações de entrada com Framer Motion
-- Autoplay com navegação por dots
-- Responsivo (1 card mobile, 2 tablet, 3 desktop)
-
----
-
-## Estrutura Visual Proposta
+### Etapa 2: Atualizar Imports no NichesCarousel.tsx
+Alterar as linhas 29-40 do arquivo para usar a extensao `.webp`:
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│  [PROGRAMA DE PARCERIA]                                         │
-│                                                                 │
-│     O que você ganha                                            │
-│     Escolha: 100% da 1ª mensalidade OU 10% de recorrência       │
-│                                                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ← carousel  │
-│  │         01  │  │         02  │  │         03  │              │
-│  │   [🎁]      │  │   [📈]      │  │   [✨]      │              │
-│  │ 100% da 1ª  │  │ 10% de      │  │ Certificado │              │
-│  │ Mensalidade │  │ Recorrência │  │ Digital     │              │
-│  │ Descrição   │  │ Descrição   │  │ Descrição   │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│                                                                 │
-│              ● ● ● ●    (navigation dots)                       │
-│                                                                 │
-│           [ Quero me cadastrar agora ]                          │
-└─────────────────────────────────────────────────────────────────┘
+// Antes:
+import representanteComercialBg from "@/assets/representante-comercial-bg.jpg";
+
+// Depois:
+import representanteComercialBg from "@/assets/representante-comercial-bg.webp";
 ```
 
----
+### Etapa 3: Remover Arquivos JPG Antigos (Opcional)
+Os seguintes arquivos JPG podem ser removidos apos a migracao:
+- `advogados-bg.jpg`
+- `clinicas-consultorios-bg.jpg`
+- `ecommerce-bg.jpg`
+- `exportacao-servicos-bg.jpg`
+- `outros-segmentos-bg.jpg`
+- `prestadores-servico-bg.jpg`
+- `produtores-digitais-bg.jpg`
+- `profissionais-pj-bg.jpg`
+- `profissionais-saude-bg.jpg`
+- `profissionais-ti-bg.jpg`
+- `representante-comercial-bg.jpg`
+- `youtubers-creators-bg.jpg`
 
-## Implementação Técnica
+**Nota**: Arquivos nao relacionados ao carrossel (`hero-founder.jpg`, `hero-healthcare.jpg`, `exit-intent-support.jpg`) serao migrados em uma etapa futura.
 
-### Arquivo a criar:
-`src/components/indique-ganhe/PartnerBenefitsCarousel.tsx`
+## Arquivo Modificado
+- `src/components/sections/NichesCarousel.tsx` (linhas 29-40: alteracao de extensao)
 
-### Estrutura do componente:
-
-```typescript
-interface BenefitStep {
-  number: string;
-  title: string;
-  description: string;
-  icon: React.ElementType;
-}
-
-const benefitSteps: BenefitStep[] = [
-  {
-    number: "01",
-    title: "100% da Primeira Mensalidade",
-    description: "Receba o valor integral da primeira mensalidade do seu indicado diretamente via PIX. Pagamento em até 5 dias úteis.",
-    icon: Gift,
-  },
-  {
-    number: "02",
-    title: "10% de Recorrência",
-    description: "Opte por receber 10% de todas as mensalidades enquanto o indicado permanecer cliente ativo.",
-    icon: TrendingUp,
-  },
-  {
-    number: "03",
-    title: "Certificado Digital Grátis",
-    description: "A cada 3 indicações confirmadas, ganhe um Certificado Digital e-CPF ou e-CNPJ.",
-    icon: Sparkles,
-  },
-  {
-    number: "04",
-    title: "IRPF Gratuito",
-    description: "Clientes parceiros que indicam 5 ou mais empresas ganham declaração de IRPF grátis.",
-    icon: Shield,
-  },
-];
-```
-
-### Componentes reutilizados:
-- `Carousel`, `CarouselContent`, `CarouselItem` (do Embla)
-- `Autoplay` do embla-carousel-autoplay
-- `motion` do framer-motion
-- Cores: gradiente teal (secondary) da marca
-
-### Características visuais (baseadas no RoutineCarousel):
-- Cards com borda sutil e hover effect
-- Número grande no canto superior direito
-- Ícone em caixa gradiente teal
-- Título em destaque
-- Descrição em texto muted
-- Elemento decorativo no canto inferior
-
----
-
-## Destaque dos Modelos de Comissão
-
-No subtítulo da seção, enfatizar claramente:
-> "Escolha: **100% da 1ª mensalidade** OU **10% de recorrência**"
-
----
-
-## Alterações em `src/pages/IndiqueGanhe.tsx`
-
-1. **Importar** o novo componente `PartnerBenefitsCarousel`
-2. **Substituir** a seção "Benefícios" (linhas 375-400) pelo novo componente
-3. **Manter** o array `benefits` no arquivo (usado pelo novo componente)
-
----
-
-## Resumo das Alterações
-
-| Arquivo | Ação |
-|---------|------|
-| `src/components/indique-ganhe/PartnerBenefitsCarousel.tsx` | **Criar** - Carrossel estilo RoutineCarousel |
-| `src/pages/IndiqueGanhe.tsx` | **Editar** - Substituir grid por novo componente |
-
----
-
-## Diferença Visual: Antes vs Depois
-
-| Característica | Antes | Depois |
-|----------------|-------|--------|
-| Layout | Grid 4 colunas | Carrossel animado |
-| Numeração | Sem | Com (01, 02, 03, 04) |
-| Ícones | Caixa simples | Caixa gradiente |
-| Animação | Nenhuma | Entrada + autoplay |
-| Navegação | Nenhuma | Dots clicáveis |
-| Interatividade | Hover simples | Hover + scale |
-| Responsividade | Grid adaptativo | 1/2/3 cards por viewport |
-
----
-
-## Seção Técnica
-
-### Dependências utilizadas (já instaladas):
-- `embla-carousel-react`
-- `embla-carousel-autoplay`
-- `framer-motion`
-- `lucide-react`
-
-### Performance:
-- Animações GPU-accelerated (transform, opacity)
-- `once: true` no useInView
-- Componente lazy-loadable se necessário
-
+## Validacao Pos-Implementacao
+1. Verificar se o carrossel exibe todas as imagens corretamente
+2. Inspecionar Network tab para confirmar que WebP esta sendo carregado
+3. Rodar PageSpeed Insights para medir melhoria no LCP

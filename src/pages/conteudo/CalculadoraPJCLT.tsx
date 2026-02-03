@@ -283,10 +283,9 @@ export default function CalculadoraPJCLT() {
       const totalMensalCLT = salarioLiquidoCLT + feriasMensal + decimoTerceiroMensal + fgtsMensal + beneficiosTotais;
       const totalAnualCLT = totalMensalCLT * 12;
 
-      // Cálculos PJ - custo empresa equivalente ao CLT
-      // Custo empresa CLT ≈ salário bruto + encargos (≈40% extra: INSS patronal, FGTS, férias, 13º)
-      const custoEmpresaCLT = salario * 1.4;
-      const faturamentoPJ = custoEmpresaCLT; // PJ cobra o mesmo custo que empresa pagaria
+      // Cálculos PJ - comparação justa (mesma base de faturamento)
+      // Faturamento PJ = mesmo valor do salário bruto CLT informado
+      const faturamentoPJ = salario;
       
       // Simples Nacional com Fator R (alíquota efetiva ~6%)
       const aliquotaSimples = 0.06;

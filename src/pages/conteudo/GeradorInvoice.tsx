@@ -45,10 +45,12 @@ import { jsPDF } from "jspdf";
 
 import { InvoiceDocumentTypeSelector } from "@/components/gerador-invoice/InvoiceDocumentTypeSelector";
 import { InvoiceThemeSelector } from "@/components/gerador-invoice/InvoiceThemeSelector";
+import { InvoiceLanguageSelector } from "@/components/gerador-invoice/InvoiceLanguageSelector";
 import { InvoicePreview } from "@/components/gerador-invoice/InvoicePreview";
 import { 
   CURRENCIES, 
   INVOICE_THEMES, 
+  INVOICE_TRANSLATIONS,
   INITIAL_FORM_DATA,
   type InvoiceFormData,
   type CurrencyCode 
@@ -148,7 +150,8 @@ export default function GeradorInvoice() {
     try {
       const theme = INVOICE_THEMES.find(t => t.id === formData.theme) || INVOICE_THEMES[0];
       const amount = parseAmount(formData.amount);
-      const docTypeLabel = formData.documentType === "invoice" ? "INVOICE" : "FATURA";
+      const t = INVOICE_TRANSLATIONS[formData.language];
+      const docTypeLabel = formData.documentType === "invoice" ? t.invoice : t.fatura;
       
       const doc = new jsPDF({
         orientation: "portrait",
@@ -180,7 +183,7 @@ export default function GeradorInvoice() {
       if (formData.invoiceCode) {
         doc.setFontSize(11);
         doc.setFont("helvetica", "normal");
-        doc.text(`Nº ${formData.invoiceCode}`, margin, 28);
+        doc.text(`${t.number} ${formData.invoiceCode}`, margin, 28);
       }
       
       y = 45;
@@ -197,14 +200,14 @@ export default function GeradorInvoice() {
       doc.setTextColor(100, 100, 100);
       
       if (formData.providerCnpj) {
-        doc.text(`CNPJ: ${formData.providerCnpj}`, margin, y);
+        doc.text(`${t.cnpj}: ${formData.providerCnpj}`, margin, y);
         y += 5;
       }
       if (formData.providerAddress) {
         y = addWrappedText(formData.providerAddress, margin, y, contentWidth);
       }
       if (formData.providerPhone) {
-        doc.text(`Tel: ${formData.providerPhone}`, margin, y);
+        doc.text(`${t.phone} ${formData.providerPhone}`, margin, y);
         y += 5;
       }
       if (formData.providerEmail) {
@@ -223,7 +226,7 @@ export default function GeradorInvoice() {
       doc.setTextColor(theme.color);
       doc.setFontSize(9);
       doc.setFont("helvetica", "bold");
-      doc.text("FATURADO PARA:", margin, y);
+      doc.text(t.billedTo.toUpperCase(), margin, y);
       y += 5;
       
       doc.setTextColor(0, 0, 0);
@@ -235,7 +238,7 @@ export default function GeradorInvoice() {
         doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(100, 100, 100);
-        const docLabel = formData.clientDocument.replace(/\D/g, "").length <= 11 ? "CPF" : "CNPJ";
+        const docLabel = formData.clientDocument.replace(/\D/g, "").length <= 11 ? t.cpf : t.cnpj;
         doc.text(`${docLabel}: ${formData.clientDocument}`, margin, y);
         y += 5;
       }
@@ -245,8 +248,8 @@ export default function GeradorInvoice() {
       // Datas
       doc.setTextColor(100, 100, 100);
       doc.setFontSize(9);
-      doc.text("EMISSÃO", margin, y);
-      doc.text("VENCIMENTO", margin + 50, y);
+      doc.text(t.issueDate.toUpperCase(), margin, y);
+      doc.text(t.dueDate.toUpperCase(), margin + 50, y);
       y += 5;
       
       doc.setTextColor(0, 0, 0);
@@ -265,7 +268,7 @@ export default function GeradorInvoice() {
       doc.setTextColor(theme.color);
       doc.setFontSize(9);
       doc.setFont("helvetica", "bold");
-      doc.text("SERVIÇO:", margin, y);
+      doc.text(t.service.toUpperCase(), margin, y);
       y += 5;
       
       doc.setTextColor(0, 0, 0);
@@ -277,7 +280,7 @@ export default function GeradorInvoice() {
       doc.setTextColor(100, 100, 100);
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
-      doc.text("DESCRIÇÃO:", margin, y);
+      doc.text(t.description.toUpperCase(), margin, y);
       y += 5;
       
       doc.setFontSize(10);
@@ -291,7 +294,7 @@ export default function GeradorInvoice() {
       
       doc.setTextColor(100, 100, 100);
       doc.setFontSize(9);
-      doc.text("VALOR A PAGAR", pageWidth / 2, y + 8, { align: "center" });
+      doc.text(t.amountDue.toUpperCase(), pageWidth / 2, y + 8, { align: "center" });
       
       doc.setTextColor(theme.color);
       doc.setFontSize(18);
@@ -308,7 +311,7 @@ export default function GeradorInvoice() {
         doc.setTextColor(theme.color);
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
-        doc.text("DADOS BANCÁRIOS:", margin, y);
+        doc.text(t.bankDetails.toUpperCase(), margin, y);
         y += 5;
         
         doc.setTextColor(100, 100, 100);
@@ -316,11 +319,11 @@ export default function GeradorInvoice() {
         doc.setFont("helvetica", "normal");
         
         if (formData.swiftCode) {
-          doc.text(`SWIFT/BIC: ${formData.swiftCode}`, margin, y);
+          doc.text(`${t.swiftBic} ${formData.swiftCode}`, margin, y);
           y += 5;
         }
         if (formData.ibanCode) {
-          doc.text(`IBAN: ${formData.ibanCode}`, margin, y);
+          doc.text(`${t.iban} ${formData.ibanCode}`, margin, y);
           y += 5;
         }
         y += 5;
@@ -334,7 +337,7 @@ export default function GeradorInvoice() {
       doc.setTextColor(150, 150, 150);
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
-      doc.text("Documento gerado por", pageWidth / 2, footerY + 7, { align: "center" });
+      doc.text(t.generatedBy, pageWidth / 2, footerY + 7, { align: "center" });
       
       doc.setTextColor(theme.color);
       doc.setFont("helvetica", "bold");
@@ -738,17 +741,33 @@ export default function GeradorInvoice() {
                   </div>
                 )}
                 
-                {/* Tema Visual */}
-                <div className="bg-card rounded-xl p-6 shadow-sm">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Palette className="h-5 w-5 text-secondary" />
-                    <h2 className="text-lg font-semibold">Escolha o Tema</h2>
+                {/* Tema Visual e Idioma */}
+                <div className="bg-card rounded-xl p-6 shadow-sm space-y-6">
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Palette className="h-5 w-5 text-secondary" />
+                      <h2 className="text-lg font-semibold">Escolha o Tema</h2>
+                    </div>
+                    
+                    <InvoiceThemeSelector
+                      value={formData.theme}
+                      onChange={(value) => updateField("theme", value)}
+                    />
                   </div>
                   
-                  <InvoiceThemeSelector
-                    value={formData.theme}
-                    onChange={(value) => updateField("theme", value)}
-                  />
+                  <div className="border-t border-border pt-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <h2 className="text-lg font-semibold">Idioma do Documento</h2>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Escolha o idioma dos labels na invoice/fatura gerada
+                    </p>
+                    
+                    <InvoiceLanguageSelector
+                      value={formData.language}
+                      onChange={(value) => updateField("language", value)}
+                    />
+                  </div>
                 </div>
                 
                 {/* Consentimento e Ação */}

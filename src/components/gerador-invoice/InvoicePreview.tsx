@@ -1,4 +1,4 @@
-import { INVOICE_THEMES, CURRENCIES, type InvoiceFormData } from "./constants";
+import { INVOICE_THEMES, CURRENCIES, INVOICE_TRANSLATIONS, type InvoiceFormData } from "./constants";
 import { formatCurrency, formatDateBR, parseAmount } from "@/lib/invoice-utils";
 
 interface InvoicePreviewProps {
@@ -9,8 +9,9 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
   const theme = INVOICE_THEMES.find(t => t.id === data.theme) || INVOICE_THEMES[0];
   const currency = CURRENCIES.find(c => c.code === data.currency);
   const amount = parseAmount(data.amount);
+  const t = INVOICE_TRANSLATIONS[data.language];
   
-  const docTypeLabel = data.documentType === "invoice" ? "INVOICE" : "FATURA";
+  const docTypeLabel = data.documentType === "invoice" ? t.invoice : t.fatura;
   
   return (
     <div className="bg-white border border-border rounded-lg shadow-sm overflow-hidden">
@@ -21,7 +22,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
       >
         <h2 className="text-2xl font-bold tracking-wide">{docTypeLabel}</h2>
         {data.invoiceCode && (
-          <p className="text-sm opacity-90">Nº {data.invoiceCode}</p>
+          <p className="text-sm opacity-90">{t.number} {data.invoiceCode}</p>
         )}
       </div>
       
@@ -33,13 +34,13 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
             {data.providerName || "Nome do Prestador"}
           </p>
           {data.providerCnpj && (
-            <p className="text-muted-foreground">CNPJ: {data.providerCnpj}</p>
+            <p className="text-muted-foreground">{t.cnpj}: {data.providerCnpj}</p>
           )}
           {data.providerAddress && (
             <p className="text-muted-foreground">{data.providerAddress}</p>
           )}
           {data.providerPhone && (
-            <p className="text-muted-foreground">Tel: {data.providerPhone}</p>
+            <p className="text-muted-foreground">{t.phone} {data.providerPhone}</p>
           )}
           {data.providerEmail && (
             <p className="text-muted-foreground">{data.providerEmail}</p>
@@ -52,14 +53,14 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
             className="text-xs font-semibold uppercase tracking-wide mb-1"
             style={{ color: theme.color }}
           >
-            Faturado para:
+            {t.billedTo}
           </p>
           <p className="font-medium text-foreground">
             {data.clientName || "Nome do Cliente"}
           </p>
           {data.clientDocument && (
             <p className="text-muted-foreground">
-              {data.clientDocument.replace(/\D/g, "").length <= 11 ? "CPF" : "CNPJ"}: {data.clientDocument}
+              {data.clientDocument.replace(/\D/g, "").length <= 11 ? t.cpf : t.cnpj}: {data.clientDocument}
             </p>
           )}
         </div>
@@ -67,11 +68,11 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
         {/* Datas */}
         <div className="flex gap-8 border-t border-border pt-4">
           <div>
-            <p className="text-xs text-muted-foreground uppercase">Emissão</p>
+            <p className="text-xs text-muted-foreground uppercase">{t.issueDate}</p>
             <p className="font-medium">{formatDateBR(data.issueDate) || "--/--/----"}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase">Vencimento</p>
+            <p className="text-xs text-muted-foreground uppercase">{t.dueDate}</p>
             <p className="font-medium">{formatDateBR(data.dueDate) || "--/--/----"}</p>
           </div>
         </div>
@@ -82,7 +83,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
             className="text-xs font-semibold uppercase tracking-wide mb-1"
             style={{ color: theme.color }}
           >
-            Serviço:
+            {t.service}
           </p>
           <p className="font-medium text-foreground">
             {data.serviceTitle || "Título do Serviço"}
@@ -92,7 +93,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
         {/* Descrição */}
         {(data.serviceDescription || !data.serviceTitle) && (
           <div>
-            <p className="text-xs text-muted-foreground uppercase mb-1">Descrição:</p>
+            <p className="text-xs text-muted-foreground uppercase mb-1">{t.description}</p>
             <p className="text-muted-foreground whitespace-pre-wrap">
               {data.serviceDescription || "Descreva os serviços prestados..."}
             </p>
@@ -104,7 +105,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
           className="rounded-lg p-4 text-center"
           style={{ backgroundColor: `${theme.color}10` }}
         >
-          <p className="text-xs text-muted-foreground uppercase mb-1">Valor a Pagar</p>
+          <p className="text-xs text-muted-foreground uppercase mb-1">{t.amountDue}</p>
           <p 
             className="text-2xl font-bold"
             style={{ color: theme.color }}
@@ -123,16 +124,16 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
               className="text-xs font-semibold uppercase tracking-wide mb-2"
               style={{ color: theme.color }}
             >
-              Dados Bancários:
+              {t.bankDetails}
             </p>
             {data.swiftCode && (
               <p className="text-muted-foreground">
-                <span className="font-medium">SWIFT/BIC:</span> {data.swiftCode}
+                <span className="font-medium">{t.swiftBic}</span> {data.swiftCode}
               </p>
             )}
             {data.ibanCode && (
               <p className="text-muted-foreground">
-                <span className="font-medium">IBAN:</span> {data.ibanCode}
+                <span className="font-medium">{t.iban}</span> {data.ibanCode}
               </p>
             )}
           </div>
@@ -140,7 +141,7 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
         
         {/* Rodapé */}
         <div className="border-t border-border pt-4 text-center text-xs text-muted-foreground">
-          <p>Documento gerado por</p>
+          <p>{t.generatedBy}</p>
           <p className="font-semibold" style={{ color: theme.color }}>
             Contabilidade Zen
           </p>
@@ -150,3 +151,4 @@ export function InvoicePreview({ data }: InvoicePreviewProps) {
     </div>
   );
 }
+

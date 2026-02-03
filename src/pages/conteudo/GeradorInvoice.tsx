@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ToolPageSEO } from "@/components/SEOHead";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,15 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import { motion } from "framer-motion";
+import Autoplay from "embla-carousel-autoplay";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Download, 
   Eye, 
@@ -38,7 +48,15 @@ import {
   CheckCircle2,
   MessageCircle,
   Calculator,
-  Loader2
+  Loader2,
+  ArrowRight,
+  Star,
+  Coins,
+  Languages,
+  FileDown,
+  Sparkles,
+  UserX,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
@@ -68,6 +86,52 @@ import {
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+// Google logo SVG component
+function GoogleLogo({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+  );
+}
+
+// Benefícios para o carrossel
+const invoiceBenefits = [
+  {
+    icon: Coins,
+    title: "29 Moedas",
+    description: "Dólar, Euro, Libra e mais 26 moedas.",
+  },
+  {
+    icon: CheckCircle2,
+    title: "100% Gratuito",
+    description: "Sem limite de invoices geradas.",
+  },
+  {
+    icon: Languages,
+    title: "Bilíngue (PT/EN)",
+    description: "Labels em português ou inglês.",
+  },
+  {
+    icon: FileDown,
+    title: "Download PDF",
+    description: "Arquivo profissional pronto para envio.",
+  },
+  {
+    icon: Sparkles,
+    title: "Preview em Tempo Real",
+    description: "Veja as mudanças enquanto preenche.",
+  },
+  {
+    icon: UserX,
+    title: "Sem Cadastro",
+    description: "Nenhuma conta necessária para usar.",
+  },
+];
+
 export default function GeradorInvoice() {
   const [formData, setFormData] = useState<InvoiceFormData>(INITIAL_FORM_DATA);
   const [errors, setErrors] = useState<Partial<Record<keyof InvoiceFormData, string>>>({});
@@ -76,6 +140,46 @@ export default function GeradorInvoice() {
   
   const { saveLead } = useLeadCapture();
   const isMobile = useIsMobile();
+  
+  // Autoplay para carrossel
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: false })
+  );
+
+  // Fetch GMB stats
+  const { data: gmbStats } = useQuery({
+    queryKey: ['gmb-stats-invoice-hero'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('gmb_stats')
+        .select('*')
+        .order('synced_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching GMB stats:', error);
+        return null;
+      }
+      return data;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Render stars
+  const renderStars = (rating: number) => {
+    return [...Array(5)].map((_, i) => (
+      <Star 
+        key={i} 
+        className={`h-4 w-4 ${i < rating ? 'fill-secondary text-secondary' : 'text-muted-foreground/30'}`} 
+      />
+    ));
+  };
+
+  // Scroll suave para o formulário
+  const scrollToForm = () => {
+    document.getElementById("form-section")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // Atualizar campo do formulário
   const updateField = useCallback(<K extends keyof InvoiceFormData>(
@@ -429,33 +533,177 @@ export default function GeradorInvoice() {
       <Header />
       
       <main id="main-content" className="min-h-screen bg-muted/30">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground py-12 lg:py-16">
+        {/* Hero Section - Estilo Abertura de Empresa */}
+        <section className="relative overflow-hidden bg-gradient-to-b from-muted/50 to-background py-20 lg:py-28">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="flex justify-center gap-2 mb-4">
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary/20 text-secondary-foreground rounded-full text-sm font-medium">
-                  <CheckCircle2 className="h-4 w-4" />
-                  100% Gratuito
-                </span>
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-white/10 rounded-full text-sm">
-                  29 Moedas
-                </span>
+            <div className="flex flex-col gap-10">
+              {/* Main Hero Grid */}
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+                {/* Content */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="space-y-6"
+                >
+                  <Badge variant="secondary" className="bg-zen-light-teal text-secondary px-4 py-2 text-sm font-medium">
+                    <CheckCircle2 className="h-4 w-4 mr-1" />
+                    Ferramenta 100% gratuita
+                  </Badge>
+
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
+                    Crie invoices profissionais.{" "}
+                    <span className="text-gradient">A burocracia</span> é por nossa conta.
+                  </h1>
+
+                  <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
+                    Gere invoices e faturas em minutos para operações nacionais e internacionais. 
+                    Suporte a 29 moedas, bilíngue (PT/EN) e download em PDF.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button variant="hero" size="xl" onClick={scrollToForm}>
+                      Começar Agora
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </div>
+
+                  {/* Google Reviews Badge */}
+                  <a
+                    href="https://g.page/r/CSe4RMezF61hEAI/review"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-3 px-4 py-2.5 bg-card border border-border rounded-xl hover:border-secondary/50 hover:shadow-card transition-all duration-300 group"
+                  >
+                    <GoogleLogo className="h-6 w-6" />
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-0.5">
+                        {renderStars(Math.round(gmbStats?.average_rating || 5))}
+                      </div>
+                      <span className="font-bold text-foreground text-lg">
+                        {gmbStats?.average_rating?.toFixed(1) || '5.0'}
+                      </span>
+                    </div>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="text-sm text-muted-foreground">
+                      {gmbStats?.total_reviews || 0} avaliações no Google
+                    </span>
+                  </a>
+                </motion.div>
+
+                {/* Visual Mockup - Invoice Card */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="relative hidden lg:block"
+                >
+                  <div className="relative bg-card rounded-3xl shadow-card p-8 backdrop-blur border border-border/50">
+                    {/* Invoice Header */}
+                    <div className="bg-gradient-to-r from-secondary to-accent rounded-2xl p-4 mb-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-8 h-8 text-secondary-foreground" />
+                          <div>
+                            <p className="font-bold text-secondary-foreground text-lg">INVOICE</p>
+                            <p className="text-sm text-secondary-foreground/80">#INV-2024-001</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-secondary-foreground/20 text-secondary-foreground border-0">
+                          Paga
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Invoice Details */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase">De</p>
+                          <p className="font-semibold text-foreground">Sua Empresa Ltda</p>
+                          <p className="text-sm text-muted-foreground">contato@suaempresa.com</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground uppercase">Para</p>
+                          <p className="font-semibold text-foreground">Acme Corporation</p>
+                          <p className="text-sm text-muted-foreground">finance@acme.com</p>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs text-muted-foreground uppercase mb-2">Serviço</p>
+                        <p className="font-medium text-foreground">Consultoria em Desenvolvimento</p>
+                        <p className="text-sm text-muted-foreground">Projeto de software personalizado</p>
+                      </div>
+
+                      {/* Amount Highlight */}
+                      <div className="bg-gradient-to-r from-secondary/10 to-accent/10 rounded-2xl p-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase">Valor Total</p>
+                          <p className="text-2xl font-bold text-secondary">$1,500.00</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground uppercase">Vencimento</p>
+                          <p className="font-semibold text-foreground">15 Fev 2024</p>
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="pt-2 border-t border-border/50 text-center">
+                        <p className="text-xs text-muted-foreground">Gerado por</p>
+                        <p className="text-sm font-semibold text-secondary">Contabilidade Zen</p>
+                      </div>
+                    </div>
+
+                    {/* Decorative elements */}
+                    <div className="absolute -top-4 -right-4 w-24 h-24 bg-secondary/20 rounded-full blur-2xl" />
+                    <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-accent/20 rounded-full blur-2xl" />
+                  </div>
+                </motion.div>
               </div>
-              
-              <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-                Gerador de Invoice e Fatura Gratuito
-              </h1>
-              <p className="text-lg opacity-90">
-                Crie invoices profissionais para operações nacionais e internacionais em minutos. 
-                100% online, 0% burocracia.
-              </p>
+
+              {/* Benefits Carousel - Full Width */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="w-full"
+              >
+                <Carousel
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                  plugins={[autoplayPlugin.current]}
+                  className="w-full"
+                >
+                  <CarouselContent className="-ml-4">
+                    {invoiceBenefits.map((benefit, index) => (
+                      <CarouselItem key={index} className="pl-4 basis-1/2 lg:basis-1/3">
+                        <div className="flex items-center gap-4 bg-card border border-border/50 rounded-xl p-4 shadow-soft h-full">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-secondary to-accent flex items-center justify-center shrink-0">
+                            <benefit.icon className="w-6 h-6 text-secondary-foreground" />
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-base font-semibold text-foreground">
+                              {benefit.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {benefit.description}
+                            </p>
+                          </div>
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
+              </motion.div>
             </div>
           </div>
         </section>
         
         {/* Conteúdo Principal */}
-        <section className="py-8 lg:py-12">
+        <section id="form-section" className="py-8 lg:py-12">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
               {/* Coluna do Formulário */}

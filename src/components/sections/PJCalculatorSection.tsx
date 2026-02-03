@@ -29,7 +29,7 @@ import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { toast } from "sonner";
 import { triggerWhatsAppEmphasis } from "@/components/FloatingWhatsApp";
 
-// Tabela INSS 2024
+// Tabela INSS 2024 (atualizada)
 const INSS_FAIXAS = [
   { limite: 1412.00, aliquota: 0.075 },
   { limite: 2666.68, aliquota: 0.09 },

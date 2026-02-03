@@ -579,7 +579,7 @@ export default function CalculadoraPJCLT() {
                 ]}
                 className="w-full"
               >
-                <CarouselContent className="-ml-2 md:-ml-4">
+                <CarouselContent className="-ml-2 md:-ml-4 justify-center">
                   {[
                     { icon: Percent, title: "Impostos a partir de 6%", subtitle: "vs 27,5% como autônomo" },
                     { icon: PiggyBank, title: "Economia Real", subtitle: "Milhares por ano" },
@@ -587,7 +587,7 @@ export default function CalculadoraPJCLT() {
                     { icon: Shield, title: "Fator R Aplicado", subtitle: "Menor tributação" },
                     { icon: CheckCircle, title: "100% Gratuito", subtitle: "Sem cadastro" },
                   ].map((benefit, index) => (
-                    <CarouselItem key={index} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/6">
+                    <CarouselItem key={index} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/5">
                       <div className="bg-card border border-border rounded-xl p-4 text-center h-full">
                         <benefit.icon className="h-8 w-8 text-secondary mx-auto mb-2" />
                         <p className="font-semibold text-sm text-foreground">{benefit.title}</p>

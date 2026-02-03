@@ -22,6 +22,7 @@ import ContabilidadeRepresentantes from "./pages/segmentos/ContabilidadeRepresen
 import CalculadoraPJCLT from "./pages/conteudo/CalculadoraPJCLT";
 import GeradorRPA from "./pages/conteudo/GeradorRPA";
 import ComparativoTributario from "./pages/conteudo/ComparativoTributario";
+import TabelaSimplesNacional from "./pages/conteudo/TabelaSimplesNacional";
 import AbrirEmpresa from "./pages/AbrirEmpresa";
 import IndiqueGanhe from "./pages/IndiqueGanhe";
 import PartnerDashboard from "./pages/PartnerDashboard";
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/conteudo/calculadora-pj-clt" element={<CalculadoraPJCLT />} />
             <Route path="/conteudo/gerador-rpa" element={<GeradorRPA />} />
             <Route path="/conteudo/comparativo-tributario" element={<ComparativoTributario />} />
+            <Route path="/conteudo/tabela-simples-nacional" element={<TabelaSimplesNacional />} />
             <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
             <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />
             <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />

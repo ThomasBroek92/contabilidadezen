@@ -18,6 +18,7 @@ import {
   FileText,
   CreditCard,
   MessageCircle,
+  Briefcase,
 } from "lucide-react";
 import {
   Tooltip,
@@ -29,7 +30,7 @@ import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { toast } from "sonner";
 import { triggerWhatsAppEmphasis } from "@/components/FloatingWhatsApp";
 
-// Tabela INSS 2024 (atualizada)
+// Tabela INSS 2024 (para cálculo CLT)
 const INSS_FAIXAS = [
   { limite: 1412.00, aliquota: 0.075 },
   { limite: 2666.68, aliquota: 0.09 },
@@ -46,18 +47,31 @@ const IRRF_FAIXAS = [
   { limite: Infinity, aliquota: 0.275, deducao: 896.00 },
 ];
 
-interface ResultadoCalculo {
-  salarioBrutoAutonomo: number;
-  inss: number;
-  irrf: number;
-  salarioLiquidoAutonomo: number;
+// Custo contabilidade
+const CONTABILIDADE_MENSAL = 297.90;
+
+interface ResultadoCalculoCLT {
+  // CLT
+  salarioBrutoCLT: number;
+  inssCLT: number;
+  irrfCLT: number;
+  salarioLiquidoCLT: number;
+  feriasMensal: number;
+  decimoTerceiroMensal: number;
+  fgtsMensal: number;
   beneficiosTotais: number;
-  totalMensalEquivalenteAutonomo: number;
+  totalMensalCLT: number;
+  totalAnualCLT: number;
+  
+  // PJ
   faturamentoPJ: number;
   impostosPJ: number;
   inssPJ: number;
   contabilidade: number;
   salarioLiquidoPJ: number;
+  totalAnualPJ: number;
+  
+  // Economia
   economiaMensal: number;
   economiaAnual: number;
   percentualEconomia: number;
@@ -70,22 +84,23 @@ const vantagensPJ = [
   { icon: CreditCard, title: "Conta PJ", description: "acesso a linhas de crédito melhores" },
 ];
 
-const desvantagensAutonomo = [
+const desvantagensCLT = [
   { text: "INSS progressivo: até 14% do rendimento bruto" },
-  { text: "IRRF progressivo: até 27,5% sobre o lucro" },
-  { text: "Carnê-leão: obrigação de pagar mensalmente" },
-  { text: "Menor credibilidade: clientes preferem NF de empresa" },
+  { text: "IRRF progressivo: até 27,5% sobre o salário" },
+  { text: "Menor flexibilidade: horários e local fixos" },
+  { text: "Limite salarial: teto definido pela empresa" },
 ];
 
 export function PJCalculatorSection() {
-  const [faturamento, setFaturamento] = useState("");
+  const [salarioBruto, setSalarioBruto] = useState("");
   const [valeRefeicao, setValeRefeicao] = useState("");
   const [valeTransporte, setValeTransporte] = useState("");
   const [planoSaude, setPlanoSaude] = useState("");
   const [outrosBeneficios, setOutrosBeneficios] = useState("");
-  const [resultado, setResultado] = useState<ResultadoCalculo | null>(null);
+  const [resultado, setResultado] = useState<ResultadoCalculoCLT | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [hasTriggeredEmphasis, setHasTriggeredEmphasis] = useState(false);
+  const [formError, setFormError] = useState("");
   
   // Ref for scroll-triggered emphasis
   const sectionRef = useRef<HTMLElement>(null);
@@ -94,7 +109,6 @@ export function PJCalculatorSection() {
   // Trigger WhatsApp emphasis when calculator section comes into view
   useEffect(() => {
     if (isInView && !hasTriggeredEmphasis) {
-      // Small delay to let user focus on the calculator first
       const timer = setTimeout(() => {
         triggerWhatsAppEmphasis();
         setHasTriggeredEmphasis(true);
@@ -166,9 +180,12 @@ export function PJCalculatorSection() {
   };
 
   const calcular = () => {
-    const salario = parseCurrency(faturamento);
-    if (salario <= 0) {
-      toast.error("Informe um faturamento válido");
+    setFormError("");
+    const salario = parseCurrency(salarioBruto);
+    
+    // Validação: salário mínimo R$ 1.412
+    if (salario < 1412) {
+      setFormError("O salário bruto deve ser no mínimo R$ 1.412,00 (salário mínimo 2024)");
       return;
     }
 
@@ -179,38 +196,58 @@ export function PJCalculatorSection() {
       const ps = parseCurrency(planoSaude);
       const outros = parseCurrency(outrosBeneficios);
 
-      // Autônomo
-      const inss = calcularINSS(salario);
-      const irrf = calcularIRRF(salario, inss);
-      const salarioLiquidoAutonomo = salario - inss - irrf;
+      // Cálculos CLT
+      const inssCLT = calcularINSS(salario);
+      const irrfCLT = calcularIRRF(salario, inssCLT);
+      const salarioLiquidoCLT = salario - inssCLT - irrfCLT;
+      
+      // Benefícios CLT anualizados (divididos por 12 para mensal equivalente)
+      const feriasMensal = (salario / 12) + (salario / 12 * 0.3333); // 1/12 férias + 1/3
+      const decimoTerceiroMensal = salario / 12; // 1/12 do 13º
+      const fgtsMensal = salario * 0.08; // 8% FGTS
+      
       const beneficiosTotais = vr + vt + ps + outros;
-      const totalMensalEquivalenteAutonomo = salarioLiquidoAutonomo + beneficiosTotais;
+      
+      // Total mensal CLT = líquido + benefícios trabalhistas mensalizados + benefícios informados
+      const totalMensalCLT = salarioLiquidoCLT + feriasMensal + decimoTerceiroMensal + fgtsMensal + beneficiosTotais;
+      const totalAnualCLT = totalMensalCLT * 12;
 
-      // PJ - Simples Nacional 6% (Fator R)
-      const aliquotaSimples = 0.06;
-      const proLabore = 1412;
-      const inssPJ = proLabore * 0.11;
-      const contabilidade = 297.90;
+      // Cálculos PJ - comparação justa (mesma base de faturamento)
+      // Faturamento PJ = mesmo valor do salário bruto CLT informado
       const faturamentoPJ = salario;
+      
+      // Simples Nacional com Fator R (alíquota efetiva ~6%)
+      const aliquotaSimples = 0.06;
+      const proLabore = 1412; // 1 salário mínimo
+      const inssPJ = proLabore * 0.11;
+      const contabilidade = CONTABILIDADE_MENSAL;
+      
       const impostosPJ = faturamentoPJ * aliquotaSimples;
-      const salarioLiquidoPJ = faturamentoPJ - impostosPJ - inssPJ - contabilidade + beneficiosTotais;
+      const salarioLiquidoPJ = faturamentoPJ - impostosPJ - inssPJ - contabilidade;
+      const totalAnualPJ = salarioLiquidoPJ * 12;
 
-      const economiaMensal = salarioLiquidoPJ - totalMensalEquivalenteAutonomo;
-      const economiaAnual = economiaMensal * 12;
-      const percentualEconomia = ((salarioLiquidoPJ / totalMensalEquivalenteAutonomo) - 1) * 100;
+      // Economia ao migrar para PJ
+      const economiaMensal = salarioLiquidoPJ - totalMensalCLT;
+      const economiaAnual = totalAnualPJ - totalAnualCLT;
+      const percentualEconomia = totalMensalCLT > 0 ? ((salarioLiquidoPJ / totalMensalCLT) - 1) * 100 : 0;
 
       setResultado({
-        salarioBrutoAutonomo: salario,
-        inss,
-        irrf,
-        salarioLiquidoAutonomo,
+        salarioBrutoCLT: salario,
+        inssCLT,
+        irrfCLT,
+        salarioLiquidoCLT,
+        feriasMensal,
+        decimoTerceiroMensal,
+        fgtsMensal,
         beneficiosTotais,
-        totalMensalEquivalenteAutonomo,
+        totalMensalCLT,
+        totalAnualCLT,
         faturamentoPJ,
         impostosPJ,
         inssPJ,
         contabilidade,
         salarioLiquidoPJ,
+        totalAnualPJ,
         economiaMensal,
         economiaAnual,
         percentualEconomia,
@@ -235,9 +272,9 @@ export function PJCalculatorSection() {
       nome: nome.trim(),
       email: email.trim(),
       whatsapp: telefone.trim(),
-      segmento: "PJ x Autônomo",
+      segmento: "CLT x PJ",
       fonte: "Calculadora Homepage",
-      faturamento_mensal: parseCurrency(faturamento),
+      faturamento_mensal: parseCurrency(salarioBruto),
       economia_anual: resultado?.economiaAnual,
     });
 
@@ -248,7 +285,7 @@ export function PJCalculatorSection() {
   };
 
   const whatsappMessage = resultado
-    ? `Olá! Usei a calculadora e descobri que posso economizar ${formatCurrency(resultado.economiaAnual)} por ano abrindo uma empresa. Quero saber mais!`
+    ? `Olá! Usei a calculadora CLT x PJ e descobri que posso economizar ${formatCurrency(resultado.economiaAnual)} por ano abrindo uma empresa. Quero saber mais!`
     : "Olá! Quero abrir minha empresa e reduzir meus impostos!";
 
   const whatsappLink = `https://wa.me/5519974158342?text=${encodeURIComponent(whatsappMessage)}`;
@@ -267,13 +304,13 @@ export function PJCalculatorSection() {
             CALCULADORA GRATUITA
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-4 mb-6 text-foreground">
-            Calculadora PJ x Autônomo
+            Calculadora CLT x PJ
             <span className="text-secondary">.</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Descubra <strong className="text-foreground">quanto você pode economizar</strong> migrando de autônomo para PJ.
-            Nossa calculadora mostra a diferença real entre pagar impostos como pessoa física (até 27,5% de IR) 
-            e como PJ no Simples Nacional (a partir de 6%).
+            Descubra <strong className="text-foreground">quanto você pode economizar</strong> migrando de CLT para PJ.
+            Compare impostos, benefícios e veja a economia real entre o regime de carteira assinada 
+            e abrir sua própria empresa.
           </p>
         </motion.div>
 
@@ -288,18 +325,21 @@ export function PJCalculatorSection() {
           <Card className="border-border shadow-card">
             <CardContent className="p-6 md:p-8">
               <h3 className="text-lg font-semibold text-foreground text-center mb-6">
-                Informe seus rendimentos atuais como autônomo:
+                Informe seus rendimentos atuais como CLT:
               </h3>
               
               <div className="grid md:grid-cols-3 gap-4 mb-6">
                 <div className="md:col-span-1">
-                  <Label className="text-foreground font-medium">Faturamento mensal bruto:</Label>
+                  <Label className="text-foreground font-medium">Salário bruto mensal (CLT):</Label>
                   <Input
                     placeholder="R$ 0,00"
-                    value={faturamento}
-                    onChange={(e) => handleInputChange(setFaturamento, e.target.value)}
-                    className="mt-1"
+                    value={salarioBruto}
+                    onChange={(e) => handleInputChange(setSalarioBruto, e.target.value)}
+                    className={`mt-1 ${formError ? "border-destructive" : ""}`}
                   />
+                  {formError && (
+                    <p className="text-xs text-destructive mt-1">{formError}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-muted-foreground text-sm">Vale-refeição/alimentação (opcional):</Label>
@@ -444,24 +484,24 @@ export function PJCalculatorSection() {
             {/* Por que PJ vale a pena */}
             <div className="mb-12">
               <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-                Por que ser PJ vale a pena<span className="text-secondary">?</span>
+                Por que migrar de CLT para PJ vale a pena<span className="text-secondary">?</span>
               </h3>
               <p className="text-muted-foreground mb-8">
-                Profissionais autônomos pagam impostos altíssimos como pessoa física (INSS de até 14% + IRRF de até 27,5%). 
+                Profissionais CLT pagam impostos altos (INSS de até 14% + IRRF de até 27,5%) e têm pouca flexibilidade. 
                 Ao abrir uma empresa no Simples Nacional, especialmente com o benefício do Fator R, você pode reduzir 
-                drasticamente essa carga tributária.
+                drasticamente essa carga tributária e aumentar seu ganho líquido.
               </p>
 
               <div className="grid md:grid-cols-2 gap-6">
-                {/* Autônomo Card */}
+                {/* CLT Card */}
                 <Card className="border-border">
                   <CardContent className="p-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <User className="h-5 w-5 text-muted-foreground" />
-                      <h4 className="font-semibold text-foreground">Autônomo (Pessoa Física)</h4>
+                      <Briefcase className="h-5 w-5 text-muted-foreground" />
+                      <h4 className="font-semibold text-foreground">CLT (Carteira Assinada)</h4>
                     </div>
                     <ul className="space-y-3">
-                      {desvantagensAutonomo.map((item, idx) => (
+                      {desvantagensCLT.map((item, idx) => (
                         <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
                           <X className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
                           <span>{item.text}</span>
@@ -508,10 +548,15 @@ export function PJCalculatorSection() {
                   <CheckCircle className="h-6 w-6 shrink-0 mt-1" />
                   <div>
                     <p className="text-lg">
-                      Na prática, profissionais que faturam{" "}
-                      <strong>{formatCurrency(resultado.salarioBrutoAutonomo)}/mês</strong> como autônomo podem economizar{" "}
-                      <strong>mais de {formatCurrency(resultado.economiaMensal)}/mês</strong> ao migrar para PJ.{" "}
-                      Isso representa <strong>mais de {formatCurrency(resultado.economiaAnual)}/ano</strong> no seu bolso!
+                      Com base no seu salário CLT de{" "}
+                      <strong>{formatCurrency(resultado.salarioBrutoCLT)}/mês</strong>, você recebe líquido{" "}
+                      <strong>{formatCurrency(resultado.salarioLiquidoCLT)}</strong>. Como PJ faturando o mesmo valor, você teria{" "}
+                      <strong>{formatCurrency(resultado.salarioLiquidoPJ)}/mês</strong> líquidos. {" "}
+                      {resultado.economiaMensal > 0 ? (
+                        <>Isso representa <strong>+{formatCurrency(resultado.economiaMensal)}/mês</strong> no seu bolso!</>
+                      ) : (
+                        <>Considere que como CLT você tem benefícios trabalhistas que compensam.</>
+                      )}
                     </p>
                   </div>
                 </div>

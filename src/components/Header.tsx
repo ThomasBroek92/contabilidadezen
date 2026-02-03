@@ -50,6 +50,7 @@ const conteudoLinks = [
   { name: "Calculadora PJ x CLT", href: "/conteudo/calculadora-pj-clt" },
   { name: "Gerador de RPA", href: "/conteudo/gerador-rpa" },
   { name: "Gerador de Invoice/Fatura", href: "/conteudo/gerador-invoice" },
+  { name: "Modelo de Contrato PJ", href: "/conteudo/modelo-contrato-pj" },
   { name: "Tabela CNAEs Simples Nacional", href: "/conteudo/tabela-simples-nacional" },
 ];
 

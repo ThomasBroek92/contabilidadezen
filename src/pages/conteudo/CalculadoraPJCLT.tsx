@@ -1356,67 +1356,6 @@ export default function CalculadoraPJCLT() {
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section className="py-12 lg:py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                  Confira nossos planos<span className="text-secondary">.</span>
-                </h2>
-                <p className="text-muted-foreground">
-                  Contabilidade especializada para profissionais da saúde
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                {PLANOS_ZEN.map((plan, index) => (
-                  <div
-                    key={index}
-                    className={`relative bg-card rounded-2xl p-6 border-2 ${
-                      plan.popular 
-                        ? "border-secondary shadow-glow" 
-                        : "border-border"
-                    } transition-all duration-300 hover:shadow-card`}
-                  >
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-xs font-semibold">
-                          <TrendingUp className="h-3 w-3" />
-                          Mais Popular
-                        </span>
-                      </div>
-                    )}
-
-                    <h3 className="text-lg font-bold mb-2">{plan.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
-
-                    <div className="mb-4">
-                      <span className="text-xs text-muted-foreground">A partir de</span>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-sm font-medium">R$</span>
-                        <span className="text-3xl font-bold">{plan.price.toFixed(2).replace(".", ",")}</span>
-                        <span className="text-muted-foreground text-sm">/mês</span>
-                      </div>
-                      <p className="text-xs text-secondary mt-1">{plan.ideal}</p>
-                    </div>
-
-                    <Button
-                      variant={plan.popular ? "zen" : "zen-outline"}
-                      className="w-full"
-                      asChild
-                    >
-                      <Link to="/contato">
-                        Começar agora
-                        <ArrowRight className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Final CTA */}
         <section className="py-16 lg:py-24 bg-gradient-to-br from-primary to-primary/80">

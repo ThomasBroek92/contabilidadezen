@@ -85,6 +85,7 @@ import {
 } from "@/lib/invoice-utils";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 // Google logo SVG component
 function GoogleLogo({ className = "h-5 w-5" }: { className?: string }) {
@@ -1140,7 +1141,7 @@ export default function GeradorInvoice() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild variant="whatsapp" size="lg">
                   <a
-                    href="https://wa.me/5519974158342?text=Olá! Vim do gerador de invoice e gostaria de saber mais sobre contabilidade para operações internacionais."
+                    href={getWhatsAppLink(WHATSAPP_MESSAGES.invoice)}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

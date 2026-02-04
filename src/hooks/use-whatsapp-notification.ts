@@ -1,6 +1,5 @@
 // WhatsApp notification hook for lead capture
-// Configure your team's WhatsApp number here
-const TEAM_WHATSAPP_NUMBER = "5519974158342";
+import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 interface LeadData {
   nome: string;
@@ -27,7 +26,7 @@ ${lead.economia ? `• Economia potencial: R$ ${lead.economia.toLocaleString('pt
 
 ⏰ Capturado em: ${new Date().toLocaleString('pt-BR')}`;
 
-    return `https://wa.me/${TEAM_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
   };
 
   const openWhatsAppNotification = (lead: LeadData) => {

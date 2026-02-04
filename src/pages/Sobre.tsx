@@ -13,6 +13,7 @@ import {
   CheckCircle,
   MessageCircle
 } from "lucide-react";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 const values = [
   {
@@ -234,7 +235,7 @@ export default function Sobre() {
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
                 <a
-                  href="https://wa.me/5519974158342?text=Olá! Gostaria de conhecer melhor a Contabilidade Zen."
+                  href={getWhatsAppLink(WHATSAPP_MESSAGES.sobre)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Calendar, ArrowRight } from "lucide-react";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 export function MedicosCTA() {
   const scrollToForm = () => {
@@ -45,7 +46,7 @@ export function MedicosCTA() {
               asChild
             >
               <a 
-                href="https://wa.me/5519974158342?text=Olá! Sou médico e gostaria de saber mais sobre contabilidade especializada."
+                href={getWhatsAppLink(WHATSAPP_MESSAGES.medicos)}
                 target="_blank"
                 rel="noopener noreferrer"
               >

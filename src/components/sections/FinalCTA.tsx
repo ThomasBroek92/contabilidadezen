@@ -5,15 +5,13 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { StaggerContainer, StaggerItem, Parallax } from "@/components/ui/scroll-animation";
 import youtubersCreatorsBg from "@/assets/youtubers-creators-bg.webp";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 export function FinalCTA() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   
-  const whatsappNumber = "5519974158342";
-  const whatsappMessage = encodeURIComponent(
-    "Olá! Gostaria de falar com um especialista sobre contabilidade para minha empresa."
-  );
+  const whatsappLink = getWhatsAppLink(WHATSAPP_MESSAGES.default);
 
   const benefits = [
     "Análise gratuita do seu caso",
@@ -75,7 +73,7 @@ export function FinalCTA() {
                 </Button>
                 <Button asChild variant="zen-outline" size="xl">
                   <a
-                    href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                    href={whatsappLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2"

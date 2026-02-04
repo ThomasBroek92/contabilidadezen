@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/SEOHead";
+import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 export default function PoliticaPrivacidade() {
   return (
@@ -180,7 +181,7 @@ export default function PoliticaPrivacidade() {
                     </a>
                   </li>
                   <li>
-                    WhatsApp: <a href="https://wa.me/5519974158342" className="text-secondary hover:underline">
+                    WhatsApp: <a href={`https://wa.me/${WHATSAPP_NUMBER}`} className="text-secondary hover:underline">
                       (19) 97415-8342
                     </a>
                   </li>

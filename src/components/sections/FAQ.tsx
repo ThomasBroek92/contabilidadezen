@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
 import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 const faqs = [
   // BLOCO 1 - CONTABILIDADE DIGITAL
@@ -92,7 +93,7 @@ export function FAQ() {
                   </Button>
                   <Button variant="whatsapp" asChild>
                     <a
-                      href="https://wa.me/5519974158342?text=Olá! Tenho uma dúvida sobre contabilidade para profissionais da saúde."
+                      href={getWhatsAppLink(WHATSAPP_MESSAGES.duvida)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

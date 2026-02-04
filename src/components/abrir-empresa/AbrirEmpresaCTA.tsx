@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 export function AbrirEmpresaCTA() {
   return (
@@ -40,7 +41,7 @@ export function AbrirEmpresaCTA() {
               asChild
             >
               <a
-                href="https://wa.me/5519974158342?text=Olá! Gostaria de abrir minha empresa com a Contabilidade Zen."
+                href={getWhatsAppLink(WHATSAPP_MESSAGES.abrirEmpresa)}
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -78,8 +78,7 @@ const benefits = [
   { icon: Globe, title: "Atendimento Nacional", description: "Clientes em todo Brasil" },
   { icon: TrendingDown, title: "Economia de Impostos", description: "Planejamento tributário" },
   { icon: Users, title: "Suporte Humano", description: "Contador dedicado" },
-  { icon: Building2, title: "Sem Deslocamento", description: "Resolva pelo celular" },
-  { icon: Heart, title: "Especialização", description: "Foco em profissionais da saúde" }
+  { icon: Building2, title: "Sem Deslocamento", description: "Resolva pelo celular" }
 ];
 
 const whatsappLink = "https://wa.me/5519974158342?text=Ol%C3%A1%21%20Vim%20pela%20p%C3%A1gina%20de%20cidades%20atendidas%20e%20gostaria%20de%20saber%20mais%20sobre%20os%20servi%C3%A7os%20da%20Contabilidade%20Zen.";

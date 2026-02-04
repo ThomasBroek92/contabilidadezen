@@ -16,7 +16,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ScrollAnimation, StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
+import { ScrollAnimation, StaggerContainer, StaggerItem, HoverLift, AnimatedIcon } from "@/components/ui/scroll-animation";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { useHoneypot } from "@/hooks/use-honeypot";
 import { toast } from "sonner";
@@ -39,7 +39,7 @@ import {
   ArrowLeftRight,
 } from "lucide-react";
 import { LeadGatedCalculator } from "@/components/sections/LeadGatedCalculator";
-import { HoverLift, AnimatedIcon } from "@/components/ui/scroll-animation";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 // Lazy load de componentes pesados
 const CustomerJourney = lazy(() =>
@@ -142,8 +142,8 @@ const aberturaInclusions = [
   "Sede virtual gratuita em Holambra (RMC)",
 ];
 
-const whatsappLink =
-  "https://wa.me/5519974158342?text=Ol%C3%A1%21%20Vim%20pela%20p%C3%A1gina%20de%20Contabilidade%20em%20Campinas%20e%20gostaria%20de%20saber%20mais%20sobre%20os%20servi%C3%A7os.";
+// Using centralized WhatsApp configuration
+const whatsappLink = getWhatsAppLink(WHATSAPP_MESSAGES.campinas);
 
 export default function ContabilidadeCampinas() {
   const { saveLead, isSaving } = useLeadCapture();

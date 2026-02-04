@@ -2,7 +2,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, MessageCircle } from "lucide-react";
 import heroImage from "@/assets/hero-healthcare.jpg";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 const benefits = ["Economia de impostos de forma legal", "Atendimento especializado para profissionais da saúde", "100% digital: sem burocracia e sem filas", "Consultoria tributária personalizada", "Suporte humanizado por especialistas"];
+
 export function Hero() {
   return <section className="relative overflow-hidden bg-gradient-hero py-16 lg:py-24">
       <div className="container mx-auto px-4">
@@ -43,7 +45,7 @@ export function Hero() {
                 </Link>
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
-                <a href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde." target="_blank" rel="noopener noreferrer">
+                <a href={getWhatsAppLink(WHATSAPP_MESSAGES.hero)} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-5 w-5" />
                   Fale pelo WhatsApp
                 </a>

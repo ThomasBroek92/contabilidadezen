@@ -234,8 +234,8 @@ export function FollowUpEngine({ onSelectLead }: FollowUpEngineProps) {
 
   const openChannel = (suggestion: FollowUpSuggestion) => {
     if (suggestion.suggestedChannel === 'whatsapp') {
-      const phone = suggestion.whatsapp.replace(/\D/g, '');
-      window.open(`https://wa.me/55${phone}`, '_blank');
+      const { getWhatsAppLinkForPhone } = require("@/lib/whatsapp");
+      window.open(getWhatsAppLinkForPhone(suggestion.whatsapp), '_blank');
     } else if (suggestion.suggestedChannel === 'email') {
       window.open(`mailto:${suggestion.email}`, '_blank');
     }

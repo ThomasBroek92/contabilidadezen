@@ -24,6 +24,7 @@ import {
   Heart
 } from "lucide-react";
 import { citiesData, rmcCities, sulSudesteCities, outrasCities } from "@/components/sections/CitiesSection/citiesData";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 const faqData = [
   {
@@ -82,7 +83,7 @@ const benefits = [
   { icon: Building2, title: "Sem Deslocamento", description: "Resolva pelo celular" }
 ];
 
-const whatsappLink = "https://wa.me/5519974158342?text=Ol%C3%A1%21%20Vim%20pela%20p%C3%A1gina%20de%20cidades%20atendidas%20e%20gostaria%20de%20saber%20mais%20sobre%20os%20servi%C3%A7os%20da%20Contabilidade%20Zen.";
+const whatsappLink = getWhatsAppLink(WHATSAPP_MESSAGES.cidadesAtendidas);
 
 export default function CidadesAtendidas() {
   return (

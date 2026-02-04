@@ -29,6 +29,7 @@ import {
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { toast } from "sonner";
 import { triggerWhatsAppEmphasis } from "@/components/FloatingWhatsApp";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 // Tabela INSS 2024 (para cálculo CLT)
 const INSS_FAIXAS = [
@@ -286,9 +287,9 @@ export function PJCalculatorSection() {
 
   const whatsappMessage = resultado
     ? `Olá! Usei a calculadora CLT x PJ e descobri que posso economizar ${formatCurrency(resultado.economiaAnual)} por ano abrindo uma empresa. Quero saber mais!`
-    : "Olá! Quero abrir minha empresa e reduzir meus impostos!";
+    : WHATSAPP_MESSAGES.abrirEmpresa;
 
-  const whatsappLink = `https://wa.me/5519974158342?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappLink = getWhatsAppLink(whatsappMessage);
 
   return (
     <section ref={sectionRef} className="py-12 lg:py-16 bg-gradient-to-b from-muted/30 to-background">

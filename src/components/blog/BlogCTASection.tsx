@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useHoneypot } from '@/hooks/use-honeypot';
 import { useWhatsAppNotification } from '@/hooks/use-whatsapp-notification';
+import { getWhatsAppLink } from '@/lib/whatsapp';
 import { 
   MessageSquare, 
   Calculator, 
@@ -190,7 +191,7 @@ export function BlogCTASection({ position, postTitle }: BlogCTASectionProps) {
   if (loading || !shouldShow()) return null;
 
   const economia = calcularEconomia();
-  const whatsappLink = `https://wa.me/5519974158342?text=${encodeURIComponent(settings?.cta_whatsapp_message || 'Olá! Gostaria de mais informações.')}`;
+  const whatsappLink = getWhatsAppLink(settings?.cta_whatsapp_message || 'Olá! Gostaria de mais informações.');
 
   return (
     <section className="my-12 py-8 px-6 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/10 rounded-2xl border border-primary/20">

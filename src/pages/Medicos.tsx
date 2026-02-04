@@ -15,6 +15,7 @@ import {
   Calculator,
   MessageCircle
 } from "lucide-react";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 const benefits = [
   {
@@ -106,7 +107,7 @@ export default function Medicos() {
                   </Button>
                   <Button variant="whatsapp" size="xl" asChild>
                     <a
-                      href="https://wa.me/5519974158342?text=Olá! Sou médico e gostaria de saber mais sobre contabilidade especializada."
+                      href={getWhatsAppLink(WHATSAPP_MESSAGES.medicos)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -259,7 +260,7 @@ export default function Medicos() {
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
                 <a
-                  href="https://wa.me/5519974158342?text=Olá! Sou médico e gostaria de agendar uma consulta gratuita."
+                  href={getWhatsAppLink(WHATSAPP_MESSAGES.medicosConsulta)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

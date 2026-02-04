@@ -2,12 +2,10 @@ import { MessageCircle, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CitiesWordCloud } from "./CitiesWordCloud";
 import { StaggerContainer, StaggerItem, AnimatedIcon } from "@/components/ui/scroll-animation";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 export function CitiesSection() {
-  const whatsappMessage = encodeURIComponent(
-    "Olá! Vi que vocês atendem minha região. Gostaria de saber mais sobre os serviços de contabilidade."
-  );
-  const whatsappLink = `https://wa.me/5519974158342?text=${whatsappMessage}`;
+  const whatsappLink = getWhatsAppLink(WHATSAPP_MESSAGES.cidadesRegiao);
 
   return (
     <section className="py-16 md:py-24 bg-gradient-to-b from-background to-muted/30">

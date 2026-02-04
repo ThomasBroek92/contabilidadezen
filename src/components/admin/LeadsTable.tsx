@@ -123,8 +123,8 @@ export function LeadsTable() {
   };
 
   const openWhatsApp = (whatsapp: string) => {
-    const phone = whatsapp.replace(/\D/g, '');
-    window.open(`https://wa.me/55${phone}`, '_blank');
+    const { getWhatsAppLinkForPhone } = require("@/lib/whatsapp");
+    window.open(getWhatsAppLinkForPhone(whatsapp), '_blank');
   };
 
   return (

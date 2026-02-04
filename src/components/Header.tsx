@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import logoFull from "@/assets/logo-full.webp";
+import { getWhatsAppLink, WHATSAPP_MESSAGES, WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 // Navigation links configuration
 const navLinks = [
@@ -68,7 +69,7 @@ const contactInfo = {
 const socialLinks = [
   { name: "Instagram", icon: Instagram, href: "https://www.instagram.com/thomasbroek.contador/" },
   { name: "LinkedIn", icon: Linkedin, href: "https://www.linkedin.com/company/contabilidade-zen" },
-  { name: "WhatsApp", icon: MessageCircle, href: "https://wa.me/5519974158342" },
+  { name: "WhatsApp", icon: MessageCircle, href: `https://wa.me/${WHATSAPP_NUMBER}` },
 ];
 
 export function Header() {
@@ -429,7 +430,7 @@ export function Header() {
                 </Button>
                 <Button variant="whatsapp" asChild>
                   <a 
-                    href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre os serviços da Contabilidade Zen." 
+                    href={getWhatsAppLink(WHATSAPP_MESSAGES.default)} 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >

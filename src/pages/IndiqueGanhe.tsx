@@ -31,6 +31,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { z } from "zod";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 const indicacaoSchema = z.object({
   nome: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100, "Nome muito longo"),
@@ -170,9 +171,7 @@ export default function IndiqueGanhe() {
     }
   };
 
-  const whatsappMessage = encodeURIComponent(
-    "Olá! Quero me tornar um parceiro embaixador do programa Indique e Ganhe da Contabilidade Zen!"
-  );
+  const whatsappLink = getWhatsAppLink(WHATSAPP_MESSAGES.parceiro);
 
   return (
     <>
@@ -227,7 +226,7 @@ export default function IndiqueGanhe() {
                     asChild
                   >
                     <a 
-                      href={`https://wa.me/5519974158342?text=${whatsappMessage}`}
+                      href={whatsappLink}
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
@@ -276,7 +275,7 @@ export default function IndiqueGanhe() {
                         className="mt-4"
                       >
                         <a 
-                          href={`https://wa.me/5519974158342?text=${whatsappMessage}`}
+                          href={whatsappLink}
                           target="_blank" 
                           rel="noopener noreferrer"
                         >
@@ -436,7 +435,7 @@ export default function IndiqueGanhe() {
                   asChild
                 >
                   <a 
-                    href={`https://wa.me/5519974158342?text=${whatsappMessage}`}
+                    href={whatsappLink}
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
@@ -452,9 +451,8 @@ export default function IndiqueGanhe() {
 
       <Footer />
 
-      {/* Botão flutuante WhatsApp de indicação */}
       <a
-        href={`https://wa.me/5519974158342?text=${whatsappMessage}`}
+        href={whatsappLink}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-24 right-6 z-40 bg-gradient-primary text-primary-foreground p-4 rounded-full shadow-glow hover:scale-110 transition-transform flex items-center gap-2 group"

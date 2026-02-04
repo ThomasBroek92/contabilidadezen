@@ -15,14 +15,21 @@ export const WHATSAPP_MESSAGES = {
   default: "Olá! Gostaria de mais informações sobre os serviços de contabilidade.",
   abrirEmpresa: "Olá! Gostaria de abrir minha empresa com a Contabilidade Zen.",
   campinas: "Olá! Vim pela página de Contabilidade em Campinas e gostaria de saber mais sobre os serviços.",
+  cidadesAtendidas: "Olá! Vim pela página de cidades atendidas e gostaria de saber mais sobre os serviços da Contabilidade Zen.",
   migracao: "Olá! Gostaria de migrar minha contabilidade para a Contabilidade Zen.",
   medicos: "Olá! Sou médico e gostaria de saber mais sobre contabilidade especializada.",
+  medicosConsulta: "Olá! Sou médico e gostaria de agendar uma consulta gratuita.",
   dentistas: "Olá! Sou dentista e gostaria de saber mais sobre contabilidade especializada.",
   psicologos: "Olá! Sou psicólogo(a) e gostaria de saber mais sobre contabilidade especializada.",
   representantes: "Olá! Sou representante comercial e gostaria de saber mais sobre contabilidade especializada.",
   calculadora: "Olá! Fiz a simulação no site e gostaria de saber mais sobre como economizar impostos.",
-  parceiro: "Olá! Sou parceiro embaixador e tenho uma nova indicação!",
-  duvida: "Olá! Tenho uma dúvida sobre contabilidade.",
+  parceiro: "Olá! Quero me tornar um parceiro embaixador do programa Indique e Ganhe da Contabilidade Zen!",
+  duvida: "Olá! Tenho uma dúvida sobre contabilidade para profissionais da saúde.",
+  hero: "Olá! Gostaria de saber mais sobre contabilidade para profissionais da saúde.",
+  sobre: "Olá! Gostaria de conhecer melhor a Contabilidade Zen.",
+  cidadesRegiao: "Olá! Vi que vocês atendem minha região. Gostaria de saber mais sobre os serviços de contabilidade.",
+  invoice: "Olá! Vim do gerador de invoice e gostaria de saber mais sobre contabilidade para operações internacionais.",
+  tabelaCnaes: "Olá! Vim da página de Tabela do Simples Nacional e gostaria de uma consultoria sobre o enquadramento tributário da minha empresa.",
 } as const;
 
 export type WhatsAppMessageKey = keyof typeof WHATSAPP_MESSAGES;

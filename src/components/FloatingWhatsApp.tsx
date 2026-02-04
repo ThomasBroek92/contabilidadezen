@@ -2,20 +2,18 @@ import { MessageCircle, X } from "lucide-react";
 import { m, useAnimation, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { trackWhatsAppClick } from "@/hooks/use-analytics";
-
-const WHATSAPP_NUMBER = "5519974158342";
-const WHATSAPP_MESSAGE = "Olá! Gostaria de mais informações sobre os serviços de contabilidade.";
+import { WHATSAPP_NUMBER, WHATSAPP_MESSAGES, getWhatsAppLink } from "@/lib/whatsapp";
 
 export function FloatingWhatsApp() {
   const [isEmphasized, setIsEmphasized] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
   const [tooltipDismissed, setTooltipDismissed] = useState(false);
   const controls = useAnimation();
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+  const whatsappUrl = getWhatsAppLink(WHATSAPP_MESSAGES.default);
   
   // Track WhatsApp click
   const handleWhatsAppClick = () => {
-    trackWhatsAppClick('floating_button', WHATSAPP_MESSAGE);
+    trackWhatsAppClick('floating_button', WHATSAPP_MESSAGES.default);
   };
 
   // Show tooltip after a short delay on page load

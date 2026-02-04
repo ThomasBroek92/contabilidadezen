@@ -2,13 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircle, Calculator, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 
 export const CNAECTASection = () => {
-  const whatsappNumber = "5519974158342";
-  const whatsappMessage = encodeURIComponent(
-    "Olá! Vim da página de Tabela do Simples Nacional e gostaria de uma consultoria sobre o enquadramento tributário da minha empresa."
-  );
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+  const whatsappLink = getWhatsAppLink(WHATSAPP_MESSAGES.tabelaCnaes);
 
   return (
     <section className="py-12">

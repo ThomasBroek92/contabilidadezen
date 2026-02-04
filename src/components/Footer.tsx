@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Logo e Descrição */}
           <div className="space-y-4">
             <img 
@@ -19,8 +19,8 @@ export function Footer() {
               decoding="async"
             />
             <p className="text-primary-foreground/80 text-sm leading-relaxed">
-              Contabilidade especializada para profissionais da saúde. 
-              Você cuida da saúde dos seus pacientes, nós cuidamos da saúde financeira do seu negócio.
+              Mais de 100 profissionais e empresas em todo Brasil já reduziram sua carga tributária 
+              com nossa contabilidade digital nichada. 100% online, 0% burocracia.
             </p>
             <div className="flex gap-4 pt-2">
               <a
@@ -44,16 +44,16 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Links Rápidos */}
+          {/* Soluções */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Links Rápidos</h3>
+            <h3 className="font-semibold text-lg mb-4">Soluções</h3>
             <ul className="space-y-3">
               {[
-                { name: "Para Médicos", href: "/medicos" },
-                { name: "Para Dentistas", href: "/servicos" },
-                { name: "Para Psicólogos", href: "/servicos" },
-                { name: "Abertura de Empresa", href: "/servicos" },
-                { name: "Blog", href: "/blog" },
+                { name: "Para Médicos", href: "/segmentos/contabilidade-para-medicos" },
+                { name: "Para Dentistas", href: "/segmentos/contabilidade-para-dentistas" },
+                { name: "Para Psicólogos", href: "/segmentos/contabilidade-para-psicologos" },
+                { name: "Para Representantes", href: "/segmentos/contabilidade-para-representantes-comerciais" },
+                { name: "Todos os Serviços", href: "/servicos" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link
@@ -67,23 +67,46 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Serviços */}
+          {/* Conteúdos */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Serviços</h3>
+            <h3 className="font-semibold text-lg mb-4">Conteúdos</h3>
             <ul className="space-y-3">
               {[
-                "Contabilidade Mensal",
-                "Planejamento Tributário",
-                "Abertura de CNPJ",
-                "Migração de Contabilidade",
-                "Consultoria Fiscal",
-              ].map((service) => (
-                <li key={service}>
+                { name: "Blog", href: "/blog" },
+                { name: "Calculadora PJ x CLT", href: "/conteudo/calculadora-pj-clt" },
+                { name: "Gerador de RPA", href: "/conteudo/gerador-rpa" },
+                { name: "Gerador de Invoice", href: "/conteudo/gerador-invoice" },
+                { name: "Modelo de Contrato PJ", href: "/conteudo/modelo-contrato-pj" },
+                { name: "Tabela CNAEs", href: "/conteudo/tabela-simples-nacional" },
+              ].map((link) => (
+                <li key={link.name}>
                   <Link
-                    to="/servicos"
+                    to={link.href}
                     className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm"
                   >
-                    {service}
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Empresa */}
+          <div>
+            <h3 className="font-semibold text-lg mb-4">Empresa</h3>
+            <ul className="space-y-3">
+              {[
+                { name: "Sobre Nós", href: "/sobre" },
+                { name: "Abrir Empresa", href: "/abrir-empresa" },
+                { name: "Indique e Ganhe", href: "/indique-e-ganhe" },
+                { name: "Contato", href: "/contato" },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
+                    className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm"
+                  >
+                    {link.name}
                   </Link>
                 </li>
               ))}

@@ -99,6 +99,7 @@ export function Footer() {
                 { name: "Sobre Nós", href: "/sobre" },
                 { name: "Abrir Empresa", href: "/abrir-empresa" },
                 { name: "Indique e Ganhe", href: "/indique-e-ganhe" },
+                { name: "Cidades Atendidas", href: "/cidades-atendidas" },
                 { name: "Contato", href: "/contato" },
               ].map((link) => (
                 <li key={link.name}>

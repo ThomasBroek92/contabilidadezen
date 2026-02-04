@@ -27,6 +27,7 @@ import ComparativoTributario from "./pages/conteudo/ComparativoTributario";
 import TabelaSimplesNacional from "./pages/conteudo/TabelaSimplesNacional";
 import ModeloContratoPJ from "./pages/conteudo/ModeloContratoPJ";
 import AbrirEmpresa from "./pages/AbrirEmpresa";
+import CidadesAtendidas from "./pages/CidadesAtendidas";
 import IndiqueGanhe from "./pages/IndiqueGanhe";
 import PartnerDashboard from "./pages/PartnerDashboard";
 import Auth from "./pages/Auth";
@@ -72,6 +73,7 @@ const App = () => (
             <Route path="/conteudo/tabela-simples-nacional" element={<TabelaSimplesNacional />} />
             <Route path="/conteudo/modelo-contrato-pj" element={<ModeloContratoPJ />} />
             <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
+            <Route path="/cidades-atendidas" element={<CidadesAtendidas />} />
             <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />
             <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
             <Route path="/auth" element={<Auth />} />

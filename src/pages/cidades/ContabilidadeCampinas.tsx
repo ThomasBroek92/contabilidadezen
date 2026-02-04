@@ -34,7 +34,12 @@ import {
   CheckCircle2,
   FileText,
   Loader2,
+  Sparkles,
+  Gift,
+  ArrowLeftRight,
 } from "lucide-react";
+import { LeadGatedCalculator } from "@/components/sections/LeadGatedCalculator";
+import { HoverLift, AnimatedIcon } from "@/components/ui/scroll-animation";
 
 // Lazy load de componentes pesados
 const CustomerJourney = lazy(() =>
@@ -433,54 +438,157 @@ export default function ContabilidadeCampinas() {
           </div>
         </section>
 
-        {/* Abertura de Empresa em Campinas */}
-        <section className="py-16 lg:py-20">
+        {/* Abertura de Empresa em Campinas - Card Dinâmico */}
+        <section className="py-16 lg:py-24">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <Badge variant="outline" className="mb-4">
-                  <Building2 className="w-4 h-4 mr-2" />
-                  Abertura de Empresa
-                </Badge>
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-                  Abra sua empresa em Campinas em até 10 dias
-                </h2>
-                <p className="text-muted-foreground">
-                  Cuidamos de todo o processo burocrático para você focar no que importa: seu negócio.
-                </p>
-              </div>
+            <ScrollAnimation>
+              <div className="space-y-6 max-w-6xl mx-auto">
+                {/* Card Principal - Abertura de Empresa */}
+                <HoverLift lift={6} scale={1.005}>
+                  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-secondary via-secondary/90 to-secondary/80 p-8 lg:p-10">
+                    {/* Decorative elements */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-secondary-foreground/5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary-foreground/5 rounded-full blur-2xl transform -translate-x-1/2 translate-y-1/2" />
+                    
+                    <div className="relative z-10">
+                      {/* Badge */}
+                      <Badge className="bg-secondary-foreground/20 text-secondary-foreground border-none mb-6">
+                        <Sparkles className="w-3 h-3 mr-1" />
+                        Mais Popular
+                      </Badge>
 
-              <Card className="mb-8">
-                <CardContent className="p-6 lg:p-8">
-                  <h3 className="font-semibold text-lg mb-4 text-foreground">O que está incluso:</h3>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {aberturaInclusions.map((item, index) => (
-                      <div key={index} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                        <span className="text-muted-foreground text-sm">{item}</span>
+                      <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+                        {/* Left Column - Content */}
+                        <div className="space-y-6">
+                          <div>
+                            <h2 className="text-3xl lg:text-4xl font-bold text-secondary-foreground mb-3">
+                              Abertura de Empresa em Campinas
+                            </h2>
+                            <p className="text-secondary-foreground/80 text-lg">
+                              Abra seu CNPJ em até 7 dias úteis com todo suporte especializado para a região.
+                            </p>
+                          </div>
+
+                          {/* Checkmarks */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {[
+                              "Análise na Prefeitura de Campinas",
+                              "Registro na Junta Comercial SP",
+                              "Inscrição Municipal Campinas",
+                              "Alvará e licenças inclusos",
+                              "Certificado Digital e-CNPJ",
+                              "Processo 100% digital",
+                            ].map((item, index) => (
+                              <div key={index} className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-secondary-foreground shrink-0" />
+                                <span className="text-secondary-foreground/90 text-sm">{item}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* CTA */}
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                            <Button 
+                              variant="outline" 
+                              size="lg" 
+                              asChild
+                              className="bg-secondary-foreground text-secondary hover:bg-secondary-foreground/90 border-none"
+                            >
+                              <Link to="/abrir-empresa">
+                                Abrir minha empresa
+                                <ArrowLeftRight className="h-4 w-4 ml-2" />
+                              </Link>
+                            </Button>
+                            <span className="text-secondary-foreground/70 text-sm">
+                              A partir de <strong className="text-secondary-foreground">R$ 0*</strong>
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Right Column - Sede Virtual + Calculator */}
+                        <div className="space-y-4">
+                          {/* Sede Virtual Highlight */}
+                          <div className="bg-secondary-foreground/10 backdrop-blur-sm rounded-xl p-4 border border-secondary-foreground/20 flex items-center gap-4">
+                            <AnimatedIcon type="bounce">
+                              <div className="w-12 h-12 bg-warning rounded-xl flex items-center justify-center shrink-0">
+                                <Gift className="h-6 w-6 text-warning-foreground" />
+                              </div>
+                            </AnimatedIcon>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Building2 className="h-4 w-4 text-secondary-foreground" />
+                                <span className="font-bold text-secondary-foreground text-sm">Sede Virtual em Holambra</span>
+                              </div>
+                              <p className="text-secondary-foreground/70 text-xs">
+                                Endereço comercial gratuito na RMC incluído para clientes.
+                              </p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="text-secondary-foreground/50 text-xs line-through">R$ 99/mês</p>
+                              <p className="text-secondary-foreground font-bold text-lg">R$ 0</p>
+                            </div>
+                          </div>
+
+                          {/* Calculator */}
+                          <LeadGatedCalculator source="abertura-campinas" variant="compact" />
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <FileText className="w-6 h-6 text-amber-600 flex-shrink-0" />
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-2">Sobre a Sede Virtual</h4>
-                      <p className="text-sm text-muted-foreground">
-                        A sede virtual <strong>gratuita</strong> está disponível em{" "}
-                        <strong>Holambra (RMC)</strong>. Para endereço comercial em Campinas, temos
-                        opções com parceiros locais por custo adicional. Consulte-nos para mais
-                        detalhes.
-                      </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </HoverLift>
+
+                {/* Card Secundário - Migração */}
+                <HoverLift lift={4} scale={1.005}>
+                  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-6 lg:p-8">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary-foreground/5 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+                    
+                    <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-6">
+                      <AnimatedIcon type="pulse">
+                        <div className="w-14 h-14 bg-primary-foreground/20 rounded-2xl flex items-center justify-center shrink-0">
+                          <ArrowLeftRight className="h-7 w-7 text-primary-foreground" />
+                        </div>
+                      </AnimatedIcon>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-xl font-bold text-primary-foreground">
+                            Migração de Contabilidade
+                          </h3>
+                          <Badge className="bg-primary-foreground/20 text-primary-foreground border-none text-xs">
+                            Gratuito
+                          </Badge>
+                        </div>
+                        <p className="text-primary-foreground/80 text-sm mb-4 lg:mb-0">
+                          Troque de contador sem dor de cabeça. Cuidamos de toda a comunicação com seu contador atual.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Badge variant="outline" className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/30">
+                          100% Digital
+                        </Badge>
+                        <Badge variant="outline" className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/30">
+                          15 dias
+                        </Badge>
+                        <Badge variant="outline" className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/30">
+                          Sem interrupção
+                        </Badge>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          asChild
+                          className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-none"
+                        >
+                          <Link to="/contato">
+                            Migrar agora
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </HoverLift>
+              </div>
+            </ScrollAnimation>
           </div>
         </section>
 

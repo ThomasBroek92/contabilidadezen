@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/SEOHead";
@@ -151,18 +152,22 @@ export default function CidadesAtendidas() {
             <div className="bg-card rounded-2xl p-8 lg:p-12 shadow-lg border">
               <div className="flex flex-wrap justify-center gap-3 lg:gap-4">
                 {rmcCities.map((city, index) => (
-                  <span
-                    key={city.name}
-                    className={`
-                      px-4 py-2 rounded-full transition-all
-                      ${index === 0 
-                        ? "bg-primary text-primary-foreground text-lg lg:text-xl font-bold shadow-md" 
-                        : "bg-secondary/20 text-foreground hover:bg-secondary/40 text-sm lg:text-base"
-                      }
-                    `}
-                  >
-                    {city.name}
-                  </span>
+                  index === 0 ? (
+                    <Link
+                      key={city.name}
+                      to="/contabilidade-em-campinas"
+                      className="px-4 py-2 rounded-full transition-all bg-primary text-primary-foreground text-lg lg:text-xl font-bold shadow-md hover:bg-primary/90 hover:scale-105"
+                    >
+                      {city.name}
+                    </Link>
+                  ) : (
+                    <span
+                      key={city.name}
+                      className="px-4 py-2 rounded-full transition-all bg-secondary/20 text-foreground hover:bg-secondary/40 text-sm lg:text-base"
+                    >
+                      {city.name}
+                    </span>
+                  )
                 ))}
               </div>
             </div>

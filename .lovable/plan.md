@@ -1,122 +1,220 @@
 
 
-# Plano: Implementar Scroll to Top Automatico em Navegacao
+# Plano: Reestruturar Footer com Navegação Espelhada do Header
 
-## Problema Identificado
+## Resumo
 
-Quando o usuario clica em um link ou botao que navega para outra pagina do site, a nova pagina abre na mesma posicao de scroll da pagina anterior, em vez de abrir no topo. Isso acontece porque o React Router mantem a posicao de scroll entre navegacoes por padrao.
-
-## Solucao
-
-Criar um componente `ScrollToTop` que escuta mudancas de rota e automaticamente rola a pagina para o topo. Este componente sera adicionado ao `App.tsx` e funcionara globalmente para todas as rotas.
+Atualizar o componente Footer.tsx para:
+1. Alterar o texto descritivo da marca
+2. Reorganizar os links em estrutura de tópicos e subtópicos que espelha o Header
 
 ---
 
-## Arquivos a Criar/Modificar
+## Alterações
 
-### 1. CRIAR: `src/components/ScrollToTop.tsx`
+### 1. Texto Descritivo (Coluna 1)
 
-Componente simples que usa `useLocation` do React Router para detectar mudancas de rota e executar `window.scrollTo(0, 0)`.
+**De:**
+```
+Contabilidade especializada para profissionais da saúde. 
+Você cuida da saúde dos seus pacientes, nós cuidamos da saúde financeira do seu negócio.
+```
+
+**Para:**
+```
+Mais de 100 profissionais e empresas em todo Brasil já reduziram sua carga tributária 
+com nossa contabilidade digital nichada. 100% online, 0% burocracia.
+```
+
+---
+
+### 2. Nova Estrutura de Links (Grid 5 Colunas)
 
 ```text
-+------------------------------------------+
-|  ScrollToTop Component                   |
-+------------------------------------------+
-|  - Importa useLocation e useEffect       |
-|  - Escuta mudancas em location.pathname  |
-|  - Executa window.scrollTo(0, 0)         |
-|  - Retorna null (nao renderiza nada)     |
-+------------------------------------------+
++---------------------------------------------------------------------------------+
+| FOOTER GRID - 5 COLUNAS (desktop)                                               |
++---------------------------------------------------------------------------------+
+| COLUNA 1        | COLUNA 2       | COLUNA 3       | COLUNA 4    | COLUNA 5      |
+| Logo + Desc     | Soluções       | Conteúdos      | Empresa     | Contato       |
++-----------------|----------------|----------------|-------------|---------------|
+| [Logo]          | Para Médicos   | Blog           | Sobre       | Telefone      |
+|                 | Para Dentistas | Calc. PJ/CLT   | Serviços    | (19) 97415... |
+| Texto novo      | Para Psicólog. | Gerador RPA    | Abrir Empr. |               |
+| atualizado      | Para Repres.   | Gerador Invoic.| Contato     | E-mail        |
+|                 | Todos Serviços | Contrato PJ    |             | contato@...   |
+| [LinkedIn]      |                | Tabela CNAEs   |             |               |
+| [Instagram]     |                |                |             | Endereço      |
+|                 |                |                |             | São Paulo, SP |
++---------------------------------------------------------------------------------+
 ```
 
-### 2. MODIFICAR: `src/App.tsx`
+---
 
-Importar e adicionar o componente `ScrollToTop` dentro do `BrowserRouter`, junto com o `AnalyticsTracker`.
+### 3. Mapeamento Completo dos Links
+
+**Coluna 2 - Soluções:**
+| Link | Destino |
+|------|---------|
+| Para Médicos | /segmentos/contabilidade-para-medicos |
+| Para Dentistas | /segmentos/contabilidade-para-dentistas |
+| Para Psicólogos | /segmentos/contabilidade-para-psicologos |
+| Para Representantes | /segmentos/contabilidade-para-representantes-comerciais |
+| Todos os Serviços | /servicos |
+
+**Coluna 3 - Conteúdos:**
+| Link | Destino |
+|------|---------|
+| Blog | /blog |
+| Calculadora PJ x CLT | /conteudo/calculadora-pj-clt |
+| Gerador de RPA | /conteudo/gerador-rpa |
+| Gerador de Invoice | /conteudo/gerador-invoice |
+| Modelo de Contrato PJ | /conteudo/modelo-contrato-pj |
+| Tabela CNAEs | /conteudo/tabela-simples-nacional |
+
+**Coluna 4 - Empresa:**
+| Link | Destino |
+|------|---------|
+| Sobre | /sobre |
+| Abrir Empresa | /abrir-empresa |
+| Indique e Ganhe | /indique-e-ganhe |
+| Contato | /contato |
+
+**Coluna 5 - Contato:**
+- Telefone: (19) 97415-8342
+- E-mail: contato@contabilidadezen.com.br
+- Endereço: São Paulo, SP
+
+---
+
+### 4. Layout Responsivo
+
+**Desktop (lg+):** Grid 5 colunas
+**Tablet (md):** Grid 2x2 + 1 (Logo full width, depois 2 colunas)
+**Mobile:** Stack vertical com todas as colunas empilhadas
+
+---
+
+## Arquivo a Modificar
+
+`src/components/Footer.tsx`
+
+### Mudanças Específicas:
+
+1. **Linha 21-24**: Alterar texto do parágrafo descritivo
+2. **Linha 9**: Alterar grid de `lg:grid-cols-4` para `lg:grid-cols-5`
+3. **Linhas 47-68**: Substituir seção "Links Rápidos" por "Soluções"
+4. **Linhas 70-91**: Substituir seção "Serviços" por "Conteúdos"
+5. **Adicionar**: Nova coluna "Empresa" com links institucionais
+6. **Manter**: Coluna de Contato (ajustar layout)
+
+---
+
+## Código das Novas Seções
+
+### Seção Soluções (Coluna 2):
+```tsx
+<div>
+  <h3 className="font-semibold text-lg mb-4">Soluções</h3>
+  <ul className="space-y-3">
+    {[
+      { name: "Para Médicos", href: "/segmentos/contabilidade-para-medicos" },
+      { name: "Para Dentistas", href: "/segmentos/contabilidade-para-dentistas" },
+      { name: "Para Psicólogos", href: "/segmentos/contabilidade-para-psicologos" },
+      { name: "Para Representantes", href: "/segmentos/contabilidade-para-representantes-comerciais" },
+      { name: "Todos os Serviços", href: "/servicos" },
+    ].map((link) => (
+      <li key={link.name}>
+        <Link to={link.href} className="...">
+          {link.name}
+        </Link>
+      </li>
+    ))}
+  </ul>
+</div>
+```
+
+### Seção Conteúdos (Coluna 3):
+```tsx
+<div>
+  <h3 className="font-semibold text-lg mb-4">Conteúdos</h3>
+  <ul className="space-y-3">
+    {[
+      { name: "Blog", href: "/blog" },
+      { name: "Calculadora PJ x CLT", href: "/conteudo/calculadora-pj-clt" },
+      { name: "Gerador de RPA", href: "/conteudo/gerador-rpa" },
+      { name: "Gerador de Invoice", href: "/conteudo/gerador-invoice" },
+      { name: "Modelo de Contrato PJ", href: "/conteudo/modelo-contrato-pj" },
+      { name: "Tabela CNAEs", href: "/conteudo/tabela-simples-nacional" },
+    ].map((link) => (
+      <li key={link.name}>
+        <Link to={link.href} className="...">
+          {link.name}
+        </Link>
+      </li>
+    ))}
+  </ul>
+</div>
+```
+
+### Seção Empresa (Coluna 4 - NOVA):
+```tsx
+<div>
+  <h3 className="font-semibold text-lg mb-4">Empresa</h3>
+  <ul className="space-y-3">
+    {[
+      { name: "Sobre Nós", href: "/sobre" },
+      { name: "Abrir Empresa", href: "/abrir-empresa" },
+      { name: "Indique e Ganhe", href: "/indique-e-ganhe" },
+      { name: "Contato", href: "/contato" },
+    ].map((link) => (
+      <li key={link.name}>
+        <Link to={link.href} className="...">
+          {link.name}
+        </Link>
+      </li>
+    ))}
+  </ul>
+</div>
+```
+
+---
+
+## Resultado Visual Esperado
 
 ```text
-ANTES (linha 82-83):
-          </Routes>
-          <AnalyticsTracker />
-
-DEPOIS:
-          </Routes>
-          <ScrollToTop />
-          <AnalyticsTracker />
++-----------------------------------------------------------------------------------+
+|  [LOGO]                                                                           |
+|                                                                                   |
+|  Mais de 100 profissionais e empresas em todo Brasil já reduziram sua carga      |
+|  tributária com nossa contabilidade digital nichada. 100% online, 0% burocracia. |
+|                                                                                   |
+|  [in] [ig]                                                                        |
++-----------------------------------------------------------------------------------+
+|  Soluções           | Conteúdos              | Empresa          | Contato         |
+|---------------------|------------------------|------------------|-----------------|
+|  Para Médicos       | Blog                   | Sobre Nós        | Telefone        |
+|  Para Dentistas     | Calculadora PJ x CLT   | Abrir Empresa    | (19) 97415-8342 |
+|  Para Psicólogos    | Gerador de RPA         | Indique e Ganhe  |                 |
+|  Para Representantes| Gerador de Invoice     | Contato          | E-mail          |
+|  Todos os Serviços  | Modelo de Contrato PJ  |                  | contato@...     |
+|                     | Tabela CNAEs           |                  |                 |
+|                     |                        |                  | Endereço        |
+|                     |                        |                  | São Paulo, SP   |
++-----------------------------------------------------------------------------------+
+|  CNPJ: 46.466.747/0001-30 | CRC-SP 337693/O-7                                     |
+|  © 2026 Contabilidade Zen | Política de Privacidade | Termos de Uso              |
++-----------------------------------------------------------------------------------+
 ```
 
 ---
 
-## Implementacao Tecnica
+## Ordem de Implementação
 
-### Componente ScrollToTop
-
-```typescript
-// src/components/ScrollToTop.tsx
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
-
-export function ScrollToTop() {
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    // Scroll para o topo quando a rota mudar
-    window.scrollTo(0, 0);
-  }, [pathname]);
-
-  return null;
-}
-```
-
-### Consideracoes
-
-1. **Comportamento padrao**: Scroll instantaneo para o topo (sem animacao), pois o usuario espera ver o inicio da nova pagina imediatamente.
-
-2. **Excecao para hash links**: Se a URL contiver um hash (ex: `/pagina#secao`), o navegador cuida do scroll para o elemento. O componente nao interfere com esse comportamento nativo.
-
-3. **Back/Forward do navegador**: O componente rola para o topo mesmo ao usar os botoes voltar/avancar. Se preferir manter a posicao ao voltar, podemos usar `scrollRestoration: 'manual'` do History API.
-
----
-
-## Ordem de Implementacao
-
-1. Criar arquivo `src/components/ScrollToTop.tsx`
-2. Importar e adicionar ao `src/App.tsx`
-3. Testar navegacao entre paginas
-
----
-
-## Atualizacao do Custom Knowledge
-
-Apos a implementacao, o seguinte sera adicionado ao Custom Knowledge do projeto para evitar que este problema ocorra novamente:
-
-```text
-#NAVIGATION_SCROLL_RULES
-
-## Regras de Navegacao e Scroll
-
-1. **Scroll to Top Automatico**
-   - O componente ScrollToTop.tsx garante que toda navegacao inicia no topo da pagina
-   - Localizado em: src/components/ScrollToTop.tsx
-   - Adicionado ao App.tsx dentro do BrowserRouter
-
-2. **NUNCA remover o ScrollToTop**
-   - Este componente e essencial para UX
-   - Sem ele, paginas abrem no meio do scroll
-
-3. **Smooth scroll interno**
-   - Para scroll dentro da mesma pagina, usar scrollIntoView({ behavior: "smooth" })
-   - Exemplo: document.getElementById("secao")?.scrollIntoView({ behavior: "smooth" })
-
-4. **Hash links**
-   - Links com # (ex: /pagina#faq) funcionam normalmente
-   - O navegador cuida do scroll para o elemento com id correspondente
-```
-
----
-
-## Resultado Esperado
-
-- Todas as navegacoes via Link, navigate(), ou clique em botoes que mudam de rota iniciarao no topo da pagina
-- Comportamento consistente em todo o site
-- Diretriz documentada para manutencao futura
+1. Alterar texto descritivo (linha 21-24)
+2. Atualizar grid para 5 colunas
+3. Refatorar coluna "Links Rápidos" → "Soluções" com links corretos
+4. Refatorar coluna "Serviços" → "Conteúdos" com links de ferramentas
+5. Adicionar nova coluna "Empresa"
+6. Ajustar coluna "Contato" (manter estrutura atual)
+7. Testar responsividade em mobile/tablet
 

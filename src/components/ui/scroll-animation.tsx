@@ -1,5 +1,6 @@
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef, ReactNode } from "react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 interface ScrollAnimationProps {
   children: ReactNode;
@@ -30,6 +31,12 @@ export function ScrollAnimation({
 }: ScrollAnimationProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once, margin: "-100px" });
+  const reduceMotion = useReducedMotion();
+
+  // Se deve reduzir movimento, renderizar sem animação
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   const initialPosition = directionVariants[direction];
 
@@ -85,6 +92,12 @@ export function StaggerContainer({
 }: StaggerContainerProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const reduceMotion = useReducedMotion();
+
+  // Se deve reduzir movimento, renderizar sem animação
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <motion.div
@@ -115,6 +128,13 @@ export function StaggerItem({
   className?: string;
   type?: "slide" | "scale" | "hybrid";
 }) {
+  const reduceMotion = useReducedMotion();
+
+  // Se deve reduzir movimento, renderizar sem animação
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   const variants = {
     hidden: { 
       opacity: 0, 
@@ -139,7 +159,7 @@ export function StaggerItem({
   );
 }
 
-// Parallax component for hero sections
+// Parallax component for hero sections - Disabled on mobile for performance
 interface ParallaxProps {
   children: ReactNode;
   className?: string;
@@ -154,6 +174,7 @@ export function Parallax({
   direction = "up",
 }: ParallaxProps) {
   const ref = useRef(null);
+  const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
@@ -161,6 +182,11 @@ export function Parallax({
 
   const multiplier = direction === "up" ? -1 : 1;
   const y = useTransform(scrollYProgress, [0, 1], [0, 100 * speed * multiplier]);
+
+  // Desabilitar parallax em mobile/reduced motion para performance
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <motion.div ref={ref} style={{ y }} className={className}>
@@ -185,6 +211,12 @@ export function AnimatedIcon({
 }: AnimatedIconProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const reduceMotion = useReducedMotion();
+
+  // Se deve reduzir movimento, renderizar sem animação
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   const getAnimation = () => {
     switch (type) {
@@ -193,7 +225,8 @@ export function AnimatedIcon({
       case "pulse":
         return { scale: [1, 1.1, 1], transition: { duration: 0.5, delay } };
       case "float":
-        return { y: [0, -5, 0], transition: { duration: 0.8, delay, repeat: Infinity, repeatDelay: 2 } };
+        // Removido repeat: Infinity para melhor performance
+        return { y: [0, -5, 0], transition: { duration: 0.8, delay } };
       default:
         return { y: [0, -8, 0], transition: { duration: 0.4, delay } };
     }
@@ -211,7 +244,7 @@ export function AnimatedIcon({
   );
 }
 
-// Hover lift effect for cards and buttons
+// Hover lift effect for cards and buttons - CSS-based for better performance
 interface HoverLiftProps {
   children: ReactNode;
   className?: string;
@@ -222,21 +255,14 @@ interface HoverLiftProps {
 export function HoverLift({ 
   children, 
   className = "", 
-  lift = 4,
-  scale = 1.01,
 }: HoverLiftProps) {
+  // Usando CSS transitions ao invés de Framer Motion para melhor performance
   return (
-    <motion.div
-      whileHover={{
-        y: -lift,
-        scale,
-        zIndex: 30,
-        transition: { duration: 0.25, ease: "easeOut" },
-      }}
-      className={`relative ${className}`}
+    <div
+      className={`relative transition-transform duration-300 ease-out hover:-translate-y-1 hover:scale-[1.01] ${className}`}
       style={{ zIndex: 1 }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

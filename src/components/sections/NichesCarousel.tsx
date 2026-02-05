@@ -26,7 +26,6 @@ import {
   UserCheck,
 } from "lucide-react";
 import { StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/scroll-animation";
-import { motion } from "framer-motion";
 import representanteComercialBg from "@/assets/representante-comercial-bg.webp";
 import advogadosBg from "@/assets/advogados-bg.webp";
 import profissionaisSaudeBg from "@/assets/profissionais-saude-bg.webp";
@@ -52,7 +51,6 @@ const niches = [
       "Fator R otimizado",
     ],
     href: "/medicos",
-    // Verde-azulado: saúde, bem-estar, confiança médica
     gradient: "from-teal-600 to-teal-500",
     backgroundImage: profissionaisSaudeBg,
   },
@@ -65,7 +63,6 @@ const niches = [
       "Sociedade de advogados (OAB)",
     ],
     href: "/contato",
-    // Azul escuro/marinho: autoridade, justiça, profissionalismo
     gradient: "from-slate-800 to-slate-700",
     backgroundImage: advogadosBg,
   },
@@ -78,7 +75,6 @@ const niches = [
       "Múltiplas representadas",
     ],
     href: "/segmentos/contabilidade-para-representantes-comerciais",
-    // Laranja: vendas, energia, dinamismo comercial
     gradient: "from-orange-500 to-orange-400",
     backgroundImage: representanteComercialBg,
   },
@@ -93,7 +89,6 @@ const niches = [
       "Faturamento internacional",
     ],
     href: "/contato",
-    // Roxo/violeta: digital, criatividade, inovação
     gradient: "from-purple-600 to-purple-500",
     backgroundImage: produtoresDigitaisBg,
   },
@@ -107,7 +102,6 @@ const niches = [
       "Otimização de pró-labore",
     ],
     href: "/contato",
-    // Ciano/azul elétrico: tecnologia, inovação, digital
     gradient: "from-cyan-600 to-cyan-500",
     backgroundImage: profissionaisTiBg,
   },
@@ -122,7 +116,6 @@ const niches = [
       "Câmbio e compliance",
     ],
     href: "/contato",
-    // Azul royal: internacional, corporativo, confiança global
     gradient: "from-blue-600 to-blue-500",
     backgroundImage: exportacaoServicosBg,
   },
@@ -136,7 +129,6 @@ const niches = [
       "Otimização de pró-labore",
     ],
     href: "/contato",
-    // Âmbar/dourado: versatilidade, acessibilidade, profissionalismo
     gradient: "from-amber-600 to-amber-500",
     backgroundImage: prestadoresServicoBg,
   },
@@ -150,7 +142,6 @@ const niches = [
       "Planejamento tributário PJ",
     ],
     href: "/contato",
-    // Índigo: corporativo, sério, profissional
     gradient: "from-indigo-600 to-indigo-500",
     backgroundImage: profissionaisPjBg,
   },
@@ -165,7 +156,6 @@ const niches = [
       "Substituição tributária",
     ],
     href: "/contato",
-    // Rosa/magenta: comércio, compras, energia (Shopee/ML)
     gradient: "from-pink-600 to-pink-500",
     backgroundImage: ecommerceBg,
   },
@@ -180,7 +170,6 @@ const niches = [
       "Sociedade médica",
     ],
     href: "/contato",
-    // Verde esmeralda: saúde institucional, médico, confiável
     gradient: "from-emerald-600 to-emerald-500",
     backgroundImage: clinicasConsultoriosBg,
   },
@@ -195,7 +184,6 @@ const niches = [
       "Direitos autorais",
     ],
     href: "/contato",
-    // Vermelho: YouTube, energia, paixão, criatividade
     gradient: "from-red-600 to-red-500",
     backgroundImage: youtubersBg,
   },
@@ -210,7 +198,6 @@ const niches = [
       "Fotógrafos e Videomakers",
     ],
     href: "/contato",
-    // Cinza ardósia: neutro, versátil, acolhedor
     gradient: "from-slate-600 to-slate-500",
     backgroundImage: outrosSegmentosBg,
   },
@@ -260,14 +247,12 @@ export function NichesCarousel() {
             <CarouselContent className="-ml-4">
               {niches.map((niche, index) => (
                 <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                  <motion.div 
-                    className="h-full"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05, duration: 0.4 }}
-                    viewport={{ once: true }}
+                  {/* Removed motion.div with whileInView - using CSS animations */}
+                  <div 
+                    className="h-full animate-fade-up"
+                    style={{ animationDelay: `${index * 0.05}s` }}
                   >
-                    <HoverLift lift={8} className="h-full">
+                    <HoverLift className="h-full">
                       <div 
                         className={`group relative h-[420px] rounded-2xl overflow-hidden ${!niche.backgroundImage ? `bg-gradient-to-br ${niche.gradient}` : ''} p-6 flex flex-col justify-between transition-all duration-300`}
                         style={{ isolation: 'isolate' }}
@@ -327,7 +312,7 @@ export function NichesCarousel() {
                         </div>
                       </div>
                     </HoverLift>
-                  </motion.div>
+                  </div>
                 </CarouselItem>
               ))}
             </CarouselContent>

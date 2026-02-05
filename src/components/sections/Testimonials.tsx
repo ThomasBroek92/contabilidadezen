@@ -11,6 +11,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselDots,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
@@ -335,10 +336,11 @@ export function Testimonials() {
                 ))
               )}
             </CarouselContent>
-            <div className="flex justify-center gap-2 mt-8">
+            <div className="hidden sm:flex justify-center gap-2 mt-8">
               <CarouselPrevious className="static translate-y-0" />
               <CarouselNext className="static translate-y-0" />
             </div>
+            <CarouselDots className="sm:hidden" />
           </Carousel>
         </motion.div>
 

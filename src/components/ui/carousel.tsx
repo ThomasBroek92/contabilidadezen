@@ -186,7 +186,7 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProp
         variant={variant}
         size={size}
         className={cn(
-          "absolute h-8 w-8 rounded-full",
+          "absolute h-11 w-11 rounded-full",
           orientation === "horizontal"
             ? "-left-12 top-1/2 -translate-y-1/2"
             : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -194,10 +194,11 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, React.ComponentProp
         )}
         disabled={!canScrollPrev}
         onClick={scrollPrev}
+        aria-label="Slide anterior"
         {...props}
       >
-        <ArrowLeft className="h-4 w-4" />
-        <span className="sr-only">Previous slide</span>
+        <ArrowLeft className="h-5 w-5" />
+        <span className="sr-only">Slide anterior</span>
       </Button>
     );
   },
@@ -214,7 +215,7 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<ty
         variant={variant}
         size={size}
         className={cn(
-          "absolute h-8 w-8 rounded-full",
+          "absolute h-11 w-11 rounded-full",
           orientation === "horizontal"
             ? "-right-12 top-1/2 -translate-y-1/2"
             : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -222,14 +223,54 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, React.ComponentProps<ty
         )}
         disabled={!canScrollNext}
         onClick={scrollNext}
+        aria-label="Próximo slide"
         {...props}
       >
-        <ArrowRight className="h-4 w-4" />
-        <span className="sr-only">Next slide</span>
+        <ArrowRight className="h-5 w-5" />
+        <span className="sr-only">Próximo slide</span>
       </Button>
     );
   },
 );
 CarouselNext.displayName = "CarouselNext";
 
-export { type CarouselApi, Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext };
+// Carousel Dots for mobile navigation
+function CarouselDots({ className }: { className?: string }) {
+  const { api } = useCarousel();
+  const [current, setCurrent] = React.useState(0);
+  const [count, setCount] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!api) return;
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap());
+
+    const onSelect = () => setCurrent(api.selectedScrollSnap());
+    api.on("select", onSelect);
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
+
+  if (count <= 1) return null;
+
+  return (
+    <div className={cn("flex justify-center gap-2 mt-4", className)}>
+      {Array.from({ length: count }).map((_, i) => (
+        <button
+          key={i}
+          className={cn(
+            "w-2.5 h-2.5 rounded-full transition-colors",
+            i === current ? "bg-secondary" : "bg-muted-foreground/30"
+          )}
+          onClick={() => api?.scrollTo(i)}
+          aria-label={`Ir para slide ${i + 1}`}
+        />
+      ))}
+    </div>
+  );
+}
+CarouselDots.displayName = "CarouselDots";
+
+export { type CarouselApi, Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, CarouselDots };

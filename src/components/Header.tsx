@@ -322,7 +322,7 @@ export function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t border-border bg-background animate-slide-up">
+          <div className="lg:hidden border-t border-border bg-background animate-slide-up max-h-[calc(100vh-4rem)] overflow-y-auto">
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {/* Search on mobile */}
               <form onSubmit={handleSearch} className="flex gap-2 pb-4 border-b border-border">

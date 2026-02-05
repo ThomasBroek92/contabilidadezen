@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 import { z } from "zod";
 
 const referralSchema = z.object({
@@ -455,11 +456,7 @@ export default function PartnerDashboard() {
                   size="lg"
                   asChild
                 >
-                  <a 
-                    href={`https://wa.me/5519974158342?text=${encodeURIComponent("Olá! Sou parceiro embaixador e tenho uma nova indicação!")}`}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
+                  <a {...getWhatsAppAnchorPropsByKey("parceiroIndicacao")}>
                     <MessageCircle className="h-5 w-5 mr-2" />
                     Indicar via WhatsApp
                   </a>

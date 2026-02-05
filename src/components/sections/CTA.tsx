@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle, CheckCircle } from "lucide-react";
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 export function CTA() {
   return (
@@ -46,11 +47,7 @@ export function CTA() {
               variant="whatsapp"
               asChild
             >
-              <a
-                href="https://wa.me/5519974158342?text=Olá! Gostaria de agendar uma consulta gratuita sobre contabilidade para profissionais da saúde."
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a {...getWhatsAppAnchorPropsByKey("saude")}>
                 <MessageCircle className="h-5 w-5" />
                 Fale pelo WhatsApp
               </a>

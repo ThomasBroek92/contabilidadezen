@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Calendar } from "lucide-react";
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 export function RepresentantesCTA() {
   const scrollToForm = () => {
@@ -44,11 +45,7 @@ export function RepresentantesCTA() {
               className="text-base border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
               asChild
             >
-              <a 
-                href="https://wa.me/5519974158342?text=Olá! Sou representante comercial e gostaria de saber mais sobre contabilidade especializada."
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a {...getWhatsAppAnchorPropsByKey("representantes")}>
                 <MessageCircle className="h-5 w-5 mr-2" />
                 Falar no WhatsApp
               </a>

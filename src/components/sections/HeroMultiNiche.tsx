@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Parallax, StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
 import heroFounder from "@/assets/hero-founder.webp";
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 const benefitCards = [
   {
@@ -134,11 +135,7 @@ export function HeroMultiNiche() {
                   className="border-secondary text-secondary hover:bg-secondary hover:text-white"
                   asChild
                 >
-                  <a 
-                    href="https://wa.me/5519974158342?text=Olá! Gostaria de falar com um especialista sobre contabilidade." 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
+                  <a {...getWhatsAppAnchorPropsByKey("heroMultiNiche")}>
                     <MessageCircle className="h-5 w-5" />
                     Falar com Especialista
                   </a>

@@ -294,8 +294,8 @@ export function LeadDetail({ leadId, onClose, onUpdate }: LeadDetailProps) {
 
   const openWhatsApp = () => {
     if (lead?.whatsapp) {
-      const phone = lead.whatsapp.replace(/\D/g, '');
-      window.open(`https://wa.me/55${phone}`, '_blank');
+      const { openWhatsAppForPhone } = require("@/lib/whatsapp");
+      openWhatsAppForPhone(lead.whatsapp);
     }
   };
 

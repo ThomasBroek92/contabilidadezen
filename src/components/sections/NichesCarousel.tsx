@@ -6,6 +6,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselDots,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import {
@@ -332,6 +333,7 @@ export function NichesCarousel() {
             </CarouselContent>
             <CarouselPrevious className="hidden md:flex -left-4 bg-card border-border hover:bg-muted" />
             <CarouselNext className="hidden md:flex -right-4 bg-card border-border hover:bg-muted" />
+            <CarouselDots className="md:hidden" />
           </Carousel>
         </StaggerItem>
 

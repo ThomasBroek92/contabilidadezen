@@ -91,11 +91,11 @@ export function HeroMultiNiche() {
 
             {/* Stats */}
             <StaggerItem type="scale">
-              <div className="flex items-center gap-8 py-4">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8 py-4">
                 {stats.map((stat, index) => (
                   <motion.div 
                     key={index} 
-                    className="flex items-center gap-3"
+                    className="flex items-center gap-2 sm:gap-3"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 + index * 0.1 }}
@@ -105,11 +105,11 @@ export function HeroMultiNiche() {
                       animate={{ rotate: [0, -5, 5, 0] }}
                       transition={{ duration: 0.5, delay: 1 + index * 0.2 }}
                     >
-                      <stat.icon className="h-6 w-6 text-secondary" />
+                      <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                     </motion.div>
                     <div>
-                      <span className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</span>
-                      <p className="text-xs text-muted-foreground">{stat.label}</p>
+                      <span className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{stat.value}</span>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -118,10 +118,11 @@ export function HeroMultiNiche() {
 
             {/* CTAs */}
             <StaggerItem type="hybrid">
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
                 <Button 
-                  size="xl" 
+                  size="lg" 
                   variant="cta-glow"
+                  className="w-full sm:w-auto sm:text-base"
                   asChild
                 >
                   <Link to="/calculadora-pj-clt">
@@ -130,9 +131,9 @@ export function HeroMultiNiche() {
                   </Link>
                 </Button>
                 <Button 
-                  size="xl" 
+                  size="lg" 
                   variant="outline"
-                  className="border-secondary text-secondary hover:bg-secondary hover:text-white"
+                  className="w-full sm:w-auto border-secondary text-secondary hover:bg-secondary hover:text-white sm:text-base"
                   asChild
                 >
                   <a {...getWhatsAppAnchorPropsByKey("heroMultiNiche")}>
@@ -236,7 +237,7 @@ export function HeroMultiNiche() {
         </div>
 
         {/* Benefit Cards - Bottom with stagger */}
-        <StaggerContainer className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 lg:mt-0" staggerDelay={0.1}>
+        <StaggerContainer className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 xs:gap-4 mt-8 lg:mt-0" staggerDelay={0.1}>
           {benefitCards.map((card, index) => (
             <StaggerItem key={index} type="scale">
               <motion.div

@@ -67,7 +67,7 @@ export function FloatingWhatsApp() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.9 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-24 right-6 z-50 max-w-[220px]"
+            className="fixed bottom-24 right-4 sm:right-6 z-50 max-w-[200px] sm:max-w-[220px]"
           >
             <div className="bg-card border border-border shadow-xl rounded-2xl p-4 relative">
               {/* Close button */}

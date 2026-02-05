@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check, MessageCircle } from "lucide-react";
-import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { StaggerContainer, StaggerItem, Parallax } from "@/components/ui/scroll-animation";
+import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
 import youtubersCreatorsBg from "@/assets/youtubers-creators-bg.webp";
 import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 export function FinalCTA() {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const reduceMotion = useReducedMotion();
   
   const whatsappLink = getWhatsAppLink(WHATSAPP_MESSAGES.default);
 
@@ -42,25 +42,22 @@ export function FinalCTA() {
               </p>
             </StaggerItem>
 
-            {/* Lista de Benefícios */}
+            {/* Lista de Benefícios - CSS animations */}
             <StaggerItem type="slide">
               <ul className="space-y-3 mb-10">
                 {benefits.map((benefit, index) => (
-                  <motion.li 
+                  <li 
                     key={index} 
-                    className="flex items-center gap-3"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
+                    className="flex items-center gap-3 animate-fade-up"
+                    style={{ animationDelay: `${0.1 * index}s` }}
                   >
-                    <motion.div 
-                      className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0"
-                      whileHover={{ scale: 1.2, backgroundColor: "hsl(var(--secondary) / 0.3)" }}
+                    <div 
+                      className="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0 transition-all duration-200 hover:scale-110 hover:bg-secondary/20"
                     >
                       <Check className="w-4 h-4 text-secondary" />
-                    </motion.div>
+                    </div>
                     <span className="text-foreground/80">{benefit}</span>
-                  </motion.li>
+                  </li>
                 ))}
               </ul>
             </StaggerItem>
@@ -86,19 +83,14 @@ export function FinalCTA() {
             </StaggerItem>
           </StaggerContainer>
 
-          {/* Coluna Direita: Imagem */}
-          <Parallax speed={0.15} className="order-1 lg:order-2 relative">
-            <motion.div 
-              className="relative w-full aspect-square max-w-md mx-auto"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+          {/* Coluna Direita: Imagem - Static, no Parallax on mobile */}
+          <div className="order-1 lg:order-2 relative">
+            <div 
+              className={`relative w-full aspect-square max-w-md mx-auto ${!reduceMotion ? 'animate-fade-up' : ''}`}
             >
-              {/* Container circular com sombra */}
-              <motion.div 
-                className="absolute inset-0 rounded-full overflow-hidden shadow-2xl border-4 border-secondary/20"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3 }}
+              {/* Container circular com sombra - CSS hover */}
+              <div 
+                className="absolute inset-0 rounded-full overflow-hidden shadow-2xl border-4 border-secondary/20 transition-transform duration-300 hover:scale-105"
               >
                 <img
                   src={youtubersCreatorsBg}
@@ -109,9 +101,9 @@ export function FinalCTA() {
                   decoding="async"
                   className="w-full h-full object-cover"
                 />
-              </motion.div>
-            </motion.div>
-          </Parallax>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -12,9 +12,10 @@ import {
   Award,
   Star
 } from "lucide-react";
-import { Parallax, StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
+import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
 import heroFounder from "@/assets/hero-founder.webp";
 import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const benefitCards = [
   {
@@ -46,28 +47,28 @@ const stats = [
 ];
 
 export function HeroMultiNiche() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-background via-muted/30 to-muted/50 overflow-visible pb-12">
-      {/* Background pattern with parallax */}
-      <Parallax speed={0.3} direction="down" className="absolute inset-0 opacity-5">
+      {/* Background pattern - Static on mobile/reduced motion */}
+      <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary rounded-full blur-3xl" />
-      </Parallax>
+      </div>
 
       <div className="container mx-auto px-4 py-16 lg:py-24 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
           {/* Content - Left Side */}
           <StaggerContainer className="space-y-8" staggerDelay={0.15}>
-            {/* Badge */}
+            {/* Badge - CSS animation instead of Framer Motion infinite */}
             <StaggerItem type="slide">
-              <motion.div 
-                className="inline-flex items-center gap-2 bg-secondary/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-secondary/20 text-foreground"
-                animate={{ boxShadow: ["0 0 0 0 rgba(0,128,128,0.2)", "0 0 0 8px rgba(0,128,128,0)", "0 0 0 0 rgba(0,128,128,0)"] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+              <div 
+                className={`inline-flex items-center gap-2 bg-secondary/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium border border-secondary/20 text-foreground ${!reduceMotion ? 'animate-pulse-ring' : ''}`}
               >
-                <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
+                <span className={`w-2 h-2 bg-accent rounded-full ${!reduceMotion ? 'animate-pulse' : ''}`} />
                 Contabilidade Especializada e Humanizada
-              </motion.div>
+              </div>
             </StaggerItem>
 
             {/* Headline */}
@@ -89,29 +90,20 @@ export function HeroMultiNiche() {
               </p>
             </StaggerItem>
 
-            {/* Stats */}
+            {/* Stats - Simplified animations */}
             <StaggerItem type="scale">
               <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8 py-4">
                 {stats.map((stat, index) => (
-                  <motion.div 
+                  <div 
                     key={index} 
-                    className="flex items-center gap-2 sm:gap-3"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 + index * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
+                    className="flex items-center gap-2 sm:gap-3 transition-transform duration-300 hover:scale-105"
                   >
-                    <motion.div
-                      animate={{ rotate: [0, -5, 5, 0] }}
-                      transition={{ duration: 0.5, delay: 1 + index * 0.2 }}
-                    >
-                      <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
-                    </motion.div>
+                    <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                     <div>
                       <span className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{stat.value}</span>
                       <p className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</p>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </StaggerItem>
@@ -145,24 +137,19 @@ export function HeroMultiNiche() {
             </StaggerItem>
           </StaggerContainer>
 
-          {/* Right Side - Founder Image (inspired by AM Contabilidade) */}
-          <Parallax speed={0.2} className="relative hidden lg:flex items-center justify-center">
+          {/* Right Side - Founder Image (Desktop) - Simplified, no Parallax on mobile */}
+          <div className="relative hidden lg:flex items-center justify-center">
             <motion.div 
               className="relative"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
-              {/* Glow effect behind the image */}
+              {/* Glow effect behind the image - Static */}
               <div className="absolute inset-0 bg-accent/20 rounded-full blur-3xl scale-75 translate-x-10" />
               
               {/* Main founder image with special border radius */}
-              <motion.div
-                className="relative z-10 overflow-hidden rounded-[32px] rounded-bl-[80px] rounded-tr-[80px]"
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-              >
+              <div className="relative z-10 overflow-hidden rounded-[32px] rounded-bl-[80px] rounded-tr-[80px]">
                 <img
                   src={heroFounder}
                   alt="Thomas Broek - Contador responsável da Contabilidade Zen"
@@ -178,39 +165,21 @@ export function HeroMultiNiche() {
                 <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 via-transparent to-transparent" />
 
                 {/* Name Card - Bottom */}
-                <motion.div 
-                  className="absolute bottom-0 left-0 right-0 bg-secondary/95 backdrop-blur-sm p-5 text-center"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8, duration: 0.5 }}
-                >
+                <div className="absolute bottom-0 left-0 right-0 bg-secondary/95 backdrop-blur-sm p-5 text-center">
                   <p className="text-white font-bold text-lg">Thomas Broek</p>
                   <p className="text-white text-sm">Contador responsável e técnico</p>
                   <p className="text-white text-xs font-medium mt-1">CRC-SP 337693/O-7</p>
-                </motion.div>
-              </motion.div>
+                </div>
+              </div>
               
-              {/* Subtle decorative elements */}
-              <motion.div 
-                className="absolute -bottom-4 -left-4 w-24 h-24 bg-secondary/40 rounded-full blur-xl"
-                animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.6, 0.4] }}
-                transition={{ duration: 4, repeat: Infinity }}
-              />
-              <motion.div 
-                className="absolute -top-4 -right-4 w-16 h-16 bg-accent/30 rounded-full blur-lg"
-                animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
-              />
+              {/* Subtle decorative elements - CSS animations */}
+              <div className={`absolute -bottom-4 -left-4 w-24 h-24 bg-secondary/40 rounded-full blur-xl ${!reduceMotion ? 'animate-subtle-pulse' : ''}`} />
+              <div className={`absolute -top-4 -right-4 w-16 h-16 bg-accent/30 rounded-full blur-lg ${!reduceMotion ? 'animate-subtle-pulse' : ''}`} style={{ animationDelay: '0.5s' }} />
             </motion.div>
-          </Parallax>
+          </div>
 
-          {/* Mobile: Founder image visible */}
-          <motion.div 
-            className="relative lg:hidden flex justify-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
+          {/* Mobile: Founder image visible - Static, no motion */}
+          <div className="relative lg:hidden flex justify-center animate-fade-up">
             <div className="relative overflow-hidden rounded-[24px] rounded-bl-[60px] rounded-tr-[60px]">
               <img
                 src={heroFounder}
@@ -233,25 +202,20 @@ export function HeroMultiNiche() {
                 <p className="text-white text-[10px] font-medium mt-0.5">CRC-SP 337693/O-7</p>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
 
-        {/* Benefit Cards - Bottom with stagger */}
+        {/* Benefit Cards - Bottom with stagger - Simplified hover */}
         <StaggerContainer className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 xs:gap-4 mt-8 lg:mt-0" staggerDelay={0.1}>
           {benefitCards.map((card, index) => (
             <StaggerItem key={index} type="scale">
-              <motion.div
-                className="bg-secondary/10 backdrop-blur-sm border border-secondary/20 rounded-xl p-4 transition-all duration-300"
-                whileHover={{ 
-                  scale: 1.03, 
-                  backgroundColor: "rgba(0,128,128,0.15)",
-                  y: -4,
-                }}
+              <div
+                className="bg-secondary/10 backdrop-blur-sm border border-secondary/20 rounded-xl p-4 transition-all duration-300 hover:bg-secondary/15 hover:-translate-y-1"
               >
                 <card.icon className="h-8 w-8 text-secondary mb-3" />
                 <h3 className="font-semibold text-foreground text-sm mb-1">{card.title}</h3>
                 <p className="text-muted-foreground text-xs">{card.description}</p>
-              </motion.div>
+              </div>
             </StaggerItem>
           ))}
         </StaggerContainer>

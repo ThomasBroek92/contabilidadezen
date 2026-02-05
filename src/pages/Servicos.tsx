@@ -16,6 +16,7 @@ import {
   Activity,
   MessageCircle
 } from "lucide-react";
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 const mainServices = [
   {
@@ -247,11 +248,7 @@ export default function Servicos() {
                 </Link>
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
-                <a
-                  href="https://wa.me/5519974158342?text=Olá! Gostaria de saber mais sobre os serviços de contabilidade."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a {...getWhatsAppAnchorPropsByKey("servicos")}>
                   <MessageCircle className="h-5 w-5" />
                   WhatsApp
                 </a>

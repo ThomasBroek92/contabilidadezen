@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 const journeySteps = [
   {
@@ -164,10 +165,6 @@ export function CustomerJourney() {
 
   const progressHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"]);
 
-  const whatsappMessage = encodeURIComponent(
-    "Olá! Vim pelo site e gostaria de entender melhor como funciona a jornada de clientes na Contabilidade Zen. Podem me ajudar?"
-  );
-
   return (
     <section ref={containerRef} className="py-20 lg:py-28 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4">
@@ -216,11 +213,7 @@ export function CustomerJourney() {
             className="bg-[#25D366] hover:bg-[#20BD5A] text-white font-semibold px-8"
             asChild
           >
-            <a 
-              href={`https://wa.me/5519974158342?text=${whatsappMessage}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a {...getWhatsAppAnchorPropsByKey("jornada")}>
               <MessageCircle className="h-5 w-5" />
               Chamar no WhatsApp
             </a>

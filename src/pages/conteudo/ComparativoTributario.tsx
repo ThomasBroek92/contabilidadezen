@@ -28,6 +28,7 @@ import { Link } from 'react-router-dom';
 import { useLeadCapture } from '@/hooks/use-lead-capture';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 const SEGMENTOS = [
   { value: 'medico', label: 'Médico(a)' },
@@ -991,7 +992,7 @@ export default function ComparativoTributario() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <Button size="lg" asChild className="gap-2">
-                        <a href="https://wa.me/5519974158342?text=Olá! Fiz a simulação no comparativo tributário e gostaria de uma análise personalizada." target="_blank" rel="noopener noreferrer">
+                        <a {...getWhatsAppAnchorPropsByKey("comparativo")}>
                           <Phone className="h-5 w-5" />
                           Falar com Especialista
                         </a>

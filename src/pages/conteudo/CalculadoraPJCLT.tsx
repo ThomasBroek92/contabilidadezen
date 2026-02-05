@@ -59,6 +59,7 @@ import { useLeadCapture } from "@/hooks/use-lead-capture";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getWhatsAppAnchorProps, getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 // Google Reviews Badge Component
 function GoogleReviewsBadge() {
@@ -1066,9 +1067,7 @@ export default function CalculadoraPJCLT() {
                       </p>
                       <Button variant="zen-outline" size="lg" asChild>
                         <a
-                          href={`https://wa.me/5519974158342?text=Olá! Usei a calculadora CLT x PJ. Meu salário é ${salarioBruto} e gostaria de saber como economizar sendo PJ.`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          {...getWhatsAppAnchorProps(`Olá! Usei a calculadora CLT x PJ. Meu salário é ${salarioBruto} e gostaria de saber como economizar sendo PJ.`)}
                         >
                           Falar agora no WhatsApp
                         </a>
@@ -1317,11 +1316,7 @@ export default function CalculadoraPJCLT() {
                   </Link>
                 </Button>
                 <Button variant="zen-outline" size="xl" asChild>
-                  <a
-                    href="https://wa.me/5519974158342?text=Olá! Quero saber mais sobre como abrir uma empresa PJ."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a {...getWhatsAppAnchorPropsByKey("calculadoraCLTPJ")}>
                     Falar com Especialista
                   </a>
                 </Button>

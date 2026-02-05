@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Home, MessageCircle, Search } from "lucide-react";
+import { getWhatsAppAnchorProps } from "@/lib/whatsapp";
 
 const popularPages = [
   { label: "Serviços", href: "/servicos" },
@@ -20,7 +21,7 @@ const NotFound = () => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
   }, [location.pathname]);
 
-  const whatsappMessage = encodeURIComponent(
+  const whatsappMessage = (
     `Olá! Encontrei um erro ao acessar a página ${location.pathname} no site.`
   );
 
@@ -58,11 +59,7 @@ const NotFound = () => {
               </Link>
             </Button>
             <Button variant="outline" size="lg" asChild>
-              <a 
-                href={`https://wa.me/5511999999999?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a {...getWhatsAppAnchorProps(whatsappMessage)}>
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Falar no WhatsApp
               </a>

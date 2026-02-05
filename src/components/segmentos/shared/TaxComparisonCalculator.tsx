@@ -9,6 +9,7 @@ import { useHoneypot } from "@/hooks/use-honeypot";
 import { Calculator, TrendingDown, CheckCircle2, Lock, ArrowRight } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { getWhatsAppAnchorProps, WHATSAPP_NUMBER } from "@/lib/whatsapp";
 
 const leadSchema = z.object({
   nome: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
@@ -389,9 +390,7 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
                     asChild
                   >
                     <a
-                      href={`https://wa.me/5519974158342?text=${encodeURIComponent(`Olá! Sou ${profession} e fiz a simulação no site. Gostaria de saber mais sobre como economizar impostos.`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      {...getWhatsAppAnchorProps(`Olá! Sou ${profession} e fiz a simulação no site. Gostaria de saber mais sobre como economizar impostos.`)}
                     >
                       Falar pelo WhatsApp
                     </a>

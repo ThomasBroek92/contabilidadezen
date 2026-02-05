@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { MessageCircle, CheckCircle2 } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 const faqs = [
   {
@@ -72,11 +73,7 @@ export function AbrirEmpresaFAQ() {
                 a abrir sua empresa sem complicações.
               </p>
               <Button variant="whatsapp" asChild>
-                <a
-                  href="https://wa.me/5519974158342?text=Olá! Tenho uma dúvida sobre abertura de empresa."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a {...getWhatsAppAnchorPropsByKey("abrirEmpresaDuvida")}>
                   <MessageCircle className="h-4 w-4" />
                   Falar no WhatsApp
                 </a>

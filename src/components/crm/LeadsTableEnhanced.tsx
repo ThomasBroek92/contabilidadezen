@@ -172,8 +172,8 @@ export function LeadsTable({ onSelectLead }: LeadsTableProps) {
   };
 
   const openWhatsApp = (whatsapp: string) => {
-    const phone = whatsapp.replace(/\D/g, '');
-    window.open(`https://wa.me/55${phone}`, '_blank');
+    const { openWhatsAppForPhone } = require("@/lib/whatsapp");
+    openWhatsAppForPhone(whatsapp);
   };
 
   const handleSort = (field: string) => {

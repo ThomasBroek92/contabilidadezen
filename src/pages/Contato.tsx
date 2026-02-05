@@ -29,6 +29,7 @@ import { useWhatsAppNotification } from "@/hooks/use-whatsapp-notification";
 import { useHoneypot } from "@/hooks/use-honeypot";
 import { z } from "zod";
 import { trackFormSubmit } from "@/hooks/use-analytics";
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 const leadSchema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
@@ -364,11 +365,7 @@ export default function Contato() {
                   </h3>
                   <div className="space-y-4">
                     <Button variant="whatsapp" size="lg" className="w-full" asChild>
-                      <a
-                        href="https://wa.me/5519974158342?text=Olá! Gostaria de agendar uma consulta gratuita sobre contabilidade."
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <a {...getWhatsAppAnchorPropsByKey("contato")}>
                         <MessageCircle className="h-5 w-5" />
                         Falar pelo WhatsApp
                       </a>

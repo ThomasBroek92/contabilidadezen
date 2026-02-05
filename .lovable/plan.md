@@ -1,68 +1,97 @@
 
-# Plano de Substituição de Imagens dos Segmentos
+# Plano: Limpeza de URLs Legadas e Redirects 301
 
-## Status: Todas as 12 Imagens Recebidas ✅
+## Contexto
 
-| # | Arquivo Recebido | Segmento |
-|---|------------------|----------|
-| 01 | `01-profissionais-saude-bg.webp` | Profissionais da Saúde |
-| 02 | `02-advogados-bg.webp` | Advogados |
-| 03 | `03-representante-comercial-bg.webp` | Representantes Comerciais |
-| 04 | `04-produtores-digitais-bg.webp` | Produtores Digitais |
-| 05 | `05-profissionais-ti-bg.webp.webp` | Profissionais de TI |
-| 06 | `06-exportacao-servicos-bg.webp` | Exportação de Serviços |
-| 07 | `07-prestadores-servico-bg.webp` | Prestadores de Serviços |
-| 08 | `08-profissionais-pj-bg.webp` | Profissionais PJs |
-| 09 | `09-ecommerce-bg.webp` | E-commerce |
-| 10 | `10-clinicas-consultorios-bg.webp` | Clínicas e Consultórios |
-| 11 | `11-youtubers-creators-bg.webp` | YouTubers e Creators |
-| 12 | `12-outros-segmentos-bg.webp` | Outros Segmentos |
+As 37 URLs listadas no CSV são resquícios do site WordPress antigo. Elas não existem no sitemap atual, mas o Google continua tentando acessá-las (erro 403).
+
+## Análise das URLs
+
+### Categoria 1: Posts que têm equivalente no novo blog
+| URL Antiga | Nova Rota Sugerida |
+|------------|-------------------|
+| `/contabilidade-para-youtuber/` | `/blog/contabilidade-para-youtubers-criadores-conteudo` |
+| `/contabilidade-para-mei/` | (sem equivalente direto) |
+| `/contabilidade-para-afiliados/` | `/blog/contabilidade-infoprodutores-produtores-digitais` |
+| `/abertura-de-empresa-cnpj/` | `/abrir-empresa` |
+| `/abertura-de-empresa/` | `/abrir-empresa` |
+
+### Categoria 2: Páginas de contato antigas
+| URL Antiga | Nova Rota |
+|------------|-----------|
+| `/fale-conosco/` | `/contato` |
+| `/fale-conosco` | `/contato` |
+| `/contato-contabilidadezen/` | `/contato` |
+| `/contato` (trailing slash) | `/contato` |
+| `/solicitar-proposta` | `/contato` |
+
+### Categoria 3: URLs de arquivo WordPress (descartáveis)
+- `/2022/04/27/`, `/2022/05/`, `/2023/09/`, etc.
+- Sem equivalente - redirecionar para `/blog`
+
+### Categoria 4: Páginas sem equivalente
+| URL Antiga | Ação |
+|------------|------|
+| `/planos/` | Redirecionar para `/servicos` |
+| `/blog/` (com trailing slash) | Redirecionar para `/blog` |
+| `/contabilidade-em-jardim-colina-sp/` | Redirecionar para `/` ou `/cidades-atendidas` |
+| `/contabilidade-para-prestadores-de-servicos-2/` | Redirecionar para `/servicos` |
 
 ---
 
-## Ações a Executar
+## Implementação
 
-### Etapa 1: Copiar novas imagens para `src/assets/`
-Copiar todas as 12 imagens do upload para a pasta de assets do projeto.
+### Etapa 1: Criar componente de Redirect Handler
 
-### Etapa 2: Excluir imagens antigas
-Remover os arquivos antigos:
-- `profissionais-saude-bg.webp`
-- `advogados-bg.webp`
-- `representante-comercial-bg.webp`
-- `produtores-digitais-bg.webp`
-- `profissionais-ti-bg.webp`
-- `exportacao-servicos-bg.webp`
-- `prestadores-servico-bg.webp`
-- `profissionais-pj-bg.webp`
-- `ecommerce-bg.webp`
-- `clinicas-consultorios-bg.webp`
-- `youtubers-creators-bg.webp`
-- `outros-segmentos-bg.webp`
+Criar um novo componente `LegacyRedirects.tsx` que detecta URLs antigas e redireciona para as novas rotas correspondentes.
 
-### Etapa 3: Atualizar imports em `NichesCarousel.tsx`
-Atualizar as linhas 29-40 com os novos nomes de arquivo:
-
-```typescript
-import profissionaisSaudeBg from "@/assets/01-profissionais-saude-bg.webp";
-import advogadosBg from "@/assets/02-advogados-bg.webp";
-import representanteComercialBg from "@/assets/03-representante-comercial-bg.webp";
-import produtoresDigitaisBg from "@/assets/04-produtores-digitais-bg.webp";
-import profissionaisTiBg from "@/assets/05-profissionais-ti-bg.webp.webp";
-import exportacaoServicosBg from "@/assets/06-exportacao-servicos-bg.webp";
-import prestadoresServicoBg from "@/assets/07-prestadores-servico-bg.webp";
-import profissionaisPjBg from "@/assets/08-profissionais-pj-bg.webp";
-import ecommerceBg from "@/assets/09-ecommerce-bg.webp";
-import clinicasConsultoriosBg from "@/assets/10-clinicas-consultorios-bg.webp";
-import youtubersBg from "@/assets/11-youtubers-creators-bg.webp";
-import outrosSegmentosBg from "@/assets/12-outros-segmentos-bg.webp";
+```
+src/components/LegacyRedirects.tsx
 ```
 
-### Etapa 4: Atualizar import em `FinalCTA.tsx`
-Atualizar a linha 6 para usar a nova imagem 11:
+### Etapa 2: Atualizar App.tsx
 
-```typescript
-import youtubersCreatorsBg from "@/assets/11-youtubers-creators-bg.webp";
+Adicionar rotas de redirect para as URLs mais importantes antes do `*` (NotFound).
+
+### Etapa 3: Atualizar robots.txt
+
+Adicionar regras de `Disallow` para as URLs de arquivo WordPress que não queremos mais indexar.
+
+---
+
+## Mapeamento Completo de Redirects
+
+```text
+# Contato
+/fale-conosco           → /contato
+/fale-conosco/          → /contato
+/contato-contabilidadezen/ → /contato
+/solicitar-proposta     → /contato
+
+# Abertura
+/abertura-de-empresa/   → /abrir-empresa
+/abertura-de-empresa-cnpj/ → /abrir-empresa
+
+# Blog
+/blog/                  → /blog
+/contabilidade-para-youtuber/ → /blog/contabilidade-para-youtubers-criadores-conteudo
+/contabilidade-para-afiliados/ → /blog/contabilidade-infoprodutores-produtores-digitais
+/contabilidade-para-mei/ → /blog
+/afiliado-pode-ser-mei/ → /blog
+/fim-do-limite-de-saque-para-pessoa-fisica-na-hotmart-entenda-como-agir/ → /blog
+/como-abrir-empresa-para-afiliados/ → /abrir-empresa
+/prestadores-de-servicos-eficiencia-e-produtividade-com-o-chat-gpt/ → /blog
+
+# Arquivos de data (todos para /blog)
+/2022/*                 → /blog
+/2023/*                 → /blog
+/2025/*                 → /blog
+
+# Outras
+/planos/                → /servicos
+/contabilidade-em-jardim-colina-sp/ → /
+/contabilidade-para-prestadores-de-servicos-2/ → /servicos
+/politica-de-privacidade (com trailing slash variações) → /politica-de-privacidade
 ```
 
 ---
@@ -71,27 +100,58 @@ import youtubersCreatorsBg from "@/assets/11-youtubers-creators-bg.webp";
 
 | Arquivo | Ação |
 |---------|------|
-| `src/assets/01-profissionais-saude-bg.webp` | Criar (novo) |
-| `src/assets/02-advogados-bg.webp` | Criar (novo) |
-| `src/assets/03-representante-comercial-bg.webp` | Criar (novo) |
-| `src/assets/04-produtores-digitais-bg.webp` | Criar (novo) |
-| `src/assets/05-profissionais-ti-bg.webp.webp` | Criar (novo) |
-| `src/assets/06-exportacao-servicos-bg.webp` | Criar (novo) |
-| `src/assets/07-prestadores-servico-bg.webp` | Criar (novo) |
-| `src/assets/08-profissionais-pj-bg.webp` | Criar (novo) |
-| `src/assets/09-ecommerce-bg.webp` | Criar (novo) |
-| `src/assets/10-clinicas-consultorios-bg.webp` | Criar (novo) |
-| `src/assets/11-youtubers-creators-bg.webp` | Criar (novo) |
-| `src/assets/12-outros-segmentos-bg.webp` | Criar (novo) |
-| `src/assets/*-bg.webp` (12 antigos) | Excluir |
-| `src/components/sections/NichesCarousel.tsx` | Atualizar imports |
-| `src/components/sections/FinalCTA.tsx` | Atualizar import |
+| `src/components/LegacyRedirects.tsx` | Criar (novo) |
+| `src/App.tsx` | Adicionar rotas de redirect |
+| `public/robots.txt` | Bloquear URLs de arquivo WordPress |
+
+---
+
+## Detalhes Técnicos
+
+### LegacyRedirects.tsx
+
+Componente React que:
+1. Usa `useLocation` para detectar a rota atual
+2. Verifica se a rota corresponde a um padrão legado
+3. Redireciona com `Navigate` e `replace={true}` (equivalente a 301 no contexto SPA)
+
+### Padrões de Redirect
+
+```typescript
+const legacyRedirects: Record<string, string> = {
+  '/fale-conosco': '/contato',
+  '/fale-conosco/': '/contato',
+  '/contato-contabilidadezen/': '/contato',
+  '/solicitar-proposta': '/contato',
+  '/abertura-de-empresa/': '/abrir-empresa',
+  '/abertura-de-empresa-cnpj/': '/abrir-empresa',
+  '/contabilidade-para-youtuber/': '/blog/contabilidade-para-youtubers-criadores-conteudo',
+  '/contabilidade-para-afiliados/': '/blog/contabilidade-infoprodutores-produtores-digitais',
+  '/planos/': '/servicos',
+  '/blog/': '/blog',
+  // ... etc
+};
+
+// Para padrões dinâmicos (datas)
+const dynamicRedirects = [
+  { pattern: /^\/202\d\//, target: '/blog' },
+];
+```
 
 ---
 
 ## Impacto
 
-- **Zero downtime**: Os nomes das variáveis de import permanecem os mesmos, apenas os caminhos mudam
-- **Imagens otimizadas**: Novas imagens em WebP conforme #IMAGE_OPTIMIZATION_RULES
-- **Carrossel de nichos**: Atualizado com as novas fotos
-- **FinalCTA**: Imagem de YouTubers atualizada
+- **SEO**: Preserva link juice das URLs antigas
+- **UX**: Usuários com links antigos salvos são redirecionados corretamente
+- **Google Search Console**: Erros 403 diminuirão gradualmente conforme o Google reprocessa as URLs
+
+---
+
+## Alternativa Simplificada
+
+Se preferir não implementar redirects individuais, posso apenas:
+1. Bloquear todas essas URLs no `robots.txt` com padrões específicos
+2. Aguardar o Google parar de tentar acessá-las (2-3 meses)
+
+Essa abordagem é mais simples mas não preserva autoridade de SEO e pode frustrar usuários com links antigos.

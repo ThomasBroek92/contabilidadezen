@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
 import { UserPlus, Settings, Building2 } from "lucide-react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const steps = [
   {
@@ -20,23 +20,19 @@ const steps = [
 ];
 
 export function AbrirEmpresaTimeline() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
+        <div className="text-center mb-16 animate-fade-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Como funciona em <span className="text-gradient">3 passos simples</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Abrir sua empresa nunca foi tão fácil. Deixe a burocracia com a gente.
           </p>
-        </motion.div>
+        </div>
 
         <div className="max-w-4xl mx-auto">
           <div className="relative">
@@ -44,15 +40,12 @@ export function AbrirEmpresaTimeline() {
             <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-secondary to-accent hidden md:block" />
 
             {steps.map((step, index) => (
-              <motion.div
+              <div
                 key={step.title}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className={`relative flex items-center gap-8 mb-12 last:mb-0 ${
+                className={`relative flex items-center gap-8 mb-12 last:mb-0 animate-fade-up ${
                   index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
                 }`}
+                style={{ animationDelay: shouldReduceMotion ? '0ms' : `${index * 200}ms` }}
               >
                 {/* Content */}
                 <div className={`flex-1 ${index % 2 === 0 ? "md:text-right" : "md:text-left"}`}>
@@ -74,7 +67,7 @@ export function AbrirEmpresaTimeline() {
 
                 {/* Spacer for alternating layout */}
                 <div className="flex-1 hidden md:block" />
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>

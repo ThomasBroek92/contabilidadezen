@@ -9,7 +9,6 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { motion } from "framer-motion";
 import { 
   FileText, 
   Upload, 
@@ -20,6 +19,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 interface RoutineStep {
   number: string;
@@ -77,25 +77,20 @@ const routineSteps: RoutineStep[] = [
 function StepCard({ step, index }: { step: RoutineStep; index: number }) {
   const Icon = step.icon;
   const isClient = step.owner === "client";
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ 
-        duration: 0.5, 
-        delay: index * 0.1,
-        ease: "easeOut"
-      }}
+    <div
       className={`
         relative h-full rounded-2xl p-6 md:p-8 transition-all duration-300
         border-2 group hover:scale-[1.02] hover:shadow-xl
+        animate-fade-up
         ${isClient 
           ? "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200/60 hover:border-amber-300" 
           : "bg-gradient-to-br from-secondary/5 to-accent/5 border-secondary/20 hover:border-secondary/40"
         }
       `}
+      style={{ animationDelay: shouldReduceMotion ? '0ms' : `${index * 100}ms` }}
     >
       {/* Owner Badge */}
       <div className="flex items-center justify-between mb-6">
@@ -157,7 +152,7 @@ function StepCard({ step, index }: { step: RoutineStep; index: number }) {
           }
         `}
       />
-    </motion.div>
+    </div>
   );
 }
 
@@ -165,6 +160,7 @@ export function RoutineCarousel() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const shouldReduceMotion = useReducedMotion();
 
   const autoplayPlugin = Autoplay({
     delay: 5000,
@@ -194,13 +190,7 @@ export function RoutineCarousel() {
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-6"
-        >
+        <div className="text-center mb-6 animate-fade-up">
           <span className="inline-block text-secondary font-semibold text-sm uppercase tracking-wider mb-3">
             Processo Simplificado
           </span>
@@ -212,15 +202,12 @@ export function RoutineCarousel() {
             Você cuida apenas de <strong className="text-amber-600">{clientStepsCount} etapas simples</strong>, 
             nós cuidamos de <strong className="text-secondary">{zenStepsCount} processos complexos</strong>
           </p>
-        </motion.div>
+        </div>
 
         {/* Legend */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-10"
+        <div 
+          className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mb-10 animate-fade-up"
+          style={{ animationDelay: shouldReduceMotion ? '0ms' : '100ms' }}
         >
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-400 to-orange-500" />
@@ -230,7 +217,7 @@ export function RoutineCarousel() {
             <div className="w-4 h-4 rounded-full bg-gradient-to-br from-secondary to-accent" />
             <span className="text-sm font-medium text-muted-foreground">Contabilidade Zen cuida</span>
           </div>
-        </motion.div>
+        </div>
 
         {/* Carousel */}
         <Carousel
@@ -278,12 +265,9 @@ export function RoutineCarousel() {
         </div>
 
         {/* CTA */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-center mt-10"
+        <div 
+          className="text-center mt-10 animate-fade-up"
+          style={{ animationDelay: shouldReduceMotion ? '0ms' : '200ms' }}
         >
           <Button 
             size="lg" 
@@ -295,7 +279,7 @@ export function RoutineCarousel() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

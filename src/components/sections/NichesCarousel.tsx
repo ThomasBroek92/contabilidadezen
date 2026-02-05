@@ -26,18 +26,18 @@ import {
   UserCheck,
 } from "lucide-react";
 import { StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/scroll-animation";
-import representanteComercialBg from "@/assets/representante-comercial-bg.webp";
-import advogadosBg from "@/assets/advogados-bg.webp";
-import profissionaisSaudeBg from "@/assets/profissionais-saude-bg.webp";
-import outrosSegmentosBg from "@/assets/outros-segmentos-bg.webp";
-import youtubersBg from "@/assets/youtubers-creators-bg.webp";
-import clinicasConsultoriosBg from "@/assets/clinicas-consultorios-bg.webp";
-import ecommerceBg from "@/assets/ecommerce-bg.webp";
-import profissionaisPjBg from "@/assets/profissionais-pj-bg.webp";
-import prestadoresServicoBg from "@/assets/prestadores-servico-bg.webp";
-import produtoresDigitaisBg from "@/assets/produtores-digitais-bg.webp";
-import profissionaisTiBg from "@/assets/profissionais-ti-bg.webp";
-import exportacaoServicosBg from "@/assets/exportacao-servicos-bg.webp";
+import profissionaisSaudeBg from "@/assets/01-profissionais-saude-bg.webp";
+import advogadosBg from "@/assets/02-advogados-bg.webp";
+import representanteComercialBg from "@/assets/03-representante-comercial-bg.webp";
+import produtoresDigitaisBg from "@/assets/04-produtores-digitais-bg.webp";
+import profissionaisTiBg from "@/assets/05-profissionais-ti-bg.webp";
+import exportacaoServicosBg from "@/assets/06-exportacao-servicos-bg.webp";
+import prestadoresServicoBg from "@/assets/07-prestadores-servico-bg.webp";
+import profissionaisPjBg from "@/assets/08-profissionais-pj-bg.webp";
+import ecommerceBg from "@/assets/09-ecommerce-bg.webp";
+import clinicasConsultoriosBg from "@/assets/10-clinicas-consultorios-bg.webp";
+import youtubersBg from "@/assets/11-youtubers-creators-bg.webp";
+import outrosSegmentosBg from "@/assets/12-outros-segmentos-bg.webp";
 
 const niches = [
   {

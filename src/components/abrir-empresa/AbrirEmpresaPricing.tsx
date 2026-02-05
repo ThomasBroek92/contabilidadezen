@@ -1,9 +1,9 @@
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const plans = [
   {
@@ -53,37 +53,31 @@ const plans = [
 ];
 
 export function AbrirEmpresaPricing() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12 animate-fade-up">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Planos transparentes. <span className="text-gradient">Sem surpresas.</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Escolha o plano ideal para o seu negócio. Todos incluem abertura de empresa grátis.
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {plans.map((plan, index) => (
-            <motion.div
+            <div
               key={plan.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="animate-fade-up"
+              style={{ animationDelay: shouldReduceMotion ? '0ms' : `${index * 100}ms` }}
             >
               <Card
                 className={`relative h-full shadow-card hover:shadow-glow transition-all duration-300 hover:-translate-y-1 ${
                   plan.popular
-                    ? "border-2 border-transparent bg-clip-padding before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:p-[2px] before:bg-gradient-to-r before:from-secondary before:to-accent"
+                    ? "border-2 border-secondary"
                     : "border-border"
                 }`}
               >
@@ -130,7 +124,7 @@ export function AbrirEmpresaPricing() {
                   </Button>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

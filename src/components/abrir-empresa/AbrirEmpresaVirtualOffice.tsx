@@ -1,37 +1,19 @@
-import { motion } from "framer-motion";
 import { Building2, MapPin, Sparkles, Gift, CheckCircle2, CreditCard } from "lucide-react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 export function AbrirEmpresaVirtualOffice() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <section className="py-12 bg-gradient-to-r from-secondary/10 via-accent/10 to-secondary/10 relative overflow-hidden">
-      {/* Animated background elements */}
+      {/* Static background elements (no animation) */}
       <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3]
-          }}
-          transition={{ duration: 4, repeat: Infinity }}
-          className="absolute top-0 left-1/4 w-64 h-64 bg-secondary/20 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            opacity: [0.3, 0.5, 0.3]
-          }}
-          transition={{ duration: 4, repeat: Infinity, delay: 2 }}
-          className="absolute bottom-0 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl"
-        />
+        <div className="absolute top-0 left-1/4 w-64 h-64 bg-secondary/20 rounded-full blur-3xl opacity-40" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl opacity-40" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto"
-        >
+        <div className="max-w-4xl mx-auto animate-fade-up">
           {/* Main highlight card */}
           <div className="relative bg-card border-2 border-secondary/50 rounded-3xl p-8 md:p-10 shadow-card overflow-hidden">
             {/* Corner ribbon */}
@@ -40,14 +22,8 @@ export function AbrirEmpresaVirtualOffice() {
             </div>
 
             <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-              {/* Icon with animation */}
-              <motion.div
-                animate={{ 
-                  y: [0, -8, 0],
-                }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="shrink-0"
-              >
+              {/* Icon with CSS animation */}
+              <div className={`shrink-0 ${shouldReduceMotion ? '' : 'animate-float'}`}>
                 <div className="relative flex gap-3">
                   <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center shadow-lg">
                     <Building2 className="w-10 h-10 md:w-12 md:h-12 text-secondary-foreground" />
@@ -55,15 +31,11 @@ export function AbrirEmpresaVirtualOffice() {
                   <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-accent to-secondary flex items-center justify-center shadow-lg">
                     <CreditCard className="w-10 h-10 md:w-12 md:h-12 text-secondary-foreground" />
                   </div>
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute -top-2 -right-2 bg-warning text-warning-foreground rounded-full p-2 shadow-lg"
-                  >
+                  <div className={`absolute -top-2 -right-2 bg-warning text-warning-foreground rounded-full p-2 shadow-lg ${shouldReduceMotion ? '' : 'animate-pulse-ring'}`}>
                     <Gift className="w-5 h-5" />
-                  </motion.div>
+                  </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Content */}
               <div className="flex-1 text-center md:text-left">
@@ -153,7 +125,7 @@ export function AbrirEmpresaVirtualOffice() {
               <span>*Válido enquanto você for cliente Contabilidade Zen</span>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

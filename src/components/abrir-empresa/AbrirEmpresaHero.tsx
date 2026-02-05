@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Star, Shield, Zap, ShieldCheck, Smartphone, HeadphonesIcon, TrendingUp, FileText } from "lucide-react";
@@ -8,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const benefits = [
   {
@@ -58,6 +58,7 @@ export function AbrirEmpresaHero() {
   const autoplayPlugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
   );
+  const shouldReduceMotion = useReducedMotion();
 
   // Fetch GMB stats
   const { data: gmbStats } = useQuery({
@@ -96,11 +97,8 @@ export function AbrirEmpresaHero() {
           {/* Main Hero Grid */}
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
+            <div
+              className="space-y-6 animate-fade-up"
             >
               <Badge variant="secondary" className="bg-zen-light-teal text-secondary px-4 py-2 text-sm font-medium">
                 Sua contabilidade sem estresse
@@ -145,14 +143,12 @@ export function AbrirEmpresaHero() {
                   {gmbStats?.total_reviews || 0} avaliações no Google
                 </span>
               </a>
-            </motion.div>
+            </div>
 
             {/* Visual */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
+            <div
+              className="relative animate-fade-up"
+              style={{ animationDelay: shouldReduceMotion ? '0ms' : '200ms' }}
             >
               <div className="relative bg-card rounded-3xl shadow-card p-8 backdrop-blur border border-border/50">
                 {/* Glass effect dashboard mockup */}
@@ -198,15 +194,13 @@ export function AbrirEmpresaHero() {
                 <div className="absolute -top-4 -right-4 w-24 h-24 bg-secondary/20 rounded-full blur-2xl" />
                 <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-accent/20 rounded-full blur-2xl" />
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Benefits Carousel - Full Width */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="w-full"
+          <div
+            className="w-full animate-fade-up"
+            style={{ animationDelay: shouldReduceMotion ? '0ms' : '300ms' }}
           >
             <Carousel
               opts={{
@@ -236,7 +230,7 @@ export function AbrirEmpresaHero() {
                 ))}
               </CarouselContent>
             </Carousel>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -8,13 +7,7 @@ export function AbrirEmpresaCTA() {
   return (
     <section className="py-20 bg-primary text-primary-foreground">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto text-center space-y-8"
-        >
+        <div className="max-w-3xl mx-auto text-center space-y-8 animate-fade-up">
           <h2 className="text-3xl md:text-4xl font-bold">
             Pronto para ter paz de espírito com sua contabilidade?
           </h2>
@@ -50,7 +43,7 @@ export function AbrirEmpresaCTA() {
               </a>
             </Button>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

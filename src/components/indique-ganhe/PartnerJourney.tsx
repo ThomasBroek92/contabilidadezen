@@ -6,8 +6,8 @@ import {
   CheckCircle,
   ArrowRight,
 } from "lucide-react";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const journeySteps = [
   {
@@ -73,46 +73,34 @@ const journeySteps = [
 ];
 
 function TimelineCard({ step, index, isLast }: { step: typeof journeySteps[0]; index: number; isLast: boolean }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-      className={`relative flex items-start gap-6 ${!isLast ? 'pb-12 md:pb-16' : ''}`}
+    <div
+      className={`relative flex items-start gap-6 ${!isLast ? 'pb-12 md:pb-16' : ''} animate-fade-up`}
+      style={{ animationDelay: shouldReduceMotion ? '0ms' : `${(index + 1) * 200}ms` }}
     >
       {/* Timeline connector */}
       <div className="flex flex-col items-center">
         {/* Icon circle */}
-        <motion.div 
-          initial={{ scale: 0 }}
-          animate={isInView ? { scale: 1 } : { scale: 0 }}
-          transition={{ duration: 0.4, delay: 0.3, type: "spring", stiffness: 200 }}
-          className={`relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg`}
+        <div 
+          className={`relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-lg animate-scale-in`}
+          style={{ animationDelay: shouldReduceMotion ? '0ms' : `${(index + 1) * 300}ms` }}
         >
           <step.icon className="h-7 w-7 md:h-9 md:w-9 text-white" />
-        </motion.div>
+        </div>
         
         {/* Vertical line */}
         {!isLast && (
-          <motion.div 
-            initial={{ scaleY: 0 }}
-            animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-            className="w-1 flex-grow bg-gradient-to-b from-current to-border origin-top mt-4"
+          <div 
+            className="w-1 flex-grow bg-gradient-to-b from-current to-border mt-4 origin-top"
             style={{ color: index === 0 ? '#f97316' : index === 1 ? '#7c3aed' : '#059669' }}
           />
         )}
       </div>
 
       {/* Content card */}
-      <motion.article
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
+      <article
         className={`flex-1 bg-card rounded-2xl p-6 md:p-8 border-2 ${step.borderColor} shadow-lg hover:shadow-xl transition-shadow duration-300`}
       >
         {/* Header */}
@@ -150,19 +138,13 @@ function TimelineCard({ step, index, isLast }: { step: typeof journeySteps[0]; i
         <div className="mt-4 pt-4 border-t border-border">
           <span className="text-secondary font-semibold text-sm">{step.stepLabel}</span>
         </div>
-      </motion.article>
-    </motion.div>
+      </article>
+    </div>
   );
 }
 
 export function PartnerJourney() {
   const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  const progressHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"]);
 
   const handleScrollToCadastro = () => {
     document.getElementById('cadastro')?.scrollIntoView({ behavior: 'smooth' });
@@ -172,7 +154,7 @@ export function PartnerJourney() {
     <section ref={containerRef} className="py-20 lg:py-28 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
           <span className="inline-block bg-secondary/10 text-secondary px-5 py-2 rounded-full text-sm font-semibold uppercase tracking-wider mb-6">
             Programa de Parceria
           </span>
@@ -189,10 +171,7 @@ export function PartnerJourney() {
         <div className="max-w-3xl mx-auto relative">
           {/* Background progress line */}
           <div className="absolute left-8 md:left-10 top-0 bottom-0 w-1 bg-border rounded-full">
-            <motion.div
-              className="w-full bg-gradient-to-b from-orange-500 via-violet-500 to-emerald-500 rounded-full origin-top"
-              style={{ height: progressHeight }}
-            />
+            <div className="w-full h-full bg-gradient-to-b from-orange-500 via-violet-500 to-emerald-500 rounded-full" />
           </div>
 
           {/* Timeline cards */}

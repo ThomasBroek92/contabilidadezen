@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import {
   Carousel,
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 // Fallback testimonials for when no GMB reviews are available
 const fallbackTestimonials = [
@@ -97,8 +97,7 @@ interface GMBStats {
 }
 
 export function Testimonials() {
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const shouldReduceMotion = useReducedMotion();
   
   // Autoplay plugin ref
   const autoplayPlugin = useRef(
@@ -173,7 +172,7 @@ export function Testimonials() {
   };
 
   return (
-    <section ref={sectionRef} className="py-16 lg:py-24 bg-background overflow-visible relative">
+    <section className="py-16 lg:py-24 bg-background overflow-visible relative">
       <div className="container mx-auto px-4 overflow-visible">
         {/* Header */}
         <StaggerContainer className="text-center max-w-3xl mx-auto mb-12 lg:mb-16" staggerDelay={0.1}>
@@ -199,12 +198,11 @@ export function Testimonials() {
           {/* Google Reviews Badge */}
           {gmbStats && (
             <StaggerItem type="scale">
-              <motion.a
+              <a
                 href="https://g.page/r/CSe4RMezF61hEAI/review"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 mt-6 px-5 py-3 bg-card border border-border rounded-xl hover:border-secondary/50 hover:shadow-card transition-all duration-300 group"
-                whileHover={{ scale: 1.02, y: -2 }}
+                className="inline-flex items-center gap-3 mt-6 px-5 py-3 bg-card border border-border rounded-xl hover:border-secondary/50 hover:shadow-card transition-all duration-300 group hover:-translate-y-0.5"
               >
                 <GoogleLogo className="h-6 w-6" />
                 <div className="flex items-center gap-2">
@@ -220,17 +218,13 @@ export function Testimonials() {
                   {gmbStats.total_reviews} avaliações
                 </span>
                 <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-secondary transition-colors" />
-              </motion.a>
+              </a>
             </StaggerItem>
           )}
         </StaggerContainer>
 
         {/* Testimonials Carousel */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
+        <div className="animate-fade-up" style={{ animationDelay: shouldReduceMotion ? '0ms' : '400ms' }}>
           <Carousel
             opts={{
               align: "start",
@@ -244,17 +238,11 @@ export function Testimonials() {
                 // Fallback testimonials
                 fallbackTestimonials.map((testimonial, index) => (
                   <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                    <motion.div 
-                      className="bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-secondary/50 transition-all duration-300 h-full"
-                      whileHover={{ y: -4, boxShadow: "var(--shadow-card)" }}
+                    <div 
+                      className="bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-secondary/50 transition-all duration-300 h-full hover:-translate-y-1 hover:shadow-card"
                     >
                       {/* Quote Icon */}
-                      <motion.div
-                        initial={{ rotate: 0 }}
-                        whileHover={{ rotate: 10, scale: 1.1 }}
-                      >
-                        <Quote className="h-8 w-8 text-secondary/30 mb-4" />
-                      </motion.div>
+                      <Quote className="h-8 w-8 text-secondary/30 mb-4" />
 
                       {/* Content */}
                       <p className="text-foreground/80 leading-relaxed mb-6 line-clamp-4">
@@ -278,16 +266,15 @@ export function Testimonials() {
                           <p className="font-bold text-secondary">{testimonial.savings}</p>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   </CarouselItem>
                 ))
               ) : (
                 // GMB Reviews
                 gmbReviews?.map((review) => (
                   <CarouselItem key={review.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                    <motion.div 
-                      className="bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-secondary/50 transition-all duration-300 relative h-full"
-                      whileHover={{ y: -4, boxShadow: "var(--shadow-card)" }}
+                    <div 
+                      className="bg-card rounded-2xl p-6 lg:p-8 border border-border hover:border-secondary/50 transition-all duration-300 relative h-full hover:-translate-y-1 hover:shadow-card"
                     >
                       {/* Google Badge */}
                       <div className="absolute top-4 right-4 flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
@@ -335,7 +322,7 @@ export function Testimonials() {
                           </p>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   </CarouselItem>
                 ))
               )}
@@ -346,15 +333,13 @@ export function Testimonials() {
             </div>
             <CarouselDots className="sm:hidden" />
           </Carousel>
-        </motion.div>
+        </div>
 
         {/* View all reviews link */}
         {hasGMBReviews && (
-          <motion.div 
-            className="text-center mt-10"
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ delay: 0.6 }}
+          <div 
+            className="text-center mt-10 animate-fade-up"
+            style={{ animationDelay: shouldReduceMotion ? '0ms' : '600ms' }}
           >
             <a
               href="https://g.page/r/CSe4RMezF61hEAI/review"
@@ -365,7 +350,7 @@ export function Testimonials() {
               Ver todas as avaliações no Google
               <ExternalLink className="h-4 w-4" />
             </a>
-          </motion.div>
+          </div>
         )}
       </div>
     </section>

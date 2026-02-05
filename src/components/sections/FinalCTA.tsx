@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Check, MessageCircle } from "lucide-react";
 import { useRef } from "react";
 import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
-import youtubersCreatorsBg from "@/assets/youtubers-creators-bg.webp";
+import youtubersCreatorsBg from "@/assets/11-youtubers-creators-bg.webp";
 import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 

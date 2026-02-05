@@ -36,6 +36,7 @@ import Admin from "./pages/Admin";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import Termos from "./pages/Termos";
 import NotFound from "./pages/NotFound";
+import { LegacyRedirects } from "@/components/LegacyRedirects";
 
 // Lazy load componentes não-críticos para reduzir bundle inicial
 const CookieConsent = lazy(() => 
@@ -83,6 +84,8 @@ const App = () => (
             <Route path="/admin/:tab" element={<Admin />} />
             <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/termos" element={<Termos />} />
+            {/* Handler para URLs legadas do WordPress - deve vir antes do NotFound */}
+            <Route path="*" element={<LegacyRedirects />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <ScrollToTop />

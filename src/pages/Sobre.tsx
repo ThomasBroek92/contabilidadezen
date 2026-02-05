@@ -13,7 +13,7 @@ import {
   CheckCircle,
   MessageCircle
 } from "lucide-react";
-import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
+import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 
 const values = [
   {
@@ -234,11 +234,7 @@ export default function Sobre() {
                 </Link>
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
-                <a
-                  href={getWhatsAppLink(WHATSAPP_MESSAGES.sobre)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a {...getWhatsAppAnchorPropsByKey("sobre")}>
                   <MessageCircle className="h-5 w-5" />
                   WhatsApp
                 </a>

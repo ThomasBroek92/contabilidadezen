@@ -1,99 +1,168 @@
 
 
-# Plano: Resolver Erro "Página com Redirecionamento" no Google Search Console
+# Plano Completo de Limpeza de Indexacao - Google Search Console
 
-## Diagnóstico
+## Resumo do Diagnostico
 
-O erro "Página com redirecionamento" que você está vendo no Google Search Console é causado por um problema diferente dos redirects do WordPress. 
-
-### O que está acontecendo
-
-O Google está encontrando cada página do blog em **duas versões**:
-- `https://contabilidadezen.com.br/blog/...` (sem www)  
-- `https://www.contabilidadezen.com.br/blog/...` (com www)
-
-Quando o Google acessa a versão sem www, ela redireciona para a versão com www. O Google classifica isso como "Página com redirecionamento" e não indexa - ele só indexa a versão final (com www).
-
-**Isso NÃO é um problema** - é o comportamento esperado. O Google está:
-1. Encontrando as duas versões
-2. Seguindo o redirecionamento
-3. Indexando apenas a versão canônica (com www)
-
-### Sobre os redirects anteriores
-
-Os redirects que implementamos para as URLs do WordPress (`/fale-conosco/`, `/abertura-de-empresa/`, etc.) são **independentes** deste problema e continuarão funcionando normalmente. Eles redirecionam URLs legadas para as novas páginas.
+O relatorio mostra **~170 URLs com problemas**, divididas em 8 categorias. A maioria sao resquicios do site WordPress antigo. Abaixo, o plano detalhado para resolver cada categoria.
 
 ---
 
-## Solução
+## Categoria 1: Pagina com redirecionamento (59 URLs)
 
-### Opção 1: Não fazer nada (Recomendado)
+**O que sao:** Versoes non-www (contabilidadezen.com.br) que redirecionam para www. Isso e comportamento correto de SEO.
 
-Este "erro" é na verdade um comportamento correto de SEO. O Google:
-- Vai parar de rastrear as URLs duplicadas com o tempo
-- Vai manter indexadas apenas as URLs canônicas (com www)
-- Os canonical tags já estão configurados corretamente
-
-**Ação**: Apenas aguardar 2-4 semanas. O número de páginas com esse erro vai diminuir naturalmente.
-
-### Opção 2: Configurar redirect 301 no servidor DNS/Hosting
-
-Se quiser resolver mais rapidamente, configure no seu provedor de hospedagem:
-
-**Regra de Redirect:**
-```text
-contabilidadezen.com.br/* → https://www.contabilidadezen.com.br/*
-```
-
-**Onde configurar** (depende do seu hosting):
-- **Cloudflare**: Page Rules ou Redirect Rules
-- **Vercel**: vercel.json com redirects
-- **Netlify**: _redirects file
-- **Lovable Cloud**: Já deve estar configurado automaticamente
+**Acao:** Nenhuma mudanca no codigo. Essas URLs vao desaparecer do relatorio conforme o Google consolida a indexacao no dominio www. Para acelerar, configurar redirect 301 de non-www para www no provedor de DNS/hosting.
 
 ---
 
-## Por que não é um problema crítico
+## Categoria 2: Excluida pela tag noindex (24 URLs)
 
-| Aspecto | Status |
-|---------|--------|
-| Canonical tags | Corretos (apontando para www) |
-| Sitemap | Correto (apenas URLs com www) |
-| Meta robots | Corretos (index, follow) |
-| Conteúdo indexado | Sim (versão www está indexada) |
+**O que sao:** Paginas do WordPress antigo (/tags/, /author/, /search/, /wp-login.php) e /parceiro/dashboard.
 
-### O que o Google realmente diz
-
-"Página com redirecionamento" significa que:
-- O Google encontrou a URL
-- Seguiu o redirect
-- **Indexou a página de destino** (não a de origem)
-
-Isso é **bom** para SEO - significa que seu redirect está funcionando corretamente.
+**Acao no codigo:**
+- Adicionar essas URLs ao LegacyRedirects.tsx para redirecionar em vez de mostrar noindex
+- Adicionar bloqueios no robots.txt para /tags/, /author/, /search/, /wp-login.php
+- A URL `/gestor-de-trafego-pode-ser-mei/`, `/sede-virtual-gratuita/`, `/impostos-na-venda-de-e-books-2/` serao redirecionadas para /blog
 
 ---
 
-## Verificação Rápida
+## Categoria 3: Bloqueada por 403 (37 URLs)
 
-Para confirmar que as páginas estão indexadas, busque no Google:
+**O que sao:** Mix de URLs legadas do WordPress e URLs atuais acessadas via non-www. As legadas ja estao parcialmente cobertas pelo LegacyRedirects, mas faltam algumas.
 
-```text
-site:www.contabilidadezen.com.br/blog
-```
-
-Você deve ver os posts listados nos resultados.
+**Acao no codigo:** Adicionar ao LegacyRedirects.tsx as URLs faltantes:
+- `/contato` (sem trailing slash, versao non-www) - ja funciona no SPA
+- `/blog/` (com trailing slash) - adicionar redirect
+- `/politica-de-privacidade` (versao non-www) - ja funciona no SPA
 
 ---
 
-## Resumo
+## Categoria 4: Erro soft 404 (8 URLs)
 
-| Problema | Impacto | Ação |
-|----------|---------|------|
-| URLs non-www redirecionando | Baixo/Nenhum | Aguardar ou configurar redirect no servidor |
-| Redirects WordPress (anterior) | Resolvido | Já implementado no código |
-| Páginas do blog indexadas | OK | As versões www estão indexadas normalmente |
+**O que sao:** URLs legadas do WordPress que carregam o SPA mas mostram a pagina NotFound. O Google detecta que e um 404 disfarçado.
 
-### Arquivos a Modificar
+**Acao no codigo:** Adicionar TODAS ao LegacyRedirects.tsx:
 
-**Nenhum** - o código React já está correto. Se desejar, a configuração de redirect deve ser feita no painel de hospedagem/DNS, não no código.
+| URL Legada | Redirecionar para |
+|------------|-------------------|
+| `/blog-impostos-para-infoprodutores-qual-o-melhor-regime-tributario/` | `/blog` |
+| `/beneficios-de-contratar-uma-contabilidade-digital/` | `/blog` |
+| `/contabilidade-para-e-commerce/` | `/blog` |
+| `/vantagens-conta-pj-banco-digital/` | `/blog` |
+| `/como-abrir-uma-empresa-de-social-media/` | `/blog` |
+| `/seja-parceiro-cz/` | `/indique-e-ganhe` |
+| `/mei/` | `/blog` |
+| `/como-emitir-nota-fiscal-nas-vendas-internacionais-na-hotmart/` | `/blog` |
+
+---
+
+## Categoria 5: Nao encontrado 404 (3 URLs)
+
+**Acao no codigo:** Adicionar ao LegacyRedirects.tsx:
+
+| URL Legada | Redirecionar para |
+|------------|-------------------|
+| `/servicos-de-contabilidade-em-americana-sp/` | `/cidades-atendidas` |
+| `/seja-parceiro-cz-3/` | `/indique-e-ganhe` |
+| `/cdn-cgi/l/email-protection` | `/` |
+
+---
+
+## Categoria 6: Rastreada mas nao indexada (37 URLs)
+
+**O que sao:** Mix de conteudo WordPress antigo e feeds RSS.
+
+**Acao no codigo:** Adicionar ao LegacyRedirects.tsx:
+
+| URL Legada | Redirecionar para |
+|------------|-------------------|
+| `/a-importancia-de-regularizar-ganhos-no-onlyfans/` | `/blog` |
+| `/infoprodutor-deve-emitir-nota-fiscal/` | `/blog` |
+| `/contabilidade-para-prestadores-de-servico/` | `/servicos` |
+| `/sistema-de-gestao-financeiro/` | `/blog` |
+| `/venda-sem-nota-fiscal-conheca-os-riscos-e-as-consequencias/` | `/blog` |
+| `/contabilidade-zen/` | `/sobre` |
+| `/programador-desenvolvedor-ser-mei/` | `/blog` |
+| `/empresa-de-copywriting-como-abrir/` | `/blog` |
+| `/planos-de-contabilidade-online/` | `/servicos` |
+| `/contabilidade-para-gestor-de-trafego/` | `/blog` |
+| `/contabilidade-para-desenvolvedor-ti/` | `/blog` |
+| `/seja-parceiro-cz-2/` | `/indique-e-ganhe` |
+| `/infoprodutor-precisa-de-cnpj/` | `/blog` |
+| `/contabilidade-para-medico/` | `/segmentos/contabilidade-para-medicos` |
+| `/reducao-tributaria-para-e-book-saiba-como-fazer-da-maneira-correta/` | `/blog` |
+| `/planilha-gestao-fluxo-de-caixa/` | `/blog` |
+| `/sdsdsd/` | `/` |
+| `/limite-de-faturamento-mei/` | `/blog` |
+| `/gerenciar-o-fluxo-de-caixa-sucesso-financeiro/` | `/blog` |
+| `/simples-nacional-com-novo-limite-de-faturamento-entenda/` | `/blog` |
+| `/guia-completo-para-iniciantes/` | `/blog` |
+| `/abertura-de-empresa-para-influencer-digital/` | `/abrir-empresa` |
+| `/ir-a-falencia-saiba-como-evitar/` | `/blog` |
+
+**Feeds e URLs tecnicas** - bloquear no robots.txt:
+- `/author/*/feed/`
+- `/tags/*/feed/`
+- Datas do WordPress (ja bloqueadas)
+
+---
+
+## Categoria 7: Detectada mas nao indexada (36 URLs www)
+
+**O que sao:** Paginas REAIS do site atual (blog posts, segmentos, servicos, contato). O Google encontrou via sitemap mas ainda nao indexou.
+
+**Acao:** Disparar reindexacao via a Edge Function `process-indexing-queue` para forcar o envio dessas URLs ao Google Indexing API. Nenhuma mudanca de codigo necessaria.
+
+---
+
+## Categoria 8: Canonical duplicado (1 URL)
+
+**URL:** `/conteudo/calculadora-pj-clt` - "Copia sem pagina canonica selecionada pelo usuario"
+
+**Acao:** Ja possui canonical correto no codigo. Pode ser necessario inspecionar a URL manualmente no Search Console para forcar reprocessamento.
+
+---
+
+## Resumo de Alteracoes no Codigo
+
+### Arquivo 1: `src/components/LegacyRedirects.tsx`
+
+Adicionar ~40 novos mapeamentos de redirect cobrindo todas as URLs legadas do WordPress que estao gerando erros 403, soft 404, 404, e "rastreada mas nao indexada".
+
+### Arquivo 2: `public/robots.txt`
+
+Adicionar bloqueios para:
+- `/tags/`
+- `/author/`
+- `/search/`
+- `/wp-login.php`
+- `/cdn-cgi/`
+- `*/feed/`
+- `/sede-virtual-gratuita/`
+- `/gestor-de-trafego-pode-ser-mei/`
+- `/impostos-na-venda-de-e-books-2/`
+
+### Arquivo 3: Nenhum outro arquivo precisa ser alterado
+
+---
+
+## Acao Pos-Deploy
+
+1. Disparar reindexacao das paginas www via Edge Function
+2. Aguardar 2-4 semanas para o Google reprocessar as URLs redirecionadas
+3. Monitorar no Search Console se os erros diminuem
+
+---
+
+## Impacto Esperado
+
+| Metrica | Antes | Depois (estimativa) |
+|---------|-------|---------------------|
+| URLs com erro 403 | 37 | 0 (redirecionadas) |
+| Soft 404 | 8 | 0 (redirecionadas) |
+| 404 real | 3 | 0 (redirecionadas) |
+| Rastreada mas nao indexada (legadas) | ~25 | 0 (redirecionadas) |
+| Paginas com redirecionamento (www/non-www) | 59 | 59 (resolve com DNS) |
+| Paginas reais detectadas mas nao indexadas | 36 | Indexadas (com reindexacao) |
 

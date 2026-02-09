@@ -35,6 +35,23 @@ Disallow: /2023/
 Disallow: /2024/
 Disallow: /2025/
 
+# Bloquear URLs legadas do WordPress (taxonomias e sistema)
+Disallow: /tags/
+Disallow: /author/
+Disallow: /search/
+Disallow: /wp-login.php
+Disallow: /cdn-cgi/
+
+# Bloquear feeds RSS legados
+Disallow: */feed/
+Disallow: */feed$
+
+# Bloquear URLs legadas específicas sem valor SEO
+Disallow: /sede-virtual-gratuita/
+Disallow: /gestor-de-trafego-pode-ser-mei/
+Disallow: /impostos-na-venda-de-e-books-2/
+Disallow: /sdsdsd/
+
 # Bloquear arquivos internos e assets desnecessários
 Disallow: /lovable-uploads/
 Disallow: /*.json$

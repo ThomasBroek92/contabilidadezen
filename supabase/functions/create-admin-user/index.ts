@@ -23,8 +23,12 @@ Deno.serve(async (req) => {
       }
     });
 
-    const email = 'gjmmxxv@gmail.com';
-    const password = 'Zen@123';
+    const email = Deno.env.get('ADMIN_USER_EMAIL');
+    const password = Deno.env.get('ADMIN_USER_PASSWORD');
+
+    if (!email || !password) {
+      throw new Error('Admin credentials not configured. Set ADMIN_USER_EMAIL and ADMIN_USER_PASSWORD secrets.');
+    }
 
     console.log(`Creating admin user: ${email}`);
 

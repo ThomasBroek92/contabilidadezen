@@ -263,8 +263,8 @@ export function NichesCarousel() {
                             <img 
                               src={niche.backgroundImage} 
                               alt="" 
-                              width={400}
-                              height={420}
+                              width={665}
+                              height={735}
                               loading="lazy"
                               decoding="async"
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

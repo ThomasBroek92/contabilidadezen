@@ -154,8 +154,8 @@ export function Header() {
               src={logoFull} 
               alt="Contabilidade Zen" 
               className="h-10 lg:h-12 w-auto" 
-              width={240} 
-              height={48} 
+              width={1920} 
+              height={388} 
               loading="eager" 
               decoding="async" 
             />

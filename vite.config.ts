@@ -14,7 +14,6 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          'jspdf': ['jspdf', 'pako'],
           'zod': ['zod'],
         },
       },

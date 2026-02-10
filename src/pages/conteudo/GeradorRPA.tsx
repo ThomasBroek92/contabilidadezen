@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { FileText, Calculator, AlertTriangle, User, Building2, Download, RefreshCw, Printer } from "lucide-react";
-import jsPDF from "jspdf";
+// jsPDF is dynamically imported when generating PDF to reduce initial bundle size
 import logoFull from "@/assets/logo-full.webp";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
 
@@ -260,6 +260,7 @@ export default function GeradorRPA() {
   const exportarPDF = async () => {
     if (!resultado) return;
 
+    const { default: jsPDF } = await import("jspdf");
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const margin = 20;

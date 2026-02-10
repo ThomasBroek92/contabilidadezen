@@ -59,7 +59,7 @@ import {
   FileText
 } from "lucide-react";
 import { toast } from "sonner";
-import { jsPDF } from "jspdf";
+// jsPDF is dynamically imported when generating PDF to reduce initial bundle size
 
 import { InvoiceDocumentTypeSelector } from "@/components/gerador-invoice/InvoiceDocumentTypeSelector";
 import { InvoiceThemeSelector } from "@/components/gerador-invoice/InvoiceThemeSelector";
@@ -258,6 +258,7 @@ export default function GeradorInvoice() {
       const t = INVOICE_TRANSLATIONS[formData.language];
       const docTypeLabel = formData.documentType === "invoice" ? t.invoice : t.fatura;
       
+      const { jsPDF } = await import("jspdf");
       const doc = new jsPDF({
         orientation: "portrait",
         unit: "mm",

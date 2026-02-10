@@ -377,7 +377,7 @@ export function PJCalculatorSection() {
                     <Label className="text-muted-foreground text-sm">Outros benefícios (opcional):</Label>
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger aria-label="Mais informações sobre outros benefícios">
                           <HelpCircle className="h-4 w-4 text-muted-foreground" />
                         </TooltipTrigger>
                         <TooltipContent>

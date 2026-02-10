@@ -14,6 +14,10 @@ export function RepresentantesHero() {
         <img 
           src={representanteComercialBg} 
           alt=""
+          width={665}
+          height={735}
+          loading="eager"
+          decoding="async"
           className="w-full h-full object-cover opacity-20"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary/80" />
@@ -92,6 +96,10 @@ export function RepresentantesHero() {
               <img 
                 src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80" 
                 alt="Representante comercial profissional em reunião de negócios"
+                width={800}
+                height={1200}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-[600px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent" />

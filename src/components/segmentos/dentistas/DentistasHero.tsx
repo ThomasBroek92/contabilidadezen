@@ -81,6 +81,10 @@ export function DentistasHero() {
               <img 
                 src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80" 
                 alt="Dentista profissional sorrindo em consultório odontológico"
+                width={800}
+                height={1200}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-[600px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent" />

@@ -121,7 +121,7 @@ export default function Auth() {
       <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <img src={logoFull} alt="Contabilidade Zen" className="h-12 mx-auto mb-4" />
+          <img src={logoFull} alt="Contabilidade Zen" width={1920} height={388} loading="lazy" decoding="async" className="h-12 mx-auto mb-4" />
           <CardTitle>Área Administrativa</CardTitle>
           <CardDescription>
             Acesse o painel de administração para gerenciar leads e usuários.

@@ -144,8 +144,8 @@ export function ExitIntentPopup() {
                 <img 
                   src={supportImage} 
                   alt="Atendimento Contabilidade Zen"
-                  width={192}
-                  height={192}
+                  width={800}
+                  height={533}
                   loading="lazy"
                   decoding="async"
                   className="w-full h-full object-cover"

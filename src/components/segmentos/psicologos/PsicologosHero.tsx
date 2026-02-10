@@ -81,6 +81,10 @@ export function PsicologosHero() {
               <img 
                 src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80" 
                 alt="Psicóloga profissional em ambiente de consultório"
+                width={800}
+                height={1200}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-[600px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent" />

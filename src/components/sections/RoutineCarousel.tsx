@@ -199,7 +199,7 @@ export function RoutineCarousel() {
             <span className="text-gradient">na Contabilidade Zen</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Você cuida apenas de <strong className="text-amber-600">{clientStepsCount} etapas simples</strong>, 
+            Você cuida apenas de <strong className="text-amber-800">{clientStepsCount} etapas simples</strong>, 
             nós cuidamos de <strong className="text-secondary">{zenStepsCount} processos complexos</strong>
           </p>
         </div>

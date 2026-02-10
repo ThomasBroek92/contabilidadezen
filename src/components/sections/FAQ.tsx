@@ -83,7 +83,7 @@ export function FAQ() {
                 <h3 className="font-semibold text-lg mb-3 text-foreground">
                   Ainda tem dúvidas?
                 </h3>
-                <p className="text-muted-foreground mb-6">
+                <p className="text-foreground/60 mb-6">
                   Nossa equipe de especialistas está pronta para ajudar você. 
                   Agende uma consulta gratuita ou fale conosco pelo WhatsApp.
                 </p>

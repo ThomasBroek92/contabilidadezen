@@ -18,8 +18,8 @@
     --primary: 222 47% 20%;
     --primary-foreground: 0 0% 100%;
 
-    /* Verde turquesa do logo */
-    --secondary: 168 76% 42%;
+    /* Verde turquesa do logo (darkened for WCAG 4.5:1 contrast) */
+    --secondary: 168 76% 27%;
     --secondary-foreground: 0 0% 100%;
 
     /* Azul claro do logo */
@@ -43,21 +43,21 @@
 
     /* Custom tokens para Contabilidade Zen */
     --zen-navy: 222 47% 20%;
-    --zen-teal: 168 76% 42%;
+    --zen-teal: 168 76% 27%;
     --zen-blue: 199 89% 48%;
     --zen-light-teal: 168 76% 95%;
     --zen-light-blue: 199 89% 95%;
     --zen-warm: 24 95% 53%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(168 76% 42%), hsl(199 89% 48%));
+    --gradient-primary: linear-gradient(135deg, hsl(168 76% 27%), hsl(199 89% 48%));
     --gradient-hero: linear-gradient(135deg, hsl(168 76% 95%), hsl(199 89% 95%));
-    --gradient-cta: linear-gradient(135deg, hsl(168 76% 42%), hsl(168 76% 35%));
+    --gradient-cta: linear-gradient(135deg, hsl(168 76% 27%), hsl(168 76% 22%));
 
     /* Shadows */
     --shadow-soft: 0 4px 20px -4px hsl(222 47% 20% / 0.1);
     --shadow-card: 0 8px 30px -10px hsl(222 47% 20% / 0.15);
-    --shadow-glow: 0 0 40px hsl(168 76% 42% / 0.2);
+    --shadow-glow: 0 0 40px hsl(168 76% 27% / 0.2);
 
     /* Sidebar */
     --sidebar-background: 0 0% 98%;

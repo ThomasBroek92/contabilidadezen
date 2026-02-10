@@ -18,7 +18,7 @@ const journeySteps = [
     icon: Trophy,
     gradient: "from-orange-500 to-orange-400",
     badgeBg: "bg-orange-100",
-    badgeText: "text-orange-600",
+    badgeText: "text-orange-800",
     borderColor: "border-orange-500",
     description: "Todo novo cliente da Contabilidade Zen passa por um processo de onboarding completo que inclui:",
     benefits: [
@@ -58,7 +58,7 @@ const journeySteps = [
     icon: TrendingUp,
     gradient: "from-emerald-600 to-emerald-400",
     badgeBg: "bg-emerald-100",
-    badgeText: "text-emerald-600",
+    badgeText: "text-emerald-800",
     borderColor: "border-emerald-500",
     description: "Nosso time de sucesso do cliente vai constantemente avaliar seu atendimento e satisfação para garantir a melhor experiência:",
     benefits: [
@@ -189,7 +189,8 @@ export function CustomerJourney() {
         <div className="text-center mt-16">
           <Button 
             size="lg" 
-            className="bg-[#25D366] hover:bg-[#20BD5A] text-white font-semibold px-8"
+            variant="whatsapp"
+            className="font-semibold px-8"
             asChild
           >
             <a {...getWhatsAppAnchorPropsByKey("jornada")}>

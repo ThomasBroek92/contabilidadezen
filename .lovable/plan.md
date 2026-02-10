@@ -1,168 +1,89 @@
 
 
-# Plano Completo de Limpeza de Indexacao - Google Search Console
+# Auditoria de Aspect Ratio em Todas as Imagens + Regra na Base de Conhecimento
 
-## Resumo do Diagnostico
+## Problema
+O Lighthouse reporta erro quando os atributos `width` e `height` de uma `<img>` nao correspondem ao aspect ratio real da imagem. Isso causa CLS (Cumulative Layout Shift) e penaliza Best Practices.
 
-O relatorio mostra **~170 URLs com problemas**, divididas em 8 categorias. A maioria sao resquicios do site WordPress antigo. Abaixo, o plano detalhado para resolver cada categoria.
+## Auditoria Completa - Imagens Encontradas
 
----
+### Grupo 1: Imagens com `width`/`height` que podem causar mismatch
 
-## Categoria 1: Pagina com redirecionamento (59 URLs)
+| Arquivo | Imagem | width/height atuais | Dimensao real | Status |
+|---------|--------|---------------------|---------------|--------|
+| Footer.tsx | logo-full.webp | 1920x388 | 1920x388 | OK (corrigido) |
+| Header.tsx | logo-full.webp | 240x48 | 1920x388 (ratio 4.95) | **ERRO** - 240/48=5.0 |
+| HeroMultiNiche.tsx (desktop) | hero-founder.webp | 512x640 | Precisa verificar | Potencial risco |
+| HeroMultiNiche.tsx (mobile) | hero-founder.webp | 288x360 | Mesmo ratio de 512/640=0.8 | OK se real=0.8 |
+| FinalCTA.tsx | youtubers-bg.webp | 448x448 | Imagem nao e quadrada | **RISCO** |
+| NichesCarousel.tsx | 12 backgrounds .webp | 400x420 | Todas 665x735 (ratio 0.905) | **RISCO** - 400/420=0.952 |
+| ExitIntentPopup.tsx | exit-intent-support.jpg | 192x192 | Foto nao e quadrada | **RISCO** |
+| Testimonials.tsx | Google photos | 40x40 | Avatares Google (quadrados) | OK |
 
-**O que sao:** Versoes non-www (contabilidadezen.com.br) que redirecionam para www. Isso e comportamento correto de SEO.
+### Grupo 2: Imagens SEM `width`/`height` (problema de CLS, mas nao de aspect ratio)
 
-**Acao:** Nenhuma mudanca no codigo. Essas URLs vao desaparecer do relatorio conforme o Google consolida a indexacao no dominio www. Para acelerar, configurar redirect 301 de non-www para www no provedor de DNS/hosting.
+| Arquivo | Imagem | Acao |
+|---------|--------|------|
+| MedicosHero.tsx | Unsplash (800x?) | Adicionar width=800 height=600 |
+| DentistasHero.tsx | Unsplash (800x?) | Adicionar width=800 height=600 |
+| PsicologosHero.tsx | Unsplash (800x?) | Adicionar width=800 height=600 |
+| RepresentantesHero.tsx | Unsplash (800x?) + bg local | Adicionar width/height |
+| Auth.tsx | logo-full.webp | Adicionar width=1920 height=388 |
+| MarkdownRenderer.tsx | Dinamico (blog) | Nao aplicavel |
 
----
+## Plano de Implementacao
 
-## Categoria 2: Excluida pela tag noindex (24 URLs)
+### Etapa 1: Corrigir imagens com atributos incorretos
 
-**O que sao:** Paginas do WordPress antigo (/tags/, /author/, /search/, /wp-login.php) e /parceiro/dashboard.
+1. **Header.tsx** - Logo: mudar para `width={1920} height={388}` (ratio real 4.95)
+2. **NichesCarousel.tsx** - 12 cards: mudar de `400x420` para `665x735` (dimensao real dos WebP)
+3. **FinalCTA.tsx** - youtubers-bg: verificar dimensao real e ajustar (imagem de nicho, provavelmente 665x735, nao 448x448)
+4. **ExitIntentPopup.tsx** - support image: verificar dimensao real do exit-intent-support.jpg e ajustar
 
-**Acao no codigo:**
-- Adicionar essas URLs ao LegacyRedirects.tsx para redirecionar em vez de mostrar noindex
-- Adicionar bloqueios no robots.txt para /tags/, /author/, /search/, /wp-login.php
-- A URL `/gestor-de-trafego-pode-ser-mei/`, `/sede-virtual-gratuita/`, `/impostos-na-venda-de-e-books-2/` serao redirecionadas para /blog
+### Etapa 2: Adicionar width/height em imagens que nao tem
 
----
+5. **MedicosHero.tsx** - Adicionar `width={800} height={1200}` + `loading="lazy"` + `decoding="async"`
+6. **DentistasHero.tsx** - Mesma correcao
+7. **PsicologosHero.tsx** - Mesma correcao
+8. **RepresentantesHero.tsx** - Adicionar nos dois `<img>` (bg e unsplash)
+9. **Auth.tsx** - Logo: adicionar `width={1920} height={388}` + `loading="lazy"` + `decoding="async"`
 
-## Categoria 3: Bloqueada por 403 (37 URLs)
+### Etapa 3: Atualizar Base de Conhecimento
 
-**O que sao:** Mix de URLs legadas do WordPress e URLs atuais acessadas via non-www. As legadas ja estao parcialmente cobertas pelo LegacyRedirects, mas faltam algumas.
+Adicionar nova secao `#IMAGE_ASPECT_RATIO_RULES` no Custom Knowledge:
 
-**Acao no codigo:** Adicionar ao LegacyRedirects.tsx as URLs faltantes:
-- `/contato` (sem trailing slash, versao non-www) - ja funciona no SPA
-- `/blog/` (com trailing slash) - adicionar redirect
-- `/politica-de-privacidade` (versao non-www) - ja funciona no SPA
+```
+#IMAGE_ASPECT_RATIO_RULES
 
----
+## Regras de Aspect Ratio para Imagens
 
-## Categoria 4: Erro soft 404 (8 URLs)
+1. **width e height DEVEM corresponder ao aspect ratio real da imagem**
+   - NUNCA inventar valores de width/height
+   - Usar as dimensoes reais do arquivo (ex: 1920x388 para o logo)
+   - Se a imagem e exibida menor via CSS (h-12, w-auto), os atributos HTML ainda devem refletir o ratio real
 
-**O que sao:** URLs legadas do WordPress que carregam o SPA mas mostram a pagina NotFound. O Google detecta que e um 404 disfarçado.
+2. **Toda <img> DEVE ter width e height explicitos**
+   - Previne CLS (Cumulative Layout Shift)
+   - Permite ao navegador reservar espaco antes do carregamento
+   - Excecao: imagens dinamicas de blog/CMS onde dimensoes sao desconhecidas
 
-**Acao no codigo:** Adicionar TODAS ao LegacyRedirects.tsx:
+3. **Dimensoes reais dos assets do projeto:**
+   - logo-full.webp: 1920x388
+   - hero-founder.webp: 512x640
+   - Nichos (01 a 12): 665x735
+   - exit-intent-support.jpg: verificar e documentar
 
-| URL Legada | Redirecionar para |
-|------------|-------------------|
-| `/blog-impostos-para-infoprodutores-qual-o-melhor-regime-tributario/` | `/blog` |
-| `/beneficios-de-contratar-uma-contabilidade-digital/` | `/blog` |
-| `/contabilidade-para-e-commerce/` | `/blog` |
-| `/vantagens-conta-pj-banco-digital/` | `/blog` |
-| `/como-abrir-uma-empresa-de-social-media/` | `/blog` |
-| `/seja-parceiro-cz/` | `/indique-e-ganhe` |
-| `/mei/` | `/blog` |
-| `/como-emitir-nota-fiscal-nas-vendas-internacionais-na-hotmart/` | `/blog` |
+4. **Para imagens externas (Unsplash, Google Photos):**
+   - Usar as dimensoes do crop solicitado na URL (?w=800)
+   - Se usando object-cover com altura fixa, usar width=800 height=1200 (retrato) ou width=800 height=533 (paisagem)
 
----
+5. **Validacao:**
+   - Rodar Lighthouse Best Practices antes de publicar
+   - Verificar "Displays images with incorrect aspect ratio"
+```
 
-## Categoria 5: Nao encontrado 404 (3 URLs)
+## Detalhes Tecnicos
 
-**Acao no codigo:** Adicionar ao LegacyRedirects.tsx:
-
-| URL Legada | Redirecionar para |
-|------------|-------------------|
-| `/servicos-de-contabilidade-em-americana-sp/` | `/cidades-atendidas` |
-| `/seja-parceiro-cz-3/` | `/indique-e-ganhe` |
-| `/cdn-cgi/l/email-protection` | `/` |
-
----
-
-## Categoria 6: Rastreada mas nao indexada (37 URLs)
-
-**O que sao:** Mix de conteudo WordPress antigo e feeds RSS.
-
-**Acao no codigo:** Adicionar ao LegacyRedirects.tsx:
-
-| URL Legada | Redirecionar para |
-|------------|-------------------|
-| `/a-importancia-de-regularizar-ganhos-no-onlyfans/` | `/blog` |
-| `/infoprodutor-deve-emitir-nota-fiscal/` | `/blog` |
-| `/contabilidade-para-prestadores-de-servico/` | `/servicos` |
-| `/sistema-de-gestao-financeiro/` | `/blog` |
-| `/venda-sem-nota-fiscal-conheca-os-riscos-e-as-consequencias/` | `/blog` |
-| `/contabilidade-zen/` | `/sobre` |
-| `/programador-desenvolvedor-ser-mei/` | `/blog` |
-| `/empresa-de-copywriting-como-abrir/` | `/blog` |
-| `/planos-de-contabilidade-online/` | `/servicos` |
-| `/contabilidade-para-gestor-de-trafego/` | `/blog` |
-| `/contabilidade-para-desenvolvedor-ti/` | `/blog` |
-| `/seja-parceiro-cz-2/` | `/indique-e-ganhe` |
-| `/infoprodutor-precisa-de-cnpj/` | `/blog` |
-| `/contabilidade-para-medico/` | `/segmentos/contabilidade-para-medicos` |
-| `/reducao-tributaria-para-e-book-saiba-como-fazer-da-maneira-correta/` | `/blog` |
-| `/planilha-gestao-fluxo-de-caixa/` | `/blog` |
-| `/sdsdsd/` | `/` |
-| `/limite-de-faturamento-mei/` | `/blog` |
-| `/gerenciar-o-fluxo-de-caixa-sucesso-financeiro/` | `/blog` |
-| `/simples-nacional-com-novo-limite-de-faturamento-entenda/` | `/blog` |
-| `/guia-completo-para-iniciantes/` | `/blog` |
-| `/abertura-de-empresa-para-influencer-digital/` | `/abrir-empresa` |
-| `/ir-a-falencia-saiba-como-evitar/` | `/blog` |
-
-**Feeds e URLs tecnicas** - bloquear no robots.txt:
-- `/author/*/feed/`
-- `/tags/*/feed/`
-- Datas do WordPress (ja bloqueadas)
-
----
-
-## Categoria 7: Detectada mas nao indexada (36 URLs www)
-
-**O que sao:** Paginas REAIS do site atual (blog posts, segmentos, servicos, contato). O Google encontrou via sitemap mas ainda nao indexou.
-
-**Acao:** Disparar reindexacao via a Edge Function `process-indexing-queue` para forcar o envio dessas URLs ao Google Indexing API. Nenhuma mudanca de codigo necessaria.
-
----
-
-## Categoria 8: Canonical duplicado (1 URL)
-
-**URL:** `/conteudo/calculadora-pj-clt` - "Copia sem pagina canonica selecionada pelo usuario"
-
-**Acao:** Ja possui canonical correto no codigo. Pode ser necessario inspecionar a URL manualmente no Search Console para forcar reprocessamento.
-
----
-
-## Resumo de Alteracoes no Codigo
-
-### Arquivo 1: `src/components/LegacyRedirects.tsx`
-
-Adicionar ~40 novos mapeamentos de redirect cobrindo todas as URLs legadas do WordPress que estao gerando erros 403, soft 404, 404, e "rastreada mas nao indexada".
-
-### Arquivo 2: `public/robots.txt`
-
-Adicionar bloqueios para:
-- `/tags/`
-- `/author/`
-- `/search/`
-- `/wp-login.php`
-- `/cdn-cgi/`
-- `*/feed/`
-- `/sede-virtual-gratuita/`
-- `/gestor-de-trafego-pode-ser-mei/`
-- `/impostos-na-venda-de-e-books-2/`
-
-### Arquivo 3: Nenhum outro arquivo precisa ser alterado
-
----
-
-## Acao Pos-Deploy
-
-1. Disparar reindexacao das paginas www via Edge Function
-2. Aguardar 2-4 semanas para o Google reprocessar as URLs redirecionadas
-3. Monitorar no Search Console se os erros diminuem
-
----
-
-## Impacto Esperado
-
-| Metrica | Antes | Depois (estimativa) |
-|---------|-------|---------------------|
-| URLs com erro 403 | 37 | 0 (redirecionadas) |
-| Soft 404 | 8 | 0 (redirecionadas) |
-| 404 real | 3 | 0 (redirecionadas) |
-| Rastreada mas nao indexada (legadas) | ~25 | 0 (redirecionadas) |
-| Paginas com redirecionamento (www/non-www) | 59 | 59 (resolve com DNS) |
-| Paginas reais detectadas mas nao indexadas | 36 | Indexadas (com reindexacao) |
-
+- Nenhuma mudanca visual: `width`/`height` HTML sao apenas hints para o navegador; o CSS (`h-12 w-auto`, `object-cover`, etc.) continua controlando o tamanho renderizado
+- As imagens Unsplash com `?w=800` retornam imagens em formato retrato (~800x1200) para fotos de pessoas
+- Imagens dinamicas (blog, avatares) nao precisam de correcao pois suas dimensoes sao desconhecidas no build time

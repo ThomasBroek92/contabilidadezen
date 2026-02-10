@@ -213,7 +213,7 @@ export function HeroMultiNiche() {
                 className="bg-secondary/10 backdrop-blur-sm border border-secondary/20 rounded-xl p-4 transition-all duration-300 hover:bg-secondary/15 hover:-translate-y-1"
               >
                 <card.icon className="h-8 w-8 text-secondary mb-3" />
-                <h3 className="font-semibold text-foreground text-sm mb-1">{card.title}</h3>
+                <p className="font-semibold text-foreground text-sm mb-1">{card.title}</p>
                 <p className="text-muted-foreground text-xs">{card.description}</p>
               </div>
             </StaggerItem>

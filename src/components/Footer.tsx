@@ -13,7 +13,7 @@ export function Footer() {
               src={logoFull} 
               alt="Contabilidade Zen" 
               className="h-12 w-auto brightness-0 invert" 
-              width={240}
+              width={238}
               height={48}
               loading="lazy"
               decoding="async"

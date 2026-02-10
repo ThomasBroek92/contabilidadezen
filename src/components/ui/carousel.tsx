@@ -256,17 +256,21 @@ function CarouselDots({ className }: { className?: string }) {
   if (count <= 1) return null;
 
   return (
-    <div className={cn("flex justify-center gap-2 mt-4", className)}>
+    <div className={cn("flex justify-center gap-0 mt-4", className)}>
       {Array.from({ length: count }).map((_, i) => (
         <button
           key={i}
-          className={cn(
-            "w-2.5 h-2.5 rounded-full transition-colors",
-            i === current ? "bg-secondary" : "bg-muted-foreground/30"
-          )}
+          className="p-[7px] cursor-pointer"
           onClick={() => api?.scrollTo(i)}
           aria-label={`Ir para slide ${i + 1}`}
-        />
+        >
+          <span
+            className={cn(
+              "block w-2.5 h-2.5 rounded-full transition-colors",
+              i === current ? "bg-secondary" : "bg-muted-foreground/30"
+            )}
+          />
+        </button>
       ))}
     </div>
   );

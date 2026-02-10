@@ -168,8 +168,8 @@ export function Header() {
               <Link
                 key={link.name}
                 to={link.href}
-                className={`text-sm font-medium transition-colors hover:text-secondary ${
-                  isActive(link.href) ? "text-secondary" : "text-foreground/80"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive(link.href) ? "text-primary font-bold" : "text-foreground/80"
                 }`}
               >
                 {link.name}
@@ -180,8 +180,8 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button 
-                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-secondary ${
-                    isSolucoesActive() ? "text-secondary" : "text-foreground/80"
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary ${
+                    isSolucoesActive() ? "text-primary font-bold" : "text-foreground/80"
                   }`}
                 >
                   Soluções
@@ -208,8 +208,8 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button 
-                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-secondary ${
-                    isConteudoActive() ? "text-secondary" : "text-foreground/80"
+                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary ${
+                    isConteudoActive() ? "text-primary font-bold" : "text-foreground/80"
                   }`}
                 >
                   Conteúdos
@@ -235,8 +235,8 @@ export function Header() {
             {/* Contato */}
             <Link
               to="/contato"
-              className={`text-sm font-medium transition-colors hover:text-secondary ${
-                isActive("/contato") ? "text-secondary" : "text-foreground/80"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive("/contato") ? "text-primary font-bold" : "text-foreground/80"
               }`}
             >
               Contato
@@ -281,7 +281,7 @@ export function Header() {
               variant="outline" 
               size="sm" 
               asChild 
-              className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground"
+              className="border-primary text-primary hover:bg-secondary hover:text-secondary-foreground"
             >
               <Link to="/indique-e-ganhe">
                 <Gift className="h-4 w-4 mr-1" />

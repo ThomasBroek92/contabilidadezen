@@ -53,14 +53,14 @@ export function CookieConsent() {
                 Ao aceitar, você concorda com nossa{" "}
                 <Link 
                   to="/politica-de-privacidade" 
-                  className="text-secondary hover:underline"
+                  className="text-primary underline hover:text-primary/80"
                 >
                   Política de Privacidade
                 </Link>{" "}
                 e nossos{" "}
                 <Link 
                   to="/termos" 
-                  className="text-secondary hover:underline"
+                  className="text-primary underline hover:text-primary/80"
                 >
                   Termos de Uso
                 </Link>.

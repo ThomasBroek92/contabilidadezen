@@ -13,7 +13,7 @@ import {
   Star
 } from "lucide-react";
 import { StaggerContainer, StaggerItem } from "@/components/ui/scroll-animation";
-import heroFounder from "@/assets/hero-founder.webp";
+const heroFounder = "/images/hero-founder.webp";
 import { getWhatsAppAnchorPropsByKey } from "@/lib/whatsapp";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 

@@ -247,20 +247,24 @@ export function RoutineCarousel() {
         </Carousel>
 
         {/* Navigation Dots */}
-        <div className="flex items-center justify-center gap-2 mt-8">
+        <div className="flex items-center justify-center gap-0 mt-8">
           {Array.from({ length: count }).map((_, index) => (
             <button
               key={index}
               onClick={() => scrollTo(index)}
-              className={`
-                w-2.5 h-2.5 rounded-full transition-all duration-300
-                ${current === index 
-                  ? "bg-secondary w-8" 
-                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                }
-              `}
+              className="p-[7px] cursor-pointer"
               aria-label={`Ir para slide ${index + 1}`}
-            />
+            >
+              <span
+                className={`
+                  block h-2.5 rounded-full transition-all duration-300
+                  ${current === index 
+                    ? "bg-secondary w-8" 
+                    : "w-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  }
+                `}
+              />
+            </button>
           ))}
         </div>
 

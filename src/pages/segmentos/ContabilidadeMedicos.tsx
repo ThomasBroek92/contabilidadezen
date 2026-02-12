@@ -7,9 +7,11 @@ import { MedicosBenefits } from "@/components/segmentos/medicos/MedicosBenefits"
 import { MedicosProblems } from "@/components/segmentos/medicos/MedicosProblems";
 import { MedicosProcess } from "@/components/segmentos/medicos/MedicosProcess";
 import { MedicosTestimonials } from "@/components/segmentos/medicos/MedicosTestimonials";
-import { MedicosFAQ } from "@/components/segmentos/medicos/MedicosFAQ";
+import { MedicosFAQ, medicosFaqs } from "@/components/segmentos/medicos/MedicosFAQ";
 import { MedicosCTA } from "@/components/segmentos/medicos/MedicosCTA";
 import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxComparisonCalculator";
+
+const SITE_URL = "https://www.contabilidadezen.com.br";
 
 export default function ContabilidadeMedicos() {
   return (
@@ -21,6 +23,12 @@ export default function ContabilidadeMedicos() {
         canonical="/segmentos/contabilidade-para-medicos"
         pageType="service"
         includeLocalBusiness
+        faqs={medicosFaqs}
+        breadcrumbs={[
+          { name: "Home", url: SITE_URL },
+          { name: "Segmentos", url: `${SITE_URL}/servicos` },
+          { name: "Contabilidade para Médicos", url: `${SITE_URL}/segmentos/contabilidade-para-medicos` }
+        ]}
       />
       
       <Header />

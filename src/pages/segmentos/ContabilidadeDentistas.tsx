@@ -7,9 +7,11 @@ import { DentistasBenefits } from "@/components/segmentos/dentistas/DentistasBen
 import { DentistasProblems } from "@/components/segmentos/dentistas/DentistasProblems";
 import { DentistasProcess } from "@/components/segmentos/dentistas/DentistasProcess";
 import { DentistasTestimonials } from "@/components/segmentos/dentistas/DentistasTestimonials";
-import { DentistasFAQ } from "@/components/segmentos/dentistas/DentistasFAQ";
+import { DentistasFAQ, dentistasFaqs } from "@/components/segmentos/dentistas/DentistasFAQ";
 import { DentistasCTA } from "@/components/segmentos/dentistas/DentistasCTA";
 import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxComparisonCalculator";
+
+const SITE_URL = "https://www.contabilidadezen.com.br";
 
 export default function ContabilidadeDentistas() {
   return (
@@ -21,6 +23,12 @@ export default function ContabilidadeDentistas() {
         canonical="/segmentos/contabilidade-para-dentistas"
         pageType="service"
         includeLocalBusiness
+        faqs={dentistasFaqs}
+        breadcrumbs={[
+          { name: "Home", url: SITE_URL },
+          { name: "Segmentos", url: `${SITE_URL}/servicos` },
+          { name: "Contabilidade para Dentistas", url: `${SITE_URL}/segmentos/contabilidade-para-dentistas` }
+        ]}
       />
       
       <Header />

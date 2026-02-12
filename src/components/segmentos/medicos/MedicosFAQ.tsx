@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const faqs = [
+export const medicosFaqs = [
   {
     question: "Qual o melhor regime tributário para médicos?",
     answer: "O melhor regime depende do seu faturamento, estrutura de custos e forma de atuação. Geralmente, médicos com faturamento acima de R$ 15.000/mês se beneficiam ao atuar como PJ no Simples Nacional ou Lucro Presumido. Nossa equipe faz uma análise personalizada para identificar a melhor opção para o seu caso.",
@@ -50,7 +50,7 @@ export function MedicosFAQ() {
           </div>
           
           <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
+            {medicosFaqs.map((faq, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}

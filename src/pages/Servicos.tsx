@@ -1,4 +1,5 @@
 import { SEOHead } from "@/components/SEOHead";
+import { servicesSchema } from "@/lib/seo-schemas";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -118,6 +119,11 @@ export default function Servicos() {
         canonical="/servicos"
         pageType="service"
         includeLocalBusiness
+        customSchema={servicesSchema}
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Serviços", url: "https://www.contabilidadezen.com.br/servicos" }
+        ]}
       />
       <div className="min-h-screen bg-background">
       <Header />

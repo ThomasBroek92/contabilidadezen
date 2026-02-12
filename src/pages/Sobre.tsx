@@ -1,4 +1,5 @@
 import { SEOHead } from "@/components/SEOHead";
+import { aboutPageSchema } from "@/lib/seo-schemas";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,11 @@ export default function Sobre() {
         canonical="/sobre"
         pageType="service"
         includeOrganization
+        customSchema={aboutPageSchema}
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Sobre", url: "https://www.contabilidadezen.com.br/sobre" }
+        ]}
       />
       <div className="min-h-screen bg-background">
       <Header />

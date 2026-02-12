@@ -7,9 +7,11 @@ import { PsicologosBenefits } from "@/components/segmentos/psicologos/Psicologos
 import { PsicologosProblems } from "@/components/segmentos/psicologos/PsicologosProblems";
 import { PsicologosProcess } from "@/components/segmentos/psicologos/PsicologosProcess";
 import { PsicologosTestimonials } from "@/components/segmentos/psicologos/PsicologosTestimonials";
-import { PsicologosFAQ } from "@/components/segmentos/psicologos/PsicologosFAQ";
+import { PsicologosFAQ, psicologosFaqs } from "@/components/segmentos/psicologos/PsicologosFAQ";
 import { PsicologosCTA } from "@/components/segmentos/psicologos/PsicologosCTA";
 import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxComparisonCalculator";
+
+const SITE_URL = "https://www.contabilidadezen.com.br";
 
 export default function ContabilidadePsicologos() {
   return (
@@ -21,6 +23,12 @@ export default function ContabilidadePsicologos() {
         canonical="/segmentos/contabilidade-para-psicologos"
         pageType="service"
         includeLocalBusiness
+        faqs={psicologosFaqs}
+        breadcrumbs={[
+          { name: "Home", url: SITE_URL },
+          { name: "Segmentos", url: `${SITE_URL}/servicos` },
+          { name: "Contabilidade para Psicólogos", url: `${SITE_URL}/segmentos/contabilidade-para-psicologos` }
+        ]}
       />
       
       <Header />

@@ -201,6 +201,10 @@ export default function Contato() {
         pageType="contact"
         includeOrganization
         includeLocalBusiness
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Contato", url: "https://www.contabilidadezen.com.br/contato" }
+        ]}
       />
       <div className="min-h-screen bg-background">
       <Header />

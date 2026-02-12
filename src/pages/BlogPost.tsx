@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { BlogPostSEO } from '@/components/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -167,61 +167,7 @@ export default function BlogPost() {
     }
   };
 
-  // Generate JSON-LD structured data for SEO (Article + FAQPage)
-  const generateStructuredData = () => {
-    if (!post) return null;
 
-    const schemas: object[] = [];
-
-    // Article Schema
-    schemas.push({
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: post.title,
-      description: post.meta_description || post.excerpt || post.title,
-      datePublished: post.published_at || post.created_at,
-      dateModified: post.freshness_date || post.published_at || post.created_at,
-      author: {
-        '@type': 'Organization',
-        name: 'Contabilidade Zen',
-        url: 'https://www.contabilidadezen.com.br',
-      },
-      publisher: {
-        '@type': 'Organization',
-        name: 'Contabilidade Zen',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://www.contabilidadezen.com.br/logo.png',
-        },
-      },
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': window.location.href,
-      },
-      keywords: post.meta_keywords?.join(', '),
-      articleSection: post.category,
-      wordCount: post.content.split(/\s+/).length,
-      timeRequired: `PT${post.read_time_minutes || 5}M`,
-    });
-
-    // FAQPage Schema (if FAQ data exists)
-    if (post.faq_schema?.mainEntity && post.faq_schema.mainEntity.length > 0) {
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: post.faq_schema.mainEntity.map((item: FAQItem) => ({
-          '@type': 'Question',
-          name: item.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: item.answer,
-          },
-        })),
-      });
-    }
-
-    return schemas;
-  };
 
   if (loading) {
     return (
@@ -235,36 +181,23 @@ export default function BlogPost() {
     return null;
   }
 
-  const structuredData = generateStructuredData();
   const expertQuotes = post.expert_quotes || [];
   const statistics = post.statistics || [];
   const authorityCitations = post.authority_citations || [];
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>{post.meta_title || post.title} | Blog Contabilidade Zen</title>
-        <meta name="description" content={post.meta_description || post.excerpt || post.title} />
-        {post.meta_keywords && (
-          <meta name="keywords" content={post.meta_keywords.join(', ')} />
-        )}
-        <meta property="og:title" content={post.meta_title || post.title} />
-        <meta property="og:description" content={post.meta_description || post.excerpt || post.title} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://www.contabilidadezen.com.br/blog/${post.slug}`} />
-        <meta property="article:published_time" content={post.published_at || post.created_at} />
-        <meta property="article:modified_time" content={post.freshness_date || post.published_at || post.created_at} />
-        <meta property="article:section" content={post.category} />
-        {post.meta_keywords?.map((keyword, i) => (
-          <meta key={i} property="article:tag" content={keyword} />
-        ))}
-        <link rel="canonical" href={`https://www.contabilidadezen.com.br/blog/${post.slug}`} />
-        {structuredData && structuredData.map((schema, i) => (
-          <script key={i} type="application/ld+json">
-            {JSON.stringify(schema)}
-          </script>
-        ))}
-      </Helmet>
+      <BlogPostSEO
+        title={post.meta_title || post.title}
+        description={post.meta_description || post.excerpt || post.title}
+        slug={post.slug}
+        publishedTime={post.published_at || post.created_at}
+        modifiedTime={post.freshness_date || post.published_at || post.created_at}
+        featuredImage={post.featured_image_url || undefined}
+        category={post.category}
+        tags={post.meta_keywords || undefined}
+        faqs={post.faq_schema?.mainEntity}
+      />
 
       <Header />
 

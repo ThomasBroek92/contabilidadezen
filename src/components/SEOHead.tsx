@@ -28,6 +28,8 @@ interface SEOHeadProps {
   author?: string;
   section?: string;
   tags?: string[];
+  wordCount?: number;
+  readTimeMinutes?: number;
   
   // Schemas
   includeOrganization?: boolean;
@@ -97,9 +99,10 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
   
   // Article schema for blog posts
   if (props.pageType === "blog-post" && props.canonical) {
+    const fullCanonicalUrl = props.canonical.startsWith("http") ? props.canonical : `${SITE_URL}${props.canonical}`;
     schemas.push({
       "@context": "https://schema.org",
-      "@type": "Article",
+      "@type": "BlogPosting",
       "headline": props.title,
       "description": props.description,
       "image": props.ogImage || DEFAULT_IMAGE,
@@ -120,10 +123,12 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
       "dateModified": props.modifiedTime || props.publishedTime,
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": props.canonical
+        "@id": fullCanonicalUrl
       },
       ...(props.section && { "articleSection": props.section }),
-      ...(props.tags && { "keywords": props.tags.join(", ") })
+      ...(props.tags && { "keywords": props.tags.join(", ") }),
+      ...(props.wordCount && { "wordCount": props.wordCount }),
+      ...(props.readTimeMinutes && { "timeRequired": `PT${props.readTimeMinutes}M` })
     });
   }
   

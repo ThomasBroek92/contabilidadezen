@@ -255,6 +255,35 @@ export const homePageSchema = {
   ]
 };
 
+// Blog listing schema (CollectionPage + ItemList)
+export const generateBlogListingSchema = (posts: Array<{ title: string; slug: string; excerpt?: string | null }>) => ({
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Blog Contabilidade Zen",
+  "description": "Conteúdo especializado sobre contabilidade, impostos e gestão financeira para profissionais.",
+  "url": `${SITE_URL}/blog`,
+  "isPartOf": { "@id": `${SITE_URL}/#website` },
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": posts.slice(0, 20).map((post, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `${SITE_URL}/blog/${post.slug}`,
+      "name": post.title
+    }))
+  }
+});
+
+// About page schema
+export const aboutPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "Sobre a Contabilidade Zen",
+  "description": "Contabilidade digital especializada em profissionais da saúde. Mais de 500 clientes atendidos.",
+  "url": `${SITE_URL}/sobre`,
+  "mainEntity": { "@id": `${SITE_URL}/#organization` }
+};
+
 // FAQ data for reuse across components and schema
 export const homeFAQs = [
   // BLOCO 1 - CONTABILIDADE DIGITAL

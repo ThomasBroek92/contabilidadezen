@@ -1,4 +1,5 @@
 import { SEOHead } from "@/components/SEOHead";
+import { generateBlogListingSchema } from "@/lib/seo-schemas";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,8 @@ export default function Blog() {
 
   const featuredPost = filteredPosts[0];
 
+  const SITE_URL = "https://www.contabilidadezen.com.br";
+
   return (
     <>
       <SEOHead
@@ -76,6 +79,11 @@ export default function Blog() {
         keywords="blog contabilidade, dicas impostos médicos, contabilidade saúde, tributação PJ, planejamento tributário"
         canonical="/blog"
         pageType="blog"
+        breadcrumbs={[
+          { name: "Home", url: SITE_URL },
+          { name: "Blog", url: `${SITE_URL}/blog` }
+        ]}
+        customSchema={posts.length > 0 ? generateBlogListingSchema(posts) : undefined}
       />
       <div className="min-h-screen bg-background">
       <Header />

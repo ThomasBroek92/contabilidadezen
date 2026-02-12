@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const faqs = [
+export const representantesFaqs = [
   {
     question: "Qual o melhor regime tributário para representante comercial?",
     answer: "O melhor regime depende do seu faturamento e estrutura de custos. Geralmente, representantes com faturamento mensal acima de R$ 15.000 se beneficiam atuando como PJ no Simples Nacional (usando o Fator R para enquadramento no Anexo III) ou Lucro Presumido. Nossa equipe faz uma análise personalizada para identificar a melhor opção.",
@@ -58,7 +58,7 @@ export function RepresentantesFAQ() {
           </div>
           
           <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
+            {representantesFaqs.map((faq, index) => (
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}

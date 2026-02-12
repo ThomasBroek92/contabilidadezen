@@ -1,89 +1,195 @@
 
 
-# Auditoria de Aspect Ratio em Todas as Imagens + Regra na Base de Conhecimento
+# Plano: Dados Estruturados JSON-LD Completos por Pagina + Regra na Base de Conhecimento
 
-## Problema
-O Lighthouse reporta erro quando os atributos `width` e `height` de uma `<img>` nao correspondem ao aspect ratio real da imagem. Isso causa CLS (Cumulative Layout Shift) e penaliza Best Practices.
+## Diagnostico Atual
 
-## Auditoria Completa - Imagens Encontradas
+### O que ja funciona bem
+- **Home (Index)**: Organization + LocalBusiness + FAQPage via SEOHead
+- **Blog Post (detalhe)**: BlogPosting + FAQPage (schema manual no componente)
+- **Abrir Empresa**: FAQPage via SEOHead (faqs prop)
+- **Cidades Atendidas**: FAQPage via SEOHead (faqs prop)
+- **Indique e Ganhe**: FAQPage via SEOHead (faqs prop)
+- **Ferramentas (Contrato PJ, Calculadora)**: WebApplication via ToolPageSEO
 
-### Grupo 1: Imagens com `width`/`height` que podem causar mismatch
+### Problemas identificados
 
-| Arquivo | Imagem | width/height atuais | Dimensao real | Status |
-|---------|--------|---------------------|---------------|--------|
-| Footer.tsx | logo-full.webp | 1920x388 | 1920x388 | OK (corrigido) |
-| Header.tsx | logo-full.webp | 240x48 | 1920x388 (ratio 4.95) | **ERRO** - 240/48=5.0 |
-| HeroMultiNiche.tsx (desktop) | hero-founder.webp | 512x640 | Precisa verificar | Potencial risco |
-| HeroMultiNiche.tsx (mobile) | hero-founder.webp | 288x360 | Mesmo ratio de 512/640=0.8 | OK se real=0.8 |
-| FinalCTA.tsx | youtubers-bg.webp | 448x448 | Imagem nao e quadrada | **RISCO** |
-| NichesCarousel.tsx | 12 backgrounds .webp | 400x420 | Todas 665x735 (ratio 0.905) | **RISCO** - 400/420=0.952 |
-| ExitIntentPopup.tsx | exit-intent-support.jpg | 192x192 | Foto nao e quadrada | **RISCO** |
-| Testimonials.tsx | Google photos | 40x40 | Avatares Google (quadrados) | OK |
+1. **BlogPost.tsx tem schema duplicado**: Usa tanto o `generateStructuredData()` manual (com BlogPosting) quanto o `<Helmet>` direto. NAO usa o `<SEOHead>` nem o `BlogPostSEO` pre-configurado. Resultado: meta tags e schema injetados de forma inconsistente, sem BreadcrumbList no JSON-LD, e logo URL errada (`/logo.png` ao inves do logo real).
 
-### Grupo 2: Imagens SEM `width`/`height` (problema de CLS, mas nao de aspect ratio)
+2. **Blog.tsx (listagem)**: Nao tem schema CollectionPage/ItemList para listar posts. Perde oportunidade de rich snippets na listagem.
 
-| Arquivo | Imagem | Acao |
-|---------|--------|------|
-| MedicosHero.tsx | Unsplash (800x?) | Adicionar width=800 height=600 |
-| DentistasHero.tsx | Unsplash (800x?) | Adicionar width=800 height=600 |
-| PsicologosHero.tsx | Unsplash (800x?) | Adicionar width=800 height=600 |
-| RepresentantesHero.tsx | Unsplash (800x?) + bg local | Adicionar width/height |
-| Auth.tsx | logo-full.webp | Adicionar width=1920 height=388 |
-| MarkdownRenderer.tsx | Dinamico (blog) | Nao aplicavel |
+3. **Paginas de segmento (Medicos, Dentistas, Psicologos, Representantes)**: Tem `pageType="service"` mas NAO passam `faqs` nem `breadcrumbs`. Os FAQs existem nos componentes filhos mas nao geram FAQPage schema.
+
+4. **Servicos.tsx**: Nao tem FAQPage schema nem breadcrumbs.
+
+5. **Sobre.tsx**: Nao tem breadcrumbs.
+
+6. **Contato.tsx**: Tem Organization + LocalBusiness mas nao tem ContactPage schema nem breadcrumbs.
+
+7. **Ferramentas (CalculadoraPJCLT, ComparativoTributario, GeradorRPA, TabelaSimplesNacional, GeradorInvoice)**: Precisam verificar se usam ToolPageSEO ou SEOHead generico.
+
+8. **Pagina local (ContabilidadeCampinas)**: Precisa verificar schema LocalBusiness especifico.
+
+---
 
 ## Plano de Implementacao
 
-### Etapa 1: Corrigir imagens com atributos incorretos
+### Etapa 1: Enriquecer `seo-schemas.ts` com novos geradores
 
-1. **Header.tsx** - Logo: mudar para `width={1920} height={388}` (ratio real 4.95)
-2. **NichesCarousel.tsx** - 12 cards: mudar de `400x420` para `665x735` (dimensao real dos WebP)
-3. **FinalCTA.tsx** - youtubers-bg: verificar dimensao real e ajustar (imagem de nicho, provavelmente 665x735, nao 448x448)
-4. **ExitIntentPopup.tsx** - support image: verificar dimensao real do exit-intent-support.jpg e ajustar
+Adicionar ao arquivo `src/lib/seo-schemas.ts`:
 
-### Etapa 2: Adicionar width/height em imagens que nao tem
+- **`generateBlogListingSchema(posts)`**: Gera `CollectionPage` + `ItemList` com os posts publicados para a pagina `/blog`.
+- **`generateContactPageSchema()`**: Gera schema `ContactPage` com dados de contato.
+- **`generateAboutPageSchema()`**: Gera schema `AboutPage` para `/sobre`.
+- Exportar os arrays de FAQs dos segmentos de forma reutilizavel.
 
-5. **MedicosHero.tsx** - Adicionar `width={800} height={1200}` + `loading="lazy"` + `decoding="async"`
-6. **DentistasHero.tsx** - Mesma correcao
-7. **PsicologosHero.tsx** - Mesma correcao
-8. **RepresentantesHero.tsx** - Adicionar nos dois `<img>` (bg e unsplash)
-9. **Auth.tsx** - Logo: adicionar `width={1920} height={388}` + `loading="lazy"` + `decoding="async"`
+### Etapa 2: Refatorar `BlogPost.tsx` para usar `BlogPostSEO`
 
-### Etapa 3: Atualizar Base de Conhecimento
+- Remover o `<Helmet>` manual e o `generateStructuredData()`.
+- Usar o componente `<BlogPostSEO>` ja existente em `SEOHead.tsx`, que ja gera Article schema, BreadcrumbList, OG tags e canonical de forma consistente.
+- Corrigir a URL do logo no `SEOHead.tsx` (atualmente referencia o upload correto, manter).
 
-Adicionar nova secao `#IMAGE_ASPECT_RATIO_RULES` no Custom Knowledge:
+### Etapa 3: Adicionar schema `CollectionPage` ao `Blog.tsx` (listagem)
 
-```
-#IMAGE_ASPECT_RATIO_RULES
+- Passar `customSchema` com `CollectionPage` + `ItemList` dinamico baseado nos posts carregados.
+- Adicionar breadcrumbs: Home > Blog.
 
-## Regras de Aspect Ratio para Imagens
+### Etapa 4: Adicionar FAQs aos segmentos
 
-1. **width e height DEVEM corresponder ao aspect ratio real da imagem**
-   - NUNCA inventar valores de width/height
-   - Usar as dimensoes reais do arquivo (ex: 1920x388 para o logo)
-   - Se a imagem e exibida menor via CSS (h-12, w-auto), os atributos HTML ainda devem refletir o ratio real
+Para cada pagina de segmento (Medicos, Dentistas, Psicologos, Representantes):
+- Exportar o array `faqs` do componente FAQ correspondente.
+- Importar no arquivo da pagina e passar via `faqs={...}` no `<SEOHead>`.
+- Adicionar `breadcrumbs` especificos (Home > Segmentos > Nome).
 
-2. **Toda <img> DEVE ter width e height explicitos**
-   - Previne CLS (Cumulative Layout Shift)
-   - Permite ao navegador reservar espaco antes do carregamento
-   - Excecao: imagens dinamicas de blog/CMS onde dimensoes sao desconhecidas
+### Etapa 5: Completar schemas nas paginas restantes
 
-3. **Dimensoes reais dos assets do projeto:**
-   - logo-full.webp: 1920x388
-   - hero-founder.webp: 512x640
-   - Nichos (01 a 12): 665x735
-   - exit-intent-support.jpg: verificar e documentar
+- **Servicos.tsx**: Adicionar breadcrumbs (Home > Servicos) e incluir servicesSchema como customSchema.
+- **Sobre.tsx**: Adicionar breadcrumbs (Home > Sobre) e AboutPage schema.
+- **Contato.tsx**: Adicionar breadcrumbs (Home > Contato).
+- **Ferramentas**: Verificar e garantir que todas usam `ToolPageSEO` com FAQs quando aplicavel.
 
-4. **Para imagens externas (Unsplash, Google Photos):**
-   - Usar as dimensoes do crop solicitado na URL (?w=800)
-   - Se usando object-cover com altura fixa, usar width=800 height=1200 (retrato) ou width=800 height=533 (paisagem)
+### Etapa 6: Validar e corrigir detalhes do BlogPosting schema
 
-5. **Validacao:**
-   - Rodar Lighthouse Best Practices antes de publicar
-   - Verificar "Displays images with incorrect aspect ratio"
-```
+No `SEOHead.tsx`, enriquecer o schema Article/BlogPosting gerado para blog-post:
+- Adicionar `image` (featured_image_url do post).
+- Adicionar `wordCount` e `timeRequired` quando disponivel.
+- Garantir que `@id` usa URL canonica (nao `window.location.href`).
+
+### Etapa 7: Adicionar regra na Base de Conhecimento
+
+Adicionar uma nova secao `#STRUCTURED_DATA_RULES` ao Custom Knowledge com as regras obrigatorias.
+
+---
 
 ## Detalhes Tecnicos
 
-- Nenhuma mudanca visual: `width`/`height` HTML sao apenas hints para o navegador; o CSS (`h-12 w-auto`, `object-cover`, etc.) continua controlando o tamanho renderizado
-- As imagens Unsplash com `?w=800` retornam imagens em formato retrato (~800x1200) para fotos de pessoas
-- Imagens dinamicas (blog, avatares) nao precisam de correcao pois suas dimensoes sao desconhecidas no build time
+### Arquivos a modificar
+
+| Arquivo | Alteracao |
+|---------|-----------|
+| `src/lib/seo-schemas.ts` | Adicionar geradores: `generateBlogListingSchema`, `generateContactPageSchema`, `generateAboutPageSchema` |
+| `src/components/SEOHead.tsx` | Enriquecer Article schema com `image`, `wordCount`; aceitar novas props opcionais |
+| `src/pages/BlogPost.tsx` | Substituir Helmet manual por `BlogPostSEO` (ou SEOHead com props completas) |
+| `src/pages/Blog.tsx` | Adicionar CollectionPage schema + breadcrumbs |
+| `src/pages/segmentos/ContabilidadeMedicos.tsx` | Importar FAQs + passar faqs/breadcrumbs |
+| `src/pages/segmentos/ContabilidadeDentistas.tsx` | Importar FAQs + passar faqs/breadcrumbs |
+| `src/pages/segmentos/ContabilidadePsicologos.tsx` | Importar FAQs + passar faqs/breadcrumbs |
+| `src/pages/segmentos/ContabilidadeRepresentantes.tsx` | Importar FAQs + passar faqs/breadcrumbs |
+| `src/components/segmentos/medicos/MedicosFAQ.tsx` | Exportar array `faqs` |
+| `src/components/segmentos/dentistas/DentistasFAQ.tsx` | Exportar array `faqs` |
+| `src/components/segmentos/psicologos/PsicologosFAQ.tsx` | Exportar array `faqs` |
+| `src/components/segmentos/representantes/RepresentantesFAQ.tsx` | Exportar array `faqs` |
+| `src/pages/Servicos.tsx` | Adicionar breadcrumbs + servicesSchema |
+| `src/pages/Sobre.tsx` | Adicionar breadcrumbs + AboutPage schema |
+| `src/pages/Contato.tsx` | Adicionar breadcrumbs |
+
+### Exemplo: BlogPost.tsx refatorado (trecho)
+
+```tsx
+// Antes: Helmet manual + generateStructuredData()
+// Depois: usar BlogPostSEO ou SEOHead com props completas
+
+<SEOHead
+  title={post.meta_title || post.title}
+  description={post.meta_description || post.excerpt || post.title}
+  canonical={`/blog/${post.slug}`}
+  ogType="article"
+  ogImage={post.featured_image_url || undefined}
+  publishedTime={post.published_at || post.created_at}
+  modifiedTime={post.freshness_date || post.published_at || post.created_at}
+  section={post.category}
+  tags={post.meta_keywords || undefined}
+  pageType="blog-post"
+  keywords={post.meta_keywords?.join(', ')}
+  faqs={post.faq_schema?.mainEntity}
+  breadcrumbs={[
+    { name: "Home", url: SITE_URL },
+    { name: "Blog", url: `${SITE_URL}/blog` },
+    { name: post.title, url: `${SITE_URL}/blog/${post.slug}` }
+  ]}
+/>
+```
+
+### Regra para Base de Conhecimento
+
+```text
+#STRUCTURED_DATA_RULES
+
+## Regras Obrigatorias de Dados Estruturados (JSON-LD)
+
+1. **Toda pagina publica DEVE ter JSON-LD**
+   - Usar o componente SEOHead (ou variantes BlogPostSEO, ToolPageSEO, ServicePageSEO)
+   - NUNCA injetar JSON-LD manualmente via <Helmet> quando SEOHead ja resolve
+
+2. **Schemas por tipo de pagina**
+   - Home: Organization + AccountingService + WebSite + WebPage + FAQPage + ServicesSchema
+   - Servicos: Service + BreadcrumbList + FAQPage (se houver FAQs)
+   - Segmentos: Service + AccountingService + BreadcrumbList + FAQPage
+   - Blog (listagem): CollectionPage + ItemList + BreadcrumbList
+   - Blog Post: BlogPosting + BreadcrumbList + FAQPage (se houver)
+   - Ferramentas: WebApplication + BreadcrumbList + FAQPage (se houver)
+   - Contato: Organization + AccountingService + BreadcrumbList
+   - Sobre: AboutPage + Organization + BreadcrumbList
+   - Paginas locais (cidades): AccountingService (local) + Service + FAQPage + BreadcrumbList
+
+3. **BreadcrumbList obrigatorio**
+   - Toda pagina (exceto Home) DEVE ter breadcrumbs no SEOHead
+   - Formato: Home > Secao > Pagina
+
+4. **FAQPage obrigatorio quando houver FAQ visivel**
+   - Se a pagina renderiza um componente de FAQ, o array de perguntas DEVE ser passado ao SEOHead
+   - Exportar arrays de FAQ dos componentes para reutilizacao
+
+5. **BlogPosting**
+   - Usar pageType="blog-post" no SEOHead
+   - Sempre incluir: headline, description, datePublished, dateModified, image, author, publisher
+   - NUNCA usar window.location.href no schema; usar canonical URL
+   - Logo do publisher: usar URL absoluta do logo real do projeto
+
+6. **Validacao**
+   - Testar schemas no Google Rich Results Test antes de publicar
+   - Garantir que nenhum campo obrigatorio esta undefined/null
+   - Nao duplicar @context dentro de @graph
+
+7. **Ao criar nova pagina publica**
+   - Definir pageType no SEOHead
+   - Adicionar breadcrumbs
+   - Se tiver FAQ: exportar e passar ao SEOHead
+   - Se for ferramenta: usar ToolPageSEO
+   - Se for segmento: usar ServicePageSEO ou SEOHead com pageType="service"
+```
+
+---
+
+## Resumo de Impacto
+
+| Item | Antes | Depois |
+|------|-------|--------|
+| BlogPost schema | Manual, URL errada, sem breadcrumbs | Centralizado via SEOHead, URL correta, com breadcrumbs |
+| Blog listagem | Sem schema | CollectionPage + ItemList |
+| Segmentos (4 paginas) | Sem FAQPage, sem breadcrumbs | FAQPage + BreadcrumbList |
+| Servicos | Sem breadcrumbs | + BreadcrumbList + ServicesSchema |
+| Sobre | Sem breadcrumbs | + BreadcrumbList + AboutPage |
+| Contato | Sem breadcrumbs | + BreadcrumbList |
+| Base de Conhecimento | Sem regra de schema | Nova secao #STRUCTURED_DATA_RULES |
+

@@ -46,6 +46,7 @@ export const WHATSAPP_MESSAGES = {
   jornada: "Olá! Vim pelo site e gostaria de entender melhor como funciona a jornada de clientes na Contabilidade Zen. Podem me ajudar?",
   comparativo: "Olá! Fiz a simulação no comparativo tributário e gostaria de uma análise personalizada.",
   calculadoraCLTPJ: "Olá! Quero saber mais sobre como abrir uma empresa PJ.",
+  resultadoCalculadora: "Olá! Fiz a simulação CLT x PJ no site e gostaria de uma análise personalizada com um contador especialista.",
   notFound: "Olá! Encontrei um erro ao acessar uma página no site.",
 } as const;
 

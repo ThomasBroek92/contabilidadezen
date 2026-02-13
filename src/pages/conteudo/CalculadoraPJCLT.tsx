@@ -813,7 +813,6 @@ export default function CalculadoraPJCLT() {
                       onClick={handleLeadSubmit}
                     >
                       Ver Meu Resultado
-                      <ArrowRight className="h-5 w-5 ml-2" />
                     </Button>
 
                     <p className="text-xs text-muted-foreground text-center pt-2">

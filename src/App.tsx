@@ -24,6 +24,7 @@ const ContabilidadeDentistas = lazy(() => import("./pages/segmentos/Contabilidad
 const ContabilidadePsicologos = lazy(() => import("./pages/segmentos/ContabilidadePsicologos"));
 const ContabilidadeRepresentantes = lazy(() => import("./pages/segmentos/ContabilidadeRepresentantes"));
 const CalculadoraPJCLT = lazy(() => import("./pages/conteudo/CalculadoraPJCLT"));
+const ResultadoCalculadoraPJCLT = lazy(() => import("./pages/conteudo/ResultadoCalculadoraPJCLT"));
 const GeradorRPA = lazy(() => import("./pages/conteudo/GeradorRPA"));
 const GeradorInvoice = lazy(() => import("./pages/conteudo/GeradorInvoice"));
 const ComparativoTributario = lazy(() => import("./pages/conteudo/ComparativoTributario"));
@@ -79,6 +80,7 @@ const App = () => (
               <Route path="/segmentos/contabilidade-para-psicologos" element={<ContabilidadePsicologos />} />
               <Route path="/segmentos/contabilidade-para-representantes-comerciais" element={<ContabilidadeRepresentantes />} />
               <Route path="/conteudo/calculadora-pj-clt" element={<CalculadoraPJCLT />} />
+              <Route path="/conteudo/calculadora-pj-clt/resultado" element={<ResultadoCalculadoraPJCLT />} />
               <Route path="/conteudo/gerador-rpa" element={<GeradorRPA />} />
               <Route path="/conteudo/gerador-invoice" element={<GeradorInvoice />} />
               <Route path="/conteudo/comparativo-tributario" element={<ComparativoTributario />} />

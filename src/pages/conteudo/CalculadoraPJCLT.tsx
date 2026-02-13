@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SEOHead } from "@/components/SEOHead";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
+import { trackFormSubmit } from "@/hooks/use-analytics";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -165,6 +166,7 @@ interface ResultadoCalculoCLT {
 }
 
 export default function CalculadoraPJCLT() {
+  const navigate = useNavigate();
   const [salarioBruto, setSalarioBruto] = useState("");
   const [valeRefeicao, setValeRefeicao] = useState("");
   const [valeTransporte, setValeTransporte] = useState("");
@@ -357,12 +359,33 @@ export default function CalculadoraPJCLT() {
       economia_anual: resultado?.economiaAnual,
     });
 
-    if (saved) {
-      toast.success("Pronto! Veja seu resultado completo abaixo.");
-      // Scroll to results after lead saved
-      setTimeout(() => {
-        document.getElementById("resultado-completo-section")?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+    if (saved && resultado) {
+      // Track form submit
+      trackFormSubmit("Calculadora CLT x PJ", {
+        segmento: "CLT x PJ",
+        fonte: "Calculadora CLT x PJ",
+        economia: resultado.economiaAnual,
+      });
+
+      // Push GTM event for conversion tracking
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'ver_resultado_calculadora',
+        calculator_type: 'CLT x PJ',
+        economia_anual: resultado.economiaAnual,
+        salario_bruto: salario,
+        lead_nome: nome.trim(),
+        lead_fonte: 'Calculadora CLT x PJ',
+      });
+
+      // Navigate to result page
+      navigate("/conteudo/calculadora-pj-clt/resultado", {
+        state: {
+          resultado,
+          nome: nome.trim(),
+          salarioBruto,
+        },
+      });
     }
   };
 
@@ -829,255 +852,8 @@ export default function CalculadoraPJCLT() {
           </section>
         )}
 
-        {/* ========== SEÇÃO 3 - RESULTADO DA CALCULADORA ========== */}
-        {resultado && leadSaved && (
-          <section id="resultado-completo-section" className="py-12 lg:py-16 bg-muted/30">
-            <div className="container mx-auto px-4">
-              <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
-                
-                {/* Card de Comparação Split */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Coluna CLT */}
-                  <div className="bg-card rounded-2xl p-6 border border-border">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                        <Briefcase className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">Seu salário CLT</h3>
-                        <p className="text-sm text-muted-foreground">Regime atual</p>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Salário Bruto:</span>
-                        <span className="font-medium">{formatCurrency(resultado.salarioBrutoCLT)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Desconto INSS:</span>
-                        <span className="font-medium text-destructive">-{formatCurrency(resultado.inssCLT)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Desconto IRRF:</span>
-                        <span className="font-medium text-destructive">-{formatCurrency(resultado.irrfCLT)}</span>
-                      </div>
-                      <hr className="border-border" />
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground font-medium">Salário Líquido:</span>
-                        <span className="font-bold text-secondary">{formatCurrency(resultado.salarioLiquidoCLT)}</span>
-                      </div>
-                      <hr className="border-border" />
-                      <p className="text-xs text-muted-foreground font-medium pt-2">Benefícios mensalizados:</p>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Férias + 1/3:</span>
-                        <span className="font-medium text-secondary">+{formatCurrency(resultado.feriasMensal)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">13º Salário:</span>
-                        <span className="font-medium text-secondary">+{formatCurrency(resultado.decimoTerceiroMensal)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">FGTS (8%):</span>
-                        <span className="font-medium text-secondary">+{formatCurrency(resultado.fgtsMensal)}</span>
-                      </div>
-                      {resultado.beneficiosTotais > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Benefícios informados:</span>
-                          <span className="font-medium text-secondary">+{formatCurrency(resultado.beneficiosTotais)}</span>
-                        </div>
-                      )}
-                      <hr className="border-border" />
-                      <div className="flex justify-between font-bold pt-2">
-                        <span>Ganho Mensal Total:</span>
-                        <span className="text-muted-foreground">{formatCurrency(resultado.totalMensalCLT)}</span>
-                      </div>
-                      <div className="flex justify-between font-bold text-lg pt-2 bg-muted/50 -mx-6 px-6 py-3 rounded-b-2xl">
-                        <span>Ganho Anual Total:</span>
-                        <span className="text-muted-foreground">{formatCurrency(resultado.totalAnualCLT)}</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Coluna PJ */}
-                  <div className="bg-card rounded-2xl p-6 border-2 border-secondary shadow-glow relative">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <span className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-xs font-semibold">
-                        <TrendingUp className="h-3 w-3" />
-                        Recomendado
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
-                        <Building2 className="h-6 w-6 text-secondary" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">Como PJ você receberia</h3>
-                        <p className="text-sm text-muted-foreground">Simples Nacional</p>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Faturamento Bruto:</span>
-                        <span className="font-bold text-secondary">{formatCurrency(resultado.faturamentoPJ)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Impostos Simples (~6%):</span>
-                        <span className="font-medium text-destructive">-{formatCurrency(resultado.impostosPJ)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">INSS (11% pró-labore):</span>
-                        <span className="font-medium text-destructive">-{formatCurrency(resultado.inssPJ)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Contabilidade:</span>
-                        <span className="font-medium text-destructive">-{formatCurrency(resultado.contabilidade)}</span>
-                      </div>
-                      <hr className="border-border" />
-                      <div className="flex justify-between font-bold pt-2">
-                        <span>Salário Líquido PJ:</span>
-                        <span className="text-secondary">{formatCurrency(resultado.salarioLiquidoPJ)}</span>
-                      </div>
-                      <div className="p-3 bg-secondary/10 rounded-lg text-sm mt-4">
-                        <p className="text-muted-foreground">
-                          Benefícios: <span className="font-medium">conforme contrato com cliente</span>
-                        </p>
-                      </div>
-                      <div className="flex justify-between font-bold text-lg pt-4 bg-secondary/10 -mx-6 px-6 py-3 rounded-b-2xl">
-                        <span>Ganho Anual Total:</span>
-                        <span className="text-secondary">{formatCurrency(resultado.totalAnualPJ)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Card de Economia - Destaque Central */}
-                {resultado.economiaMensal > 0 && (
-                  <div className="bg-gradient-to-r from-secondary to-zen-blue rounded-2xl p-8 text-center text-secondary-foreground">
-                    <div className="flex items-center justify-center gap-3 mb-4">
-                      <TrendingUp className="h-8 w-8" />
-                      <h3 className="text-2xl font-bold">Sua Economia como PJ</h3>
-                    </div>
-                    <div className="grid sm:grid-cols-2 gap-6">
-                      <div>
-                        <p className="text-secondary-foreground/80 text-sm mb-1">Economia Anual</p>
-                        <p className="text-4xl font-bold">{formatCurrency(resultado.economiaAnual)}</p>
-                      </div>
-                      <div>
-                        <p className="text-secondary-foreground/80 text-sm mb-1">Você ganha a mais</p>
-                        <p className="text-4xl font-bold">{resultado.percentualEconomia.toFixed(0)}%</p>
-                      </div>
-                    </div>
-                    <p className="mt-4 text-secondary-foreground/90">
-                      Isso equivale a <strong>{formatCurrency(resultado.economiaMensal)}</strong> a mais por mês!
-                    </p>
-                  </div>
-                )}
-
-                {/* Observações Importantes - Accordion */}
-                <Accordion type="single" collapsible className="bg-card rounded-2xl border border-border">
-                  <AccordionItem value="observacoes" className="border-0">
-                    <AccordionTrigger className="px-6 hover:no-underline">
-                      <div className="flex items-center gap-3">
-                        <AlertCircle className="h-5 w-5 text-secondary" />
-                        <span className="font-semibold">Observações Importantes</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-6 pb-6">
-                      <ul className="space-y-3 text-sm text-muted-foreground">
-                        <li className="flex gap-3">
-                          <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
-                          <span>Cálculo considera <strong>Simples Nacional Anexo III</strong> com Fator R otimizado (alíquota efetiva ~6%)</span>
-                        </li>
-                        <li className="flex gap-3">
-                          <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
-                          <span>Como PJ, você pode <strong>deduzir despesas operacionais</strong> (contador, internet, equipamentos, etc.)</span>
-                        </li>
-                        <li className="flex gap-3">
-                          <CheckCircle className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
-                          <span>Benefícios CLT (férias, 13º, FGTS) foram <strong>convertidos para valor mensal equivalente</strong></span>
-                        </li>
-                        <li className="flex gap-3">
-                          <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                          <span>Esses valores são <strong>estimativas</strong>. Consulte um contador para análise personalizada do seu caso</span>
-                        </li>
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-
-                {/* Lead Capture CTA */}
-                <div className="bg-card rounded-2xl border-2 border-secondary p-6 lg:p-8">
-                  <h3 className="text-xl font-bold mb-3 text-center">
-                    {leadSaved ? "Obrigado! Entraremos em contato." : "Quer uma análise personalizada gratuita?"}
-                  </h3>
-                  
-                  {!leadSaved ? (
-                    <>
-                      <p className="text-muted-foreground mb-6 text-center">
-                        Deixe seus dados e nossos especialistas farão uma análise completa do seu caso.
-                      </p>
-                      <div className="grid md:grid-cols-3 gap-4 mb-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="nome">Seu nome *</Label>
-                          <Input
-                            id="nome"
-                            value={nome}
-                            onChange={(e) => setNome(e.target.value)}
-                            placeholder="Nome completo"
-                            className="bg-background"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="email">E-mail *</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="seu@email.com"
-                            className="bg-background"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="telefone">WhatsApp *</Label>
-                          <Input
-                            id="telefone"
-                            value={telefone}
-                            onChange={(e) => setTelefone(formatPhone(e.target.value))}
-                            placeholder="(00) 00000-0000"
-                            className="bg-background"
-                          />
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <Button variant="zen" size="lg" onClick={handleLeadSubmit}>
-                          Quero análise gratuita
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center">
-                      <CheckCircle className="h-12 w-12 text-secondary mx-auto mb-4" />
-                      <p className="text-muted-foreground mb-4">
-                        Em breve um especialista entrará em contato para discutir seu caso.
-                      </p>
-                      <Button variant="zen-outline" size="lg" asChild>
-                        <a
-                          {...getWhatsAppAnchorProps(`Olá! Usei a calculadora CLT x PJ. Meu salário é ${salarioBruto} e gostaria de saber como economizar sendo PJ.`)}
-                        >
-                          Falar agora no WhatsApp
-                        </a>
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* ========== SEÇÃO 4 - CONTEÚDO EDUCATIVO (TABS) ========== */}
         <section className="py-12 lg:py-16">

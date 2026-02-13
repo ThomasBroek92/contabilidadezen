@@ -1,195 +1,91 @@
 
 
-# Plano: Dados Estruturados JSON-LD Completos por Pagina + Regra na Base de Conhecimento
+# Plano: Botao "Ver Meu Resultado" Rastreavel via GTM + Pagina de Resultado com CTA
 
-## Diagnostico Atual
+## Objetivo
+Tornar o botao "Ver Meu Resultado" rastreavel via Google Tag Manager (GTM), redirecionar o usuario para uma pagina dedicada de resultados apos salvar o lead, e incluir um CTA forte para contato com o contador especialista.
 
-### O que ja funciona bem
-- **Home (Index)**: Organization + LocalBusiness + FAQPage via SEOHead
-- **Blog Post (detalhe)**: BlogPosting + FAQPage (schema manual no componente)
-- **Abrir Empresa**: FAQPage via SEOHead (faqs prop)
-- **Cidades Atendidas**: FAQPage via SEOHead (faqs prop)
-- **Indique e Ganhe**: FAQPage via SEOHead (faqs prop)
-- **Ferramentas (Contrato PJ, Calculadora)**: WebApplication via ToolPageSEO
+## O que muda
 
-### Problemas identificados
+### 1. Nova rota: `/conteudo/calculadora-pj-clt/resultado`
+- Pagina dedicada que recebe os dados do calculo via `state` do React Router
+- Exibe o resultado completo da comparacao CLT x PJ (mesmos cards ja existentes)
+- Inclui CTA prominente para falar com contador especialista via WhatsApp
+- SEO: meta tag `noindex` (pagina de resultado personalizado, nao deve ser indexada)
 
-1. **BlogPost.tsx tem schema duplicado**: Usa tanto o `generateStructuredData()` manual (com BlogPosting) quanto o `<Helmet>` direto. NAO usa o `<SEOHead>` nem o `BlogPostSEO` pre-configurado. Resultado: meta tags e schema injetados de forma inconsistente, sem BreadcrumbList no JSON-LD, e logo URL errada (`/logo.png` ao inves do logo real).
+### 2. Rastreamento GTM no botao "Ver Meu Resultado"
+- Ao clicar no botao, antes de redirecionar, dispara evento `ver_resultado_calculadora` no dataLayer
+- Parametros enviados: economia anual, salario bruto, fonte do lead
+- Isso permite criar tags e triggers no GTM para rastrear conversoes
 
-2. **Blog.tsx (listagem)**: Nao tem schema CollectionPage/ItemList para listar posts. Perde oportunidade de rich snippets na listagem.
+### 3. Redirecionamento apos salvar lead
+- Apos `handleLeadSubmit` salvar o lead com sucesso, em vez de scroll para resultados na mesma pagina, navega via `useNavigate` para `/conteudo/calculadora-pj-clt/resultado`
+- Os dados do calculo sao passados via `state` do React Router (sem expor dados na URL)
 
-3. **Paginas de segmento (Medicos, Dentistas, Psicologos, Representantes)**: Tem `pageType="service"` mas NAO passam `faqs` nem `breadcrumbs`. Os FAQs existem nos componentes filhos mas nao geram FAQPage schema.
-
-4. **Servicos.tsx**: Nao tem FAQPage schema nem breadcrumbs.
-
-5. **Sobre.tsx**: Nao tem breadcrumbs.
-
-6. **Contato.tsx**: Tem Organization + LocalBusiness mas nao tem ContactPage schema nem breadcrumbs.
-
-7. **Ferramentas (CalculadoraPJCLT, ComparativoTributario, GeradorRPA, TabelaSimplesNacional, GeradorInvoice)**: Precisam verificar se usam ToolPageSEO ou SEOHead generico.
-
-8. **Pagina local (ContabilidadeCampinas)**: Precisa verificar schema LocalBusiness especifico.
-
----
-
-## Plano de Implementacao
-
-### Etapa 1: Enriquecer `seo-schemas.ts` com novos geradores
-
-Adicionar ao arquivo `src/lib/seo-schemas.ts`:
-
-- **`generateBlogListingSchema(posts)`**: Gera `CollectionPage` + `ItemList` com os posts publicados para a pagina `/blog`.
-- **`generateContactPageSchema()`**: Gera schema `ContactPage` com dados de contato.
-- **`generateAboutPageSchema()`**: Gera schema `AboutPage` para `/sobre`.
-- Exportar os arrays de FAQs dos segmentos de forma reutilizavel.
-
-### Etapa 2: Refatorar `BlogPost.tsx` para usar `BlogPostSEO`
-
-- Remover o `<Helmet>` manual e o `generateStructuredData()`.
-- Usar o componente `<BlogPostSEO>` ja existente em `SEOHead.tsx`, que ja gera Article schema, BreadcrumbList, OG tags e canonical de forma consistente.
-- Corrigir a URL do logo no `SEOHead.tsx` (atualmente referencia o upload correto, manter).
-
-### Etapa 3: Adicionar schema `CollectionPage` ao `Blog.tsx` (listagem)
-
-- Passar `customSchema` com `CollectionPage` + `ItemList` dinamico baseado nos posts carregados.
-- Adicionar breadcrumbs: Home > Blog.
-
-### Etapa 4: Adicionar FAQs aos segmentos
-
-Para cada pagina de segmento (Medicos, Dentistas, Psicologos, Representantes):
-- Exportar o array `faqs` do componente FAQ correspondente.
-- Importar no arquivo da pagina e passar via `faqs={...}` no `<SEOHead>`.
-- Adicionar `breadcrumbs` especificos (Home > Segmentos > Nome).
-
-### Etapa 5: Completar schemas nas paginas restantes
-
-- **Servicos.tsx**: Adicionar breadcrumbs (Home > Servicos) e incluir servicesSchema como customSchema.
-- **Sobre.tsx**: Adicionar breadcrumbs (Home > Sobre) e AboutPage schema.
-- **Contato.tsx**: Adicionar breadcrumbs (Home > Contato).
-- **Ferramentas**: Verificar e garantir que todas usam `ToolPageSEO` com FAQs quando aplicavel.
-
-### Etapa 6: Validar e corrigir detalhes do BlogPosting schema
-
-No `SEOHead.tsx`, enriquecer o schema Article/BlogPosting gerado para blog-post:
-- Adicionar `image` (featured_image_url do post).
-- Adicionar `wordCount` e `timeRequired` quando disponivel.
-- Garantir que `@id` usa URL canonica (nao `window.location.href`).
-
-### Etapa 7: Adicionar regra na Base de Conhecimento
-
-Adicionar uma nova secao `#STRUCTURED_DATA_RULES` ao Custom Knowledge com as regras obrigatorias.
+### 4. Pagina de Resultado com CTA
+A nova pagina tera:
+- Cards de comparacao CLT x PJ (reutilizando a logica visual existente)
+- Card de economia destacado (gradient)
+- **CTA principal**: "Falar com Contador Especialista" abrindo WhatsApp com mensagem personalizada incluindo o salario e economia calculados
+- CTA secundario: "Agendar consultoria gratuita" linkando para contato
+- Observacoes importantes (accordion)
+- Se o usuario acessar a pagina sem dados (acesso direto), redireciona de volta para `/conteudo/calculadora-pj-clt`
 
 ---
 
 ## Detalhes Tecnicos
 
-### Arquivos a modificar
+### Arquivos modificados
 
-| Arquivo | Alteracao |
-|---------|-----------|
-| `src/lib/seo-schemas.ts` | Adicionar geradores: `generateBlogListingSchema`, `generateContactPageSchema`, `generateAboutPageSchema` |
-| `src/components/SEOHead.tsx` | Enriquecer Article schema com `image`, `wordCount`; aceitar novas props opcionais |
-| `src/pages/BlogPost.tsx` | Substituir Helmet manual por `BlogPostSEO` (ou SEOHead com props completas) |
-| `src/pages/Blog.tsx` | Adicionar CollectionPage schema + breadcrumbs |
-| `src/pages/segmentos/ContabilidadeMedicos.tsx` | Importar FAQs + passar faqs/breadcrumbs |
-| `src/pages/segmentos/ContabilidadeDentistas.tsx` | Importar FAQs + passar faqs/breadcrumbs |
-| `src/pages/segmentos/ContabilidadePsicologos.tsx` | Importar FAQs + passar faqs/breadcrumbs |
-| `src/pages/segmentos/ContabilidadeRepresentantes.tsx` | Importar FAQs + passar faqs/breadcrumbs |
-| `src/components/segmentos/medicos/MedicosFAQ.tsx` | Exportar array `faqs` |
-| `src/components/segmentos/dentistas/DentistasFAQ.tsx` | Exportar array `faqs` |
-| `src/components/segmentos/psicologos/PsicologosFAQ.tsx` | Exportar array `faqs` |
-| `src/components/segmentos/representantes/RepresentantesFAQ.tsx` | Exportar array `faqs` |
-| `src/pages/Servicos.tsx` | Adicionar breadcrumbs + servicesSchema |
-| `src/pages/Sobre.tsx` | Adicionar breadcrumbs + AboutPage schema |
-| `src/pages/Contato.tsx` | Adicionar breadcrumbs |
+**`src/pages/conteudo/CalculadoraPJCLT.tsx`**
+- Importar `useNavigate` do react-router-dom
+- No `handleLeadSubmit`, apos salvar lead com sucesso:
+  - Disparar `trackFormSubmit` e novo evento `ver_resultado_calculadora` no dataLayer
+  - Navegar para `/conteudo/calculadora-pj-clt/resultado` passando `resultado`, `nome` e `salarioBruto` via state
+- Remover a secao 3 (resultado inline) que nao sera mais necessaria nesta pagina
 
-### Exemplo: BlogPost.tsx refatorado (trecho)
+**`src/hooks/use-analytics.ts`**
+- Nenhuma mudanca necessaria; o `trackFormSubmit` ja faz push no dataLayer
+- O evento customizado `ver_resultado_calculadora` sera disparado diretamente via `window.dataLayer.push`
 
-```tsx
-// Antes: Helmet manual + generateStructuredData()
-// Depois: usar BlogPostSEO ou SEOHead com props completas
+**`src/pages/conteudo/ResultadoCalculadoraPJCLT.tsx`** (novo arquivo)
+- Recebe dados via `useLocation().state`
+- Exibe resultado completo com cards CLT vs PJ
+- CTA WhatsApp com mensagem personalizada
+- Fallback: redireciona para calculadora se nao houver dados
+- SEOHead com `noindex`
 
-<SEOHead
-  title={post.meta_title || post.title}
-  description={post.meta_description || post.excerpt || post.title}
-  canonical={`/blog/${post.slug}`}
-  ogType="article"
-  ogImage={post.featured_image_url || undefined}
-  publishedTime={post.published_at || post.created_at}
-  modifiedTime={post.freshness_date || post.published_at || post.created_at}
-  section={post.category}
-  tags={post.meta_keywords || undefined}
-  pageType="blog-post"
-  keywords={post.meta_keywords?.join(', ')}
-  faqs={post.faq_schema?.mainEntity}
-  breadcrumbs={[
-    { name: "Home", url: SITE_URL },
-    { name: "Blog", url: `${SITE_URL}/blog` },
-    { name: post.title, url: `${SITE_URL}/blog/${post.slug}` }
-  ]}
-/>
-```
+**`src/App.tsx`**
+- Adicionar rota lazy: `/conteudo/calculadora-pj-clt/resultado`
 
-### Regra para Base de Conhecimento
+**`src/lib/whatsapp.ts`**
+- Adicionar template de mensagem `resultadoCalculadora` para o CTA da pagina de resultado
+
+### Evento GTM
 
 ```text
-#STRUCTURED_DATA_RULES
-
-## Regras Obrigatorias de Dados Estruturados (JSON-LD)
-
-1. **Toda pagina publica DEVE ter JSON-LD**
-   - Usar o componente SEOHead (ou variantes BlogPostSEO, ToolPageSEO, ServicePageSEO)
-   - NUNCA injetar JSON-LD manualmente via <Helmet> quando SEOHead ja resolve
-
-2. **Schemas por tipo de pagina**
-   - Home: Organization + AccountingService + WebSite + WebPage + FAQPage + ServicesSchema
-   - Servicos: Service + BreadcrumbList + FAQPage (se houver FAQs)
-   - Segmentos: Service + AccountingService + BreadcrumbList + FAQPage
-   - Blog (listagem): CollectionPage + ItemList + BreadcrumbList
-   - Blog Post: BlogPosting + BreadcrumbList + FAQPage (se houver)
-   - Ferramentas: WebApplication + BreadcrumbList + FAQPage (se houver)
-   - Contato: Organization + AccountingService + BreadcrumbList
-   - Sobre: AboutPage + Organization + BreadcrumbList
-   - Paginas locais (cidades): AccountingService (local) + Service + FAQPage + BreadcrumbList
-
-3. **BreadcrumbList obrigatorio**
-   - Toda pagina (exceto Home) DEVE ter breadcrumbs no SEOHead
-   - Formato: Home > Secao > Pagina
-
-4. **FAQPage obrigatorio quando houver FAQ visivel**
-   - Se a pagina renderiza um componente de FAQ, o array de perguntas DEVE ser passado ao SEOHead
-   - Exportar arrays de FAQ dos componentes para reutilizacao
-
-5. **BlogPosting**
-   - Usar pageType="blog-post" no SEOHead
-   - Sempre incluir: headline, description, datePublished, dateModified, image, author, publisher
-   - NUNCA usar window.location.href no schema; usar canonical URL
-   - Logo do publisher: usar URL absoluta do logo real do projeto
-
-6. **Validacao**
-   - Testar schemas no Google Rich Results Test antes de publicar
-   - Garantir que nenhum campo obrigatorio esta undefined/null
-   - Nao duplicar @context dentro de @graph
-
-7. **Ao criar nova pagina publica**
-   - Definir pageType no SEOHead
-   - Adicionar breadcrumbs
-   - Se tiver FAQ: exportar e passar ao SEOHead
-   - Se for ferramenta: usar ToolPageSEO
-   - Se for segmento: usar ServicePageSEO ou SEOHead com pageType="service"
+window.dataLayer.push({
+  event: 'ver_resultado_calculadora',
+  calculator_type: 'CLT x PJ',
+  economia_anual: resultado.economiaAnual,
+  salario_bruto: salarioBruto,
+  lead_nome: nome,
+  lead_fonte: 'Calculadora CLT x PJ'
+});
 ```
 
----
+Este evento pode ser capturado no GTM como trigger customizado para disparar tags de conversao (Google Ads, GA4, etc.).
 
-## Resumo de Impacto
+### Fluxo do usuario
 
-| Item | Antes | Depois |
-|------|-------|--------|
-| BlogPost schema | Manual, URL errada, sem breadcrumbs | Centralizado via SEOHead, URL correta, com breadcrumbs |
-| Blog listagem | Sem schema | CollectionPage + ItemList |
-| Segmentos (4 paginas) | Sem FAQPage, sem breadcrumbs | FAQPage + BreadcrumbList |
-| Servicos | Sem breadcrumbs | + BreadcrumbList + ServicesSchema |
-| Sobre | Sem breadcrumbs | + BreadcrumbList + AboutPage |
-| Contato | Sem breadcrumbs | + BreadcrumbList |
-| Base de Conhecimento | Sem regra de schema | Nova secao #STRUCTURED_DATA_RULES |
+```text
+1. Usuario preenche formulario CLT (salario + beneficios)
+2. Clica "Calcular Minha Economia" -> resultado calculado, form de lead aparece
+3. Preenche nome/email/whatsapp
+4. Clica "Ver Meu Resultado"
+   -> Lead salvo no banco
+   -> Evento GTM disparado (rastreavel)
+   -> Redirecionado para /conteudo/calculadora-pj-clt/resultado
+5. Ve resultado completo + CTA "Falar com Contador Especialista"
+```
 

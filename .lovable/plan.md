@@ -1,91 +1,73 @@
 
-
-# Plano: Botao "Ver Meu Resultado" Rastreavel via GTM + Pagina de Resultado com CTA
+# Plano: Otimizacao SEO do Blog - Hierarquia de Headings + Deep Links
 
 ## Objetivo
-Tornar o botao "Ver Meu Resultado" rastreavel via Google Tag Manager (GTM), redirecionar o usuario para uma pagina dedicada de resultados apos salvar o lead, e incluir um CTA forte para contato com o contador especialista.
+Corrigir a hierarquia de headings (H1/H2/H3) no conteudo do blog para que o Google interprete corretamente a estrutura semantica, e adicionar IDs automaticos nos headings para deep linking. Tambem adicionar essa regra a base de conhecimento do projeto.
 
 ## O que muda
 
-### 1. Nova rota: `/conteudo/calculadora-pj-clt/resultado`
-- Pagina dedicada que recebe os dados do calculo via `state` do React Router
-- Exibe o resultado completo da comparacao CLT x PJ (mesmos cards ja existentes)
-- Inclui CTA prominente para falar com contador especialista via WhatsApp
-- SEO: meta tag `noindex` (pagina de resultado personalizado, nao deve ser indexada)
+### 1. Corrigir MarkdownRenderer (`src/components/blog/MarkdownRenderer.tsx`)
 
-### 2. Rastreamento GTM no botao "Ver Meu Resultado"
-- Ao clicar no botao, antes de redirecionar, dispara evento `ver_resultado_calculadora` no dataLayer
-- Parametros enviados: economia anual, salario bruto, fonte do lead
-- Isso permite criar tags e triggers no GTM para rastrear conversoes
+**Problema atual:** O componente rebaixa TODOS os headings em 1 nivel:
+- `# Titulo` (H1 no Markdown) -> renderiza `<h2>` (correto, pois H1 e o titulo do post)
+- `## Subtitulo` (H2 no Markdown) -> renderiza `<h3>` (ERRADO - deveria ser `<h2>`)
+- `### Sub-sub` (H3 no Markdown) -> renderiza `<h4>` (ERRADO - deveria ser `<h3>`)
 
-### 3. Redirecionamento apos salvar lead
-- Apos `handleLeadSubmit` salvar o lead com sucesso, em vez de scroll para resultados na mesma pagina, navega via `useNavigate` para `/conteudo/calculadora-pj-clt/resultado`
-- Os dados do calculo sao passados via `state` do React Router (sem expor dados na URL)
+**Correcao:**
+- `h1` no Markdown -> `<h2>` (manter, pois H1 ja existe no titulo do post)
+- `h2` no Markdown -> `<h2>` (corrigir: era `<h3>`)
+- `h3` no Markdown -> `<h3>` (corrigir: era `<h4>`)
 
-### 4. Pagina de Resultado com CTA
-A nova pagina tera:
-- Cards de comparacao CLT x PJ (reutilizando a logica visual existente)
-- Card de economia destacado (gradient)
-- **CTA principal**: "Falar com Contador Especialista" abrindo WhatsApp com mensagem personalizada incluindo o salario e economia calculados
-- CTA secundario: "Agendar consultoria gratuita" linkando para contato
-- Observacoes importantes (accordion)
-- Se o usuario acessar a pagina sem dados (acesso direto), redireciona de volta para `/conteudo/calculadora-pj-clt`
+**Adicionar IDs automaticos** em cada heading para deep linking:
+- Texto "Como abrir empresa" -> `id="como-abrir-empresa"`
+- Permite links diretos como `/blog/meu-post#como-abrir-empresa`
+- Melhora crawlability e permite o Google exibir links de secao nos resultados
 
----
+**Melhorar links internos:**
+- Links para o proprio dominio (`contabilidadezen.com.br`) nao devem abrir em nova aba
+- Apenas links externos usam `target="_blank"`
+
+### 2. Adicionar regra a base de conhecimento
+
+Adicionar ao Custom Knowledge a regra `#BLOG_HEADING_RULES` para que futuras alteracoes mantenham a hierarquia correta.
 
 ## Detalhes Tecnicos
 
-### Arquivos modificados
+### Arquivo: `src/components/blog/MarkdownRenderer.tsx`
 
-**`src/pages/conteudo/CalculadoraPJCLT.tsx`**
-- Importar `useNavigate` do react-router-dom
-- No `handleLeadSubmit`, apos salvar lead com sucesso:
-  - Disparar `trackFormSubmit` e novo evento `ver_resultado_calculadora` no dataLayer
-  - Navegar para `/conteudo/calculadora-pj-clt/resultado` passando `resultado`, `nome` e `salarioBruto` via state
-- Remover a secao 3 (resultado inline) que nao sera mais necessaria nesta pagina
-
-**`src/hooks/use-analytics.ts`**
-- Nenhuma mudanca necessaria; o `trackFormSubmit` ja faz push no dataLayer
-- O evento customizado `ver_resultado_calculadora` sera disparado diretamente via `window.dataLayer.push`
-
-**`src/pages/conteudo/ResultadoCalculadoraPJCLT.tsx`** (novo arquivo)
-- Recebe dados via `useLocation().state`
-- Exibe resultado completo com cards CLT vs PJ
-- CTA WhatsApp com mensagem personalizada
-- Fallback: redireciona para calculadora se nao houver dados
-- SEOHead com `noindex`
-
-**`src/App.tsx`**
-- Adicionar rota lazy: `/conteudo/calculadora-pj-clt/resultado`
-
-**`src/lib/whatsapp.ts`**
-- Adicionar template de mensagem `resultadoCalculadora` para o CTA da pagina de resultado
-
-### Evento GTM
-
+Funcao helper para gerar slug do heading:
 ```text
-window.dataLayer.push({
-  event: 'ver_resultado_calculadora',
-  calculator_type: 'CLT x PJ',
-  economia_anual: resultado.economiaAnual,
-  salario_bruto: salarioBruto,
-  lead_nome: nome,
-  lead_fonte: 'Calculadora CLT x PJ'
-});
+function generateHeadingId(text: string): string
+  - Converte children React para string
+  - Remove acentos, lowercase, substitui espacos por hifens
+  - Remove caracteres especiais
 ```
 
-Este evento pode ser capturado no GTM como trigger customizado para disparar tags de conversao (Google Ads, GA4, etc.).
-
-### Fluxo do usuario
-
+Mapeamento corrigido:
 ```text
-1. Usuario preenche formulario CLT (salario + beneficios)
-2. Clica "Calcular Minha Economia" -> resultado calculado, form de lead aparece
-3. Preenche nome/email/whatsapp
-4. Clica "Ver Meu Resultado"
-   -> Lead salvo no banco
-   -> Evento GTM disparado (rastreavel)
-   -> Redirecionado para /conteudo/calculadora-pj-clt/resultado
-5. Ve resultado completo + CTA "Falar com Contador Especialista"
+h1 -> <h2 id="slug"> (Markdown # dentro do conteudo)
+h2 -> <h2 id="slug"> (Markdown ## - CORRIGIDO de <h3>)
+h3 -> <h3 id="slug"> (Markdown ### - CORRIGIDO de <h4>)
 ```
 
+Links inteligentes:
+```text
+Se href contem "contabilidadezen.com.br" ou comeca com "/":
+  -> sem target="_blank", sem rel="noopener noreferrer"
+Senao:
+  -> target="_blank" rel="noopener noreferrer"
+```
+
+### Nenhum outro arquivo precisa ser alterado
+
+A pagina `BlogPost.tsx` ja possui:
+- H1 correto no titulo do post (linha 250)
+- Tag `<article>` semantica (linha 309)
+- Breadcrumbs com schema (linha 206)
+- SEO completo via `BlogPostSEO`
+
+### Impacto esperado
+
+- Google entende a hierarquia: H1 (titulo) > H2 (secoes) > H3 (subsecoes)
+- Deep links permitem resultados com "jump to" no Google
+- Links internos mantem o usuario no site (sem nova aba desnecessaria)

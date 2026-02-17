@@ -1,8 +1,38 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import React from 'react';
 
 interface MarkdownRendererProps {
   content: string;
+}
+
+function childrenToText(children: React.ReactNode): string {
+  if (typeof children === 'string') return children;
+  if (typeof children === 'number') return String(children);
+  if (Array.isArray(children)) return children.map(childrenToText).join('');
+  if (React.isValidElement(children) && children.props?.children) {
+    return childrenToText(children.props.children);
+  }
+  return '';
+}
+
+function generateHeadingId(children: React.ReactNode): string {
+  const text = childrenToText(children);
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+function isInternalLink(href: string | undefined): boolean {
+  if (!href) return false;
+  if (href.startsWith('/')) return true;
+  if (href.includes('contabilidadezen.com.br')) return true;
+  return false;
 }
 
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
@@ -12,19 +42,19 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
         remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children }) => (
-            <h2 className="text-2xl md:text-3xl font-bold mt-10 mb-4 text-foreground">
+            <h2 id={generateHeadingId(children)} className="text-2xl md:text-3xl font-bold mt-10 mb-4 text-foreground">
               {children}
             </h2>
           ),
           h2: ({ children }) => (
-            <h3 className="text-xl md:text-2xl font-semibold mt-8 mb-3 text-foreground">
+            <h2 id={generateHeadingId(children)} className="text-xl md:text-2xl font-semibold mt-8 mb-3 text-foreground">
               {children}
-            </h3>
+            </h2>
           ),
           h3: ({ children }) => (
-            <h4 className="text-lg md:text-xl font-semibold mt-6 mb-2 text-foreground">
+            <h3 id={generateHeadingId(children)} className="text-lg md:text-xl font-semibold mt-6 mb-2 text-foreground">
               {children}
-            </h4>
+            </h3>
           ),
           p: ({ children }) => (
             <p className="text-muted-foreground mb-4 leading-relaxed">
@@ -49,16 +79,18 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
               {children}
             </blockquote>
           ),
-          a: ({ href, children }) => (
-            <a 
-              href={href} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-secondary hover:text-secondary/80 underline underline-offset-2"
-            >
-              {children}
-            </a>
-          ),
+          a: ({ href, children }) => {
+            const internal = isInternalLink(href);
+            return (
+              <a 
+                href={href} 
+                {...(internal ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+                className="text-secondary hover:text-secondary/80 underline underline-offset-2"
+              >
+                {children}
+              </a>
+            );
+          },
           img: ({ src, alt }) => (
             <figure className="my-6">
               <img 

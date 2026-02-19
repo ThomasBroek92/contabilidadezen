@@ -1,85 +1,131 @@
 
 
-# Plano: Conteudo HTML Visivel para Crawlers (Dentro do #root)
+# Plano: Configurar LovableHTML Pre-rendering + Pagina LLM Estatica
 
-## Problema Real
+## Contexto
 
-O bloco `<noscript>` so e exibido quando o navegador tem JavaScript **desabilitado**. Crawlers como Googlebot, bots de redes sociais e simuladores de crawl **nao ativam** `<noscript>` -- eles simplesmente nao executam o JS, mas o HTML dentro de `<noscript>` continua oculto. Por isso o simulador mostra "0 words visible".
+O site ja possui o conteudo estatico dentro do `#root` (fallback para crawlers), mas o crawler simulator ainda mostra 0 palavras porque muitos simuladores e bots sociais ignoram conteudo dentro de SPAs. A solucao definitiva e o pre-rendering via LovableHTML.
 
-## Solucao
+## Parte 1: Configurar LovableHTML (externo, sem codigo)
 
-Mover o conteudo semantico para **dentro do `<div id="root">`** como HTML real. Quando o React monta, ele substitui automaticamente todo o conteudo do `#root` pelo app renderizado. Crawlers que nao executam JS verao o HTML estatico; usuarios reais verao o React normalmente.
+LovableHTML funciona como um proxy DNS: intercepta requests de crawlers e serve HTML pre-renderizado completo. Setup em 5 minutos.
 
-## O que sera feito
+### Passos para voce (no painel do LovableHTML):
 
-### 1. Alterar `index.html`
+1. Criar conta em https://lovablehtml.com
+2. Adicionar o dominio `contabilidadezen.com.br`
+3. Alterar os registros DNS no seu provedor de dominio:
+   - Tipo A: `@` apontando para o IP fornecido pelo LovableHTML
+   - Tipo A: `www` apontando para o IP fornecido pelo LovableHTML
+4. Aguardar propagacao DNS (ate 24h, geralmente minutos)
+5. Testar no crawler simulator do LovableHTML
 
-**Dentro de `<div id="root">`**, inserir conteudo semantico completo:
+### O que o LovableHTML resolve automaticamente:
+- Previews sociais corretos (WhatsApp, LinkedIn, Twitter, Telegram) com titulo, descricao e imagem unicos por pagina
+- Visibilidade 100% para crawlers do Google (conteudo completo renderizado)
+- Visibilidade para bots de IA (ChatGPT, Claude, Perplexity, Gemini)
+- Sem alteracao de codigo necessaria
+- Cache automatico de paginas pre-renderizadas
 
-```text
-<div id="root">
-  <!-- Conteudo estatico para crawlers - React substitui ao montar -->
-  <header>...</header>
-  <main>
-    <h1>Contabilidade Zen - Contabilidade Digital Especializada</h1>
-    <p>Descricao dos servicos...</p>
-    <h2>Servicos</h2>
-    <ul>links internos...</ul>
-    <h2>Segmentos</h2>
-    <ul>links internos...</ul>
-    <h2>Ferramentas Gratuitas</h2>
-    <ul>links internos...</ul>
-    <h2>FAQ</h2>
-    <details>perguntas e respostas...</details>
-    <h2>Contato</h2>
-    <p>NAP + WhatsApp</p>
-  </main>
-  <footer>...</footer>
-</div>
-```
+## Parte 2: Criar pagina `llm.html` estatica (recomendacao oficial do Lovable)
 
-O conteudo incluira:
-- H1 com nome da empresa e proposta de valor
-- Paragrafo descritivo (rich snippet friendly)
-- Lista de servicos com links internos
-- Lista de segmentos com links internos
-- Ferramentas gratuitas com links
-- 6 FAQs com `<details>/<summary>` (escaneavel por crawlers)
-- Informacoes de contato (NAP para SEO local)
-- Links para redes sociais (Instagram, LinkedIn)
-- Links legais (politica de privacidade, termos)
+A documentacao oficial do Lovable recomenda criar uma pagina estatica em `/public/llm.html` com informacoes-chave da empresa para maximizar a visibilidade em mecanismos generativos (ChatGPT, Claude, Perplexity).
 
-### 2. Manter o `<noscript>` existente
+### Arquivo: `public/llm.html`
 
-O bloco `<noscript>` permanece como fallback adicional para navegadores com JS desabilitado.
+Pagina HTML estatica (sem React) contendo:
+- Quem e a Contabilidade Zen (resumo da empresa)
+- Servicos oferecidos (lista completa)
+- Segmentos atendidos (medicos, dentistas, psicologos, etc.)
+- Diferenciais competitivos
+- Ferramentas gratuitas disponibilizadas
+- Modelo de atendimento (100% digital, WhatsApp)
+- Informacoes de contato (NAP)
+- FAQs principais (10+)
+- Schema JSON-LD (Organization + FAQPage)
+- Links para todas as paginas publicas
 
-### 3. Atualizar a regra na base de conhecimento
+### Arquivo: `public/robots.txt`
 
-Atualizar `#CRAWLER_VISIBILITY_RULES` para incluir:
-- Toda nova pagina publica deve ter seus links adicionados ao HTML estatico dentro do `#root`
-- O conteudo dentro do `#root` e substituido pelo React ao montar -- nao afeta usuarios
-- Manter sincronizado com as rotas do `App.tsx`
+Adicionar permissao explicita para bots de IA:
+- `User-agent: GPTBot` -> `Allow: /`
+- `User-agent: PerplexityBot` -> `Allow: /`
+- `User-agent: Claude-Web` -> `Allow: /`
+- `User-agent: Google-Extended` -> `Disallow: /` (bloqueia treinamento, permite busca)
+
+### Atualizacoes no Sitemap
+
+Adicionar `/llm.html` ao sitemap (Edge Function `sitemap/index.ts`).
+
+## Parte 3: Atualizar Base de Conhecimento
+
+Adicionar regra `#PRERENDERING_RULES` ao Custom Knowledge:
+- LovableHTML e o servico de pre-rendering oficial do projeto
+- Toda nova pagina publica sera automaticamente pre-renderizada via proxy DNS
+- A pagina `/llm.html` deve ser atualizada quando servicos, segmentos ou ferramentas mudarem
+- O `robots.txt` deve manter permissoes explicitas para bots de IA
 
 ## Detalhes Tecnicos
 
-### Por que funciona
+### `public/llm.html` -- Estrutura
 
-React usa `createRoot(document.getElementById("root")!).render(...)` que **substitui** todo o conteudo HTML filho do `#root` pelo virtual DOM. Isso significa:
+```text
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Contabilidade Zen - Informacoes para IA e Crawlers</title>
+  <meta name="description" content="..." />
+  <link rel="canonical" href="https://www.contabilidadezen.com.br/llm.html" />
+</head>
+<body>
+  <h1>Contabilidade Zen</h1>
+  <p>Definicao clara: O que e, quem atende, como funciona</p>
+  <h2>Servicos</h2> ...lista completa...
+  <h2>Segmentos</h2> ...lista com descricoes...
+  <h2>Ferramentas</h2> ...lista com descricoes...
+  <h2>FAQ</h2> ...perguntas e respostas factuais...
+  <h2>Contato</h2> ...NAP completo...
+  <script type="application/ld+json">
+    { Organization + FAQPage schemas }
+  </script>
+</body>
+</html>
+```
 
-1. Crawler chega, nao executa JS -> ve o HTML estatico dentro do `#root`
-2. Usuario chega, JS executa -> React substitui pelo app completo
-3. Zero impacto na performance ou UX
+### `public/robots.txt` -- Adicoes
 
-### Arquivos alterados
+```text
+User-agent: GPTBot
+Allow: /
 
-- `index.html` -- conteudo semantico dentro do `#root`
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Google-Extended
+Disallow: /
+```
+
+### Arquivos alterados pelo Lovable
+
+1. `public/llm.html` -- novo arquivo
+2. `public/robots.txt` -- adicionar regras para bots de IA
+3. `supabase/functions/sitemap/index.ts` -- adicionar `/llm.html`
+
+### O que voce faz externamente (sem codigo)
+
+1. Criar conta no LovableHTML
+2. Configurar DNS conforme instrucoes do servico
+3. Testar no crawler simulator
 
 ### Impacto esperado
 
-- De 0 palavras visiveis para ~200+ palavras
-- Headings detectaveis (H1, H2)
-- Links internos descobriveis por crawlers
-- FAQs visiveis para extração de rich snippets
-- NAP visivel para SEO local
-- Score SEO deve subir significativamente no crawler simulator
+- Social previews: corretos em todas as paginas (via pre-rendering)
+- Crawler visibility: 100% (HTML completo servido)
+- IA visibility: maximizada (pagina `/llm.html` + robots.txt + pre-rendering)
+- Score SEO: deve subir de 55 para 85+ no crawler simulator
+- Zero impacto na performance para usuarios reais
 

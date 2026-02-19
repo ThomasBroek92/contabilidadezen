@@ -18,6 +18,23 @@ Allow: /
 User-agent: *
 Allow: /
 
+# Permitir bots de IA (visibilidade em mecanismos generativos)
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+# Bloquear treinamento de IA (mas permitir busca)
+User-agent: Google-Extended
+Disallow: /
+
 # Bloquear páginas administrativas e de autenticação
 Disallow: /admin
 Disallow: /admin/

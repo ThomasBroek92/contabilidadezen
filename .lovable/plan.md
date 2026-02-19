@@ -1,131 +1,98 @@
 
 
-# Plano: Configurar LovableHTML Pre-rendering + Pagina LLM Estatica
+# Plano: Limpar index.html e Remover Dependencia de Pre-rendering Externo
 
 ## Contexto
 
-O site ja possui o conteudo estatico dentro do `#root` (fallback para crawlers), mas o crawler simulator ainda mostra 0 palavras porque muitos simuladores e bots sociais ignoram conteudo dentro de SPAs. A solucao definitiva e o pre-rendering via LovableHTML.
+O site nao utilizara o servico LovableHTML. A estrategia de SEO sera 100% baseada no que ja temos:
+- Conteudo estatico dentro do `#root` (crawlers de busca veem o HTML)
+- `react-helmet-async` + `SEOHead` para meta tags dinamicas (usuarios com JS)
+- `llm.html` para bots de IA
+- `robots.txt` com permissoes para bots
 
-## Parte 1: Configurar LovableHTML (externo, sem codigo)
+## O que sera feito
 
-LovableHTML funciona como um proxy DNS: intercepta requests de crawlers e serve HTML pre-renderizado completo. Setup em 5 minutos.
+### 1. Limpar meta tags conflitantes do `index.html`
 
-### Passos para voce (no painel do LovableHTML):
+Remover tags que o `SEOHead` ja gera por pagina, eliminando duplicatas:
 
-1. Criar conta em https://lovablehtml.com
-2. Adicionar o dominio `contabilidadezen.com.br`
-3. Alterar os registros DNS no seu provedor de dominio:
-   - Tipo A: `@` apontando para o IP fornecido pelo LovableHTML
-   - Tipo A: `www` apontando para o IP fornecido pelo LovableHTML
-4. Aguardar propagacao DNS (ate 24h, geralmente minutos)
-5. Testar no crawler simulator do LovableHTML
+**Remover (14 tags):**
+- `<title>` (linha 18)
+- `<meta name="description">` (linha 19)
+- `<meta name="keywords">` (linha 20)
+- `<meta name="author">` (linha 21)
+- `<link rel="canonical">` (linha 22) -- **critico**, canonical duplicado confunde crawlers
+- `<meta property="og:title">` (linha 24)
+- `<meta property="og:description">` (linha 25)
+- `<meta property="og:type">` (linha 26)
+- `<meta property="og:url">` (linha 27)
+- `<meta property="og:image">` (linha 28)
+- `<meta name="twitter:card">` (linha 32)
+- `<meta name="twitter:title">` (linha 33)
+- `<meta name="twitter:description">` (linha 34)
+- `<meta name="robots">` (linha 36)
 
-### O que o LovableHTML resolve automaticamente:
-- Previews sociais corretos (WhatsApp, LinkedIn, Twitter, Telegram) com titulo, descricao e imagem unicos por pagina
-- Visibilidade 100% para crawlers do Google (conteudo completo renderizado)
-- Visibilidade para bots de IA (ChatGPT, Claude, Perplexity, Gemini)
-- Sem alteracao de codigo necessaria
-- Cache automatico de paginas pre-renderizadas
+**Manter:**
+- `<meta charset>`, `<meta viewport>` -- essenciais
+- `<meta property="og:locale">` -- sempre pt_BR, nao conflita
+- `<meta property="og:site_name">` -- sempre "Contabilidade Zen", nao conflita
+- `<meta name="theme-color">` -- global
+- Preconnects, favicons, fontes, preload hero
 
-## Parte 2: Criar pagina `llm.html` estatica (recomendacao oficial do Lovable)
+### 2. Manter tudo que ja funciona sem servico externo
 
-A documentacao oficial do Lovable recomenda criar uma pagina estatica em `/public/llm.html` com informacoes-chave da empresa para maximizar a visibilidade em mecanismos generativos (ChatGPT, Claude, Perplexity).
+- Conteudo semantico dentro do `#root` (H1, H2, links, FAQs, NAP) -- crawlers de busca como o Googlebot (que executa JS parcialmente) e crawlers simples ja veem esse conteudo
+- `public/llm.html` -- bots de IA acessam diretamente
+- `public/robots.txt` -- permissoes para bots de IA ja configuradas
+- `SEOHead` em todas as paginas -- usuarios e Googlebot (que executa JS) veem meta tags corretas
 
-### Arquivo: `public/llm.html`
+### 3. Limitacao conhecida (sem pre-rendering)
 
-Pagina HTML estatica (sem React) contendo:
-- Quem e a Contabilidade Zen (resumo da empresa)
-- Servicos oferecidos (lista completa)
-- Segmentos atendidos (medicos, dentistas, psicologos, etc.)
-- Diferenciais competitivos
-- Ferramentas gratuitas disponibilizadas
-- Modelo de atendimento (100% digital, WhatsApp)
-- Informacoes de contato (NAP)
-- FAQs principais (10+)
-- Schema JSON-LD (Organization + FAQPage)
-- Links para todas as paginas publicas
+Bots de redes sociais (WhatsApp, Telegram, LinkedIn, Twitter) **nao executam JS**. Sem pre-rendering, eles verao apenas as tags estaticas do `index.html`. Como estamos removendo as tags estaticas, precisamos manter um **fallback minimo** para social previews.
 
-### Arquivo: `public/robots.txt`
+**Solucao: manter `og:image` estatico como fallback**
 
-Adicionar permissao explicita para bots de IA:
-- `User-agent: GPTBot` -> `Allow: /`
-- `User-agent: PerplexityBot` -> `Allow: /`
-- `User-agent: Claude-Web` -> `Allow: /`
-- `User-agent: Google-Extended` -> `Disallow: /` (bloqueia treinamento, permite busca)
+Vamos manter **apenas** estas tags OG estaticas no `index.html` como fallback para bots sociais:
+- `<meta property="og:image">` -- imagem padrao da marca
+- `<meta property="og:site_name">` -- ja mantido
+- `<meta property="og:locale">` -- ja mantido
 
-### Atualizacoes no Sitemap
-
-Adicionar `/llm.html` ao sitemap (Edge Function `sitemap/index.ts`).
-
-## Parte 3: Atualizar Base de Conhecimento
-
-Adicionar regra `#PRERENDERING_RULES` ao Custom Knowledge:
-- LovableHTML e o servico de pre-rendering oficial do projeto
-- Toda nova pagina publica sera automaticamente pre-renderizada via proxy DNS
-- A pagina `/llm.html` deve ser atualizada quando servicos, segmentos ou ferramentas mudarem
-- O `robots.txt` deve manter permissoes explicitas para bots de IA
+O `SEOHead` sobrescrevera essas tags quando o JS executar (para Googlebot e usuarios reais). Para bots sociais, o preview mostrara a imagem da marca + o titulo/descricao que o `react-helmet-async` definir no `<head>` estatico (nao funciona para bots sem JS, mas e o melhor possivel sem pre-rendering).
 
 ## Detalhes Tecnicos
 
-### `public/llm.html` -- Estrutura
+### Resultado final do `<head>` no `index.html`
 
 ```text
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Contabilidade Zen - Informacoes para IA e Crawlers</title>
-  <meta name="description" content="..." />
-  <link rel="canonical" href="https://www.contabilidadezen.com.br/llm.html" />
-</head>
-<body>
-  <h1>Contabilidade Zen</h1>
-  <p>Definicao clara: O que e, quem atende, como funciona</p>
-  <h2>Servicos</h2> ...lista completa...
-  <h2>Segmentos</h2> ...lista com descricoes...
-  <h2>Ferramentas</h2> ...lista com descricoes...
-  <h2>FAQ</h2> ...perguntas e respostas factuais...
-  <h2>Contato</h2> ...NAP completo...
-  <script type="application/ld+json">
-    { Organization + FAQPage schemas }
-  </script>
-</body>
-</html>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- preconnects, dns-prefetch, preload -->
+<!-- favicons -->
+<meta property="og:image" content="https://www.contabilidadezen.com.br/og-image.png" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="Contabilidade Zen" />
+<meta name="theme-color" content="#2d3748" />
+<!-- font-face styles -->
 ```
 
-### `public/robots.txt` -- Adicoes
+### Arquivo alterado
 
-```text
-User-agent: GPTBot
-Allow: /
+- `index.html` -- remover 11 linhas de meta tags conflitantes (manter og:image como fallback social)
 
-User-agent: PerplexityBot
-Allow: /
+### Arquivos nao alterados (ja estao corretos)
 
-User-agent: Claude-Web
-Allow: /
+- `public/llm.html` -- OK
+- `public/robots.txt` -- OK (remover mencoes a LovableHTML na base de conhecimento)
+- `src/components/SEOHead.tsx` -- OK
+- Conteudo estatico dentro do `#root` -- OK
 
-User-agent: Google-Extended
-Disallow: /
-```
+### Impacto
 
-### Arquivos alterados pelo Lovable
-
-1. `public/llm.html` -- novo arquivo
-2. `public/robots.txt` -- adicionar regras para bots de IA
-3. `supabase/functions/sitemap/index.ts` -- adicionar `/llm.html`
-
-### O que voce faz externamente (sem codigo)
-
-1. Criar conta no LovableHTML
-2. Configurar DNS conforme instrucoes do servico
-3. Testar no crawler simulator
-
-### Impacto esperado
-
-- Social previews: corretos em todas as paginas (via pre-rendering)
-- Crawler visibility: 100% (HTML completo servido)
-- IA visibility: maximizada (pagina `/llm.html` + robots.txt + pre-rendering)
-- Score SEO: deve subir de 55 para 85+ no crawler simulator
-- Zero impacto na performance para usuarios reais
+| Cenario | Resultado |
+|---------|-----------|
+| Googlebot (executa JS) | Meta tags corretas via SEOHead |
+| Googlebot (HTML puro) | Conteudo semantico do #root visivel |
+| Bots de IA (GPTBot, Claude) | llm.html + conteudo do #root |
+| Bots sociais (WhatsApp, LinkedIn) | og:image da marca (generico) |
+| Usuarios reais | React app completo com SEOHead |
 

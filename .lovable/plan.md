@@ -1,59 +1,125 @@
 
 
-# Plano: Auditar e Completar o Sitemap
+# Plano: Corrigir Estrutura do robots.txt
 
-## Diagnostico
+## Problema Identificado
 
-O sitemap ja e gerado de forma confiavel via Edge Function que consulta o banco de dados (tabela `page_metadata` para rotas estaticas e `blog_posts` para posts). Nao ha risco de "URLs fantasma" porque o conteudo vem do banco, nao de listas hardcoded.
+O arquivo `robots.txt` atual tem um **erro de estrutura** que compromete as regras de bloqueio. No formato robots.txt, cada diretiva `Disallow` ou `Allow` se aplica ao bloco `User-agent` imediatamente acima. Atualmente:
 
-Porem, ao comparar as 22 rotas publicas do `App.tsx` com as 21 entradas na tabela `page_metadata`, foram encontradas **3 paginas publicas ausentes** do sitemap.
+- As regras de bloqueio (`Disallow: /admin`, `/auth`, URLs legadas, etc.) estao posicionadas **apos** o bloco `User-agent: Google-Extended`
+- Isso significa que essas regras so se aplicam ao `Google-Extended`, e nao a todos os bots
+- O bloco `User-agent: *` (linha 18-19) so tem `Allow: /`, sem nenhum `Disallow`
 
-## O que sera feito
+Na pratica, **nenhum bot esta sendo bloqueado de acessar `/admin`, `/auth` ou URLs legadas** -- exceto o Google-Extended.
 
-### Inserir 3 rotas faltantes na tabela `page_metadata`
+## Solucao
 
-| Rota | Prioridade | Frequencia | Justificativa |
-|------|-----------|------------|---------------|
-| `/cidades-atendidas` | 0.7 | monthly | Pagina de SEO local com lista de cidades |
-| `/contabilidade-em-campinas` | 0.8 | monthly | Landing page de cidade (SEO local) |
-| `/conteudo/calculadora-pj-clt/resultado` | 0.6 | monthly | Pagina de resultado da calculadora |
+Reorganizar o arquivo para que:
 
-### Nenhuma alteracao de codigo necessaria
+1. O bloco `User-agent: *` contenha todas as regras de `Allow` e `Disallow` globais
+2. Blocos especificos por bot (Googlebot, Bingbot, etc.) fiquem separados apenas se tiverem regras diferentes (como `Crawl-delay`)
+3. Bots de IA mantenham suas permissoes explicitas
+4. As diretivas `Sitemap` e `Host` fiquem no final (sao globais por especificacao)
 
-A Edge Function `sitemap/index.ts` ja esta correta e robusta:
-- Consulta `page_metadata` para rotas estaticas
-- Consulta `blog_posts` para posts publicados
-- Gera XML valido com `lastmod`, `changefreq` e `priority`
-- Suporta acoes administrativas (`update-page`, `update-all`)
-- Cache de 1 hora
+## Estrutura Corrigida
 
-O unico ajuste e popular o banco com as rotas faltantes.
+```text
+# Contabilidade Zen - robots.txt
+
+# Regras globais (todos os bots)
+User-agent: *
+Allow: /
+Allow: /assets/
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.webp$
+Allow: /*.svg$
+Disallow: /admin
+Disallow: /admin/
+Disallow: /auth
+Disallow: /auth/
+Disallow: /parceiro/
+Disallow: /lovable-uploads/
+Disallow: /*.json$
+Disallow: /*?*
+Disallow: /2019/
+Disallow: /2020/
+Disallow: /2021/
+Disallow: /2022/
+Disallow: /2023/
+Disallow: /2024/
+Disallow: /2025/
+Disallow: /tags/
+Disallow: /author/
+Disallow: /search/
+Disallow: /wp-login.php
+Disallow: /cdn-cgi/
+Disallow: */feed/
+Disallow: */feed$
+Disallow: /sede-virtual-gratuita/
+Disallow: /gestor-de-trafego-pode-ser-mei/
+Disallow: /impostos-na-venda-de-e-books-2/
+Disallow: /sdsdsd/
+
+# Googlebot (crawl-delay especifico)
+User-agent: Googlebot
+Crawl-delay: 1
+
+# Bingbot (crawl-delay especifico)
+User-agent: Bingbot
+Crawl-delay: 2
+
+# Bots sociais (permitir explicitamente)
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+# Bots de IA (permitir busca/indexacao)
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+# Bloquear treinamento de IA
+User-agent: Google-Extended
+Disallow: /
+
+# Sitemaps
+Sitemap: https://xqlkjoajrefbvbhkusdn.supabase.co/functions/v1/sitemap
+Sitemap: https://www.contabilidadezen.com.br/sitemap.xml
+
+# Host preferencial
+Host: https://www.contabilidadezen.com.br
+```
 
 ## Detalhes Tecnicos
 
-### SQL a executar (migration)
+### Arquivo alterado
 
-```sql
-INSERT INTO page_metadata (path, priority, changefreq, last_modified)
-VALUES 
-  ('/cidades-atendidas', 0.7, 'monthly', NOW()),
-  ('/contabilidade-em-campinas', 0.8, 'monthly', NOW()),
-  ('/conteudo/calculadora-pj-clt/resultado', 0.6, 'monthly', NOW());
-```
+- `public/robots.txt` -- reorganizar estrutura para que Disallow/Allow fiquem dentro dos blocos User-agent corretos
 
-### Resultado apos a correcao
+### O que muda na pratica
 
-O sitemap passara de 21 para 24 rotas estaticas (+ todos os blog posts publicados), cobrindo 100% das paginas publicas do site.
+| Antes | Depois |
+|-------|--------|
+| `/admin` bloqueado apenas para Google-Extended | `/admin` bloqueado para **todos** os bots |
+| `/auth` bloqueado apenas para Google-Extended | `/auth` bloqueado para **todos** os bots |
+| URLs legadas bloqueadas apenas para Google-Extended | URLs legadas bloqueadas para **todos** os bots |
+| Regras Allow de assets aplicadas a ninguem | Regras Allow de assets aplicadas a **todos** os bots |
 
-### Arquitetura existente (ja confiavel)
+### Nenhum outro arquivo alterado
 
-O sistema atual ja segue a melhor pratica recomendada pelo guia:
-
-- Fonte de verdade: banco de dados (`page_metadata` + `blog_posts`)
-- Gerador: Edge Function server-side (sem risco de alucinacao)
-- Atualizacao automatica: trigger no banco atualiza `/blog` quando posts mudam
-- Acoes administrativas: `?action=update-all` para forcar refresh de datas
-- CRON semanal: repopula fila de indexacao automaticamente
-
-Nenhuma mudanca de arquitetura e necessaria. Apenas o preenchimento das 3 rotas faltantes.
+O sitemap, llm.html e SEOHead permanecem inalterados.
 

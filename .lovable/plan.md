@@ -1,54 +1,50 @@
 
+# Corrigir Bug de Redirect no BlogPost.tsx
 
-# Corrigir Soft 404 em Posts de Blog Inexistentes
+## Problema Encontrado
 
-## Problema Identificado
+Ha um bug no fluxo de "post nao encontrado" em `BlogPost.tsx`. Quando o post nao existe no banco de dados:
 
-As URLs `/blog/abertura-cnpj-psicologo-passo-a-passo-completo` e `/blog/abertura-empresa-representante-comercial-passo-a-passo` nao existem no banco de dados (foram deletadas ou nunca publicadas). Quando um usuario ou crawler acessa esses links, o componente `BlogPost.tsx` redireciona silenciosamente para `/blog` com `navigate('/blog', { replace: true })`.
+1. Linha 113: `if (!data)` entra corretamente
+2. Linhas 129-130: Define `setNotFound(true)` e `setLoading(false)`
+3. **Bug**: Falta um `return` -- o codigo continua executando
+4. Linha 133: Tenta `setPost(data)` onde `data` e null
+5. Linha 140: Tenta acessar `data.category` que causa erro (TypeError)
+6. Linha 145-147: O `catch` captura o erro e define `setNotFound(true)` novamente
 
-O Google interpreta isso como **Soft 404** -- a URL nao retorna erro 404, mas tambem nao tem conteudo relevante. Isso prejudica a indexacao e gera alertas no Search Console.
+O post 404 acaba funcionando "por acidente" (via catch), mas o fluxo e fragil e pode causar comportamentos inesperados dependendo do timing dos states do React.
+
+## Diagnostico Completo
+
+| Item | Status |
+|------|--------|
+| Sitemap (Edge Function) | OK - so inclui posts com status `published` |
+| Pre-render (Edge Function) | OK - retorna 404 HTML para posts inexistentes |
+| BlogPost.tsx (404 state) | Bug - falta `return` apos setNotFound |
+| Posts publicados (banco) | OK - todos tem meta_title, meta_description, faq_schema |
+| Posts draft (banco) | OK - 12 drafts corretamente excluidos do sitemap |
 
 ## Solucao
 
-### 1. Mostrar pagina 404 real em vez de redirecionar para /blog
-
 **Arquivo:** `src/pages/BlogPost.tsx`
 
-Quando o post nao e encontrado no banco (linha 127), em vez de `navigate('/blog', { replace: true })`, renderizar o componente `NotFound` diretamente com SEOHead incluindo `noindex`. Isso garante que:
-
-- Google receba conteudo indicando "pagina nao encontrada" (nao um redirect)
-- O SEOHead tenha `noindex={true}` para que o Google remova a URL do indice
-- O usuario veja uma pagina util com sugestoes (link para /blog, busca, etc.)
-
-### 2. Manter redirect apenas para slugs com timestamp (comportamento existente)
-
-O redirect de slugs antigos com timestamp (ex: `meu-post-1234567890123`) para a versao limpa (`meu-post`) continua funcionando normalmente -- isso e um redirect legitimo.
-
-### 3. Manter redirect para partial match (comportamento existente)
-
-Se o slug digitado corresponde parcialmente a um post existente (linhas 113-125), o redirect para o slug correto tambem continua funcionando.
-
-## Detalhes Tecnicos
-
-**Mudanca principal em `BlogPost.tsx`:**
+Adicionar `return;` apos `setLoading(false)` na linha 131, dentro do bloco `if (!data)`:
 
 ```text
-// ANTES (linha 127):
-navigate('/blog', { replace: true });
+// ANTES (linhas 129-131):
+        setNotFound(true);
+        setLoading(false);
+      }
 
 // DEPOIS:
-setPost(null);  // Mantém post como null
-setNotFound(true);  // Novo state para controlar 404
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
 ```
 
-Adicionar um state `notFound` e renderizar uma pagina 404 inline quando ativado:
-
-- SEOHead com title "Artigo nao encontrado", noindex/nofollow
-- Mensagem clara: "Este artigo nao esta mais disponivel"
-- Link para /blog e botao de WhatsApp
-- Mesmo tratamento no bloco catch (linha 145)
-
-**Impacto:**
-- Zero impacto em posts existentes
-- Google para de reportar Soft 404 para URLs deletadas
-- URLs removidas serao naturalmente desindexadas pelo noindex
+Isso garante que:
+- O fluxo para imediatamente quando o post nao e encontrado
+- Nao tenta acessar propriedades de `data` null
+- O estado 404 e definido de forma limpa (nao via catch de erro)
+- Todos os posts inexistentes mostram a pagina 404 com `noindex` corretamente

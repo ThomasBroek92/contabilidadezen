@@ -128,6 +128,7 @@ export default function BlogPost() {
 
         setNotFound(true);
         setLoading(false);
+        return;
       }
 
       setPost(data as unknown as BlogPostData);

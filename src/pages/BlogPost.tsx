@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { SEOHead } from '@/components/SEOHead';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { BlogPostSEO } from '@/components/SEOHead';
@@ -73,6 +74,7 @@ export default function BlogPost() {
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   // Check if slug has timestamp (old format) and redirect to clean URL
   const hasTimestamp = (slugToCheck: string): boolean => {
@@ -124,8 +126,8 @@ export default function BlogPost() {
           return;
         }
 
-        navigate('/blog', { replace: true });
-        return;
+        setNotFound(true);
+        setLoading(false);
       }
 
       setPost(data as unknown as BlogPostData);
@@ -142,7 +144,7 @@ export default function BlogPost() {
       setRelatedPosts((related as RelatedPost[]) || []);
     } catch (error) {
       console.error('Error fetching post:', error);
-      navigate('/blog', { replace: true });
+      setNotFound(true);
     } finally {
       setLoading(false);
     }
@@ -177,8 +179,35 @@ export default function BlogPost() {
     );
   }
 
-  if (!post) {
-    return null;
+  if (!post || notFound) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead
+          title="Artigo não encontrado | Contabilidade Zen"
+          description="Este artigo não está mais disponível. Confira outros conteúdos no blog da Contabilidade Zen."
+          noindex={true}
+          nofollow={true}
+        />
+        <Header />
+        <main className="container mx-auto px-4 py-20 text-center max-w-2xl">
+          <h1 className="text-3xl font-bold text-foreground mb-4">Artigo não encontrado</h1>
+          <p className="text-muted-foreground mb-8">
+            Este artigo não está mais disponível ou foi removido. Confira outros conteúdos no nosso blog.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild>
+              <Link to="/blog">Ver todos os artigos</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <a href="https://wa.me/5511999999999?text=Ol%C3%A1%21%20Vim%20pelo%20blog%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" rel="noopener noreferrer">
+                Falar no WhatsApp
+              </a>
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const expertQuotes = post.expert_quotes || [];

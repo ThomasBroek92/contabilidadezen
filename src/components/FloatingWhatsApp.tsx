@@ -63,39 +63,65 @@ export function FloatingWhatsApp() {
       <AnimatePresence>
         {showTooltip && !tooltipDismissed && (
           <m.div
-            initial={{ opacity: 0, x: 20, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.9 }}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-24 right-4 sm:right-6 z-50 max-w-[200px] sm:max-w-[220px]"
+            className="fixed bottom-24 right-4 sm:right-6 z-50 w-[280px] sm:w-[300px]"
           >
-            <div className="bg-card border border-border shadow-xl rounded-2xl p-4 relative">
+            <div className="rounded-2xl shadow-2xl overflow-hidden relative">
               {/* Close button */}
               <button
                 onClick={handleDismissTooltip}
-                className="absolute -top-2 -left-2 bg-muted hover:bg-muted/80 rounded-full p-1 shadow-md transition-colors"
+                className="absolute top-2 right-2 z-10 bg-black/20 hover:bg-black/40 rounded-full p-1 transition-colors"
                 aria-label="Fechar"
               >
-                <X className="h-3 w-3 text-muted-foreground" />
+                <X className="h-3.5 w-3.5 text-white" />
               </button>
-              
-              <div className="flex items-start gap-3">
-                <div className="bg-[#25D366]/10 rounded-full p-2 shrink-0">
-                  <MessageCircle className="h-5 w-5 text-[#25D366]" />
+
+              {/* WhatsApp-style header */}
+              <div className="bg-[#075E54] px-4 py-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                  <MessageCircle className="h-5 w-5 text-white" fill="white" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground leading-tight">
-                    Fale com um especialista!
+                  <p className="text-sm font-semibold text-white leading-tight">
+                    Contabilidade Zen
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Tire suas dúvidas agora mesmo pelo WhatsApp
+                  <p className="text-[11px] text-white/80">
+                    Online agora
                   </p>
                 </div>
               </div>
-              
-              {/* Arrow pointing to button */}
-              <div className="absolute -bottom-2 right-8 w-4 h-4 bg-card border-r border-b border-border transform rotate-45" />
+
+              {/* Chat body */}
+              <div className="bg-[#ECE5DD] px-4 py-3">
+                {/* Message bubble */}
+                <div className="bg-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm max-w-[85%] relative">
+                  <p className="text-sm text-[#303030] leading-snug">
+                    Olá! 👋 Como posso te ajudar hoje?
+                  </p>
+                  <p className="text-[10px] text-[#999] text-right mt-1">
+                    agora
+                  </p>
+                </div>
+              </div>
+
+              {/* CTA button area */}
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleWhatsAppClick}
+                className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] text-white py-3 px-4 transition-colors text-sm font-semibold"
+              >
+                <MessageCircle className="h-4 w-4" fill="currentColor" />
+                Iniciar conversa
+              </a>
             </div>
+
+            {/* Arrow pointing to button */}
+            <div className="absolute -bottom-2 right-8 w-4 h-4 bg-[#25D366] transform rotate-45" />
           </m.div>
         )}
       </AnimatePresence>

@@ -1,404 +1,640 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Páginas estáticas (sincronizado com page_metadata) -->
   <url>
     <loc>https://www.contabilidadezen.com.br/</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/servicos</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/abrir-empresa</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/segmentos/contabilidade-para-medicos</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/segmentos/contabilidade-para-dentistas</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/segmentos/contabilidade-para-psicologos</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/segmentos/contabilidade-para-representantes-comerciais</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://www.contabilidadezen.com.br/contabilidade-em-campinas</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.contabilidadezen.com.br/sobre</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/contato</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/medicos</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/conteudo/calculadora-pj-clt</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/conteudo/comparativo-tributario</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/conteudo/gerador-rpa</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.contabilidadezen.com.br/conteudo/modelo-contrato-pj</loc>
+    <lastmod>2026-02-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/conteudo/tabela-simples-nacional</loc>
+    <lastmod>2026-02-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/cidades-atendidas</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/conteudo/gerador-invoice</loc>
+    <lastmod>2026-02-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.contabilidadezen.com.br/indique-e-ganhe</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/politica-de-privacidade</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/termos</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2026-02-09</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  <!-- Blog posts publicados -->
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/compliance-fiscal-reforma-tributaria-2026-para-psicologos</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/distribuicao-de-lucros-isentos-medicos-pj-regras-2026</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/ia-no-planejamento-tributario-para-consultorios-medicos-2026</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/ocr-ia-para-recibos-medicos-e-dentistas-2026</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/calculadora-impostos-telemedicina-medicos-pj-2026</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/pro-labore-minimo-psicologos-pj-2026-inss-reforma</loc>
+    <lastmod>2026-02-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/clt-vs-rpa-vs-pj-impostos-psicologo-2026</loc>
+    <lastmod>2026-01-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/simples-nacional-vs-lucro-presumido-para-psicologos-2026</loc>
+    <lastmod>2026-01-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/inss-pro-labore-medico-dentista-psicologo-pj-2026</loc>
+    <lastmod>2026-01-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/calculadora-de-preco-de-consulta-para-2026-e-2027</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/iss-na-telemedicina-e-telepsicologia-regras-20262027</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/lucro-presumido-x-lucro-real-para-clinicas-em-2026</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/malha-fina-20262027-para-profissionais-de-saude</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/reforma-tributaria-20262027-e-saude-ibs-cbs-e-creditos</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/nfs-e-nacional-para-profissionais-de-saude-regras-2026-2027</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/simulador-de-carga-tributaria-para-medicos-com-multiplos-vinculos</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/reforma-tributaria-20262027-guia-para-medicos-dentistas-e-psicologos</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/como-abrir-empresa-para-medico-dentista-e-psicologo-em-2026</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/melhor-cnae-para-medico-dentista-e-psicologo-em-2026</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/contabilidade-para-psicologos-e-psiquiatras-em-2026</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/planilha-simples-de-impostos-para-medico-dentista-e-psicologo-2026</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/tributacao-de-plantao-medico-2026-pj-rpa-e-recibo</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/carga-tributaria-efetiva-para-medicos-pj-em-2026</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/planejamento-tributario-2026-para-medicos-e-clinicas</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/contabilidade-para-medicos-dentistas-e-psicologos-pj-em-2026</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/tributacao-da-telepsicologia-e-teleatendimento-em-20252026</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/simples-nacional-ou-lucro-presumido-para-medicos-em-2025</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/medico-clt-ou-pj-em-2025-comparacao-tributaria-completa</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/ibs-e-cbs-na-reforma-tributaria-2026-para-medicos-pj</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/deducoes-irpf-dentista-pj-autonomo-2026-guia-completo</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/calculadora-irpf-vs-pj-medico-2026-simulador</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/simples-nacional-psicologos-pj-2026-aliquotas-e-limites</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/como-reduzir-impostos-medico-pessoa-juridica</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.contabilidadezen.com.br/blog/lucro-real-em-clinicas-coworking-saude-2026</loc>
+    <lastmod>2026-01-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-para-ti-voce-pode-pagar-menos-impostos-legalmente</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/como-pagar-menos-impostos-como-medico-pj-guia-completo-2025</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/como-reduzir-impostos-para-profissionais-de-saude-guia-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/quando-vale-a-pena-mudar-de-contador-sinais-de-alerta-e-guia-de-transicao</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/como-declarar-rendimentos-de-telemedicina-guia-completo-2025</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/guia-completo-contabilidade-para-profissionais-de-saude</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/regime-tributario-para-profissionais-de-saude-como-escolher</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/tributacao-clinica-medica-como-pagar-menos-impostos-legalmente</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/como-abrir-empresa-medica-cnpj-para-medicos-passo-a-passo-2025</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/guia-tributacao-telemedicina-2025-como-declarar-e-pagar-menos-impostos</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/gestao-financeira-para-dentistas-guia-pratico</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/planejamento-tributario-para-clinicas-odontologicas-como-pagar-menos-impostos</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/abertura-cnpj-psicologo-passo-a-passo-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-para-psicologos-guia-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/mei-para-psicologos-vale-a-pena-vantagens-limitacoes-e-quando-mudar</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/como-emitir-nota-fiscal-psicologo-guia-pratico</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/tributacao-representante-comercial-como-pagar-menos-impostos</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/abertura-empresa-representante-comercial-passo-a-passo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/declaracao-irpf-medicos-guia-completo-2025</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/medico-pj-clt-qual-melhor-opcao-guia-comparativo-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/societario-medico-tipos-vantagens-e-como-escolher</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/fluxo-caixa-clinica-medica-como-organizar</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contratacao-funcionarios-clinica-medica-guia-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/reforma-tributaria-2025-impactos-profissionais-saude</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/erros-contabilidade-medicos-como-evitar</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/marketing-digital-medicos-regras-cfm-2025</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/aposentadoria-medicos-inss-vs-previdencia-privada</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/investimentos-para-medicos-guia-iniciante</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-para-esteticistas-guia-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-fisioterapeutas-guia-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-nutricionistas-guia-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-veterinarios-guia-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-advogados-guia-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/pro-labore-medicos-como-definir-valor-ideal</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/distribuicao-lucros-clinica-medica-como-fazer</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/equiparacoes-hospitalares-como-reduzir-impostos-clinicas</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/holding-patrimonial-medicos-proteger-patrimonio</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-medicos-multiplos-cnpjs-como-organizar</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/medico-plantonista-pj-como-abrir-empresa</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-para-youtubers-criadores-conteudo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-para-profissionais-de-ti</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-infoprodutores-produtores-digitais</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-consultores-coaches</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/como-abrir-cnpj-dentista-guia-passo-a-passo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/dentista-pj-clt-comparativo-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/como-emitir-nota-fiscal-dentista</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/mei-dentista-pode-vantagens-desvantagens</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/contabilidade-para-dentistas-guia-completo</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/impostos-dentistas-quanto-pagar-como-reduzir</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.contabilidadezen.com.br/blog/tributacao-consultorios-odontologicos-simples-lucro-presumido</loc>
-    <lastmod>2025-01-25</lastmod>
+    <lastmod>2026-01-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

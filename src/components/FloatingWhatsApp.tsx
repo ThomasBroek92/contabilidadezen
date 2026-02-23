@@ -65,7 +65,7 @@ export function FloatingWhatsApp() {
   };
 
   return (
-    <>
+    <div className="fixed bottom-6 right-4 sm:right-6 z-[60]">
       {/* CTA Tooltip Bubble */}
       <AnimatePresence>
         {showTooltip && !tooltipDismissed && (
@@ -74,7 +74,7 @@ export function FloatingWhatsApp() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-24 right-4 sm:right-6 z-50 w-[280px] sm:w-[300px]"
+            className="absolute bottom-[72px] right-0 w-[280px] sm:w-[300px]"
           >
             <div className="rounded-2xl shadow-2xl overflow-hidden relative">
               {/* Close button */}
@@ -103,7 +103,6 @@ export function FloatingWhatsApp() {
 
               {/* Chat body */}
               <div className="bg-[#ECE5DD] px-4 py-3">
-                {/* Message bubble */}
                 <div className="bg-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm max-w-[85%] relative">
                   <p className="text-sm text-[#303030] leading-snug">
                     Olá! 👋 Como posso te ajudar hoje?
@@ -128,33 +127,30 @@ export function FloatingWhatsApp() {
             </div>
 
             {/* Arrow pointing to button */}
-            <div className="absolute -bottom-2 right-8 w-4 h-4 bg-[#25D366] transform rotate-45" />
+            <div className="absolute -bottom-2 right-6 w-4 h-4 bg-[#25D366] transform rotate-45" />
           </m.div>
         )}
       </AnimatePresence>
 
-      {/* Main Button */}
+      {/* Main Button - always visible */}
       <m.a
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
         onClick={handleWhatsAppClick}
-        className="fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl hover:shadow-2xl transition-all duration-300"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl hover:shadow-2xl transition-all duration-300"
         aria-label="Fale conosco pelo WhatsApp"
         data-gtm-category="Conversão"
         data-gtm-action="contato_whatsapp"
         data-gtm-label="floating_button"
         initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1, ...controls }}
+        animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.4, ease: "easeOut" }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
-        {/* Outer pulse ring */}
-        <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-25" />
-        
-        {/* Inner glow */}
-        <span className="absolute inset-0 rounded-full bg-[#25D366] animate-pulse opacity-40" />
+        {/* Pulse ring */}
+        <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-20" />
         
         {/* Emphasis glow ring */}
         {isEmphasized && (
@@ -166,31 +162,10 @@ export function FloatingWhatsApp() {
           />
         )}
         
-        {/* Subtle glowing border */}
-        <span 
-          className="absolute inset-0 rounded-full"
-          style={{
-            boxShadow: isEmphasized 
-              ? '0 0 30px rgba(37, 211, 102, 0.7), 0 0 60px rgba(37, 211, 102, 0.4)' 
-              : '0 0 20px rgba(37, 211, 102, 0.4)'
-          }}
-        />
-        
         {/* Icon */}
-        <WhatsAppIcon className="h-8 w-8 relative z-10" fill="currentColor" />
-        
-        {/* Online badge */}
-        <m.span 
-          className="absolute -top-1 -right-1 flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full shadow-lg bg-card text-foreground border border-border"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 1, type: "spring", stiffness: 500 }}
-        >
-          <span className="w-2 h-2 bg-[#25D366] rounded-full animate-pulse" />
-          Online
-        </m.span>
+        <WhatsAppIcon className="h-7 w-7 relative z-10" fill="currentColor" />
       </m.a>
-    </>
+    </div>
   );
 }
 

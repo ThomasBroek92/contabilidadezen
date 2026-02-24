@@ -349,7 +349,8 @@ export default function CalculadoraPJCLT() {
     }
 
     const salario = parseCurrency(salarioBruto);
-    const saved = await saveLead({
+    // Fire-and-forget: save lead without blocking UX
+    saveLead({
       nome: nome.trim(),
       email: email.trim(),
       whatsapp: telefone.trim(),
@@ -359,7 +360,7 @@ export default function CalculadoraPJCLT() {
       economia_anual: resultado?.economiaAnual,
     });
 
-    if (saved && resultado) {
+    if (resultado) {
       // Track form submit
       trackFormSubmit("Calculadora CLT x PJ", {
         segmento: "CLT x PJ",

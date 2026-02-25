@@ -73,6 +73,11 @@ export default function Medicos() {
         canonical="/medicos"
         pageType="service"
         includeLocalBusiness
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Segmentos", url: "https://www.contabilidadezen.com.br/servicos" },
+          { name: "Contabilidade para Médicos", url: "https://www.contabilidadezen.com.br/medicos" }
+        ]}
       />
       <div className="min-h-screen bg-background">
         <Header />

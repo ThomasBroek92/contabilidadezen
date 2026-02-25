@@ -182,6 +182,10 @@ export default function IndiqueGanhe() {
         canonical="/indique-e-ganhe"
         pageType="service"
         faqs={faqs}
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Indique e Ganhe", url: "https://www.contabilidadezen.com.br/indique-e-ganhe" }
+        ]}
       />
 
       <Header />

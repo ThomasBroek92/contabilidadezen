@@ -11,6 +11,10 @@ export default function PoliticaPrivacidade() {
         description="Política de Privacidade da Contabilidade Zen. Saiba como coletamos, usamos e protegemos seus dados pessoais."
         canonical="/politica-de-privacidade"
         pageType="legal"
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Política de Privacidade", url: "https://www.contabilidadezen.com.br/politica-de-privacidade" }
+        ]}
       />
       
       <Header />

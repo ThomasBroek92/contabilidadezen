@@ -62,6 +62,11 @@ const TabelaSimplesNacional = () => {
         canonical="/conteudo/tabela-simples-nacional"
         pageType="tool"
         faqs={faqs}
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Ferramentas", url: "https://www.contabilidadezen.com.br/conteudo" },
+          { name: "Tabela CNAE Simples Nacional", url: "https://www.contabilidadezen.com.br/conteudo/tabela-simples-nacional" }
+        ]}
       />
 
       <div className="min-h-screen bg-background">

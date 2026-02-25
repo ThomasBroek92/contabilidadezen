@@ -390,45 +390,6 @@ export default function CalculadoraPJCLT() {
     }
   };
 
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "A calculadora CLT x PJ é precisa?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sim, mas os valores são estimativas genéricas. Cada caso é único e pode ter variações conforme município, atividade e regime tributário. Recomendamos consulta com contador para análise personalizada."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Posso ser CLT e PJ ao mesmo tempo?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sim! Não há impedimento legal, desde que não haja conflito de interesses com seu empregador CLT. Você pode manter seu emprego formal e ter uma empresa para prestar serviços extras."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Quanto custa abrir um CNPJ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "As taxas variam por cidade (R$ 200 a R$ 800). Na Contabilidade Zen, a abertura é gratuita na contratação de 12 meses de contabilidade. Você só paga as taxas governamentais obrigatórias."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Preciso de contador obrigatoriamente como PJ?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sim, empresas no Simples Nacional são obrigadas por lei a ter contabilidade profissional. O contador cuida de impostos, declarações e garante que sua empresa esteja em dia com o fisco."
-        }
-      }
-    ]
-  };
-
   return (
     <TooltipProvider>
       <SEOHead
@@ -437,6 +398,11 @@ export default function CalculadoraPJCLT() {
         keywords="calculadora clt pj, clt x pj, quanto ganha pj, vale a pena ser pj, comparar clt pj, simples nacional"
         canonical="/conteudo/calculadora-pj-clt"
         pageType="tool"
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Ferramentas", url: "https://www.contabilidadezen.com.br/conteudo" },
+          { name: "Calculadora CLT x PJ", url: "https://www.contabilidadezen.com.br/conteudo/calculadora-pj-clt" }
+        ]}
         faqs={[
           { question: "A calculadora CLT x PJ é precisa?", answer: "Sim, mas os valores são estimativas. Recomendamos consulta com contador para análise personalizada." },
           { question: "Posso ser CLT e PJ ao mesmo tempo?", answer: "Sim! Não há impedimento legal, desde que não haja conflito de interesses." },
@@ -1276,11 +1242,7 @@ export default function CalculadoraPJCLT() {
           </div>
         </section>
 
-        {/* Schema FAQPage */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
+        {/* FAQ schema is now handled by SEOHead via faqs prop */}
       </main>
 
       <Footer />

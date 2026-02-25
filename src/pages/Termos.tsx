@@ -10,6 +10,10 @@ export default function Termos() {
         description="Termos de Uso da Contabilidade Zen. Conheça os termos e condições de uso dos nossos serviços contábeis."
         canonical="/termos"
         pageType="legal"
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Termos de Uso", url: "https://www.contabilidadezen.com.br/termos" }
+        ]}
       />
       
       <Header />

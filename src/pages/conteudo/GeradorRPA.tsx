@@ -414,6 +414,11 @@ export default function GeradorRPA() {
         description="Gere RPA (Recibo de Pagamento a Autônomo) com cálculo automático de INSS e IRRF. Ferramenta gratuita atualizada com a nova legislação tributária 2026, incluindo isenção para quem ganha até R$ 5.000."
         canonical="/conteudo/gerador-rpa"
         pageType="tool"
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Ferramentas", url: "https://www.contabilidadezen.com.br/conteudo" },
+          { name: "Gerador de RPA", url: "https://www.contabilidadezen.com.br/conteudo/gerador-rpa" }
+        ]}
       />
 
       <Header />

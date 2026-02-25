@@ -96,6 +96,10 @@ export default function CidadesAtendidas() {
         pageType="service"
         includeLocalBusiness
         faqs={faqData}
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Cidades Atendidas", url: "https://www.contabilidadezen.com.br/cidades-atendidas" }
+        ]}
       />
       
       <Header />

@@ -11,37 +11,6 @@ import { AbrirEmpresaFinancialServices } from "@/components/abrir-empresa/AbrirE
 import { AbrirEmpresaFAQ } from "@/components/abrir-empresa/AbrirEmpresaFAQ";
 import { CustomerJourney } from "@/components/sections/CustomerJourney";
 
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "Quanto custa abrir uma empresa PJ?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Na Contabilidade Zen, oferecemos planos a partir de R$ 297,90/mês com todo suporte necessário para abertura e gestão contábil da sua empresa."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Quanto tempo leva para abrir a empresa?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "O processo completo leva em média 7 a 15 dias úteis, dependendo da prefeitura e do conselho profissional."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Quais documentos preciso para abrir uma empresa?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "RG e CPF, comprovante de residência atualizado, registro no conselho profissional (CRM, CRO, CRP) e certificado digital."
-      }
-    }
-  ]
-};
-
 export default function AbrirEmpresa() {
   return (
     <>
@@ -52,13 +21,17 @@ export default function AbrirEmpresa() {
         canonical="/abrir-empresa"
         pageType="service"
         includeLocalBusiness
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Serviços", url: "https://www.contabilidadezen.com.br/servicos" },
+          { name: "Abrir Empresa", url: "https://www.contabilidadezen.com.br/abrir-empresa" }
+        ]}
         faqs={[
           { question: "Quanto custa abrir uma empresa PJ?", answer: "Na Contabilidade Zen, oferecemos planos a partir de R$ 297,90/mês com todo suporte necessário para abertura e gestão contábil da sua empresa." },
           { question: "Quanto tempo leva para abrir a empresa?", answer: "O processo completo leva em média 7 a 15 dias úteis, dependendo da prefeitura e do conselho profissional." },
           { question: "Quais documentos preciso para abrir uma empresa?", answer: "RG e CPF, comprovante de residência atualizado, registro no conselho profissional (CRM, CRO, CRP) e certificado digital." }
         ]}
       />
-
       <Header />
       
       <main>

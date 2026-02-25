@@ -73,9 +73,16 @@ function optimizeDescription(description: string): string {
   return description.substring(0, maxLength - 3) + "...";
 }
 
+// Strip @context from schemas when used inside @graph
+function stripContext(schema: object): object {
+  const { "@context": _, ...rest } = schema as Record<string, unknown>;
+  return rest;
+}
+
 // Generate page-specific schemas automatically
 function generatePageSchemas(props: SEOHeadProps): object[] {
   const schemas: object[] = [];
+  const fullCanonicalUrl = props.canonical?.startsWith("http") ? props.canonical : `${SITE_URL}${props.canonical || ""}`;
   
   // Organization schema for main pages
   if (props.includeOrganization || props.pageType === "home" || props.pageType === "contact") {
@@ -99,7 +106,6 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
   
   // Article schema for blog posts
   if (props.pageType === "blog-post" && props.canonical) {
-    const fullCanonicalUrl = props.canonical.startsWith("http") ? props.canonical : `${SITE_URL}${props.canonical}`;
     schemas.push({
       "@context": "https://schema.org",
       "@type": "BlogPosting",
@@ -148,8 +154,40 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
         "@type": "Country",
         "name": "Brasil"
       },
-      "url": props.canonical
+      "url": fullCanonicalUrl
     });
+  }
+  
+  // WebApplication schema for tool pages
+  if (props.pageType === "tool" && props.canonical) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": props.title,
+      "description": props.description,
+      "url": fullCanonicalUrl,
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BRL"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": SITE_NAME,
+        "url": SITE_URL
+      }
+    });
+    
+    // Auto-generate breadcrumbs for tools if not provided
+    if (!props.breadcrumbs || props.breadcrumbs.length === 0) {
+      schemas.push(breadcrumbSchema([
+        { name: "Home", url: SITE_URL },
+        { name: "Ferramentas", url: `${SITE_URL}/conteudo` },
+        { name: props.title, url: fullCanonicalUrl }
+      ]));
+    }
   }
   
   // Custom schemas
@@ -243,7 +281,7 @@ export function SEOHead(props: SEOHeadProps) {
             ? JSON.stringify(schemas[0])
             : JSON.stringify({
                 "@context": "https://schema.org",
-                "@graph": schemas
+                "@graph": schemas.map(stripContext)
               })
           }
         </script>

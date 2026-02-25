@@ -214,6 +214,11 @@ export default function ContabilidadeCampinas() {
         pageType="service"
         includeLocalBusiness
         faqs={campinasXFAQs}
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Cidades Atendidas", url: "https://www.contabilidadezen.com.br/cidades-atendidas" },
+          { name: "Contabilidade em Campinas", url: "https://www.contabilidadezen.com.br/contabilidade-em-campinas" }
+        ]}
       />
 
       <Header />

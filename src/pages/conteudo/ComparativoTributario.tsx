@@ -304,6 +304,11 @@ export default function ComparativoTributario() {
         keywords="comparativo tributário, simples nacional, anexo 3, anexo 5, fator r, lucro presumido, CLT, autônomo, médico, dentista, psicólogo"
         canonical="/conteudo/comparativo-tributario"
         pageType="tool"
+        breadcrumbs={[
+          { name: "Home", url: "https://www.contabilidadezen.com.br" },
+          { name: "Ferramentas", url: "https://www.contabilidadezen.com.br/conteudo" },
+          { name: "Comparativo Tributário", url: "https://www.contabilidadezen.com.br/conteudo/comparativo-tributario" }
+        ]}
       />
 
       <Header />

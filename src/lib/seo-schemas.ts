@@ -214,47 +214,6 @@ export const breadcrumbSchema = (items: Array<{ name: string; url: string }>) =>
   }))
 });
 
-// Home page combined schema with @graph for multiple types
-export const homePageSchema = {
-  "@context": "https://schema.org",
-  "@graph": [
-    organizationSchema,
-    localBusinessSchema,
-    servicesSchema,
-    {
-      "@type": "WebSite",
-      "@id": `${SITE_URL}/#website`,
-      "url": SITE_URL,
-      "name": "Contabilidade Zen",
-      "description": "Contabilidade especializada para profissionais da saúde",
-      "publisher": {
-        "@id": `${SITE_URL}/#organization`
-      },
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": `${SITE_URL}/blog?q={search_term_string}`
-        },
-        "query-input": "required name=search_term_string"
-      }
-    },
-    {
-      "@type": "WebPage",
-      "@id": `${SITE_URL}/#webpage`,
-      "url": SITE_URL,
-      "name": "Contabilidade Zen - Contabilidade para Profissionais da Saúde",
-      "isPartOf": {
-        "@id": `${SITE_URL}/#website`
-      },
-      "about": {
-        "@id": `${SITE_URL}/#organization`
-      },
-      "description": "Contabilidade especializada para médicos, dentistas, psicólogos e profissionais da saúde. Reduza seus impostos legalmente."
-    }
-  ]
-};
-
 // Blog listing schema (CollectionPage + ItemList)
 export const generateBlogListingSchema = (posts: Array<{ title: string; slug: string; excerpt?: string | null }>) => ({
   "@context": "https://schema.org",

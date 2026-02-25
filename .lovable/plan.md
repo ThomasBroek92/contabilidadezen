@@ -1,106 +1,160 @@
 
-# Corrigir Calculadora CLT x PJ -- Lead nao salva e resultado nao carrega
 
-## Causa Raiz
+# Auditoria Completa de Dados Estruturados (JSON-LD) -- Todas as Paginas Publicas
 
-O hook `use-lead-capture.ts` usa `.select('id').single()` apos o INSERT na tabela `leads`. Isso forca o Supabase a executar um SELECT apos a insercao para retornar o ID do lead criado. Porem, a politica RLS de SELECT da tabela `leads` exige usuario **autenticado** com role especifica (`can_view_leads`). Como visitantes anonimos nao sao autenticados, o SELECT falha com erro 42501, e o INSERT inteiro retorna como falha.
+## Metodologia
 
-Consequencia: `saveLead()` retorna `false`, e a condicao `if (saved && resultado)` na linha 362 do `CalculadoraPJCLT.tsx` nunca e verdadeira -- o usuario nunca e redirecionado para a pagina de resultado.
+Auditei todas as 25+ paginas publicas do site contra as best practices do Google Rich Results Test, a documentacao do Lovable e as regras internas do Custom Knowledge (`#STRUCTURED_DATA_RULES`).
 
-## Plano de Correcao
+---
 
-### 1. Corrigir `use-lead-capture.ts`
+## Resumo Executivo
 
-Separar o INSERT em dois fluxos:
+| Aspecto | Status |
+|---------|--------|
+| Componente centralizado (SEOHead) | OK |
+| @graph para multiplos schemas | OK |
+| @id com URLs canonicas absolutas | PARCIAL (problemas) |
+| FAQPage com conteudo visivel | OK na maioria |
+| BreadcrumbList | AUSENTE em varias paginas |
+| 1 unico script JSON-LD por pagina | OK (Helmet gerencia) |
+| Schemas duplicados (Organization + LocalBusiness) | RISCO em algumas paginas |
 
-- **Fluxo padrao (calculadora, formularios):** INSERT simples sem `.select()`. Nao precisa do ID retornado.
-- **Fluxo Exit Intent:** INSERT sem `.select()`, seguido de um INSERT separado na tabela `lead_interactions` usando uma abordagem alternativa (trigger ou RPC server-side).
+---
 
-Mudanca principal:
+## Problemas Encontrados por Pagina
 
-```text
-ANTES:
-  .insert({...})
-  .select('id')
-  .single()
+### CRITICO -- Schemas com URLs relativas (Service schema)
 
-DEPOIS:
-  .insert({...})
-```
+O schema `Service` gerado automaticamente no SEOHead (linha 152) usa `props.canonical` diretamente na propriedade `url`, resultando em URLs relativas como `/servicos` ao inves de `https://www.contabilidadezen.com.br/servicos`. O Google rejeita URLs relativas em JSON-LD.
 
-Para o caso de Exit Intent que precisa criar a interacao automatica, a solucao mais segura e criar um **database trigger** que detecta leads com fonte contendo "exit intent" e cria automaticamente o registro em `lead_interactions`, eliminando a necessidade de retornar o ID para o frontend.
+**Afeta**: Todas as paginas com `pageType="service"` (Servicos, Sobre, Medicos, Dentistas, Psicologos, Representantes, Campinas, CidadesAtendidas, IndiqueGanhe, AbrirEmpresa).
 
-### 2. Criar trigger para interacao automatica de Exit Intent
+**Correcao**: Linha 152 do SEOHead.tsx -- prefixar `SITE_URL` na URL do Service schema.
 
-Criar uma funcao e trigger no banco:
+---
 
-```sql
-CREATE FUNCTION auto_log_exit_intent_interaction()
-  RETURNS TRIGGER AS $$
-BEGIN
-  IF LOWER(NEW.fonte) LIKE '%exit intent%' THEN
-    INSERT INTO lead_interactions (lead_id, tipo, descricao, resultado)
-    VALUES (
-      NEW.id,
-      'anotacao',
-      'Lead capturado via Exit Intent Pop-up. Fonte: ' || NEW.fonte ||
-        '. Segmento: ' || COALESCE(NEW.segmento, 'Nao informado') ||
-        CASE WHEN NEW.empresa IS NOT NULL THEN '. Cidade: ' || NEW.empresa ELSE '' END ||
-        CASE WHEN NEW.cargo IS NOT NULL THEN '. Atividade: ' || NEW.cargo ELSE '' END,
-      'Lead novo - aguardando primeiro contato'
-    );
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+### ALTO -- Paginas SEM breadcrumbs (BreadcrumbList ausente)
 
-CREATE TRIGGER auto_exit_intent_interaction
-  AFTER INSERT ON leads
-  FOR EACH ROW
-  EXECUTE FUNCTION auto_log_exit_intent_interaction();
-```
+As seguintes paginas nao passam `breadcrumbs` ao SEOHead, perdendo rich snippets de navegacao:
 
-### 3. Garantir que a navegacao funcione mesmo se o lead nao for salvo
+| Pagina | Rota | Status |
+|--------|------|--------|
+| Medicos (legado) | `/medicos` | SEM breadcrumbs |
+| AbrirEmpresa | `/abrir-empresa` | SEM breadcrumbs |
+| CidadesAtendidas | `/cidades-atendidas` | SEM breadcrumbs |
+| ContabilidadeCampinas | `/contabilidade-em-campinas` | SEM breadcrumbs |
+| IndiqueGanhe | `/indique-e-ganhe` | SEM breadcrumbs |
+| CalculadoraPJCLT | `/conteudo/calculadora-pj-clt` | SEM breadcrumbs |
+| ComparativoTributario | `/conteudo/comparativo-tributario` | SEM breadcrumbs |
+| GeradorRPA | `/conteudo/gerador-rpa` | SEM breadcrumbs |
+| NotFound | `*` | OK (nao precisa) |
 
-Na `CalculadoraPJCLT.tsx`, alterar a logica para que o resultado seja exibido **independentemente** do sucesso do salvamento do lead. O salvamento e importante para o negocio, mas nao deve bloquear a experiencia do usuario.
+**Nota**: As paginas que usam `ToolPageSEO` (GeradorInvoice, ModeloContratoPJ) JA tem breadcrumbs automaticos. Porem as que usam `SEOHead` diretamente com `pageType="tool"` (CalculadoraPJCLT, ComparativoTributario, GeradorRPA, TabelaSimplesNacional) NAO herdam breadcrumbs automaticamente.
 
-```text
-ANTES (linha 362):
-  if (saved && resultado) {
-    // track + navigate
-  }
+---
 
-DEPOIS:
-  // Tenta salvar lead (fire-and-forget para nao bloquear UX)
-  saveLead({...}); // sem await
+### ALTO -- Paginas de ferramentas SEM schema WebApplication
 
-  if (resultado) {
-    trackFormSubmit(...);
-    dataLayer.push(...);
-    navigate("/conteudo/calculadora-pj-clt/resultado", { state: {...} });
-  }
-```
+As paginas de ferramentas que usam `SEOHead` diretamente (em vez de `ToolPageSEO`) nao recebem o schema `WebApplication`:
 
-Isso garante que mesmo em caso de rate limit, erro de rede ou falha no banco, o usuario ve o resultado e os eventos GTM sao disparados.
+| Pagina | Rota | Tem WebApplication? |
+|--------|------|---------------------|
+| CalculadoraPJCLT | `/conteudo/calculadora-pj-clt` | NAO |
+| ComparativoTributario | `/conteudo/comparativo-tributario` | NAO |
+| GeradorRPA | `/conteudo/gerador-rpa` | NAO |
+| TabelaSimplesNacional | `/conteudo/tabela-simples-nacional` | NAO |
+| GeradorInvoice | `/conteudo/gerador-invoice` | SIM (usa ToolPageSEO) |
+| ModeloContratoPJ | `/conteudo/modelo-contrato-pj` | SIM (usa ToolPageSEO) |
 
-### 4. Rastreamento GTM (ja implementado, apenas validar)
+**Correcao**: Ou migrar essas paginas para usar `ToolPageSEO`, ou gerar WebApplication automaticamente quando `pageType="tool"` no SEOHead.
 
-O evento `ver_resultado_calculadora` ja esta sendo disparado via `dataLayer.push()`. Com a correcao acima, ele sera disparado corretamente pois nao dependera mais do `saved === true`.
+---
 
-O evento `envio_formulario` via `trackFormSubmit()` tambem sera disparado. Ambos permitem configurar conversoes no GTM/GA4.
+### MEDIO -- FAQs ausentes em paginas com FAQ visivel
+
+| Pagina | Tem FAQ visivel? | Passa `faqs` ao SEOHead? |
+|--------|------------------|--------------------------|
+| Medicos (legado `/medicos`) | NAO | NAO |
+| ComparativoTributario | NAO | NAO |
+| GeradorRPA | NAO | NAO |
+
+---
+
+### MEDIO -- Schemas @context duplicados dentro do @graph
+
+Quando o SEOHead gera um `@graph`, cada schema individual (organizationSchema, localBusinessSchema, etc.) ja contem `"@context": "https://schema.org"`. Dentro de um `@graph`, o `@context` deve existir apenas no nivel raiz. O Google tolera isso, mas e tecnicamente incorreto e pode gerar warnings no Rich Results Test.
+
+**Correcao**: Remover `@context` dos schemas individuais ao inseri-los no `@graph`, ou usar uma funcao de limpeza antes de serializar.
+
+---
+
+### MEDIO -- AbrirEmpresa.tsx tem faqSchema definido mas nao utilizado
+
+A pagina define uma constante `faqSchema` com FAQ (linhas 13-45) mas ja passa as FAQs corretamente via `faqs` prop ao SEOHead. O `faqSchema` esta morto (dead code) e pode confundir futuros desenvolvedores.
+
+---
+
+### BAIXO -- Paginas legais sem breadcrumbs
+
+PoliticaPrivacidade e Termos nao tem breadcrumbs. Embora menos impactante, breadcrumbs melhoram a experiencia no SERP.
+
+---
+
+### BAIXO -- homePageSchema exportado mas nao usado
+
+O `seo-schemas.ts` exporta `homePageSchema` (linha 218) que nunca e importado em nenhuma pagina. A homepage usa o sistema automatico do SEOHead. Dead code.
+
+---
+
+## Plano de Correcao (7 alteracoes)
+
+### 1. Corrigir URL relativa no Service schema (SEOHead.tsx)
+
+Linha 152: mudar `"url": props.canonical` para `"url": fullCanonicalUrl` (ja calculado na linha 102).
+
+### 2. Gerar WebApplication automaticamente para pageType="tool" (SEOHead.tsx)
+
+Adicionar logica no `generatePageSchemas` para que `pageType="tool"` gere o schema WebApplication automaticamente (mesmo comportamento do `ToolPageSEO`), incluindo breadcrumbs default quando nao fornecidos.
+
+### 3. Limpar @context duplicados no @graph (SEOHead.tsx)
+
+Antes de serializar os schemas no @graph, remover a propriedade `@context` de cada schema individual.
+
+### 4. Adicionar breadcrumbs nas 8 paginas que faltam
+
+Adicionar prop `breadcrumbs` nas paginas: Medicos, AbrirEmpresa, CidadesAtendidas, ContabilidadeCampinas, IndiqueGanhe, CalculadoraPJCLT, ComparativoTributario, GeradorRPA.
+
+### 5. Migrar ferramentas para ToolPageSEO ou adicionar breadcrumbs padrao
+
+CalculadoraPJCLT, ComparativoTributario, GeradorRPA e TabelaSimplesNacional podem receber breadcrumbs + WebApplication via a correcao #2.
+
+### 6. Remover dead code
+
+- Remover `faqSchema` de AbrirEmpresa.tsx (linhas 13-45)
+- Remover `homePageSchema` de seo-schemas.ts (linhas 218-256) se nao for referenciado em nenhum lugar
+
+### 7. Adicionar FAQs faltantes
+
+ComparativoTributario e GeradorRPA: se tiverem FAQ visivel no conteudo, passar array `faqs` ao SEOHead para gerar FAQPage schema.
+
+---
 
 ## Arquivos Alterados
 
 | Arquivo | Mudanca |
 |---------|---------|
-| `src/hooks/use-lead-capture.ts` | Remover `.select('id').single()`, mover logica de Exit Intent para trigger |
-| `src/pages/conteudo/CalculadoraPJCLT.tsx` | Desacoplar navegacao do resultado de salvamento do lead |
-| Migration SQL | Criar trigger `auto_exit_intent_interaction` |
+| `src/components/SEOHead.tsx` | Corrigir URL Service, gerar WebApplication para tool, limpar @context no @graph |
+| `src/lib/seo-schemas.ts` | Remover homePageSchema (dead code) |
+| `src/pages/Medicos.tsx` | Adicionar breadcrumbs |
+| `src/pages/AbrirEmpresa.tsx` | Adicionar breadcrumbs, remover faqSchema morto |
+| `src/pages/CidadesAtendidas.tsx` | Adicionar breadcrumbs |
+| `src/pages/cidades/ContabilidadeCampinas.tsx` | Adicionar breadcrumbs |
+| `src/pages/IndiqueGanhe.tsx` | Adicionar breadcrumbs |
+| `src/pages/conteudo/CalculadoraPJCLT.tsx` | Adicionar breadcrumbs |
+| `src/pages/conteudo/ComparativoTributario.tsx` | Adicionar breadcrumbs |
+| `src/pages/conteudo/GeradorRPA.tsx` | Adicionar breadcrumbs |
+| `src/pages/conteudo/TabelaSimplesNacional.tsx` | Adicionar breadcrumbs |
+| `src/pages/PoliticaPrivacidade.tsx` | Adicionar breadcrumbs (opcional) |
+| `src/pages/Termos.tsx` | Adicionar breadcrumbs (opcional) |
 
-## Resultado Esperado
-
-1. Visitante preenche dados e clica "Ver Resultado"
-2. Lead e salvo no banco (INSERT sem SELECT, compativel com RLS)
-3. Usuario e redirecionado para `/conteudo/calculadora-pj-clt/resultado` com os dados
-4. Eventos GTM `ver_resultado_calculadora` e `envio_formulario` sao disparados
-5. Se o lead for de Exit Intent, o trigger cria automaticamente o log de interacao

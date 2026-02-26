@@ -1,160 +1,85 @@
+# Conectar o site Contabilidade Zen ao Netlify
+
+## Contexto
+
+O projeto usa Lovable Cloud como backend (banco de dados, edge functions, autenticação). A ideia é hospedar apenas o **frontend** no Netlify, mantendo o backend no Lovable Cloud.
+
+## Passo a passo
+
+### 1. Conectar o repositório ao GitHub (pré-requisito)
+
+Se ainda não fez, vá em **Settings → GitHub** no Lovable e conecte o projeto ao seu repositório GitHub. Isso sincroniza o código automaticamente.
+
+### 2. Criar o site no Netlify
+
+1. Acesse [app.netlify.com](https://app.netlify.com)
+2. Clique em **"Add new site" → "Import an existing project"**
+3. Selecione o repositório GitHub do projeto
+
+### 3. Configurar o build no Netlify
 
 
-# Auditoria Completa de Dados Estruturados (JSON-LD) -- Todas as Paginas Publicas
+| Campo             | Valor                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Build command     | `npm run build`                                                                      |
+| Publish directory | `dist`                                                                               |
+| Node version      | `22` (configurar em **Site settings → Build & Deploy → Environment → Node version**) |
 
-## Metodologia
 
-Auditei todas as 25+ paginas publicas do site contra as best practices do Google Rich Results Test, a documentacao do Lovable e as regras internas do Custom Knowledge (`#STRUCTURED_DATA_RULES`).
+### 4. Configurar variáveis de ambiente no Netlify
 
----
+Em **Site settings → Environment variables**, adicione estas 3 variáveis:
 
-## Resumo Executivo
 
-| Aspecto | Status |
-|---------|--------|
-| Componente centralizado (SEOHead) | OK |
-| @graph para multiplos schemas | OK |
-| @id com URLs canonicas absolutas | PARCIAL (problemas) |
-| FAQPage com conteudo visivel | OK na maioria |
-| BreadcrumbList | AUSENTE em varias paginas |
-| 1 unico script JSON-LD por pagina | OK (Helmet gerencia) |
-| Schemas duplicados (Organization + LocalBusiness) | RISCO em algumas paginas |
+| Variável                        | Valor                                      |
+| ------------------------------- | ------------------------------------------ |
+| `VITE_SUPABASE_URL`             | `https://xqlkjoajrefbvbhkusdn.supabase.co` |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | A anon key do projeto (está no `.env`)     |
+| `VITE_SUPABASE_PROJECT_ID`      | `xqlkjoajrefbvbhkusdn`                     |
 
----
 
-## Problemas Encontrados por Pagina
+Essas variáveis conectam o frontend ao backend do Lovable Cloud.
 
-### CRITICO -- Schemas com URLs relativas (Service schema)
+### 5. Configurar SPA routing (evitar 404 em rotas diretas)
 
-O schema `Service` gerado automaticamente no SEOHead (linha 152) usa `props.canonical` diretamente na propriedade `url`, resultando em URLs relativas como `/servicos` ao inves de `https://www.contabilidadezen.com.br/servicos`. O Google rejeita URLs relativas em JSON-LD.
+Criar um arquivo `public/_redirects` com o conteúdo:
 
-**Afeta**: Todas as paginas com `pageType="service"` (Servicos, Sobre, Medicos, Dentistas, Psicologos, Representantes, Campinas, CidadesAtendidas, IndiqueGanhe, AbrirEmpresa).
+```text
+/*    /index.html   200
+```
 
-**Correcao**: Linha 152 do SEOHead.tsx -- prefixar `SITE_URL` na URL do Service schema.
+Isso garante que URLs como `/abrir-empresa` ou `/blog/meu-post` funcionem ao acessar diretamente (sem passar pela homepage primeiro). Sem isso, o Netlify retorna 404 para qualquer rota que não seja `/`.
 
----
+### 6. Conectar domínio customizado (opcional)
 
-### ALTO -- Paginas SEM breadcrumbs (BreadcrumbList ausente)
+Se quiser usar `www.contabilidadezen.com.br` no Netlify:
 
-As seguintes paginas nao passam `breadcrumbs` ao SEOHead, perdendo rich snippets de navegacao:
+1. No Netlify: **Domain settings → Add custom domain**
+2. Configurar DNS (CNAME ou Netlify DNS)
+3. O Netlify provisiona SSL automaticamente
 
-| Pagina | Rota | Status |
-|--------|------|--------|
-| Medicos (legado) | `/medicos` | SEM breadcrumbs |
-| AbrirEmpresa | `/abrir-empresa` | SEM breadcrumbs |
-| CidadesAtendidas | `/cidades-atendidas` | SEM breadcrumbs |
-| ContabilidadeCampinas | `/contabilidade-em-campinas` | SEM breadcrumbs |
-| IndiqueGanhe | `/indique-e-ganhe` | SEM breadcrumbs |
-| CalculadoraPJCLT | `/conteudo/calculadora-pj-clt` | SEM breadcrumbs |
-| ComparativoTributario | `/conteudo/comparativo-tributario` | SEM breadcrumbs |
-| GeradorRPA | `/conteudo/gerador-rpa` | SEM breadcrumbs |
-| NotFound | `*` | OK (nao precisa) |
+**Importante**: Se o domínio já aponta para o Lovable, será necessário atualizar o DNS para o Netlify.
 
-**Nota**: As paginas que usam `ToolPageSEO` (GeradorInvoice, ModeloContratoPJ) JA tem breadcrumbs automaticos. Porem as que usam `SEOHead` diretamente com `pageType="tool"` (CalculadoraPJCLT, ComparativoTributario, GeradorRPA, TabelaSimplesNacional) NAO herdam breadcrumbs automaticamente.
+### 7. Deploy
 
----
+Cada push ao GitHub dispara um deploy automático no Netlify.
 
-### ALTO -- Paginas de ferramentas SEM schema WebApplication
+## Arquivo a ser criado
 
-As paginas de ferramentas que usam `SEOHead` diretamente (em vez de `ToolPageSEO`) nao recebem o schema `WebApplication`:
 
-| Pagina | Rota | Tem WebApplication? |
-|--------|------|---------------------|
-| CalculadoraPJCLT | `/conteudo/calculadora-pj-clt` | NAO |
-| ComparativoTributario | `/conteudo/comparativo-tributario` | NAO |
-| GeradorRPA | `/conteudo/gerador-rpa` | NAO |
-| TabelaSimplesNacional | `/conteudo/tabela-simples-nacional` | NAO |
-| GeradorInvoice | `/conteudo/gerador-invoice` | SIM (usa ToolPageSEO) |
-| ModeloContratoPJ | `/conteudo/modelo-contrato-pj` | SIM (usa ToolPageSEO) |
+| Arquivo             | Conteúdo             |
+| ------------------- | -------------------- |
+| `public/_redirects` | `/* /index.html 200` |
 
-**Correcao**: Ou migrar essas paginas para usar `ToolPageSEO`, ou gerar WebApplication automaticamente quando `pageType="tool"` no SEOHead.
 
----
+## O que NÃO muda
 
-### MEDIO -- FAQs ausentes em paginas com FAQ visivel
+- Backend (banco de dados, edge functions, autenticação) continua no Lovable Cloud
+- Desenvolvimento e preview continuam no Lovable
+- Nenhuma alteração de código necessária (apenas o arquivo `_redirects`)
 
-| Pagina | Tem FAQ visivel? | Passa `faqs` ao SEOHead? |
-|--------|------------------|--------------------------|
-| Medicos (legado `/medicos`) | NAO | NAO |
-| ComparativoTributario | NAO | NAO |
-| GeradorRPA | NAO | NAO |
+## Observações importantes
 
----
-
-### MEDIO -- Schemas @context duplicados dentro do @graph
-
-Quando o SEOHead gera um `@graph`, cada schema individual (organizationSchema, localBusinessSchema, etc.) ja contem `"@context": "https://schema.org"`. Dentro de um `@graph`, o `@context` deve existir apenas no nivel raiz. O Google tolera isso, mas e tecnicamente incorreto e pode gerar warnings no Rich Results Test.
-
-**Correcao**: Remover `@context` dos schemas individuais ao inseri-los no `@graph`, ou usar uma funcao de limpeza antes de serializar.
-
----
-
-### MEDIO -- AbrirEmpresa.tsx tem faqSchema definido mas nao utilizado
-
-A pagina define uma constante `faqSchema` com FAQ (linhas 13-45) mas ja passa as FAQs corretamente via `faqs` prop ao SEOHead. O `faqSchema` esta morto (dead code) e pode confundir futuros desenvolvedores.
-
----
-
-### BAIXO -- Paginas legais sem breadcrumbs
-
-PoliticaPrivacidade e Termos nao tem breadcrumbs. Embora menos impactante, breadcrumbs melhoram a experiencia no SERP.
-
----
-
-### BAIXO -- homePageSchema exportado mas nao usado
-
-O `seo-schemas.ts` exporta `homePageSchema` (linha 218) que nunca e importado em nenhuma pagina. A homepage usa o sistema automatico do SEOHead. Dead code.
-
----
-
-## Plano de Correcao (7 alteracoes)
-
-### 1. Corrigir URL relativa no Service schema (SEOHead.tsx)
-
-Linha 152: mudar `"url": props.canonical` para `"url": fullCanonicalUrl` (ja calculado na linha 102).
-
-### 2. Gerar WebApplication automaticamente para pageType="tool" (SEOHead.tsx)
-
-Adicionar logica no `generatePageSchemas` para que `pageType="tool"` gere o schema WebApplication automaticamente (mesmo comportamento do `ToolPageSEO`), incluindo breadcrumbs default quando nao fornecidos.
-
-### 3. Limpar @context duplicados no @graph (SEOHead.tsx)
-
-Antes de serializar os schemas no @graph, remover a propriedade `@context` de cada schema individual.
-
-### 4. Adicionar breadcrumbs nas 8 paginas que faltam
-
-Adicionar prop `breadcrumbs` nas paginas: Medicos, AbrirEmpresa, CidadesAtendidas, ContabilidadeCampinas, IndiqueGanhe, CalculadoraPJCLT, ComparativoTributario, GeradorRPA.
-
-### 5. Migrar ferramentas para ToolPageSEO ou adicionar breadcrumbs padrao
-
-CalculadoraPJCLT, ComparativoTributario, GeradorRPA e TabelaSimplesNacional podem receber breadcrumbs + WebApplication via a correcao #2.
-
-### 6. Remover dead code
-
-- Remover `faqSchema` de AbrirEmpresa.tsx (linhas 13-45)
-- Remover `homePageSchema` de seo-schemas.ts (linhas 218-256) se nao for referenciado em nenhum lugar
-
-### 7. Adicionar FAQs faltantes
-
-ComparativoTributario e GeradorRPA: se tiverem FAQ visivel no conteudo, passar array `faqs` ao SEOHead para gerar FAQPage schema.
-
----
-
-## Arquivos Alterados
-
-| Arquivo | Mudanca |
-|---------|---------|
-| `src/components/SEOHead.tsx` | Corrigir URL Service, gerar WebApplication para tool, limpar @context no @graph |
-| `src/lib/seo-schemas.ts` | Remover homePageSchema (dead code) |
-| `src/pages/Medicos.tsx` | Adicionar breadcrumbs |
-| `src/pages/AbrirEmpresa.tsx` | Adicionar breadcrumbs, remover faqSchema morto |
-| `src/pages/CidadesAtendidas.tsx` | Adicionar breadcrumbs |
-| `src/pages/cidades/ContabilidadeCampinas.tsx` | Adicionar breadcrumbs |
-| `src/pages/IndiqueGanhe.tsx` | Adicionar breadcrumbs |
-| `src/pages/conteudo/CalculadoraPJCLT.tsx` | Adicionar breadcrumbs |
-| `src/pages/conteudo/ComparativoTributario.tsx` | Adicionar breadcrumbs |
-| `src/pages/conteudo/GeradorRPA.tsx` | Adicionar breadcrumbs |
-| `src/pages/conteudo/TabelaSimplesNacional.tsx` | Adicionar breadcrumbs |
-| `src/pages/PoliticaPrivacidade.tsx` | Adicionar breadcrumbs (opcional) |
-| `src/pages/Termos.tsx` | Adicionar breadcrumbs (opcional) |
-
+- O Netlify serve apenas o frontend estático (HTML/CSS/JS)
+- Edge Functions do backend continuam rodando no Lovable Cloud automaticamente
+- Se usar Google Sign-In ou OAuth, adicione o novo domínio do Netlify nas URLs de redirect permitidas do provider

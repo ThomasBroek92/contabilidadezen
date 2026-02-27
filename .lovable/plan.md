@@ -1,85 +1,88 @@
-# Conectar o site Contabilidade Zen ao Netlify
-
-## Contexto
-
-O projeto usa Lovable Cloud como backend (banco de dados, edge functions, autenticação). A ideia é hospedar apenas o **frontend** no Netlify, mantendo o backend no Lovable Cloud.
-
-## Passo a passo
-
-### 1. Conectar o repositório ao GitHub (pré-requisito)
-
-Se ainda não fez, vá em **Settings → GitHub** no Lovable e conecte o projeto ao seu repositório GitHub. Isso sincroniza o código automaticamente.
-
-### 2. Criar o site no Netlify
-
-1. Acesse [app.netlify.com](https://app.netlify.com)
-2. Clique em **"Add new site" → "Import an existing project"**
-3. Selecione o repositório GitHub do projeto
-
-### 3. Configurar o build no Netlify
 
 
-| Campo             | Valor                                                                                |
-| ----------------- | ------------------------------------------------------------------------------------ |
-| Build command     | `npm run build`                                                                      |
-| Publish directory | `dist`                                                                               |
-| Node version      | `22` (configurar em **Site settings → Build & Deploy → Environment → Node version**) |
+# Pre-rendering no Build via GitHub Actions
 
+## Objetivo
 
-### 4. Configurar variáveis de ambiente no Netlify
+Gerar HTML estático completo para cada rota pública durante o build, usando GitHub Actions + Puppeteer. O React ainda "hidrata" no browser para interatividade, mas crawlers recebem HTML completo sem JavaScript.
 
-Em **Site settings → Environment variables**, adicione estas 3 variáveis:
-
-
-| Variável                        | Valor                                      |
-| ------------------------------- | ------------------------------------------ |
-| `VITE_SUPABASE_URL`             | `https://xqlkjoajrefbvbhkusdn.supabase.co` |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | A anon key do projeto (está no `.env`)     |
-| `VITE_SUPABASE_PROJECT_ID`      | `xqlkjoajrefbvbhkusdn`                     |
-
-
-Essas variáveis conectam o frontend ao backend do Lovable Cloud.
-
-### 5. Configurar SPA routing (evitar 404 em rotas diretas)
-
-Criar um arquivo `public/_redirects` com o conteúdo:
+## Arquitetura
 
 ```text
-/*    /index.html   200
+GitHub push → Actions workflow:
+  1. npm install
+  2. npm run build (gera dist/ com SPA)
+  3. Node script com Puppeteer visita cada rota
+  4. Salva HTML renderizado em dist/rota/index.html
+  5. Deploy para Netlify (via CLI)
 ```
 
-Isso garante que URLs como `/abrir-empresa` ou `/blog/meu-post` funcionem ao acessar diretamente (sem passar pela homepage primeiro). Sem isso, o Netlify retorna 404 para qualquer rota que não seja `/`.
+## Rotas a pre-renderizar (25 rotas públicas)
 
-### 6. Conectar domínio customizado (opcional)
+```text
+/
+/medicos
+/servicos
+/sobre
+/blog
+/contato
+/segmentos/contabilidade-para-medicos
+/segmentos/contabilidade-para-dentistas
+/segmentos/contabilidade-para-psicologos
+/segmentos/contabilidade-para-representantes-comerciais
+/conteudo/calculadora-pj-clt
+/conteudo/gerador-rpa
+/conteudo/gerador-invoice
+/conteudo/comparativo-tributario
+/conteudo/tabela-simples-nacional
+/conteudo/modelo-contrato-pj
+/abrir-empresa
+/cidades-atendidas
+/contabilidade-em-campinas
+/indique-e-ganhe
+/politica-de-privacidade
+/termos
+```
 
-Se quiser usar `www.contabilidadezen.com.br` no Netlify:
+Rotas excluídas (admin/auth/dinâmicas): `/admin`, `/auth`, `/parceiro/dashboard`, `/blog/:slug`
 
-1. No Netlify: **Domain settings → Add custom domain**
-2. Configurar DNS (CNAME ou Netlify DNS)
-3. O Netlify provisiona SSL automaticamente
+## Arquivos a criar/modificar
 
-**Importante**: Se o domínio já aponta para o Lovable, será necessário atualizar o DNS para o Netlify.
+### 1. `scripts/prerender.mjs` (novo)
+Script Node.js que:
+- Inicia um servidor local servindo `dist/`
+- Usa Puppeteer para visitar cada rota
+- Aguarda React renderizar (espera `#root` ter conteúdo)
+- Salva o HTML completo em `dist/[rota]/index.html`
+- Lista de rotas centralizada no próprio script
 
-### 7. Deploy
+### 2. `.github/workflows/static.yml` (reescrever)
+Novo workflow:
+- Checkout do código
+- Setup Node 22
+- `npm ci`
+- `npm run build` (com variáveis de ambiente do Supabase via GitHub Secrets)
+- Instala Puppeteer
+- Executa `node scripts/prerender.mjs`
+- Deploy para Netlify via `netlify-cli` (usando `NETLIFY_AUTH_TOKEN` e `NETLIFY_SITE_ID` como secrets)
 
-Cada push ao GitHub dispara um deploy automático no Netlify.
+### 3. `package.json` (adicionar script)
+- Novo script: `"prerender": "node scripts/prerender.mjs"`
 
-## Arquivo a ser criado
+## Secrets necessários no GitHub
 
+| Secret | Descrição |
+|--------|-----------|
+| `VITE_SUPABASE_URL` | URL do backend |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Anon key |
+| `NETLIFY_AUTH_TOKEN` | Token de deploy do Netlify |
+| `NETLIFY_SITE_ID` | ID do site no Netlify |
 
-| Arquivo             | Conteúdo             |
-| ------------------- | -------------------- |
-| `public/_redirects` | `/* /index.html 200` |
+## Resultado final
 
+Cada rota gera um `index.html` com HTML completo (metatags, conteúdo, structured data). O React hidrata no browser para interatividade. Crawlers recebem HTML sem precisar de JavaScript, SEO4Ajax, ou qualquer proxy externo.
 
-## O que NÃO muda
+## Limitação importante
 
-- Backend (banco de dados, edge functions, autenticação) continua no Lovable Cloud
-- Desenvolvimento e preview continuam no Lovable
-- Nenhuma alteração de código necessária (apenas o arquivo `_redirects`)
+Rotas dinâmicas como `/blog/:slug` não são pre-renderizadas (dependem de dados do banco). Para essas, o SEO4Ajax ou a Edge Function `prerender` continuam sendo a solução.
 
-## Observações importantes
-
-- O Netlify serve apenas o frontend estático (HTML/CSS/JS)
-- Edge Functions do backend continuam rodando no Lovable Cloud automaticamente
-- Se usar Google Sign-In ou OAuth, adicione o novo domínio do Netlify nas URLs de redirect permitidas do provider

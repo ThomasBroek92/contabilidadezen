@@ -43,4 +43,3 @@ Cloudflare Pages serve automaticamente `404.html` para rotas não encontradas. O
 - Build + pre-rendering: GitHub Actions (Puppeteer)
 - Hosting: Cloudflare Pages (gratuito, CDN global, SSL automático)
 - Domínio customizado com SSL: configurável direto no Cloudflare
-

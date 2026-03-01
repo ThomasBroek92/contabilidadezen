@@ -8,8 +8,12 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const DIST_DIR = resolve(__dirname, '..', 'dist');
 const PORT = 4173;
 
-// All public routes to pre-render
-const ROUTES = [
+// Supabase config from env (available in GitHub Actions via secrets)
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+// All public routes to pre-render (static)
+const STATIC_ROUTES = [
   '/',
   '/medicos',
   '/servicos',
@@ -33,6 +37,40 @@ const ROUTES = [
   '/politica-de-privacidade',
   '/termos',
 ];
+
+/**
+ * Fetch published blog post slugs from Supabase REST API.
+ */
+async function fetchBlogSlugs() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.warn('⚠️  SUPABASE env vars not set — skipping dynamic blog routes');
+    return [];
+  }
+
+  const url = `${SUPABASE_URL}/rest/v1/blog_posts?select=slug&status=eq.published`;
+  try {
+    console.log('📡 Fetching published blog slugs from database...');
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+    });
+
+    if (!res.ok) {
+      console.error(`❌ Failed to fetch blog slugs: ${res.status} ${res.statusText}`);
+      return [];
+    }
+
+    const posts = await res.json();
+    const slugs = posts.map((p) => `/blog/${p.slug}`);
+    console.log(`✅ Found ${slugs.length} published blog posts`);
+    return slugs;
+  } catch (error) {
+    console.error('❌ Error fetching blog slugs:', error.message);
+    return [];
+  }
+}
 
 // MIME types for static file serving
 const MIME_TYPES = {
@@ -133,9 +171,13 @@ async function prerenderRoute(browser, route) {
  * Main execution
  */
 async function main() {
+  // Build full route list: static + dynamic blog posts
+  const blogRoutes = await fetchBlogSlugs();
+  const ROUTES = [...STATIC_ROUTES, ...blogRoutes];
+
   console.log('🚀 Starting pre-rendering process...');
   console.log(`📁 dist directory: ${DIST_DIR}`);
-  console.log(`📄 Routes to pre-render: ${ROUTES.length}\n`);
+  console.log(`📄 Routes to pre-render: ${ROUTES.length} (${STATIC_ROUTES.length} static + ${blogRoutes.length} blog posts)\n`);
 
   // Verify dist exists
   if (!existsSync(DIST_DIR)) {

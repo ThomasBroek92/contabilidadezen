@@ -36,6 +36,9 @@ jobs:
         run: npx puppeteer browsers install chrome
 
       - name: Pre-render static pages
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: node scripts/prerender.mjs
 
       - name: Deploy to Cloudflare Pages

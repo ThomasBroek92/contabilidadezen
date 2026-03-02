@@ -57,8 +57,8 @@ const conteudoLinks = [
 
 // Contact info
 const contactInfo = {
-  address: "Campinas, SP",
-  addressLink: "https://maps.google.com/?q=Campinas,SP",
+  address: "Rua Aster, 324 - Jardim das Tulipas, Holambra - SP",
+  addressLink: "https://maps.google.com/?q=Rua+Aster+324+Jardim+das+Tulipas+Holambra+SP+13827-072",
   phone: "(19) 97415-8342",
   phoneLink: "tel:+5519974158342",
   email: "contato@contabilidadezen.com.br",

@@ -41,6 +41,23 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: node scripts/prerender.mjs
 
+      - name: Sync dynamic sitemap to dist
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          echo "📡 Fetching dynamic sitemap from edge function..."
+          SITEMAP_URL="${VITE_SUPABASE_URL}/functions/v1/sitemap"
+          HTTP_CODE=$(curl -s -o dist/sitemap.xml -w "%{http_code}" \
+            -H "apikey: ${VITE_SUPABASE_PUBLISHABLE_KEY}" \
+            -H "Authorization: Bearer ${VITE_SUPABASE_PUBLISHABLE_KEY}" \
+            "$SITEMAP_URL")
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Dynamic sitemap saved to dist/sitemap.xml ($(wc -c < dist/sitemap.xml) bytes)"
+          else
+            echo "⚠️  Edge function returned HTTP $HTTP_CODE — keeping static sitemap.xml from build"
+          fi
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:

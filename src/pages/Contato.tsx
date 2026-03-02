@@ -59,8 +59,8 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Endereço",
-    value: "São Paulo, SP (Atendimento 100% digital)",
-    href: null,
+    value: "Rua Aster, 324 - Jardim das Tulipas, Holambra - SP, 13827-072",
+    href: "https://maps.google.com/?q=Rua+Aster+324+Jardim+das+Tulipas+Holambra+SP+13827-072",
   },
 ];
 

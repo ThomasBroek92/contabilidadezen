@@ -63,16 +63,16 @@ export const localBusinessSchema = {
   "priceRange": "$$",
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": "Atendimento 100% Digital",
-    "addressLocality": "São Paulo",
+    "streetAddress": "Rua Aster, 324 - Jardim das Tulipas",
+    "addressLocality": "Holambra",
     "addressRegion": "SP",
-    "postalCode": "01310-100",
+    "postalCode": "13827-072",
     "addressCountry": "BR"
   },
   "geo": {
     "@type": "GeoCoordinates",
-    "latitude": -23.5505,
-    "longitude": -46.6333
+    "latitude": -22.6342,
+    "longitude": -47.0556
   },
   "areaServed": {
     "@type": "Country",
@@ -171,11 +171,9 @@ export const servicesSchema = {
         "@type": "Offer",
         "itemOffered": {
           "@type": "Service",
-          "name": "Abertura de Empresa Grátis",
-          "description": "Abertura de CNPJ gratuita para profissionais da saúde em até 15 dias úteis.",
-          "url": `${SITE_URL}/abrir-empresa`,
-          "price": "0",
-          "priceCurrency": "BRL"
+          "name": "Abertura de Empresa",
+          "description": "Abertura de CNPJ para profissionais e empresas com sede virtual gratuita inclusa.",
+          "url": `${SITE_URL}/abrir-empresa`
         }
       },
       {

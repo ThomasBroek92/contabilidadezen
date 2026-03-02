@@ -140,7 +140,8 @@ export function Footer() {
                 <MapPin className="h-5 w-5 mt-0.5 text-secondary" />
                 <div>
                   <p className="text-sm text-primary-foreground/80">Endereço</p>
-                  <p>São Paulo, SP</p>
+                  <p>Rua Aster, 324 - Jardim das Tulipas</p>
+                  <p>Holambra - SP, 13827-072</p>
                 </div>
               </li>
             </ul>

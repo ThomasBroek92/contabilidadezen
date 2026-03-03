@@ -69,7 +69,7 @@ export function RepresentantesBenefits() {
           <div className="w-full lg:w-[40%] flex-shrink-0 mb-8 lg:mb-0 lg:sticky lg:top-24">
             <div className="mx-auto max-w-[320px] lg:max-w-none">
               {/* Imagem com overlay */}
-              <div className="relative rounded-[32px] rounded-bl-[80px] overflow-hidden shadow-[0_8px_30px_-8px_rgba(232,124,30,0.4)]">
+              <div className="relative rounded-[32px] rounded-bl-[80px] overflow-hidden shadow-lg">
                 <img
                   src="/images/hero-founder.webp"
                   alt="Thomas Broek — Contador especializado em representantes comerciais"
@@ -79,7 +79,8 @@ export function RepresentantesBenefits() {
                   decoding="async"
                   className="w-full h-auto object-cover aspect-[4/5]"
                 />
-                <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#E87C1E]/90 via-[#C4680F]/70 to-transparent" />
+                {/* Gradient overlay na base */}
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
                 {/* Nome + CRC */}
                 <div className="absolute bottom-4 left-4 right-4 text-white">
                   <p className="font-bold text-lg leading-tight">Thomas Broek</p>
@@ -120,10 +121,8 @@ export function RepresentantesBenefits() {
                 return (
                   <Collapsible key={index} open={isOpen} onOpenChange={() => toggle(index)}>
                     <div
-                      className={`rounded-xl border transition-all duration-200 ${
-                        isOpen 
-                          ? "border-[#E87C1E]/40 border-l-[3px] border-l-[#E87C1E] shadow-[0_4px_16px_-4px_rgba(232,124,30,0.25)] bg-card" 
-                          : "border-[#E87C1E]/15 shadow-[0_2px_8px_-2px_rgba(232,124,30,0.12)] bg-card hover:shadow-[0_4px_12px_-4px_rgba(232,124,30,0.2)]"
+                      className={`rounded-xl border bg-card transition-shadow duration-200 ${
+                        isOpen ? "border-[#E87C1E]/40 shadow-md" : "border-border hover:shadow-sm"
                       }`}
                     >
                       <CollapsibleTrigger className="flex w-full items-center gap-3 p-5 text-left cursor-pointer">

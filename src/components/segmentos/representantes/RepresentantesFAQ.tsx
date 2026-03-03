@@ -8,7 +8,7 @@ import {
 export const representantesFaqs = [
   {
     question: "Qual o melhor regime tributário para representante comercial?",
-    answer: "O melhor regime depende do seu faturamento e estrutura de custos. Geralmente, representantes com faturamento mensal acima de R$ 15.000 se beneficiam atuando como PJ no Simples Nacional (usando o Fator R para enquadramento no Anexo III) ou Lucro Presumido. Nossa equipe faz uma análise personalizada para identificar a melhor opção.",
+    answer: "O melhor regime depende do seu faturamento e estrutura de custos. Geralmente, representantes com faturamento mensal acima de R$ 5.000 se beneficiam atuando como PJ no Simples Nacional (usando o Fator R para enquadramento no Anexo III) ou Lucro Presumido. Nossa equipe faz uma análise personalizada para identificar a melhor opção.",
   },
   {
     question: "Preciso ter registro no CORE para atuar como PJ?",

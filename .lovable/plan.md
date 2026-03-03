@@ -1,59 +1,41 @@
 
 
-## Plano: Layout 2 Colunas — Imagem de Autoridade + Sanfona de Beneficios
+## Plano: Corrigir Erro ERR_BLOCKED_BY_RESPONSE nos Botoes WhatsApp
 
-### Estrutura
+### Problema
 
-Transformar a secao de beneficios em layout `lg:grid-cols-5` (ou similar):
-- **Coluna esquerda (~40%)**: Imagem do Thomas Broek (hero-founder.webp da homepage), com card de autoridade flutuante sobrepondo levemente os acordeoes
-- **Coluna direita (~60%)**: Os 6 acordeoes (sanfona) existentes, com leve sobreposicao negativa a esquerda (`-ml-8 lg:-ml-12`)
+O erro `ERR_BLOCKED_BY_RESPONSE` ocorre porque `window.open()` para URLs do WhatsApp e bloqueado dentro do iframe do Lovable. Isso afeta o `openWhatsAppNotification` chamado apos o envio do formulario de lead, que usa `window.open` internamente.
 
-### Coluna Esquerda — Imagem + Autoridade
+Os links `<a target="_blank">` com `getWhatsAppAnchorProps` (como no RepresentantesCTA) ja funcionam corretamente — o problema esta no `window.open` programatico.
 
-```text
-┌──────────────────────┐
-│                      │
-│   [Foto Thomas]      │
-│   rounded corners    │
-│   gradient overlay   │
-│   bottom card:       │
-│   "Thomas Broek"     │
-│   CRC-SP 337693/O-7  │
-│                      │
-├──────────────────────┤
-│ ┌──────┐  ┌────────┐ │
-│ │ 10+  │  │  200+  │ │
-│ │ anos │  │clientes│ │
-│ └──────┘  └────────┘ │
-└──────────────────────┘
-```
+### Causa Raiz
 
-- Usar `/images/hero-founder.webp` (ja existe no public)
-- Rounded corners estilo homepage (`rounded-[32px] rounded-bl-[80px]`)
-- Gradient overlay na base com nome/CRC
-- Abaixo da imagem: 2 mini-cards de autoridade lado a lado
-  - "10+ Anos de Experiencia" com icone Award
-  - "200+ Clientes Atendidos" com icone Users
-- Cores: usar secondary/teal da marca nos cards de autoridade (contraste com laranja dos acordeoes)
+No `RepresentantesLeadForm.tsx` (linha 87), apos salvar o lead no banco, `openWhatsAppNotification()` chama `window.open()` que e bloqueado pelo iframe. O lead E salvo corretamente no banco, mas a navegacao para WhatsApp falha.
 
-### Coluna Direita — Sanfona
+### Solucao
 
-- Manter os 6 acordeoes exatamente como estao (Collapsible, ChevronDown, CTA interno)
-- Layout single column (empilhados) em vez de grid 2 colunas, para caber melhor ao lado da imagem
-- Leve margin-left negativa (`lg:-ml-6`) para criar sobreposicao sutil com a coluna da imagem
-- Z-index maior que a imagem para ficar "por cima"
+**1. Substituir `window.open` por redirecionamento via link clicavel no toast de sucesso**
 
-### Responsivo
+No `RepresentantesLeadForm.tsx`:
+- Remover a chamada `openWhatsAppNotification()` apos salvar o lead
+- Apos salvar com sucesso, mostrar um toast com link clicavel para o WhatsApp (usando `<a target="_blank">`)
+- O lead continua sendo salvo normalmente no banco de dados
 
-- **Mobile**: imagem no topo (centralizada, menor) + acordeoes abaixo em coluna unica. Sem sobreposicao
-- **Desktop (lg+)**: 2 colunas com sobreposicao
+**2. Criar padrao reutilizavel para todas as landing pages**
 
-### Arquivo Alterado
+Atualizar `use-whatsapp-notification.ts`:
+- Adicionar funcao `getNotificationLink()` que retorna apenas a URL (sem abrir)
+- Manter `generateWhatsAppLink` existente para compatibilidade
 
-**`RepresentantesBenefits.tsx`** — Reestruturar JSX:
-- Adicionar coluna esquerda com imagem + cards de autoridade
-- Mudar grid de `md:grid-cols-2` para layout 2 colunas (imagem | acordeoes)
-- Acordeoes passam de grid 2col para stack vertical
-- Adicionar sobreposicao via margin negativa e z-index
-- Manter header, CTA final e logica de toggle inalterados
+**3. Arquivos alterados:**
+
+- `src/components/segmentos/representantes/RepresentantesLeadForm.tsx` — substituir `openWhatsAppNotification()` por toast com link clicavel
+- `src/hooks/use-whatsapp-notification.ts` — (opcional) manter como esta, o componente deixa de chamar `window.open`
+
+### Padrao para Replicacao
+
+Todas as landing pages de segmento (medicos, dentistas, psicologos, representantes) devem usar o mesmo padrao:
+1. Salvar lead via `supabase.from('leads').insert()` (fire-and-forget, sem `.select()`)
+2. Mostrar toast de sucesso com link `<a>` para WhatsApp usando `getWhatsAppLink()`
+3. Nunca usar `window.open()` para WhatsApp
 

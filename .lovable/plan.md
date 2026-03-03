@@ -1,62 +1,61 @@
 
-## Plano: Aplicar padroes da pagina de Representantes na pagina de Medicos
 
-A pagina de medicos sera atualizada para seguir os mesmos padroes visuais e estruturais da pagina de representantes. A cor de acento para medicos sera um azul medico `#0077B6` (azul saude), com variante escura `#005A8C`.
+## Plano: Aplicar padrao visual de Representantes/Medicos para Dentistas e Psicologos
 
-### Arquivos a criar/alterar
+Ambas as paginas serao atualizadas para seguir o mesmo padrao: hero com fundo claro e imagem local, lead form com mascara de telefone e caixa de economia, benefits com accordion + imagem de autoridade, problems com fundo tematico e box de reassurance, process com carousel de 8 etapas, testimonials com GMB reviews e carousel, FAQ e CTA com cores tematicas.
 
-**1. MedicosHero.tsx** — Redesign completo
-- Fundo claro `#F0F8FF` (azul-gelo) em vez de `bg-primary` escuro
-- Imagem local `01-profissionais-saude-bg.webp` em vez de Unsplash
-- Badge com icone azul medico
-- CTA com `ArrowRight`, botao na cor de acento
-- Floating card com borda na cor de acento
-- Trust indicators com icones na cor de acento
+### Paleta de cores por segmento
 
-**2. MedicosLeadForm.tsx** — Alinhar com representantes
-- Fundo `#F0F8FF`, borda do card na cor de acento
-- Mascara de telefone (formatacao automatica)
-- Caixa de economia com stats (Fator R, 6%, 100% legal)
-- Botao submit na cor de acento
-- Segmento `fonte: 'landing-page-medicos'`
+| Elemento | Dentistas | Psicologos |
+|----------|-----------|------------|
+| Acento principal | #10B981 (verde esmeralda) | #8B5CF6 (roxo) |
+| Acento escuro | #059669 | #7C3AED |
+| Fundo claro | #F0FDF9 | #F5F3FF |
+| Fundo medio | #D1FAE5 | #EDE9FE |
+| Fundo destaque | #A7F3D0 | #DDD6FE |
 
-**3. MedicosBenefits.tsx** — Layout de autoridade + accordion
-- Duas colunas: imagem Thomas Broek (esquerda) + Collapsible accordion (direita)
-- Mini-cards de autoridade (10+ anos, 500+ clientes)
-- Botao "Quero esse beneficio" em cada item
+### Imagens locais
+- Dentistas: `src/assets/01-profissionais-saude-bg.webp` (mesma de medicos, ou criar uma especifica se disponivel)
+- Psicologos: `src/assets/01-profissionais-saude-bg.webp` (idem)
 
-**4. MedicosProblems.tsx** — Fundo tematico
-- Background `#E8F4FD` (azul claro)
-- Box de reassurance com bg na cor de acento
+### Arquivos a alterar (16 arquivos)
 
-**5. MedicosProcess.tsx** — Carousel com 8 etapas
-- 8 steps (4 cliente + 4 Zen) com badges de responsabilidade
-- Carousel com autoplay e dots
-- Cards com gradiente azul medico (cliente) vs teal (Zen)
+**Dentistas (8 arquivos):**
 
-**6. MedicosTestimonials.tsx** — GMB reviews + carousel
-- Integracao com tabela `gmb_reviews`
-- Carousel com autoplay
-- Fallback com depoimentos locais
-- Cores de acento azul medico
+1. **DentistasHero.tsx** — Fundo `#F0FDF9`, imagem local, badge verde, floating card com borda verde, trust indicators com icone verde, ArrowRight no CTA
+2. **DentistasLeadForm.tsx** — Fundo `#F0FDF9`, borda card verde, mascara de telefone, campo profissao, caixa de economia (Fator R, 6%, 100% legal), botao verde, fonte `landing-page-dentistas`, salvar info adicionais em observacoes
+3. **DentistasBenefits.tsx** — Layout 2 colunas: imagem Thomas Broek (esquerda) + Collapsible accordion (direita) com cores verdes, mini-cards autoridade (10+ anos, 300+ clientes), botao "Quero esse beneficio"
+4. **DentistasProblems.tsx** — Fundo `#D1FAE5`, layout 2 colunas (md:grid-cols-2), box reassurance `#A7F3D0` com borda verde
+5. **DentistasProcess.tsx** — Carousel 8 etapas (4 cliente verde + 4 Zen teal), autoplay, dots, badges de responsabilidade
+6. **DentistasTestimonials.tsx** — GMB reviews via Supabase, carousel com autoplay, fallback com depoimentos locais, estrelas verdes
+7. **DentistasFAQ.tsx** — Fundo `#D1FAE5`, borda accordion verde no open, hover verde, alterar R$15.000 para R$5.000
+8. **DentistasCTA.tsx** — Gradiente `from-[#059669] to-[#10B981]`, botoes brancos, usar `getWhatsAppAnchorPropsByKey("dentistas")`
 
-**7. MedicosFAQ.tsx** — Tema azul medico
-- Background `#E8F4FD`, borda de acento no accordion
-- Hover na cor de acento
-- Alterar R$ 15.000 para R$ 5.000
+**Psicologos (8 arquivos):**
 
-**8. MedicosCTA.tsx** — Gradiente azul medico
-- `bg-gradient-to-r from-[#005A8C] to-[#0077B6]`
-- Botoes brancos sobre fundo colorido
+1. **PsicologosHero.tsx** — Fundo `#F5F3FF`, imagem local, badge roxo, floating card com borda roxa, trust indicators
+2. **PsicologosLeadForm.tsx** — Fundo `#F5F3FF`, borda card roxa, mascara de telefone, campo profissao, caixa de economia, botao roxo, fonte `landing-page-psicologos`
+3. **PsicologosBenefits.tsx** — Layout accordion + imagem autoridade, cores roxas
+4. **PsicologosProblems.tsx** — Fundo `#EDE9FE`, layout 2 colunas, box reassurance `#DDD6FE`
+5. **PsicologosProcess.tsx** — Carousel 8 etapas, cores roxas (cliente) + teal (Zen)
+6. **PsicologosTestimonials.tsx** — GMB reviews, carousel, fallback, estrelas roxas
+7. **PsicologosFAQ.tsx** — Fundo `#EDE9FE`, borda roxa, alterar R$10.000 para R$5.000
+8. **PsicologosCTA.tsx** — Gradiente `from-[#7C3AED] to-[#8B5CF6]`, botoes brancos, usar `getWhatsAppAnchorPropsByKey("psicologos")`
 
-**9. ContabilidadeMedicos.tsx** — Passar accentColor
-- `<TaxComparisonCalculator profession="médico" accentColor="#0077B6" />`
+**Paginas container (2 arquivos):**
 
-### Resumo de cor
-| Elemento | Representantes | Medicos |
-|----------|---------------|---------|
-| Acento principal | #E87C1E | #0077B6 |
-| Acento escuro | #C4680F | #005A8C |
-| Fundo claro | #FFFBF5 | #F0F8FF |
-| Fundo medio | #FEF3E2 | #E8F4FD |
-| Fundo destaque | #FDE8CC | #CCE5F5 |
+9. **ContabilidadeDentistas.tsx** — Passar `accentColor="#10B981"` ao TaxComparisonCalculator
+10. **ContabilidadePsicologos.tsx** — Passar `accentColor="#8B5CF6"` ao TaxComparisonCalculator
+
+### Conteudo especifico mantido
+- Dentistas: CRO (nao CRP/CORE), depoimentos de dentistas, atividades odontologicas no form
+- Psicologos: CRP (nao CRO/CORE), depoimentos de psicologos, atividades de psicologia no form, pergunta "atende online" na FAQ
+
+### Padrao seguido fielmente
+Cada componente sera uma copia funcional do equivalente em Medicos/Representantes, com substituicao de:
+- Cores (hex)
+- Textos especificos do segmento
+- Icone do badge (Smile para dentistas, Brain para psicologos)
+- Fallback testimonials especificos
+- Campos do formulario especificos
+

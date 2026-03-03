@@ -1,44 +1,92 @@
 
 
-## Plano: Mesclar RoutineCarousel + RepresentantesProcess em carrossel unificado
+## Plano: Cards de Beneficios Interativos com Gradientes Vivos
 
-### Objetivo
-Substituir o `RepresentantesProcess` atual (grid estático de 4 cards) por um carrossel no estilo do `RoutineCarousel` da homepage, mesclando os steps de ambos os componentes. O visual seguira o padrao da homepage: cards com badges "Sua Parte" (laranja/amber) vs "Contabilidade Zen" (teal/secondary), carousel com autoplay, dots de navegacao e setas.
+### Problema Atual
+Os cards sao estaticos — apenas borda e hover sutil. Nao chamam atencao nem convidam o usuario a explorar.
 
-### Conteudo Mesclado (8 etapas)
+### Proposta: Cards com Flip 3D + Gradientes Vivos
 
-| # | Titulo | Owner | Origem |
-|---|--------|-------|--------|
-| 01 | Escolha nosso servico | client | Process |
-| 02 | Preencha o formulario | client | Process |
-| 03 | Envie os seus dados | client | Process |
-| 04 | Processamento Contabil | zen | Routine |
-| 05 | Impostos e Fechamentos | zen | Routine |
-| 06 | Obrigacoes Acessorias | zen | Routine |
-| 07 | Demonstrativos Anuais | zen | Routine |
-| 08 | Formalize a contratacao | client | Process |
+Cada card tera **dois lados** (frente e verso) com efeito de flip no hover/tap:
 
-Na pratica: os 3 primeiros passos sao do cliente (onboarding), depois 4 passos da Zen (rotina contabil), e o ultimo e a formalizacao (cliente).
+- **Frente**: Icone grande com fundo gradiente vivo, titulo e uma frase curta de impacto
+- **Verso**: Descricao completa + um mini-CTA "Saiba mais" que scrolla para o formulario
 
-### Alteracao Unica
+**Gradientes por card** (alternando laranja, teal e combinacoes):
+1. Planejamento Tributario — `from-[#E87C1E] to-[#F5A623]` (laranja quente)
+2. Burocracia Zero — `from-secondary to-accent` (teal da marca)
+3. Controle de Comissoes — `from-[#C4680F] to-[#E87C1E]` (laranja profundo)
+4. Seguranca e Conformidade — `from-accent to-secondary` (verde-azulado)
+5. Economia de Tempo — `from-[#E87C1E] via-[#F5A623] to-[#FDE8CC]` (sunset)
+6. Atendimento Humanizado — `from-secondary via-accent to-emerald-400` (teal vibrante)
 
-**`RepresentantesProcess.tsx`** — Reescrever completamente:
-- Importar `Carousel`, `CarouselContent`, `CarouselItem`, `CarouselNext`, `CarouselPrevious` e `Autoplay`
-- Usar `useState`/`useEffect` para controlar dots de navegacao (igual RoutineCarousel)
-- Cards com o mesmo layout do `StepCard` da homepage:
-  - Badge "Sua Parte" (amber/laranja) ou "Contabilidade Zen" (teal)
-  - Numero grande no canto
-  - Icone colorido por owner
-  - Decorative corner element
-- Cores do owner "client" usam a paleta laranja da pagina (`#E87C1E`, `#FDE8CC`)
-- Cores do owner "zen" usam a paleta teal/secondary da marca
-- Header com contagem: "Voce cuida de X etapas simples, nos cuidamos de Y processos complexos"
-- Legenda com bolinhas coloridas
-- Dots de navegacao + setas desktop
-- CTA final com botao laranja
-- Background da secao: `bg-[#FEF3E2]` (mantendo o tema laranja claro)
-- Carousel com `basis-full sm:basis-1/2 lg:basis-1/3` para responsividade
+### Interatividade
 
-### Nenhum outro arquivo alterado
-A pagina `ContabilidadeRepresentantes.tsx` ja importa `RepresentantesProcess` — nao precisa mudar.
+- **Flip 3D via CSS** (`perspective`, `rotateY`, `backface-visibility`) — sem Framer Motion, performatico
+- **No mobile**: flip ativado por tap (toggle via state), nao hover
+- **Indicador visual**: icone de "virar" sutil no canto do card
+- **Numero sequencial** no canto superior (01-06) com opacidade baixa, estilo do ProcessCarousel
+
+### Estrutura Visual (frente)
+
+```text
+┌─────────────────────────┐
+│  01              ↻      │
+│                         │
+│   ┌──────────┐          │
+│   │ ICONE    │  gradient │
+│   │ GRANDE   │  bg      │
+│   └──────────┘          │
+│                         │
+│   Planejamento          │
+│   Tributário            │
+│                         │
+│   "Pague menos impostos │
+│    legalmente"          │
+└─────────────────────────┘
+```
+
+### Estrutura Visual (verso)
+
+```text
+┌─────────────────────────┐
+│                         │
+│  Descricao completa     │
+│  do beneficio com       │
+│  texto detalhado...     │
+│                         │
+│  ──────────────────     │
+│  [Quero esse beneficio] │
+│         CTA laranja     │
+└─────────────────────────┘
+```
+
+### Arquivo Alterado
+
+**`RepresentantesBenefits.tsx`** — Reescrever o grid de cards:
+- Cada card vira um componente `FlipCard` com CSS 3D transform
+- Estado `flipped` por card (para mobile tap)
+- Frente: icone centralizado com fundo gradiente, numero, titulo, tagline curta
+- Verso: fundo claro, descricao completa, mini-CTA
+- CSS inline para `perspective: 1000px`, `transform-style: preserve-3d`, `backface-visibility: hidden`
+- Transicao suave: `transition: transform 0.6s`
+- Hover no desktop: `group-hover:[transform:rotateY(180deg)]`
+- Mobile: onClick toggle
+- Manter grid `md:grid-cols-2 lg:grid-cols-3 gap-8`
+- Adicionar taglines curtas para cada card (frases de impacto de 1 linha)
+- Botao CTA geral permanece abaixo do grid
+
+### Taglines (frente dos cards)
+
+1. "Pague menos impostos legalmente"
+2. "Voce vende, nos cuidamos do resto"
+3. "Visao clara de cada representada"
+4. "Fique 100% regular sem preocupacao"
+5. "Mais tempo para fechar negocios"
+6. "Seu contador, sempre acessivel"
+
+### Performance
+- CSS puro para animacoes (transform + opacity apenas)
+- Sem bibliotecas adicionais
+- `will-change: transform` apenas nos cards ativos
 

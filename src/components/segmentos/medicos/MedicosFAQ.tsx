@@ -8,7 +8,7 @@ import {
 export const medicosFaqs = [
   {
     question: "Qual o melhor regime tributário para médicos?",
-    answer: "O melhor regime depende do seu faturamento, estrutura de custos e forma de atuação. Geralmente, médicos com faturamento acima de R$ 15.000/mês se beneficiam ao atuar como PJ no Simples Nacional ou Lucro Presumido. Nossa equipe faz uma análise personalizada para identificar a melhor opção para o seu caso.",
+    answer: "O melhor regime depende do seu faturamento, estrutura de custos e forma de atuação. Geralmente, médicos com faturamento acima de R$ 5.000/mês se beneficiam ao atuar como PJ no Simples Nacional ou Lucro Presumido. Nossa equipe faz uma análise personalizada para identificar a melhor opção para o seu caso.",
   },
   {
     question: "Vale a pena abrir CNPJ sendo médico?",
@@ -34,11 +34,11 @@ export const medicosFaqs = [
 
 export function MedicosFAQ() {
   return (
-    <section className="py-16 lg:py-24 bg-muted/30">
+    <section className="py-16 lg:py-24 bg-[#E8F4FD]">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-sm font-semibold text-secondary uppercase tracking-wider">
+            <span className="text-sm font-semibold text-[#005A8C] uppercase tracking-wider">
               Dúvidas Frequentes
             </span>
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-4">
@@ -54,9 +54,9 @@ export function MedicosFAQ() {
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="bg-card border border-border rounded-xl px-6 data-[state=open]:border-secondary/50"
+                className="bg-card border border-border rounded-xl px-6 data-[state=open]:border-[#0077B6]/50"
               >
-                <AccordionTrigger className="text-left text-foreground hover:text-secondary py-5">
+                <AccordionTrigger className="text-left text-foreground hover:text-[#005A8C] py-5">
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground pb-5">

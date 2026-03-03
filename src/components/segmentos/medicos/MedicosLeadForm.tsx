@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 import { useHoneypot } from "@/hooks/use-honeypot";
-import { Send, CheckCircle2 } from "lucide-react";
+import { Send, CheckCircle2, TrendingDown, Percent, Shield } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -29,6 +29,7 @@ export function MedicosLeadForm() {
     nome: "",
     email: "",
     telefone: "",
+    profissao: "",
     atividade: "",
     tributacao: "",
     faturamento: "",
@@ -41,21 +42,13 @@ export function MedicosLeadForm() {
     e.preventDefault();
     setErrors({});
 
-    // Bot protection - silently fail for bots
     if (isBot()) {
-      toast({
-        title: "Formulário enviado com sucesso!",
-        description: "Em breve um especialista entrará em contato.",
-      });
+      toast({ title: "Formulário enviado com sucesso!", description: "Em breve um especialista entrará em contato." });
       return;
     }
     
     if (!formData.aceitaPolitica) {
-      toast({
-        title: "Atenção",
-        description: "Por favor, aceite a política de privacidade para continuar.",
-        variant: "destructive",
-      });
+      toast({ title: "Atenção", description: "Por favor, aceite a política de privacidade para continuar.", variant: "destructive" });
       return;
     }
 
@@ -64,9 +57,7 @@ export function MedicosLeadForm() {
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0] as string] = err.message;
-        }
+        if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
       });
       setErrors(fieldErrors);
       return;
@@ -75,12 +66,22 @@ export function MedicosLeadForm() {
     setIsSubmitting(true);
     
     try {
+      const infoAdicionais: string[] = [];
+      if (formData.profissao) infoAdicionais.push(`Profissão: ${formData.profissao}`);
+      if (formData.atividade) infoAdicionais.push(`Tipo de Atividade: ${formData.atividade}`);
+      if (formData.tributacao) infoAdicionais.push(`Tributação Atual: ${formData.tributacao}`);
+      if (formData.faturamento) infoAdicionais.push(`Faturamento: ${formData.faturamento}`);
+      if (formData.cidadeEstado) infoAdicionais.push(`Cidade/Estado: ${formData.cidadeEstado}`);
+      if (formData.ehMedico) infoAdicionais.push(`É médico: ${formData.ehMedico}`);
+
       const { error } = await supabase.from('leads').insert({
         nome: result.data.nome,
         email: result.data.email,
         whatsapp: result.data.telefone,
         segmento: 'medicos',
-        fonte: 'lead_form',
+        fonte: 'landing-page-medicos',
+        cargo: formData.profissao || null,
+        observacoes: infoAdicionais.length > 0 ? infoAdicionais.join(' | ') : null,
       });
 
       if (error) throw error;
@@ -95,34 +96,20 @@ export function MedicosLeadForm() {
       });
     
       resetHoneypot();
-      setFormData({
-        nome: "",
-        email: "",
-        telefone: "",
-        atividade: "",
-        tributacao: "",
-        faturamento: "",
-        cidadeEstado: "",
-        ehMedico: "",
-        aceitaPolitica: false,
-      });
+      setFormData({ nome: "", email: "", telefone: "", profissao: "", atividade: "", tributacao: "", faturamento: "", cidadeEstado: "", ehMedico: "", aceitaPolitica: false });
     } catch (error) {
-      toast({
-        title: "Erro ao enviar",
-        description: "Por favor, tente novamente.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao enviar", description: "Por favor, tente novamente.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section id="lead-form" className="py-16 lg:py-24 bg-muted/30">
+    <section id="lead-form" className="py-16 lg:py-24 bg-[#F0F8FF]">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Form */}
-          <div className="bg-card rounded-2xl shadow-card p-8 lg:p-10 border border-border order-2 lg:order-1">
+          <div className="bg-card rounded-2xl shadow-card p-8 lg:p-10 border border-[#0077B6]/20 order-2 lg:order-1">
             {isSubmitted ? (
               <div className="text-center space-y-6 py-8">
                 <CheckCircle2 className="h-16 w-16 text-secondary mx-auto" />
@@ -145,10 +132,10 @@ export function MedicosLeadForm() {
             ) : (
             <>
             <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-              Está pronto para aumentar seus lucros?
+              Está pronto para pagar menos impostos?
             </h2>
             <p className="text-muted-foreground mb-8">
-              Não deixe a alta carga tributária prejudicar o potencial do seu negócio! 
+              Não deixe a alta carga tributária prejudicar o potencial da sua clínica! 
               Preencha o formulário para uma análise gratuita.
             </p>
             
@@ -156,51 +143,45 @@ export function MedicosLeadForm() {
               <div className="grid sm:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <Label htmlFor="nome">Nome completo</Label>
-                  <Input 
-                    id="nome"
-                    placeholder="Seu nome"
-                    value={formData.nome}
-                    onChange={(e) => setFormData({...formData, nome: e.target.value})}
-                    className={errors.nome ? "border-destructive" : ""}
-                  />
+                  <Input id="nome" placeholder="Seu nome" value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} className={errors.nome ? "border-destructive" : ""} />
                   {errors.nome && <p className="text-xs text-destructive">{errors.nome}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
-                  <Input 
-                    id="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className={errors.email ? "border-destructive" : ""}
-                  />
+                  <Input id="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className={errors.email ? "border-destructive" : ""} />
                   {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone / WhatsApp</Label>
-                <Input 
-                  id="telefone"
-                  placeholder="(00) 00000-0000"
-                  value={formData.telefone}
-                  onChange={(e) => setFormData({...formData, telefone: e.target.value})}
-                  className={errors.telefone ? "border-destructive" : ""}
-                />
-                {errors.telefone && <p className="text-xs text-destructive">{errors.telefone}</p>}
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="telefone">Telefone / WhatsApp</Label>
+                  <Input 
+                    id="telefone" placeholder="(00) 00000-0000" value={formData.telefone}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "");
+                      let formatted = "";
+                      if (value.length <= 2) formatted = value.length > 0 ? `(${value}` : "";
+                      else if (value.length <= 6) formatted = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                      else if (value.length <= 10) formatted = `(${value.slice(0, 2)}) ${value.slice(2, 6)}-${value.slice(6)}`;
+                      else formatted = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7, 11)}`;
+                      setFormData({...formData, telefone: formatted});
+                    }}
+                    maxLength={16} className={errors.telefone ? "border-destructive" : ""}
+                  />
+                  {errors.telefone && <p className="text-xs text-destructive">{errors.telefone}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="profissao">Sua profissão</Label>
+                  <Input id="profissao" placeholder="Ex: Médico, Gestor de Clínica" value={formData.profissao} onChange={(e) => setFormData({...formData, profissao: e.target.value})} />
+                </div>
               </div>
               
               <div className="grid sm:grid-cols-2 gap-5">
                 <div className="space-y-2">
-                  <Label>Qual é a atividade da sua empresa?</Label>
-                  <Select 
-                    value={formData.atividade} 
-                    onValueChange={(value) => setFormData({...formData, atividade: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
+                  <Label>Tipo de atividade</Label>
+                  <Select value={formData.atividade} onValueChange={(value) => setFormData({...formData, atividade: value})}>
+                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="clinica-medica">Clínica Médica</SelectItem>
                       <SelectItem value="consultorio">Consultório</SelectItem>
@@ -212,14 +193,9 @@ export function MedicosLeadForm() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Qual o modelo de tributação?</Label>
-                  <Select 
-                    value={formData.tributacao} 
-                    onValueChange={(value) => setFormData({...formData, tributacao: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
+                  <Label>Modelo de tributação atual</Label>
+                  <Select value={formData.tributacao} onValueChange={(value) => setFormData({...formData, tributacao: value})}>
+                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="simples-nacional">Simples Nacional</SelectItem>
                       <SelectItem value="lucro-presumido">Lucro Presumido</SelectItem>
@@ -234,13 +210,8 @@ export function MedicosLeadForm() {
               <div className="grid sm:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <Label>Faturamento mensal estimado</Label>
-                  <Select 
-                    value={formData.faturamento} 
-                    onValueChange={(value) => setFormData({...formData, faturamento: value})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
+                  <Select value={formData.faturamento} onValueChange={(value) => setFormData({...formData, faturamento: value})}>
+                    <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ate-20k">Até R$ 20.000</SelectItem>
                       <SelectItem value="20k-50k">R$ 20.000 a R$ 50.000</SelectItem>
@@ -252,24 +223,14 @@ export function MedicosLeadForm() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="cidade">Cidade / Estado</Label>
-                  <Input 
-                    id="cidade"
-                    placeholder="São Paulo / SP"
-                    value={formData.cidadeEstado}
-                    onChange={(e) => setFormData({...formData, cidadeEstado: e.target.value})}
-                  />
+                  <Input id="cidade" placeholder="São Paulo / SP" value={formData.cidadeEstado} onChange={(e) => setFormData({...formData, cidadeEstado: e.target.value})} />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <Label>Você é médico?</Label>
-                <Select 
-                  value={formData.ehMedico} 
-                  onValueChange={(value) => setFormData({...formData, ehMedico: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
+                <Select value={formData.ehMedico} onValueChange={(value) => setFormData({...formData, ehMedico: value})}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="sim">Sim</SelectItem>
                     <SelectItem value="nao">Não, sou gestor/administrador</SelectItem>
@@ -278,36 +239,17 @@ export function MedicosLeadForm() {
               </div>
               
               <div className="flex items-start space-x-3 pt-2">
-                <Checkbox 
-                  id="politica" 
-                  checked={formData.aceitaPolitica}
-                  onCheckedChange={(checked) => setFormData({...formData, aceitaPolitica: checked as boolean})}
-                />
+                <Checkbox id="politica" checked={formData.aceitaPolitica} onCheckedChange={(checked) => setFormData({...formData, aceitaPolitica: checked as boolean})} />
                 <Label htmlFor="politica" className="text-sm text-muted-foreground leading-relaxed">
                   Li e concordo com a{" "}
-                  <a href="/politica-de-privacidade" className="text-secondary hover:underline">
-                    Política de Privacidade
-                  </a>
+                  <a href="/politica-de-privacidade" className="text-secondary hover:underline">Política de Privacidade</a>
                 </Label>
               </div>
 
-              {/* Honeypot field for bot protection */}
               <input {...honeypotProps} />
               
-              <Button
-                type="submit" 
-                size="lg" 
-                className="w-full mt-4"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>Enviando...</>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4 mr-2" />
-                    Enviar e receber diagnóstico gratuito
-                  </>
-                )}
+              <Button type="submit" size="lg" className="w-full mt-4 bg-[#0077B6] hover:bg-[#005A8C] text-white" disabled={isSubmitting}>
+                {isSubmitting ? <>Enviando...</> : <><Send className="h-4 w-4 mr-2" />Enviar e receber diagnóstico gratuito</>}
               </Button>
             </form>
             </>
@@ -319,7 +261,7 @@ export function MedicosLeadForm() {
             <div>
               <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
                 Controle a saúde financeira da sua clínica e{" "}
-                <span className="text-secondary">pague menos impostos!</span>
+                <span className="text-[#0077B6]">pague menos impostos!</span>
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Sua clínica merece mais do que apenas acompanhamento. Assim como um bom atendimento médico, 
@@ -346,14 +288,28 @@ export function MedicosLeadForm() {
               ))}
             </div>
             
-            <div className="p-6 bg-secondary/10 rounded-xl border border-secondary/20">
-              <p className="text-lg font-semibold text-foreground mb-2">
-                Por que escolher contabilidade especializada?
+            {/* Economia Box */}
+            <div className="p-6 bg-[#E8F4FD] rounded-xl border border-[#0077B6]/20">
+              <p className="text-lg font-semibold text-foreground mb-4">
+                Quanto você pode economizar?
               </p>
-              <p className="text-muted-foreground">
-                Médicos e clínicas têm particularidades tributárias que a contabilidade genérica não 
-                compreende. Nós falamos a sua língua e entendemos sua rotina.
-              </p>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="p-4 bg-card rounded-lg border border-[#0077B6]/15">
+                  <TrendingDown className="h-6 w-6 text-[#0077B6] mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-[#005A8C]">Fator R</p>
+                  <p className="text-xs text-muted-foreground">Redução de alíquota</p>
+                </div>
+                <div className="p-4 bg-card rounded-lg border border-[#0077B6]/15">
+                  <Percent className="h-6 w-6 text-[#0077B6] mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-[#005A8C]">6%</p>
+                  <p className="text-xs text-muted-foreground">Carga tributária PJ a partir de 6%</p>
+                </div>
+                <div className="p-4 bg-card rounded-lg border border-secondary/30">
+                  <Shield className="h-6 w-6 text-secondary mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-secondary">100%</p>
+                  <p className="text-xs text-muted-foreground">Legal e seguro</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

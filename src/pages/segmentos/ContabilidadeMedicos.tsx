@@ -36,7 +36,7 @@ export default function ContabilidadeMedicos() {
       <main>
         <MedicosHero />
         <MedicosLeadForm />
-        <TaxComparisonCalculator profession="médico" />
+        <TaxComparisonCalculator profession="médico" accentColor="#0077B6" />
         <MedicosProblems />
         <MedicosBenefits />
         <MedicosProcess />

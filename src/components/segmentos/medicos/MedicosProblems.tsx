@@ -25,7 +25,7 @@ const problems = [
 
 export function MedicosProblems() {
   return (
-    <section className="py-16 lg:py-24 bg-primary/5">
+    <section className="py-16 lg:py-24 bg-[#E8F4FD]">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 mb-4">
@@ -61,7 +61,7 @@ export function MedicosProblems() {
           ))}
         </div>
         
-        <div className="text-center mt-12 p-8 bg-secondary/10 rounded-2xl border border-secondary/20 max-w-3xl mx-auto">
+        <div className="text-center mt-12 p-8 bg-[#CCE5F5] rounded-2xl border border-[#0077B6]/20 max-w-3xl mx-auto">
           <h3 className="text-2xl font-bold text-foreground mb-3">
             Você não precisa mais passar por isso!
           </h3>

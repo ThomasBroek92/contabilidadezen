@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Stethoscope, TrendingDown, Shield, Clock } from "lucide-react";
+import { Stethoscope, TrendingDown, Shield, Clock, ArrowRight } from "lucide-react";
+import profissionaisSaudeBg from "@/assets/01-profissionais-saude-bg.webp";
 
 export function MedicosHero() {
   const scrollToForm = () => {
@@ -7,51 +8,51 @@ export function MedicosHero() {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center bg-primary overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-secondary blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full bg-accent blur-3xl" />
+    <section className="relative min-h-[90vh] flex items-center bg-[#F0F8FF] overflow-hidden">
+      {/* Subtle background accents */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-20 left-10 w-72 h-72 rounded-full bg-[#CCE5F5] blur-3xl" />
+        <div className="absolute bottom-10 right-20 w-96 h-96 rounded-full bg-secondary/10 blur-3xl" />
       </div>
       
       <div className="container mx-auto px-4 py-16 lg:py-24 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
-          <div className="text-primary-foreground space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/20 border border-secondary/30">
-              <Stethoscope className="h-4 w-4 text-secondary" />
-              <span className="text-sm font-medium text-secondary">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#E8F4FD] border border-[#0077B6]/30">
+              <Stethoscope className="h-4 w-4 text-[#005A8C]" />
+              <span className="text-sm font-medium text-[#005A8C]">
                 Contabilidade para Médicos e Clínicas Médicas
               </span>
             </div>
             
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
-              Reduza impostos e aumente seus lucros com uma{" "}
-              <span className="text-secondary">contabilidade especializada para médicos!</span>
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-foreground">
+              Reduza impostos e aumente seus lucros com{" "}
+              <span className="text-[#0077B6]">contabilidade especializada!</span>
             </h1>
             
-            <p className="text-lg lg:text-xl text-primary-foreground/80 leading-relaxed">
-              Está perdendo dinheiro com impostos altos? Especialistas em contabilidade para médicos 
-              e clínicas podem ajudar a reduzir seus custos tributários agora!
+            <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed">
+              Está pagando até 27,5% de IR como autônomo? Médicos PJ podem 
+              pagar a partir de <strong className="text-[#005A8C]">6%</strong> de impostos com o planejamento tributário correto!
             </p>
             
-            <p className="text-base text-primary-foreground/70">
-              Aplique estratégias fiscais personalizadas para seu negócio e veja o impacto nos seus lucros.
+            <p className="text-base text-muted-foreground">
+              Planejamento tributário personalizado, conformidade fiscal e economia real para sua clínica.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button 
                 size="lg" 
-                variant="secondary"
-                className="text-base font-semibold px-8"
+                className="text-base font-semibold px-8 bg-[#0077B6] hover:bg-[#005A8C] text-white"
                 onClick={scrollToForm}
               >
                 Reduza seus impostos já
+                <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
               <Button 
                 size="lg" 
                 variant="outline"
-                className="text-base border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                className="text-base border-secondary text-secondary hover:bg-secondary/10"
                 onClick={scrollToForm}
               >
                 Agendar diagnóstico gratuito
@@ -59,40 +60,41 @@ export function MedicosHero() {
             </div>
             
             {/* Trust Indicators */}
-            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-primary-foreground/10">
+            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-border">
               <div className="text-center">
-                <TrendingDown className="h-6 w-6 text-secondary mx-auto mb-2" />
-                <p className="text-sm text-primary-foreground/70">Menos impostos</p>
+                <TrendingDown className="h-6 w-6 text-[#0077B6] mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Menos impostos</p>
               </div>
               <div className="text-center">
                 <Shield className="h-6 w-6 text-secondary mx-auto mb-2" />
-                <p className="text-sm text-primary-foreground/70">Segurança fiscal</p>
+                <p className="text-sm text-muted-foreground">Segurança fiscal</p>
               </div>
               <div className="text-center">
-                <Clock className="h-6 w-6 text-secondary mx-auto mb-2" />
-                <p className="text-sm text-primary-foreground/70">Mais tempo</p>
+                <Clock className="h-6 w-6 text-[#0077B6] mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Mais tempo</p>
               </div>
             </div>
           </div>
           
           {/* Image */}
           <div className="relative hidden lg:block">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-[#0077B6]/20">
               <img 
-                src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=800&q=80" 
-                alt="Médica profissional sorrindo em ambiente de clínica"
-                width={800}
-                height={1200}
-                loading="lazy"
+                src={profissionaisSaudeBg} 
+                alt="Profissional da saúde em ambiente de clínica médica"
+                width={665}
+                height={735}
+                loading="eager"
+                fetchPriority="high"
                 decoding="async"
                 className="w-full h-[600px] object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/50 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0077B6]/20 to-transparent" />
             </div>
             
             {/* Floating Card */}
-            <div className="absolute -bottom-6 -left-6 bg-card p-6 rounded-xl shadow-card border border-border">
-              <p className="text-3xl font-bold text-secondary">+500</p>
+            <div className="absolute -bottom-6 -left-6 bg-card p-6 rounded-xl shadow-card border border-[#0077B6]/30">
+              <p className="text-3xl font-bold text-[#0077B6]">+500</p>
               <p className="text-sm text-muted-foreground">Médicos atendidos</p>
             </div>
           </div>

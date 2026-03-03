@@ -8,7 +8,7 @@ export function RepresentantesHero() {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center bg-[#FFFBF5] overflow-hidden">
+    <section className="relative min-h-[90vh] flex items-center bg-[#FFFBF5] overflow-hidden mb-12 lg:mb-16">
       {/* Subtle background accents */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-20 left-10 w-72 h-72 rounded-full bg-[#FDE8CC] blur-3xl" />

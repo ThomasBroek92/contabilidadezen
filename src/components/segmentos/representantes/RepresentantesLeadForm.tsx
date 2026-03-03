@@ -299,8 +299,8 @@ export function RepresentantesLeadForm() {
                 </div>
                 <div className="p-4 bg-card rounded-lg border border-[#E87C1E]/15">
                   <Percent className="h-6 w-6 text-[#E87C1E] mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-[#C4680F]">6% a 15%</p>
-                  <p className="text-xs text-muted-foreground">Carga tributária PJ</p>
+                  <p className="text-2xl font-bold text-[#C4680F]">6%</p>
+                  <p className="text-xs text-muted-foreground">Carga tributária PJ a partir de 6%</p>
                 </div>
                 <div className="p-4 bg-card rounded-lg border border-secondary/30">
                   <Shield className="h-6 w-6 text-secondary mx-auto mb-2" />

@@ -48,6 +48,11 @@ export const WHATSAPP_MESSAGES = {
   calculadoraCLTPJ: "Olá! Quero saber mais sobre como abrir uma empresa PJ.",
   resultadoCalculadora: "Olá! Fiz a simulação CLT x PJ no site e gostaria de uma análise personalizada com um contador especialista.",
   notFound: "Olá! Encontrei um erro ao acessar uma página no site.",
+  produtoresDigitais: "Olá! Sou produtor digital e gostaria de saber mais sobre contabilidade especializada para infoprodutores.",
+  profissionaisTI: "Olá! Sou profissional de TI e gostaria de saber mais sobre contabilidade especializada.",
+  exportacaoServicos: "Olá! Trabalho com exportação de serviços e gostaria de saber mais sobre contabilidade especializada.",
+  prestadoresServico: "Olá! Sou prestador de serviços e gostaria de saber mais sobre contabilidade especializada.",
+  profissionaisPJ: "Olá! Sou profissional PJ e gostaria de saber mais sobre contabilidade especializada e planejamento tributário.",
 } as const;
 
 export type WhatsAppMessageKey = keyof typeof WHATSAPP_MESSAGES;

@@ -18,7 +18,7 @@ const leadSchema = z.object({
 });
 
 interface TaxComparisonCalculatorProps {
-  profession: "médico" | "dentista" | "psicólogo" | "representante comercial";
+  profession: "médico" | "dentista" | "psicólogo" | "representante comercial" | "produtor digital" | "profissional de TI" | "exportador de serviços" | "prestador de serviço" | "profissional PJ";
   accentColor?: string;
 }
 

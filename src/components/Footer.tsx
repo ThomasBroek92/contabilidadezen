@@ -53,7 +53,7 @@ export function Footer() {
                 { name: "Para Dentistas", href: "/segmentos/contabilidade-para-dentistas" },
                 { name: "Para Psicólogos", href: "/segmentos/contabilidade-para-psicologos" },
                 { name: "Para Representantes", href: "/segmentos/contabilidade-para-representantes-comerciais" },
-                { name: "Todos os Serviços", href: "/servicos" },
+                { name: "Todos os Serviços", href: "/" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link

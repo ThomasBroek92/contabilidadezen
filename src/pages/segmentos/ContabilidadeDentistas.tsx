@@ -26,7 +26,7 @@ export default function ContabilidadeDentistas() {
         faqs={dentistasFaqs}
         breadcrumbs={[
           { name: "Home", url: SITE_URL },
-          { name: "Segmentos", url: `${SITE_URL}/servicos` },
+          { name: "Segmentos", url: SITE_URL },
           { name: "Contabilidade para Dentistas", url: `${SITE_URL}/segmentos/contabilidade-para-dentistas` }
         ]}
       />

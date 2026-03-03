@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
@@ -14,7 +14,7 @@ import { LegacyRedirects } from "@/components/LegacyRedirects";
 
 // Lazy load all pages except Index (homepage) for code splitting
 const Medicos = lazy(() => import("./pages/Medicos"));
-const Servicos = lazy(() => import("./pages/Servicos"));
+
 const Sobre = lazy(() => import("./pages/Sobre"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -70,7 +70,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/medicos" element={<Medicos />} />
-              <Route path="/servicos" element={<Servicos />} />
+              <Route path="/servicos" element={<Navigate to="/" replace />} />
               <Route path="/sobre" element={<Sobre />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />

@@ -33,7 +33,7 @@ const services = [
       "Gestão financeira da clínica",
       "Planejamento tributário",
     ],
-    href: "/servicos",
+    href: "/segmentos/contabilidade-para-dentistas",
     color: "accent",
   },
   {
@@ -46,7 +46,7 @@ const services = [
       "Atendimento presencial e online",
       "Simplicidade tributária",
     ],
-    href: "/servicos",
+    href: "/segmentos/contabilidade-para-psicologos",
     color: "secondary",
   },
   {
@@ -59,7 +59,7 @@ const services = [
       "Folha de pagamento completa",
       "Relatórios gerenciais",
     ],
-    href: "/servicos",
+    href: "/contato",
     color: "accent",
   },
 ];
@@ -136,8 +136,8 @@ export function Services() {
         {/* CTA */}
         <div className="text-center mt-12">
           <Button variant="zen" size="lg" asChild>
-            <Link to="/servicos">
-              Ver todos os serviços
+            <Link to="/contato">
+              Fale com um especialista
               <ArrowRight className="h-5 w-5" />
             </Link>
           </Button>

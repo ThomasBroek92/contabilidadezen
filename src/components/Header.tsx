@@ -43,7 +43,7 @@ const solucoesLinks = [
   { name: "Contabilidade para Dentistas", href: "/segmentos/contabilidade-para-dentistas" },
   { name: "Contabilidade para Psicólogos", href: "/segmentos/contabilidade-para-psicologos" },
   { name: "Contabilidade para Representantes Comerciais", href: "/segmentos/contabilidade-para-representantes-comerciais" },
-  { name: "Todos os Serviços", href: "/servicos" },
+  { name: "Todos os Serviços", href: "/" },
 ];
 
 const conteudoLinks = [

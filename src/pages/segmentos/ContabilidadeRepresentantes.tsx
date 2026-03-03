@@ -26,7 +26,7 @@ export default function ContabilidadeRepresentantes() {
         faqs={representantesFaqs}
         breadcrumbs={[
           { name: "Home", url: SITE_URL },
-          { name: "Segmentos", url: `${SITE_URL}/servicos` },
+          { name: "Segmentos", url: SITE_URL },
           { name: "Contabilidade para Representantes", url: `${SITE_URL}/segmentos/contabilidade-para-representantes-comerciais` }
         ]}
       />

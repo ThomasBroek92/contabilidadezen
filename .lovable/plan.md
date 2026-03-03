@@ -1,33 +1,47 @@
 
 
-## Plano: Remover redirecionamento automatico e adicionar botao WhatsApp na economia
+## Plano: Destacar calculadora com cor do nicho
 
 ### Alteracoes em `src/components/segmentos/shared/TaxComparisonCalculator.tsx`
 
-**1. Remover `openWhatsAppNotification()` (linhas 121-130)**
-- Remover a chamada que abre WhatsApp automaticamente via `window.open` apos submit
-- Remover imports de `useWhatsAppNotification`
-- O lead continua sendo salvo no banco normalmente
+**1. Adicionar prop `accentColor` ao componente** (interface + prop)
+- Nova prop opcional `accentColor?: string` (default: `secondary`)
+- Na pagina de representantes, passar `accentColor="#E87C1E"`
 
-**2. Adicionar botao WhatsApp verde dentro do bloco "Sua economia estimada" (linhas 354-373)**
-- Apos os valores de economia mensal/anual, adicionar botao verde WhatsApp (`bg-[#25D366]`)
-- Usar `<a>` com `getWhatsAppAnchorProps` (padrao seguro, sem `window.open`)
-- Mensagem pre-preenchida com profissao e economia calculada
+**2. Header "Simule sua economia" mais impactante** (linhas 166-178)
+- Icone maior com fundo na cor do nicho (`bg-[#E87C1E]/10`, icone `text-[#E87C1E]`)
+- Titulo maior (`text-2xl lg:text-3xl font-bold`)
+- Subtitulo com mais destaque
+- Borda do card com cor do nicho (`border-[accentColor]/30`)
 
-**3. Simplificar CTA abaixo (linhas 375-398)**
-- Remover o botao "Falar pelo WhatsApp" duplicado da secao CTA inferior
-- Manter apenas "Agendar consultoria gratuita" ou remover secao CTA inteira (ja tem o botao no bloco de economia)
+**3. Botao "Ver minha economia" na cor do nicho** (linhas 255-270)
+- Trocar de `Button` default para estilo customizado com `bg-[accentColor]`
+- Tamanho `xl`, texto maior, mais visivel
+
+**4. Alteracao em `ContabilidadeRepresentantes.tsx`**
+- Passar `accentColor="#E87C1E"` no `<TaxComparisonCalculator>`
 
 ### Resultado Visual
 
 ```text
-┌─── Sua economia estimada ───────┐
-│  R$ X.XXX/mês  |  R$ XX.XXX/ano │
-│                                  │
-│  [ 💬 Falar no WhatsApp ]        │
-│  (botao verde #25D366, grande)   │
-└──────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│  ┌──────┐                               │
+│  │ 🧮   │  Simule sua economia          │  ← icone laranja, titulo grande
+│  │laranja│  Preencha para ver resultado  │
+│  └──────┘                               │
+│                                         │
+│  [Faturamento ▼]                        │
+│  [Nome] [WhatsApp] [Email]              │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │   VER MINHA ECONOMIA  →         │    │  ← botao laranja grande
+│  └─────────────────────────────────┘    │
+│                                         │
+│  borda do card laranja sutil            │
+└─────────────────────────────────────────┘
 ```
 
-O usuario ve primeiro os resultados da calculadora com destaque, e so depois decide clicar no WhatsApp.
+### Arquivos Alterados
+- `src/components/segmentos/shared/TaxComparisonCalculator.tsx` — props + styling
+- `src/pages/segmentos/ContabilidadeRepresentantes.tsx` — passar accentColor
 

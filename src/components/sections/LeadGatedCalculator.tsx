@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calculator, TrendingDown, ArrowRight, Loader2, CheckCircle, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Calculator, TrendingDown, ArrowRight, Loader2, CheckCircle, Lock, AlertTriangle, MessageCircle } from "lucide-react";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -333,35 +333,47 @@ export function LeadGatedCalculator({ variant = "full", source = "calculadora-se
       {step === "result" && result && (
         <div className="space-y-4">
           <div className="text-center">
-            <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-              <CheckCircle className="h-6 w-6 text-secondary" />
+            <CheckCircle className="h-8 w-8 text-secondary mx-auto mb-2" />
+            <h3 className="font-semibold text-foreground text-sm">Sua economia foi calculada!</h3>
+          </div>
+
+          {/* Card SEM Zen - Vermelho */}
+          <div className="rounded-xl border-2 border-red-200 bg-red-50 dark:bg-red-950/30 dark:border-red-800 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <span className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wide">Sem a Contabilidade Zen</span>
             </div>
+            <p className="text-xs text-red-500 dark:text-red-400 mb-1">Você paga mais impostos</p>
+            <p className="text-xl font-bold text-red-600 dark:text-red-400">{formatCurrency(result.pfTax)}<span className="text-xs font-normal">/ano</span></p>
+          </div>
+
+          {/* Card COM Zen - Verde */}
+          <div className="rounded-xl border-2 border-green-200 bg-green-50 dark:bg-green-950/30 dark:border-green-800 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <span className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase tracking-wide">Com a Contabilidade Zen</span>
+            </div>
+            <p className="text-xs text-green-500 dark:text-green-400 mb-1">Impostos otimizados</p>
+            <p className="text-xl font-bold text-green-600 dark:text-green-400">{formatCurrency(result.pjTax)}<span className="text-xs font-normal">/ano</span></p>
+          </div>
+
+          {/* Economia destaque */}
+          <div className="text-center pt-3 border-t border-border">
             <p className="text-xs text-muted-foreground mb-1">Economia anual estimada</p>
-            <p className="text-3xl font-bold text-secondary">
-              {formatCurrency(result.savings)}
-            </p>
-            <p className="text-sm text-secondary mt-1">
-              {result.savingsPercent.toFixed(0)}% menos impostos
-            </p>
+            <p className="text-3xl font-bold text-secondary">{formatCurrency(result.savings)}</p>
+            <p className="text-sm text-secondary font-medium">{result.savingsPercent.toFixed(0)}% menos impostos</p>
           </div>
 
-          <div className="space-y-2 pt-3 border-t border-border">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Como PF (anual)</span>
-              <span className="font-medium text-destructive">{formatCurrency(result.pfTax)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Como PJ (anual)</span>
-              <span className="font-medium text-secondary">{formatCurrency(result.pjTax)}</span>
-            </div>
-          </div>
-
-          <Button variant="zen" className="w-full" asChild>
-            <Link to="/abrir-empresa">
-              Abrir minha empresa
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          {/* CTA WhatsApp */}
+          <a
+            href={getWhatsAppLink(WHATSAPP_MESSAGES.calculadora)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3 px-4 transition-colors"
+          >
+            <MessageCircle className="h-5 w-5" />
+            Falar com especialista
+          </a>
 
           <button 
             onClick={resetCalculator}

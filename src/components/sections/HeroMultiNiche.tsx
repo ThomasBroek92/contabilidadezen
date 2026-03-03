@@ -206,7 +206,7 @@ export function HeroMultiNiche() {
         </div>
 
         {/* Benefit Cards - Bottom with stagger - Simplified hover */}
-        <StaggerContainer className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 xs:gap-4 mt-8 lg:mt-0" staggerDelay={0.1}>
+        <StaggerContainer className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 xs:gap-4 mt-12 lg:mt-8" staggerDelay={0.1}>
           {benefitCards.map((card, index) => (
             <StaggerItem key={index} type="scale">
               <div

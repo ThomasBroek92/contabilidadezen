@@ -352,22 +352,22 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
               </div>
 
               {/* Savings Summary */}
-              <div className="bg-primary rounded-2xl p-8 text-center">
+              <div className="bg-secondary/10 rounded-2xl p-8 text-center border border-secondary/20">
                 <TrendingDown className="h-10 w-10 text-secondary mx-auto mb-4" />
-                <p className="text-primary-foreground/80 mb-2">Sua economia estimada</p>
+                <p className="text-muted-foreground mb-2">Sua economia estimada</p>
                 <div className="flex items-center justify-center gap-8 flex-wrap">
                   <div>
                     <p className="text-3xl lg:text-4xl font-bold text-secondary">
                       {formatCurrency(economia?.economiaMensal || 0)}
                     </p>
-                    <p className="text-sm text-primary-foreground/60">por mês</p>
+                    <p className="text-sm text-muted-foreground">por mês</p>
                   </div>
-                  <div className="hidden sm:block w-px h-16 bg-primary-foreground/20" />
+                  <div className="hidden sm:block w-px h-16 bg-border" />
                   <div>
                     <p className="text-3xl lg:text-4xl font-bold text-secondary">
                       {formatCurrency(economia?.economiaAnual || 0)}
                     </p>
-                    <p className="text-sm text-primary-foreground/60">por ano</p>
+                    <p className="text-sm text-muted-foreground">por ano</p>
                   </div>
                 </div>
               </div>

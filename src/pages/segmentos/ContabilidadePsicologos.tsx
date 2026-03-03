@@ -26,7 +26,7 @@ export default function ContabilidadePsicologos() {
         faqs={psicologosFaqs}
         breadcrumbs={[
           { name: "Home", url: SITE_URL },
-          { name: "Segmentos", url: `${SITE_URL}/servicos` },
+          { name: "Segmentos", url: SITE_URL },
           { name: "Contabilidade para Psicólogos", url: `${SITE_URL}/segmentos/contabilidade-para-psicologos` }
         ]}
       />

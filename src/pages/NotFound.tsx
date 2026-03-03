@@ -6,7 +6,7 @@ import { Home, MessageCircle, Search } from "lucide-react";
 import { getWhatsAppAnchorProps } from "@/lib/whatsapp";
 
 const popularPages = [
-  { label: "Serviços", href: "/servicos" },
+  { label: "Home", href: "/" },
   { label: "Abrir Empresa", href: "/abrir-empresa" },
   { label: "Blog", href: "/blog" },
   { label: "Contato", href: "/contato" },

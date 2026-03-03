@@ -453,7 +453,7 @@ serve(async (req) => {
       // Static pages to index
       const staticPages = [
         "/",
-        "/servicos",
+        
         "/sobre",
         "/contato",
         "/blog",

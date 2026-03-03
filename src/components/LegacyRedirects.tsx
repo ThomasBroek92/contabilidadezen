@@ -88,14 +88,14 @@ const legacyRedirects: Record<string, string> = {
   '/impostos-na-venda-de-e-books-2/': '/blog',
   
   // === Serviços ===
-  '/planos': '/servicos',
-  '/planos/': '/servicos',
-  '/contabilidade-para-prestadores-de-servicos-2': '/servicos',
-  '/contabilidade-para-prestadores-de-servicos-2/': '/servicos',
-  '/contabilidade-para-prestadores-de-servico': '/servicos',
-  '/contabilidade-para-prestadores-de-servico/': '/servicos',
-  '/planos-de-contabilidade-online': '/servicos',
-  '/planos-de-contabilidade-online/': '/servicos',
+  '/planos': '/',
+  '/planos/': '/',
+  '/contabilidade-para-prestadores-de-servicos-2': '/',
+  '/contabilidade-para-prestadores-de-servicos-2/': '/',
+  '/contabilidade-para-prestadores-de-servico': '/',
+  '/contabilidade-para-prestadores-de-servico/': '/',
+  '/planos-de-contabilidade-online': '/',
+  '/planos-de-contabilidade-online/': '/',
   
   // === Sobre ===
   '/contabilidade-zen': '/sobre',

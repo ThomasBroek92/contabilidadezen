@@ -325,8 +325,8 @@ export function NichesCarousel() {
         {/* View All CTA */}
         <StaggerItem type="scale" className="text-center mt-12">
           <Button variant="cta-glow" size="lg" asChild>
-            <Link to="/servicos">
-              Ver todos os segmentos
+            <Link to="/contato">
+              Fale com um especialista
               <ArrowRight className="h-5 w-5" />
             </Link>
           </Button>

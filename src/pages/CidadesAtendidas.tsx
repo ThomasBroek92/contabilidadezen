@@ -132,7 +132,7 @@ export default function CidadesAtendidas() {
                   </a>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <a href="/servicos">Ver Serviços</a>
+                  <Link to="/">Ver Serviços</Link>
                 </Button>
               </div>
             </div>

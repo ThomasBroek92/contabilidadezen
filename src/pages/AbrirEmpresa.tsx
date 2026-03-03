@@ -23,7 +23,7 @@ export default function AbrirEmpresa() {
         includeLocalBusiness
         breadcrumbs={[
           { name: "Home", url: "https://www.contabilidadezen.com.br" },
-          { name: "Serviços", url: "https://www.contabilidadezen.com.br/servicos" },
+          { name: "Serviços", url: "https://www.contabilidadezen.com.br" },
           { name: "Abrir Empresa", url: "https://www.contabilidadezen.com.br/abrir-empresa" }
         ]}
         faqs={[

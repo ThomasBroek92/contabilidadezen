@@ -24,9 +24,11 @@ import {
   LayoutGrid,
   ArrowRight,
   UserCheck,
+  Smile,
 } from "lucide-react";
 import { StaggerContainer, StaggerItem, HoverLift } from "@/components/ui/scroll-animation";
 import profissionaisSaudeBg from "@/assets/01-profissionais-saude-bg.webp";
+import dentistasBg from "@/assets/dentistas-bg.webp";
 import advogadosBg from "@/assets/02-advogados-bg.webp";
 import representanteComercialBg from "@/assets/03-representante-comercial-bg.webp";
 import produtoresDigitaisBg from "@/assets/04-produtores-digitais-bg.webp";
@@ -43,16 +45,30 @@ const niches = [
   {
     icon: Stethoscope,
     title: "PROFISSIONAIS DA SAÚDE",
-    subtitle: "Médicos, Dentistas e Psicólogos",
+    subtitle: "Médicos e Profissionais da Saúde",
     features: [
       "Redução de 27,5% → 6% impostos",
       "Gestão de múltiplos plantões",
-      "DMED e obrigações CRM/CRO/CRP",
+      "DMED e obrigações CRM",
       "Fator R otimizado",
     ],
     href: "/segmentos/contabilidade-para-medicos",
     gradient: "from-teal-600 to-teal-500",
     backgroundImage: profissionaisSaudeBg,
+  },
+  {
+    icon: Smile,
+    title: "DENTISTAS",
+    subtitle: "Dentistas e Clínicas Odontológicas",
+    features: [
+      "Redução de 27,5% → 6% impostos",
+      "Obrigações CRO e DMED",
+      "Clínicas e consultórios",
+      "Fator R otimizado",
+    ],
+    href: "/segmentos/contabilidade-para-dentistas",
+    gradient: "from-emerald-600 to-emerald-500",
+    backgroundImage: dentistasBg,
   },
   {
     icon: Scale,
@@ -269,7 +285,7 @@ export function NichesCarousel() {
                               decoding="async"
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                            <div className={`absolute inset-0 bg-gradient-to-t ${niche.title === "ADVOGADOS" ? "from-slate-800 via-slate-700/60" : niche.title === "PROFISSIONAIS DA SAÚDE" ? "from-teal-600 via-teal-500/60" : niche.title === "OUTROS SEGMENTOS" ? "from-slate-600 via-slate-500/60" : niche.title === "YOUTUBERS E CREATORS" ? "from-red-600 via-red-500/60" : niche.title === "CLÍNICAS E CONSULTÓRIOS" ? "from-emerald-600 via-emerald-500/60" : niche.title === "E-COMMERCE" ? "from-pink-600 via-pink-500/60" : niche.title === "PRESTADORES DE SERVIÇOS" ? "from-amber-600 via-amber-500/60" : niche.title === "PROFISSIONAIS PJs" ? "from-indigo-600 via-indigo-500/60" : niche.title === "PRODUTORES DIGITAIS" ? "from-purple-600 via-purple-500/60" : niche.title === "PROFISSIONAIS DE TI" ? "from-cyan-600 via-cyan-500/60" : niche.title === "EXPORTAÇÃO DE SERVIÇOS" ? "from-blue-600 via-blue-500/60" : "from-orange-600 via-orange-500/60"} to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300`} />
+                            <div className={`absolute inset-0 bg-gradient-to-t ${niche.title === "ADVOGADOS" ? "from-slate-800 via-slate-700/60" : niche.title === "PROFISSIONAIS DA SAÚDE" ? "from-teal-600 via-teal-500/60" : niche.title === "DENTISTAS" ? "from-emerald-600 via-emerald-500/60" : niche.title === "OUTROS SEGMENTOS" ? "from-slate-600 via-slate-500/60" : niche.title === "YOUTUBERS E CREATORS" ? "from-red-600 via-red-500/60" : niche.title === "CLÍNICAS E CONSULTÓRIOS" ? "from-emerald-600 via-emerald-500/60" : niche.title === "E-COMMERCE" ? "from-pink-600 via-pink-500/60" : niche.title === "PRESTADORES DE SERVIÇOS" ? "from-amber-600 via-amber-500/60" : niche.title === "PROFISSIONAIS PJs" ? "from-indigo-600 via-indigo-500/60" : niche.title === "PRODUTORES DIGITAIS" ? "from-purple-600 via-purple-500/60" : niche.title === "PROFISSIONAIS DE TI" ? "from-cyan-600 via-cyan-500/60" : niche.title === "EXPORTAÇÃO DE SERVIÇOS" ? "from-blue-600 via-blue-500/60" : "from-orange-600 via-orange-500/60"} to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300`} />
                           </div>
                         )}
                         

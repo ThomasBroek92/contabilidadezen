@@ -1,41 +1,73 @@
 
 
-## Plano: Corrigir Erro ERR_BLOCKED_BY_RESPONSE nos Botoes WhatsApp
+## Plano: Resultado da Calculadora com Comparativo Visual (Farol Verde/Vermelho)
 
-### Problema
-
-O erro `ERR_BLOCKED_BY_RESPONSE` ocorre porque `window.open()` para URLs do WhatsApp e bloqueado dentro do iframe do Lovable. Isso afeta o `openWhatsAppNotification` chamado apos o envio do formulario de lead, que usa `window.open` internamente.
-
-Os links `<a target="_blank">` com `getWhatsAppAnchorProps` (como no RepresentantesCTA) ja funcionam corretamente — o problema esta no `window.open` programatico.
-
-### Causa Raiz
-
-No `RepresentantesLeadForm.tsx` (linha 87), apos salvar o lead no banco, `openWhatsAppNotification()` chama `window.open()` que e bloqueado pelo iframe. O lead E salvo corretamente no banco, mas a navegacao para WhatsApp falha.
+### Problema Atual
+No step "result" do `LeadGatedCalculator`, o resultado da economia e o botao de WhatsApp aparecem ao mesmo tempo, sem destaque visual claro entre "sem Zen" (ruim) e "com Zen" (bom).
 
 ### Solucao
 
-**1. Substituir `window.open` por redirecionamento via link clicavel no toast de sucesso**
+Redesenhar o step "result" em 2 blocos visuais distintos + CTA separado:
 
-No `RepresentantesLeadForm.tsx`:
-- Remover a chamada `openWhatsAppNotification()` apos salvar o lead
-- Apos salvar com sucesso, mostrar um toast com link clicavel para o WhatsApp (usando `<a target="_blank">`)
-- O lead continua sendo salvo normalmente no banco de dados
+```text
+┌──────────────────────────────────┐
+│  ✅ Sua economia foi calculada!  │
+├──────────────────────────────────┤
+│                                  │
+│  ┌─── SEM Contabilidade Zen ───┐ │
+│  │ 🔴  Impostos: R$ XX.XXX/ano │ │
+│  │  bg vermelho claro, borda   │ │
+│  │  vermelha, texto vermelho   │ │
+│  └─────────────────────────────┘ │
+│                                  │
+│  ┌─── COM Contabilidade Zen ───┐ │
+│  │ 🟢  Impostos: R$ X.XXX/ano  │ │
+│  │  bg verde claro, borda      │ │
+│  │  verde, texto verde         │ │
+│  └─────────────────────────────┘ │
+│                                  │
+│  ┌─ ECONOMIA ANUAL ───────────┐  │
+│  │  R$ XX.XXX  (XX% menos)   │  │
+│  │  destaque grande, bold     │  │
+│  └────────────────────────────┘  │
+│                                  │
+│  [  Falar com especialista →  ]  │
+│  (botao WhatsApp verde)          │
+│                                  │
+│  Fazer nova simulacao            │
+└──────────────────────────────────┘
+```
 
-**2. Criar padrao reutilizavel para todas as landing pages**
+### Detalhes Visuais
 
-Atualizar `use-whatsapp-notification.ts`:
-- Adicionar funcao `getNotificationLink()` que retorna apenas a URL (sem abrir)
-- Manter `generateWhatsAppLink` existente para compatibilidade
+**Card "Sem Contabilidade Zen":**
+- Background: `bg-red-50`, borda `border-red-200`
+- Icone: circulo vermelho ou `AlertTriangle`
+- Texto do valor: `text-red-600 font-bold text-xl`
+- Label: "Sem a Contabilidade Zen" + "Você paga mais impostos"
 
-**3. Arquivos alterados:**
+**Card "Com Contabilidade Zen":**
+- Background: `bg-green-50`, borda `border-green-200`
+- Icone: `CheckCircle` verde ou circulo verde
+- Texto do valor: `text-green-600 font-bold text-xl`
+- Label: "Com a Contabilidade Zen" + "Impostos otimizados"
 
-- `src/components/segmentos/representantes/RepresentantesLeadForm.tsx` — substituir `openWhatsAppNotification()` por toast com link clicavel
-- `src/hooks/use-whatsapp-notification.ts` — (opcional) manter como esta, o componente deixa de chamar `window.open`
+**Economia destaque:**
+- Valor grande (`text-3xl font-bold text-secondary`)
+- Percentual abaixo
+- Separador visual acima
 
-### Padrao para Replicacao
+**CTA WhatsApp:**
+- Botao verde WhatsApp (`bg-[#25D366]`) com texto "Falar com especialista"
+- Link `<a target="_blank">` para evitar `ERR_BLOCKED_BY_RESPONSE`
+- Gera link via `getWhatsAppLink`
 
-Todas as landing pages de segmento (medicos, dentistas, psicologos, representantes) devem usar o mesmo padrao:
-1. Salvar lead via `supabase.from('leads').insert()` (fire-and-forget, sem `.select()`)
-2. Mostrar toast de sucesso com link `<a>` para WhatsApp usando `getWhatsAppLink()`
-3. Nunca usar `window.open()` para WhatsApp
+### Arquivo Alterado
+
+**`src/components/sections/LeadGatedCalculator.tsx`** — Reescrever apenas o bloco `step === "result"` (linhas 332-373):
+- Adicionar 2 cards comparativos (vermelho vs verde)
+- Economia em destaque
+- CTA WhatsApp com `<a>` tag (padrao seguro)
+- Importar `getWhatsAppLink`, `WHATSAPP_MESSAGES` de `@/lib/whatsapp`
+- Importar `AlertTriangle` de lucide
 

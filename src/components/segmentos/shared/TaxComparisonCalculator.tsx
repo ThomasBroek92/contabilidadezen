@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useWhatsAppNotification } from "@/hooks/use-whatsapp-notification";
+import { MessageCircle } from "lucide-react";
 import { useHoneypot } from "@/hooks/use-honeypot";
 import { Calculator, TrendingDown, CheckCircle2, Lock, ArrowRight } from "lucide-react";
 import { z } from "zod";
@@ -33,7 +33,7 @@ const faixasFaturamento = [
 
 export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorProps) {
   const { toast } = useToast();
-  const { openWhatsAppNotification } = useWhatsAppNotification();
+  
   const { isBot, honeypotProps, reset: resetHoneypot } = useHoneypot();
   const [showResults, setShowResults] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -118,17 +118,6 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
       
       if (error) throw error;
 
-      // Trigger WhatsApp notification for team
-      openWhatsAppNotification({
-        nome: result.data.nome,
-        email: result.data.email,
-        whatsapp: result.data.whatsapp,
-        segmento: profession.charAt(0).toUpperCase() + profession.slice(1),
-        fonte: 'Calculadora Tributária',
-        faturamento: parseFloat(faturamento),
-        economia: economia?.economiaAnual,
-      });
-      
       toast({
         title: "Dados enviados com sucesso!",
         description: "Veja abaixo sua simulação de economia.",
@@ -370,32 +359,28 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
                     <p className="text-sm text-muted-foreground">por ano</p>
                   </div>
                 </div>
+
+                <a
+                  {...getWhatsAppAnchorProps(`Olá! Sou ${profession} e fiz a simulação no site. Minha economia estimada é de ${formatCurrency(economia?.economiaAnual || 0)}/ano. Gostaria de saber mais!`)}
+                  className="inline-flex items-center gap-2 mt-6 px-8 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-lg rounded-xl transition-colors"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  Falar no WhatsApp
+                </a>
               </div>
 
-              {/* CTA */}
-              <div className="text-center space-y-4">
-                <p className="text-muted-foreground">
-                  Quer começar a economizar agora? Fale com nossos especialistas!
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button 
-                    size="lg"
-                    onClick={() => document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" })}
-                  >
-                    Agendar consultoria gratuita
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline"
-                    asChild
-                  >
-                    <a
-                      {...getWhatsAppAnchorProps(`Olá! Sou ${profession} e fiz a simulação no site. Gostaria de saber mais sobre como economizar impostos.`)}
-                    >
-                      Falar pelo WhatsApp
-                    </a>
-                  </Button>
-                </div>
+              {/* Secondary CTA */}
+              <div className="text-center">
+                <button
+                  onClick={() => {
+                    setShowResults(false);
+                    setFormData({ nome: "", whatsapp: "", email: "" });
+                    setFaturamento("");
+                  }}
+                  className="text-sm text-muted-foreground underline hover:text-foreground transition-colors"
+                >
+                  Fazer nova simulação
+                </button>
               </div>
 
               {/* Disclaimer */}

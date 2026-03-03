@@ -50,7 +50,7 @@ const niches = [
       "DMED e obrigações CRM/CRO/CRP",
       "Fator R otimizado",
     ],
-    href: "/medicos",
+    href: "/segmentos/contabilidade-para-medicos",
     gradient: "from-teal-600 to-teal-500",
     backgroundImage: profissionaisSaudeBg,
   },

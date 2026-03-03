@@ -19,6 +19,7 @@ const leadSchema = z.object({
 
 interface TaxComparisonCalculatorProps {
   profession: "médico" | "dentista" | "psicólogo" | "representante comercial";
+  accentColor?: string;
 }
 
 const faixasFaturamento = [
@@ -31,7 +32,7 @@ const faixasFaturamento = [
   { value: "100000", label: "R$ 100.000", autonomo: 27.5, pj: 15 },
 ];
 
-export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorProps) {
+export function TaxComparisonCalculator({ profession, accentColor }: TaxComparisonCalculatorProps) {
   const { toast } = useToast();
   
   const { isBot, honeypotProps, reset: resetHoneypot } = useHoneypot();
@@ -162,16 +163,25 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
 
         <div className="max-w-4xl mx-auto">
           {!showResults ? (
-            <div className="bg-card rounded-2xl shadow-card p-8 lg:p-10 border border-border">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-                  <Calculator className="h-6 w-6 text-secondary" />
+            <div 
+              className="bg-card rounded-2xl shadow-card p-8 lg:p-10 border-2"
+              style={{ borderColor: accentColor ? `${accentColor}30` : undefined }}
+            >
+              <div className="flex items-center gap-4 mb-8">
+                <div 
+                  className="w-14 h-14 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: accentColor ? `${accentColor}15` : undefined }}
+                >
+                  <Calculator 
+                    className="h-7 w-7" 
+                    style={{ color: accentColor || undefined }}
+                  />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-foreground">
+                  <h3 className="text-2xl lg:text-3xl font-bold text-foreground">
                     Simule sua economia
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground">
                     Preencha os dados abaixo para ver o resultado
                   </p>
                 </div>
@@ -252,10 +262,13 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
                 {/* Honeypot field for bot protection */}
                 <input {...honeypotProps} />
 
-                <Button 
+                <button 
                   type="submit" 
-                  size="lg"
-                  className="w-full"
+                  className="w-full py-4 px-8 text-lg font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  style={{ 
+                    backgroundColor: accentColor || undefined,
+                    color: accentColor ? '#fff' : undefined,
+                  }}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -263,10 +276,10 @@ export function TaxComparisonCalculator({ profession }: TaxComparisonCalculatorP
                   ) : (
                     <>
                       Ver minha economia
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      <ArrowRight className="h-5 w-5" />
                     </>
                   )}
-                </Button>
+                </button>
 
                 <p className="text-xs text-muted-foreground text-center">
                   Ao enviar, você concorda em receber contato sobre nossos serviços.

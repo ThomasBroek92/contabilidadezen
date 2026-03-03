@@ -36,7 +36,7 @@ export default function ContabilidadeRepresentantes() {
       <main>
         <RepresentantesHero />
         <RepresentantesLeadForm />
-        <TaxComparisonCalculator profession="representante comercial" />
+        <TaxComparisonCalculator profession="representante comercial" accentColor="#E87C1E" />
         <RepresentantesProblems />
         <RepresentantesBenefits />
         <RepresentantesProcess />

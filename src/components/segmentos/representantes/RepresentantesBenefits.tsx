@@ -82,7 +82,7 @@ export function RepresentantesBenefits() {
                 {/* Gradient overlay na base */}
                 <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
                 {/* Nome + CRC */}
-                <div className="absolute bottom-4 left-4 right-4 text-white">
+                <div className="absolute bottom-4 left-4 right-4 text-white text-center">
                   <p className="font-bold text-lg leading-tight">Thomas Broek</p>
                   <p className="text-white/80 text-sm">CRC-SP 1SP337693/O-7</p>
                   <p className="text-white/70 text-xs mt-0.5">Contador especializado em representantes comerciais</p>

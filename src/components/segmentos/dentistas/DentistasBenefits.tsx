@@ -1,82 +1,81 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { TrendingDown, Shield, Clock, Headphones, FileCheck, PiggyBank } from "lucide-react";
+import { Calculator, FileCheck, BarChart3, Shield, Clock, Users, ChevronDown, Award } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const benefits = [
-  {
-    icon: TrendingDown,
-    title: "Redução de Impostos",
-    description: "Estratégias legais para pagar menos tributos e aumentar sua margem de lucro mensal.",
-  },
-  {
-    icon: Shield,
-    title: "Segurança Fiscal Total",
-    description: "Fique tranquilo com todas as obrigações fiscais e CRO sempre em dia e corretas.",
-  },
-  {
-    icon: Clock,
-    title: "Mais Tempo para Pacientes",
-    description: "Deixe a burocracia conosco e foque no que realmente importa: seus atendimentos.",
-  },
-  {
-    icon: Headphones,
-    title: "Suporte Especializado",
-    description: "Equipe que entende odontologia e está sempre disponível para tirar suas dúvidas.",
-  },
-  {
-    icon: FileCheck,
-    title: "Documentação Organizada",
-    description: "Toda a sua contabilidade organizada e acessível a qualquer momento.",
-  },
-  {
-    icon: PiggyBank,
-    title: "Economia Comprovada",
-    description: "Nossos clientes economizam em média 30% em impostos após nossa consultoria.",
-  },
+  { icon: Calculator, title: "Planejamento Tributário", description: "Com o nosso planejamento tributário especializado, você vai pagar menos impostos e evitar surpresas fiscais, garantindo a melhor estratégia para o seu consultório." },
+  { icon: FileCheck, title: "Burocracia Zero", description: "Esqueça a burocracia! Nossa equipe cuida de toda a parte fiscal e burocrática para você, liberando seu tempo para focar no que realmente importa: seus pacientes." },
+  { icon: BarChart3, title: "Melhor Controle Financeiro", description: "Com o apoio de nossos especialistas, seu consultório terá controle total sobre as finanças. Evite juros, pendências e organize sua gestão para maximizar o lucro." },
+  { icon: Shield, title: "Segurança e Conformidade", description: "Mantenha seu consultório em dia com todas as obrigações fiscais, CRO e evite multas e penalidades. Trabalhamos para garantir sua tranquilidade." },
+  { icon: Clock, title: "Economia de Tempo", description: "Automatizamos processos e cuidamos de toda a papelada para que você possa dedicar mais tempo aos seus pacientes e menos às burocracias." },
+  { icon: Users, title: "Atendimento Humanizado", description: "Você terá um contador dedicado que entende as particularidades da área odontológica e está sempre disponível para esclarecer suas dúvidas." },
 ];
 
 export function DentistasBenefits() {
-  const scrollToForm = () => {
-    document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const scrollToForm = () => { document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" }); };
+  const toggle = (index: number) => { setOpenIndex((prev) => (prev === index ? null : index)); };
 
   return (
-    <section className="py-16 lg:py-24 bg-muted/30">
+    <section className="py-16 lg:py-24 bg-[#F0FDF9]">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-sm font-semibold text-secondary uppercase tracking-wider">
-            Nossos Benefícios
-          </span>
-          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-4">
-            O que você ganha com a Contabilidade Zen
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            Especialização em odontologia para resultados que fazem a diferença no seu consultório
-          </p>
+          <span className="text-sm font-semibold text-[#059669] uppercase tracking-wider">Nossos Benefícios</span>
+          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-4">Como nossa contabilidade para dentistas organiza suas finanças?</h2>
+          <p className="text-muted-foreground text-lg">Clique em cada benefício para saber mais</p>
         </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {benefits.map((benefit, index) => (
-            <div 
-              key={index}
-              className="p-6 bg-card rounded-xl border border-border hover:border-secondary/30 hover:shadow-card transition-all"
-            >
-              <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
-                <benefit.icon className="h-6 w-6 text-secondary" />
+        <div className="flex flex-col lg:flex-row items-start max-w-6xl mx-auto">
+          <div className="w-full lg:w-[40%] flex-shrink-0 mb-8 lg:mb-0 lg:sticky lg:top-24">
+            <div className="mx-auto max-w-[320px] lg:max-w-none">
+              <div className="relative rounded-[32px] rounded-bl-[80px] overflow-hidden shadow-lg">
+                <img src="/images/hero-founder.webp" alt="Thomas Broek — Contador especializado em profissionais da saúde" width={480} height={600} loading="lazy" decoding="async" className="w-full h-auto object-cover aspect-[4/5]" />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 text-white text-center">
+                  <p className="font-bold text-lg leading-tight">Thomas Broek</p>
+                  <p className="text-white/80 text-sm">CRC-SP 1SP337693/O-7</p>
+                  <p className="text-white/70 text-xs mt-0.5">Contador especializado em profissionais da saúde</p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                {benefit.title}
-              </h3>
-              <p className="text-muted-foreground">
-                {benefit.description}
-              </p>
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div className="flex items-center gap-2 rounded-xl bg-secondary/10 border border-secondary/20 p-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/20"><Award className="h-4 w-4 text-secondary" /></div>
+                  <div><p className="font-bold text-foreground text-sm leading-tight">10+</p><p className="text-muted-foreground text-xs">Anos de experiência</p></div>
+                </div>
+                <div className="flex items-center gap-2 rounded-xl bg-secondary/10 border border-secondary/20 p-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/20"><Users className="h-4 w-4 text-secondary" /></div>
+                  <div><p className="font-bold text-foreground text-sm leading-tight">300+</p><p className="text-muted-foreground text-xs">Dentistas atendidos</p></div>
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
+          <div className="w-full lg:w-[65%] lg:-ml-8 relative z-10">
+            <div className="space-y-3">
+              {benefits.map((benefit, index) => {
+                const isOpen = openIndex === index;
+                return (
+                  <Collapsible key={index} open={isOpen} onOpenChange={() => toggle(index)}>
+                    <div className={`rounded-xl border bg-card transition-shadow duration-200 ${isOpen ? "border-[#10B981]/40 shadow-md" : "border-border hover:shadow-sm"}`}>
+                      <CollapsibleTrigger className="flex w-full items-center gap-3 p-5 text-left cursor-pointer">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#10B981]/10"><benefit.icon className="h-5 w-5 text-[#10B981]" /></div>
+                        <span className="flex-1 font-semibold text-foreground">{benefit.title}</span>
+                        <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+                        <div className="px-5 pb-5 pt-0">
+                          <p className="text-muted-foreground text-sm leading-relaxed mb-4">{benefit.description}</p>
+                          <Button size="sm" variant="outline" className="border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/10 hover:text-[#059669]" onClick={(e) => { e.stopPropagation(); scrollToForm(); }}>Quero esse benefício</Button>
+                        </div>
+                      </CollapsibleContent>
+                    </div>
+                  </Collapsible>
+                );
+              })}
+            </div>
+          </div>
         </div>
-        
         <div className="text-center mt-12">
-          <Button size="lg" onClick={scrollToForm}>
-            Elimine as burocracias ainda hoje
-          </Button>
+          <Button size="lg" className="bg-[#10B981] hover:bg-[#059669] text-white" onClick={scrollToForm}>Elimine as burocracias ainda hoje</Button>
         </div>
       </div>
     </section>

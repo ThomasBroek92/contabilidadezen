@@ -36,7 +36,7 @@ export default function ContabilidadePsicologos() {
       <main>
         <PsicologosHero />
         <PsicologosLeadForm />
-        <TaxComparisonCalculator profession="psicólogo" />
+        <TaxComparisonCalculator profession="psicólogo" accentColor="#8B5CF6" />
         <PsicologosProblems />
         <PsicologosBenefits />
         <PsicologosProcess />

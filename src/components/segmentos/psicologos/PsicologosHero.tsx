@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Brain, TrendingDown, Shield, Clock, ArrowRight } from "lucide-react";
-import profissionaisSaudeBg from "@/assets/01-profissionais-saude-bg.webp";
+import psicologosBg from "@/assets/psicologos-bg.webp";
 
 export function PsicologosHero() {
   const scrollToForm = () => { document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" }); };
@@ -39,7 +39,7 @@ export function PsicologosHero() {
           </div>
           <div className="relative hidden lg:block">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-[#8B5CF6]/20">
-              <img src={profissionaisSaudeBg} alt="Profissional da saúde em ambiente de consultório de psicologia" width={665} height={735} loading="eager" fetchPriority="high" decoding="async" className="w-full h-[600px] object-cover" />
+              <img src={psicologosBg} alt="Psicóloga sorridente em ambiente acolhedor de consultório" width={600} height={900} loading="eager" fetchPriority="high" decoding="async" className="w-full h-[600px] object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#8B5CF6]/20 to-transparent" />
             </div>
             <div className="absolute -bottom-6 -left-6 bg-card p-6 rounded-xl shadow-card border border-[#8B5CF6]/30">

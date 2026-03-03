@@ -34,14 +34,14 @@ export function RepresentantesProcess() {
   };
 
   return (
-    <section className="py-16 lg:py-24 bg-muted/30">
+    <section className="py-16 lg:py-24 bg-[#FEF3E2]">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-sm font-semibold text-secondary uppercase tracking-wider">
+          <span className="text-sm font-semibold text-[#C4680F] uppercase tracking-wider">
             Dê o próximo passo para pagar menos impostos!
           </span>
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-4">
-            Comece a <span className="text-secondary">otimizar sua representação</span> agora!
+            Comece a <span className="text-[#E87C1E]">otimizar sua representação</span> agora!
           </h2>
           <p className="text-muted-foreground text-lg">
             Com nossas soluções, você paga menos impostos e tem mais controle sobre suas comissões.
@@ -52,13 +52,13 @@ export function RepresentantesProcess() {
           {steps.map((step, index) => (
             <div 
               key={index}
-              className="relative p-6 bg-card rounded-xl border border-border text-center"
+              className="relative p-6 bg-card rounded-xl border border-[#E87C1E]/15 text-center"
             >
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-sm font-bold">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[#E87C1E] text-white flex items-center justify-center text-sm font-bold">
                 {step.number}
               </div>
-              <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mt-4 mb-5">
-                <step.icon className="h-8 w-8 text-secondary" />
+              <div className="w-16 h-16 rounded-full bg-[#FDE8CC] flex items-center justify-center mx-auto mt-4 mb-5">
+                <step.icon className="h-8 w-8 text-[#E87C1E]" />
               </div>
               <h3 className="text-lg font-bold text-foreground mb-3">
                 {step.title}
@@ -67,16 +67,15 @@ export function RepresentantesProcess() {
                 {step.description}
               </p>
               
-              {/* Connector Line */}
               {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-0.5 bg-border" />
+                <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-0.5 bg-[#E87C1E]/30" />
               )}
             </div>
           ))}
         </div>
         
         <div className="text-center mt-12">
-          <Button size="lg" onClick={scrollToForm}>
+          <Button size="lg" className="bg-[#E87C1E] hover:bg-[#C4680F] text-white" onClick={scrollToForm}>
             Comece agora e reduza impostos
           </Button>
         </div>

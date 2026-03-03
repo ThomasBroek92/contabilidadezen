@@ -42,11 +42,11 @@ export const representantesFaqs = [
 
 export function RepresentantesFAQ() {
   return (
-    <section className="py-16 lg:py-24 bg-muted/30">
+    <section className="py-16 lg:py-24 bg-[#FEF3E2]">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-sm font-semibold text-secondary uppercase tracking-wider">
+            <span className="text-sm font-semibold text-[#C4680F] uppercase tracking-wider">
               Dúvidas Frequentes
             </span>
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-4">
@@ -62,9 +62,9 @@ export function RepresentantesFAQ() {
               <AccordionItem 
                 key={index} 
                 value={`item-${index}`}
-                className="bg-card border border-border rounded-xl px-6 data-[state=open]:border-secondary/50"
+                className="bg-card border border-border rounded-xl px-6 data-[state=open]:border-[#E87C1E]/50"
               >
-                <AccordionTrigger className="text-left text-foreground hover:text-secondary py-5">
+                <AccordionTrigger className="text-left text-foreground hover:text-[#C4680F] py-5">
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground pb-5">

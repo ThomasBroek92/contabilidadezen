@@ -31,10 +31,10 @@ export function RepresentantesTestimonials() {
   };
 
   return (
-    <section className="py-16 lg:py-24 bg-background">
+    <section className="py-16 lg:py-24 bg-[#FFFBF5]">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-sm font-semibold text-secondary uppercase tracking-wider">
+          <span className="text-sm font-semibold text-[#C4680F] uppercase tracking-wider">
             Depoimentos
           </span>
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-4">
@@ -49,13 +49,13 @@ export function RepresentantesTestimonials() {
           {testimonials.map((testimonial, index) => (
             <div 
               key={index}
-              className="p-6 bg-card rounded-xl border border-border relative"
+              className="p-6 bg-card rounded-xl border border-[#E87C1E]/15 relative"
             >
-              <Quote className="absolute top-4 right-4 h-8 w-8 text-secondary/20" />
+              <Quote className="absolute top-4 right-4 h-8 w-8 text-[#E87C1E]/20" />
               
               <div className="flex gap-1 mb-4">
                 {Array.from({ length: testimonial.rating }).map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
+                  <Star key={i} className="h-5 w-5 fill-[#E87C1E] text-[#E87C1E]" />
                 ))}
               </div>
               
@@ -64,8 +64,8 @@ export function RepresentantesTestimonials() {
               </p>
               
               <div className="flex items-center gap-4 pt-4 border-t border-border">
-                <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                  <span className="text-lg font-bold text-secondary">
+                <div className="w-12 h-12 rounded-full bg-[#FDE8CC] flex items-center justify-center">
+                  <span className="text-lg font-bold text-[#C4680F]">
                     {testimonial.name.split(" ").map(n => n[0]).join("")}
                   </span>
                 </div>
@@ -81,7 +81,7 @@ export function RepresentantesTestimonials() {
         </div>
         
         <div className="text-center mt-12">
-          <Button size="lg" onClick={scrollToForm}>
+          <Button size="lg" variant="outline" className="border-secondary text-secondary hover:bg-secondary/10" onClick={scrollToForm}>
             Fale com um especialista
           </Button>
         </div>

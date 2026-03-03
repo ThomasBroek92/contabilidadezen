@@ -1,48 +1,44 @@
 
 
-# Configurar domínio www.contabilidadezen.com.br no Cloudflare Pages + redirect 301
+## Plano: Redirecionar /servicos para / e remover a página
 
-Este é um guia de configuração no painel do Cloudflare — não requer mudanças no código, exceto a criação de um arquivo `_redirects` para o redirect non-www → www.
+### Situação Atual
 
-## Parte 1: Arquivo `_redirects` (mudança no código)
+A página `/servicos` é referenciada em **8 arquivos**:
 
-Criar `public/_redirects` com a regra de redirect 301 do Cloudflare Pages:
+| Arquivo | Tipo de referência |
+|---|---|
+| `src/App.tsx` | Rota + import lazy |
+| `src/pages/Servicos.tsx` | Página em si |
+| `src/components/Header.tsx` | Link "Todos os Serviços" no menu |
+| `src/components/Footer.tsx` | Link "Todos os Serviços" no rodapé |
+| `src/components/sections/Services.tsx` | Links de 3 cards + CTA |
+| `src/components/sections/NichesCarousel.tsx` | Botão "Ver todos os segmentos" |
+| `src/pages/NotFound.tsx` | Link sugerido na 404 |
+| `src/pages/CidadesAtendidas.tsx` | Botão "Ver Serviços" |
+| Breadcrumbs (Medicos, Dentistas, Psicólogos, Representantes, AbrirEmpresa) | URL no schema breadcrumb |
+| `src/components/LegacyRedirects.tsx` | Redirects legados apontando para /servicos |
+| `supabase/functions/sitemap/index.ts` | Entrada no sitemap |
+| `supabase/functions/google-search-console/index.ts` | Array de páginas estáticas |
 
-```
-# Redirect non-www to www (301 permanent)
-https://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301
-http://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301
-```
+### Alterações Planejadas
 
-Este arquivo será copiado para `dist/` durante o build e o Cloudflare Pages o processa automaticamente.
+1. **App.tsx** — Remover import do `Servicos` e substituir a rota por redirect: `<Route path="/servicos" element={<Navigate to="/" replace />} />` (redirect 301 client-side para quem já tem a URL indexada)
 
-## Parte 2: Configuração no Cloudflare Dashboard (manual, pelo usuário)
+2. **Atualizar links em 8 arquivos** — Trocar `/servicos` por `/`:
+   - `Header.tsx` — link "Todos os Serviços" → `/`
+   - `Footer.tsx` — link "Todos os Serviços" → `/`
+   - `Services.tsx` — 3 cards + CTA → `/`
+   - `NichesCarousel.tsx` — botão → `/`
+   - `NotFound.tsx` — link sugerido → `/`
+   - `CidadesAtendidas.tsx` — botão → `/`
+   - Breadcrumbs (5 páginas de segmentos + AbrirEmpresa) — URL → `/`
+   - `LegacyRedirects.tsx` — redirects legados → `/`
 
-### Passo 1 — Adicionar domínios customizados
-1. Cloudflare Dashboard → **Workers & Pages** → projeto **contabilidade-zen**
-2. Aba **Custom domains** → **Set up a custom domain**
-3. Adicionar **dois** domínios:
-   - `www.contabilidadezen.com.br` (este será o primário)
-   - `contabilidadezen.com.br` (apex, para o redirect funcionar)
-4. O Cloudflare criará os registros DNS automaticamente se o domínio já estiver gerenciado no Cloudflare
+3. **Sitemap e indexação** — Remover `/servicos` do sitemap e do array de páginas estáticas do Google Search Console
 
-### Passo 2 — Verificar DNS
-No Cloudflare DNS do domínio `contabilidadezen.com.br`, confirmar que existem:
-- **CNAME** `www` → `contabilidade-zen.pages.dev` (proxy ativado, nuvem laranja)
-- **CNAME** `@` → `contabilidade-zen.pages.dev` (proxy ativado, nuvem laranja)
+4. **Deletar** `src/pages/Servicos.tsx`
 
-### Passo 3 — Remover registros antigos
-Se existirem registros A apontando para `185.158.133.1` (Lovable), **removê-los** para evitar conflito. O domínio não pode apontar para Lovable e Cloudflare Pages ao mesmo tempo.
-
-### Passo 4 — SSL
-Em **SSL/TLS** do domínio no Cloudflare, definir modo como **Full (strict)**.
-
-### Resultado esperado
-- `contabilidadezen.com.br/qualquer-pagina` → redirect 301 → `www.contabilidadezen.com.br/qualquer-pagina`
-- `www.contabilidadezen.com.br` → serve o site com HTML pré-renderizado
-- Google Search Console para de reportar warnings de redirect nas ~59 URLs
-
-## Detalhe técnico
-
-O arquivo `_redirects` é o mecanismo nativo do Cloudflare Pages para redirects. Ele é processado no edge antes de servir qualquer conteúdo, então o redirect 301 acontece sem latência adicional. O `:splat` captura todo o path para preservar a URL completa.
+### Observação
+A rota `/servicos` será mantida temporariamente no App.tsx como redirect para `/`, garantindo que URLs já indexadas no Google ou bookmarks de usuários continuem funcionando.
 

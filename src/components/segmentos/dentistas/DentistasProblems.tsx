@@ -1,73 +1,41 @@
-import { AlertTriangle, Clock, DollarSign, FileQuestion, Users } from "lucide-react";
+import { AlertTriangle, TrendingDown, FileWarning, Clock, HelpCircle, Users } from "lucide-react";
 
 const problems = [
-  {
-    icon: DollarSign,
-    title: "Impostos altos demais",
-    description: "Você sente que está pagando mais impostos do que deveria enquanto vê seus colegas com cargas tributárias menores.",
-  },
-  {
-    icon: Clock,
-    title: "Tempo perdido com burocracia",
-    description: "Horas preciosas gastas com papelada, notas fiscais e obrigações fiscais que poderiam ser investidas em atendimentos.",
-  },
-  {
-    icon: FileQuestion,
-    title: "Contador que não entende sua área",
-    description: "Seu contador atual não compreende as particularidades da odontologia e oferece orientações genéricas.",
-  },
-  {
-    icon: AlertTriangle,
-    title: "Medo de problemas fiscais",
-    description: "Preocupação constante com possíveis erros tributários, multas ou inconsistências com o CRO.",
-  },
-  {
-    icon: Users,
-    title: "Gestão de funcionários complexa",
-    description: "Dificuldade em gerenciar folha de pagamento, encargos e obrigações trabalhistas de auxiliares e recepcionistas.",
-  },
+  { icon: TrendingDown, title: "Impostos altos demais", description: "Você sente que está pagando mais impostos do que deveria e não sabe como reduzir legalmente sua carga tributária?" },
+  { icon: FileWarning, title: "Medo de fiscalização", description: "Preocupado com multas e penalidades por não estar em conformidade com as obrigações fiscais e o CRO?" },
+  { icon: Clock, title: "Sem tempo para burocracias", description: "Sua rotina odontológica já é intensa e você não tem tempo para lidar com notas fiscais, declarações e obrigações contábeis?" },
+  { icon: HelpCircle, title: "Contabilidade genérica", description: "Seu contador atual não entende as particularidades da odontologia e você sente que está perdendo oportunidades de economia?" },
+  { icon: Users, title: "Gestão de funcionários complexa", description: "Dificuldade em gerenciar folha de pagamento, encargos e obrigações trabalhistas de auxiliares e recepcionistas?" },
 ];
 
 export function DentistasProblems() {
   return (
-    <section className="py-16 lg:py-24 bg-background">
+    <section className="py-16 lg:py-24 bg-[#D1FAE5]">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-sm font-semibold text-secondary uppercase tracking-wider">
-            Identificamos seus desafios
-          </span>
-          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-4">
-            Você se identifica com algum desses problemas?
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            Esses são os principais desafios que dentistas enfrentam diariamente e que impactam diretamente seus resultados
-          </p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 border border-destructive/20 mb-4">
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <span className="text-sm font-medium text-destructive">Você se identifica?</span>
+          </div>
+          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Esses problemas estão prejudicando seu consultório?</h2>
+          <p className="text-muted-foreground text-lg">Se você se identifica com algum desses cenários, seu consultório precisa de uma contabilidade especializada</p>
         </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {problems.map((problem, index) => (
-            <div 
-              key={index}
-              className="p-6 bg-card rounded-xl border border-border hover:border-destructive/30 transition-colors group"
-            >
-              <div className="w-12 h-12 rounded-lg bg-destructive/10 flex items-center justify-center mb-4 group-hover:bg-destructive/20 transition-colors">
+            <div key={index} className="flex gap-4 p-6 bg-card rounded-xl border border-border">
+              <div className="w-12 h-12 rounded-lg bg-destructive/10 flex items-center justify-center flex-shrink-0">
                 <problem.icon className="h-6 w-6 text-destructive" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                {problem.title}
-              </h3>
-              <p className="text-muted-foreground">
-                {problem.description}
-              </p>
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-2">{problem.title}</h3>
+                <p className="text-muted-foreground">{problem.description}</p>
+              </div>
             </div>
           ))}
         </div>
-        
-        <div className="text-center mt-12">
-          <p className="text-lg text-foreground">
-            Se você se identificou com algum desses problemas,{" "}
-            <span className="text-secondary font-semibold">nós temos a solução!</span>
-          </p>
+        <div className="text-center mt-12 p-8 bg-[#A7F3D0] rounded-2xl border border-[#10B981]/20 max-w-3xl mx-auto">
+          <h3 className="text-2xl font-bold text-foreground mb-3">Você não precisa mais passar por isso!</h3>
+          <p className="text-muted-foreground">Com a Contabilidade Zen, você terá especialistas que entendem sua rotina odontológica e cuidam de toda a parte contábil para que você foque no que realmente importa: seus pacientes.</p>
         </div>
       </div>
     </section>

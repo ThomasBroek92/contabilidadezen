@@ -36,7 +36,7 @@ export default function ContabilidadeDentistas() {
       <main>
         <DentistasHero />
         <DentistasLeadForm />
-        <TaxComparisonCalculator profession="dentista" />
+        <TaxComparisonCalculator profession="dentista" accentColor="#10B981" />
         <DentistasProblems />
         <DentistasBenefits />
         <DentistasProcess />

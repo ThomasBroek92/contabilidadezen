@@ -1,59 +1,20 @@
 
 
-## Plano: Layout 2 Colunas — Imagem de Autoridade + Sanfona de Beneficios
+## Plano: Estilizar overlay da imagem e accordions com identidade laranja
 
-### Estrutura
+### Alteracoes em `RepresentantesBenefits.tsx`
 
-Transformar a secao de beneficios em layout `lg:grid-cols-5` (ou similar):
-- **Coluna esquerda (~40%)**: Imagem do Thomas Broek (hero-founder.webp da homepage), com card de autoridade flutuante sobrepondo levemente os acordeoes
-- **Coluna direita (~60%)**: Os 6 acordeoes (sanfona) existentes, com leve sobreposicao negativa a esquerda (`-ml-8 lg:-ml-12`)
+**1. Overlay da imagem (nome/CRC) — tema laranja**
+- Trocar gradient overlay de `from-black/70` para `from-[#E87C1E]/90 via-[#C4680F]/70`
+- Adicionar sombra no container da imagem: `shadow-[0_8px_30px_-8px_rgba(232,124,30,0.4)]`
+- Texto permanece branco (contraste garantido sobre laranja escuro)
 
-### Coluna Esquerda — Imagem + Autoridade
+**2. Cards de accordion — borda e sombra laranja sutil**
+- Card fechado: `border-[#E87C1E]/15` + `shadow-[0_2px_8px_-2px_rgba(232,124,30,0.12)]` + hover com sombra laranja mais forte
+- Card aberto: `border-[#E87C1E]/40` + `shadow-[0_4px_16px_-4px_rgba(232,124,30,0.25)]`
+- Borda left accent: adicionar `border-l-3 border-l-[#E87C1E]` no card aberto para destaque lateral
 
-```text
-┌──────────────────────┐
-│                      │
-│   [Foto Thomas]      │
-│   rounded corners    │
-│   gradient overlay   │
-│   bottom card:       │
-│   "Thomas Broek"     │
-│   CRC-SP 337693/O-7  │
-│                      │
-├──────────────────────┤
-│ ┌──────┐  ┌────────┐ │
-│ │ 10+  │  │  200+  │ │
-│ │ anos │  │clientes│ │
-│ └──────┘  └────────┘ │
-└──────────────────────┘
-```
+**3. Mini-cards de autoridade — manter teal** (contraste visual com o laranja)
 
-- Usar `/images/hero-founder.webp` (ja existe no public)
-- Rounded corners estilo homepage (`rounded-[32px] rounded-bl-[80px]`)
-- Gradient overlay na base com nome/CRC
-- Abaixo da imagem: 2 mini-cards de autoridade lado a lado
-  - "10+ Anos de Experiencia" com icone Award
-  - "200+ Clientes Atendidos" com icone Users
-- Cores: usar secondary/teal da marca nos cards de autoridade (contraste com laranja dos acordeoes)
-
-### Coluna Direita — Sanfona
-
-- Manter os 6 acordeoes exatamente como estao (Collapsible, ChevronDown, CTA interno)
-- Layout single column (empilhados) em vez de grid 2 colunas, para caber melhor ao lado da imagem
-- Leve margin-left negativa (`lg:-ml-6`) para criar sobreposicao sutil com a coluna da imagem
-- Z-index maior que a imagem para ficar "por cima"
-
-### Responsivo
-
-- **Mobile**: imagem no topo (centralizada, menor) + acordeoes abaixo em coluna unica. Sem sobreposicao
-- **Desktop (lg+)**: 2 colunas com sobreposicao
-
-### Arquivo Alterado
-
-**`RepresentantesBenefits.tsx`** — Reestruturar JSX:
-- Adicionar coluna esquerda com imagem + cards de autoridade
-- Mudar grid de `md:grid-cols-2` para layout 2 colunas (imagem | acordeoes)
-- Acordeoes passam de grid 2col para stack vertical
-- Adicionar sobreposicao via margin negativa e z-index
-- Manter header, CTA final e logica de toggle inalterados
+Apenas 1 arquivo alterado: `RepresentantesBenefits.tsx`
 

@@ -33,7 +33,7 @@ export function RepresentantesHero() {
             
             <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed">
               Está pagando até 27,5% de IR como autônomo? Representantes comerciais PJ podem 
-              pagar de <strong className="text-[#C4680F]">6% a 15%</strong> de impostos com o planejamento tributário correto!
+              pagar de <strong className="text-[#C4680F]">6%</strong> de impostos com o planejamento tributário correto!
             </p>
             
             <p className="text-base text-muted-foreground">
@@ -98,10 +98,6 @@ export function RepresentantesHero() {
               <p className="text-sm text-muted-foreground">Representantes atendidos</p>
             </div>
 
-            {/* Secondary accent floating card */}
-            <div className="absolute -top-4 -right-4 bg-secondary/10 border border-secondary/30 px-4 py-3 rounded-xl shadow-card">
-              <p className="text-sm font-semibold text-secondary">✓ Contabilidade Zen</p>
-            </div>
           </div>
         </div>
       </div>

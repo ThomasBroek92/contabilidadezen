@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useWhatsAppNotification } from "@/hooks/use-whatsapp-notification";
+import { getWhatsAppLink, WHATSAPP_MESSAGES } from "@/lib/whatsapp";
 import { useHoneypot } from "@/hooks/use-honeypot";
 import { Send, CheckCircle2, TrendingDown, Percent, Shield } from "lucide-react";
 import { z } from "zod";
@@ -19,9 +19,11 @@ const leadSchema = z.object({
 
 export function RepresentantesLeadForm() {
   const { toast } = useToast();
-  const { openWhatsAppNotification } = useWhatsAppNotification();
+  
   const { isBot, honeypotProps, reset: resetHoneypot } = useHoneypot();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedWhatsAppUrl, setSubmittedWhatsAppUrl] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     nome: "",
@@ -84,15 +86,14 @@ export function RepresentantesLeadForm() {
 
       if (error) throw error;
 
-      openWhatsAppNotification({
-        nome: result.data.nome,
-        email: result.data.email,
-        whatsapp: result.data.telefone,
-        segmento: 'Representantes Comerciais',
-        fonte: 'Formulário de Lead',
+      const whatsappUrl = getWhatsAppLink(WHATSAPP_MESSAGES.representantes);
+
+      setSubmittedWhatsAppUrl(whatsappUrl);
+      setIsSubmitted(true);
+      toast({
+        title: "Formulário enviado com sucesso!",
+        description: "Em breve um especialista entrará em contato.",
       });
-    
-      toast({ title: "Formulário enviado com sucesso!", description: "Em breve um especialista entrará em contato." });
     
       resetHoneypot();
       setFormData({ nome: "", email: "", telefone: "", profissao: "", atividade: "", tributacao: "", faturamento: "", cidadeEstado: "", registroCORE: "", aceitaPolitica: false });
@@ -109,6 +110,27 @@ export function RepresentantesLeadForm() {
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Form */}
           <div className="bg-card rounded-2xl shadow-card p-8 lg:p-10 border border-[#E87C1E]/20 order-2 lg:order-1">
+            {isSubmitted ? (
+              <div className="text-center space-y-6 py-8">
+                <CheckCircle2 className="h-16 w-16 text-secondary mx-auto" />
+                <h2 className="text-2xl lg:text-3xl font-bold text-foreground">
+                  Formulário enviado com sucesso!
+                </h2>
+                <p className="text-muted-foreground">
+                  Em breve um especialista entrará em contato. Você também pode falar conosco agora pelo WhatsApp:
+                </p>
+                <a
+                  href={submittedWhatsAppUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-8 py-4 text-lg font-semibold text-white hover:bg-[#1da851] transition-colors"
+                >
+                  <Send className="h-5 w-5" />
+                  Falar no WhatsApp
+                </a>
+              </div>
+            ) : (
+            <>
             <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
               Está pronto para pagar menos impostos?
             </h2>
@@ -228,6 +250,8 @@ export function RepresentantesLeadForm() {
                 {isSubmitting ? <>Enviando...</> : <><Send className="h-4 w-4 mr-2" />Enviar e receber diagnóstico gratuito</>}
               </Button>
             </form>
+            </>
+            )}
           </div>
           
           {/* Content */}

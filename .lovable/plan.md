@@ -1,53 +1,59 @@
 
 
-## Plano: Beneficios com Efeito Sanfona Sutil
+## Plano: Layout 2 Colunas — Imagem de Autoridade + Sanfona de Beneficios
 
-### Problema
-Os flip cards 3D com gradientes vivos ficaram visualmente exagerados e estranhos. O usuario quer algo mais simples e sutil.
+### Estrutura
 
-### Proposta: Accordion (Sanfona) Limpo
+Transformar a secao de beneficios em layout `lg:grid-cols-5` (ou similar):
+- **Coluna esquerda (~40%)**: Imagem do Thomas Broek (hero-founder.webp da homepage), com card de autoridade flutuante sobrepondo levemente os acordeoes
+- **Coluna direita (~60%)**: Os 6 acordeoes (sanfona) existentes, com leve sobreposicao negativa a esquerda (`-ml-8 lg:-ml-12`)
 
-Substituir os flip cards por uma lista/grid de cards com efeito sanfona (expand/collapse). Ao clicar, o card expande suavemente revelando a descricao e o CTA.
+### Coluna Esquerda — Imagem + Autoridade
 
-**Visual:**
 ```text
-┌─────────────────────────────────┐
-│  🧮  Planejamento Tributário   ▼│
-└─────────────────────────────────┘
-
-┌─────────────────────────────────┐
-│  📋  Burocracia Zero           ▲│
-│─────────────────────────────────│
-│  Cuidamos de DARF, GFIP, SPED  │
-│  e todas as obrigações...       │
-│                                 │
-│  [Quero esse benefício]         │
-└─────────────────────────────────┘
-
-┌─────────────────────────────────┐
-│  📊  Controle de Comissões     ▼│
-└─────────────────────────────────┘
+┌──────────────────────┐
+│                      │
+│   [Foto Thomas]      │
+│   rounded corners    │
+│   gradient overlay   │
+│   bottom card:       │
+│   "Thomas Broek"     │
+│   CRC-SP 337693/O-7  │
+│                      │
+├──────────────────────┤
+│ ┌──────┐  ┌────────┐ │
+│ │ 10+  │  │  200+  │ │
+│ │ anos │  │clientes│ │
+│ └──────┘  └────────┘ │
+└──────────────────────┘
 ```
 
-### Detalhes
+- Usar `/images/hero-founder.webp` (ja existe no public)
+- Rounded corners estilo homepage (`rounded-[32px] rounded-bl-[80px]`)
+- Gradient overlay na base com nome/CRC
+- Abaixo da imagem: 2 mini-cards de autoridade lado a lado
+  - "10+ Anos de Experiencia" com icone Award
+  - "200+ Clientes Atendidos" com icone Users
+- Cores: usar secondary/teal da marca nos cards de autoridade (contraste com laranja dos acordeoes)
 
-- Layout: grid `md:grid-cols-2 gap-4` com cards clicaveis
-- Card fechado: icone + titulo + chevron, fundo branco, borda sutil, hover com sombra leve
-- Card aberto: expande com transicao CSS (`max-height` ou Radix Collapsible) mostrando descricao + CTA
-- Cores: neutras (branco/cinza), com acento laranja sutil apenas no icone e no CTA
-- Sem gradientes vivos, sem 3D, sem flip
-- Transicao suave: `transition: max-height 0.3s ease`
-- Usar Radix Collapsible (ja instalado) para acessibilidade
+### Coluna Direita — Sanfona
+
+- Manter os 6 acordeoes exatamente como estao (Collapsible, ChevronDown, CTA interno)
+- Layout single column (empilhados) em vez de grid 2 colunas, para caber melhor ao lado da imagem
+- Leve margin-left negativa (`lg:-ml-6`) para criar sobreposicao sutil com a coluna da imagem
+- Z-index maior que a imagem para ficar "por cima"
+
+### Responsivo
+
+- **Mobile**: imagem no topo (centralizada, menor) + acordeoes abaixo em coluna unica. Sem sobreposicao
+- **Desktop (lg+)**: 2 colunas com sobreposicao
 
 ### Arquivo Alterado
 
-**`RepresentantesBenefits.tsx`** — Reescrever:
-- Remover FlipCard, gradientes, CSS 3D
-- Usar `Collapsible` do Radix para cada card
-- Estado `openIndex` (um card aberto por vez, ou multiplos)
-- Icone do beneficio com cor laranja sutil (`text-[#E87C1E]`)
-- ChevronDown que rotaciona quando aberto
-- Descricao + mini-CTA dentro do conteudo colapsavel
-- Background da secao: `bg-[#FFFBF5]` (manter)
-- Manter CTA geral no final
+**`RepresentantesBenefits.tsx`** — Reestruturar JSX:
+- Adicionar coluna esquerda com imagem + cards de autoridade
+- Mudar grid de `md:grid-cols-2` para layout 2 colunas (imagem | acordeoes)
+- Acordeoes passam de grid 2col para stack vertical
+- Adicionar sobreposicao via margin negativa e z-index
+- Manter header, CTA final e logica de toggle inalterados
 

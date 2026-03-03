@@ -21,6 +21,11 @@ const ContabilidadeMedicos = lazy(() => import("./pages/segmentos/ContabilidadeM
 const ContabilidadeDentistas = lazy(() => import("./pages/segmentos/ContabilidadeDentistas"));
 const ContabilidadePsicologos = lazy(() => import("./pages/segmentos/ContabilidadePsicologos"));
 const ContabilidadeRepresentantes = lazy(() => import("./pages/segmentos/ContabilidadeRepresentantes"));
+const ContabilidadeProdutoresDigitais = lazy(() => import("./pages/segmentos/ContabilidadeProdutoresDigitais"));
+const ContabilidadeProfissionaisTI = lazy(() => import("./pages/segmentos/ContabilidadeProfissionaisTI"));
+const ContabilidadeExportacaoServicos = lazy(() => import("./pages/segmentos/ContabilidadeExportacaoServicos"));
+const ContabilidadePrestadoresServico = lazy(() => import("./pages/segmentos/ContabilidadePrestadoresServico"));
+const ContabilidadeProfissionaisPJ = lazy(() => import("./pages/segmentos/ContabilidadeProfissionaisPJ"));
 const CalculadoraPJCLT = lazy(() => import("./pages/conteudo/CalculadoraPJCLT"));
 const ResultadoCalculadoraPJCLT = lazy(() => import("./pages/conteudo/ResultadoCalculadoraPJCLT"));
 const GeradorRPA = lazy(() => import("./pages/conteudo/GeradorRPA"));
@@ -77,6 +82,11 @@ const App = () => (
               <Route path="/segmentos/contabilidade-para-dentistas" element={<ContabilidadeDentistas />} />
               <Route path="/segmentos/contabilidade-para-psicologos" element={<ContabilidadePsicologos />} />
               <Route path="/segmentos/contabilidade-para-representantes-comerciais" element={<ContabilidadeRepresentantes />} />
+              <Route path="/segmentos/contabilidade-para-produtores-digitais" element={<ContabilidadeProdutoresDigitais />} />
+              <Route path="/segmentos/contabilidade-para-profissionais-de-ti" element={<ContabilidadeProfissionaisTI />} />
+              <Route path="/segmentos/contabilidade-para-exportacao-de-servicos" element={<ContabilidadeExportacaoServicos />} />
+              <Route path="/segmentos/contabilidade-para-prestadores-de-servico" element={<ContabilidadePrestadoresServico />} />
+              <Route path="/segmentos/contabilidade-para-profissionais-pj" element={<ContabilidadeProfissionaisPJ />} />
               <Route path="/conteudo/calculadora-pj-clt" element={<CalculadoraPJCLT />} />
               <Route path="/conteudo/calculadora-pj-clt/resultado" element={<ResultadoCalculadoraPJCLT />} />
               <Route path="/conteudo/gerador-rpa" element={<GeradorRPA />} />

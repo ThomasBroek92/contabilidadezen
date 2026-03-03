@@ -1,3 +1,48 @@
-import { SEOHead } from "@/components/SEOHead"; import { Header } from "@/components/Header"; import { Footer } from "@/components/Footer"; import { ProfissionaisPJHero } from "@/components/segmentos/profissionais-pj/ProfissionaisPJHero"; import { ProfissionaisPJLeadForm } from "@/components/segmentos/profissionais-pj/ProfissionaisPJLeadForm"; import { ProfissionaisPJProblems } from "@/components/segmentos/profissionais-pj/ProfissionaisPJProblems"; import { ProfissionaisPJFAQ, profissionaisPJFaqs } from "@/components/segmentos/profissionais-pj/ProfissionaisPJFAQ"; import { ProfissionaisPJCTA } from "@/components/segmentos/profissionais-pj/ProfissionaisPJCTA"; import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxComparisonCalculator";
+import { SEOHead } from "@/components/SEOHead";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { ProfissionaisPJHero } from "@/components/segmentos/profissionais-pj/ProfissionaisPJHero";
+import { ProfissionaisPJLeadForm } from "@/components/segmentos/profissionais-pj/ProfissionaisPJLeadForm";
+import { ProfissionaisPJBenefits } from "@/components/segmentos/profissionais-pj/ProfissionaisPJBenefits";
+import { ProfissionaisPJProblems } from "@/components/segmentos/profissionais-pj/ProfissionaisPJProblems";
+import { ProfissionaisPJProcess } from "@/components/segmentos/profissionais-pj/ProfissionaisPJProcess";
+import { ProfissionaisPJTestimonials } from "@/components/segmentos/profissionais-pj/ProfissionaisPJTestimonials";
+import { ProfissionaisPJFAQ, profissionaisPJFaqs } from "@/components/segmentos/profissionais-pj/ProfissionaisPJFAQ";
+import { ProfissionaisPJCTA } from "@/components/segmentos/profissionais-pj/ProfissionaisPJCTA";
+import { TaxComparisonCalculator } from "@/components/segmentos/shared/TaxComparisonCalculator";
+
 const SITE_URL = "https://www.contabilidadezen.com.br";
-export default function ContabilidadeProfissionaisPJ() { return (<><SEOHead title="Contabilidade para Profissionais PJ | CLT → PJ com Economia" description="Contabilidade especializada para profissionais PJ. Transição CLT para PJ, pro-labore otimizado, Fator R e planejamento tributário. Pague a partir de 6%." keywords="contabilidade para PJ, CLT para PJ, profissional PJ contabilidade, pro-labore otimizado, planejamento tributário PJ" canonical="/segmentos/contabilidade-para-profissionais-pj" pageType="service" includeLocalBusiness faqs={profissionaisPJFaqs} breadcrumbs={[{ name: "Home", url: SITE_URL }, { name: "Segmentos", url: SITE_URL }, { name: "Profissionais PJ", url: `${SITE_URL}/segmentos/contabilidade-para-profissionais-pj` }]} /><Header /><main><ProfissionaisPJHero /><ProfissionaisPJLeadForm /><TaxComparisonCalculator profession="profissional PJ" accentColor="#4F46E5" /><ProfissionaisPJProblems /><ProfissionaisPJFAQ /><ProfissionaisPJCTA /></main><Footer /></>); }
+
+export default function ContabilidadeProfissionaisPJ() {
+  return (
+    <>
+      <SEOHead
+        title="Contabilidade para Profissionais PJ | CLT → PJ com Economia"
+        description="Contabilidade especializada para profissionais PJ. Transição CLT para PJ, pro-labore otimizado, Fator R e planejamento tributário. Pague a partir de 6%."
+        keywords="contabilidade para PJ, CLT para PJ, profissional PJ contabilidade, pro-labore otimizado, planejamento tributário PJ"
+        canonical="/segmentos/contabilidade-para-profissionais-pj"
+        pageType="service"
+        includeLocalBusiness
+        faqs={profissionaisPJFaqs}
+        breadcrumbs={[
+          { name: "Home", url: SITE_URL },
+          { name: "Segmentos", url: SITE_URL },
+          { name: "Profissionais PJ", url: `${SITE_URL}/segmentos/contabilidade-para-profissionais-pj` },
+        ]}
+      />
+      <Header />
+      <main>
+        <ProfissionaisPJHero />
+        <ProfissionaisPJLeadForm />
+        <TaxComparisonCalculator profession="profissional PJ" accentColor="#4F46E5" />
+        <ProfissionaisPJBenefits />
+        <ProfissionaisPJProblems />
+        <ProfissionaisPJProcess />
+        <ProfissionaisPJTestimonials />
+        <ProfissionaisPJFAQ />
+        <ProfissionaisPJCTA />
+      </main>
+      <Footer />
+    </>
+  );
+}

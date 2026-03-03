@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Smile, TrendingDown, Shield, Clock, ArrowRight } from "lucide-react";
-import profissionaisSaudeBg from "@/assets/01-profissionais-saude-bg.webp";
+import dentistasBg from "@/assets/dentistas-bg.webp";
 
 export function DentistasHero() {
   const scrollToForm = () => {
@@ -80,9 +80,9 @@ export function DentistasHero() {
           <div className="relative hidden lg:block">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-[#10B981]/20">
               <img 
-                src={profissionaisSaudeBg} 
-                alt="Profissional da saúde em ambiente de clínica odontológica"
-                width={665}
+                src={dentistasBg} 
+                alt="Dentista em consultório odontológico moderno"
+                width={600}
                 height={735}
                 loading="eager"
                 fetchPriority="high"

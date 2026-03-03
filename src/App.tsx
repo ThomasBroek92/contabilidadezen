@@ -13,8 +13,6 @@ import Index from "./pages/Index";
 import { LegacyRedirects } from "@/components/LegacyRedirects";
 
 // Lazy load all pages except Index (homepage) for code splitting
-const Medicos = lazy(() => import("./pages/Medicos"));
-
 const Sobre = lazy(() => import("./pages/Sobre"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
@@ -69,7 +67,7 @@ const App = () => (
           <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/medicos" element={<Medicos />} />
+              <Route path="/medicos" element={<Navigate to="/segmentos/contabilidade-para-medicos" replace />} />
               <Route path="/servicos" element={<Navigate to="/" replace />} />
               <Route path="/sobre" element={<Sobre />} />
               <Route path="/blog" element={<Blog />} />

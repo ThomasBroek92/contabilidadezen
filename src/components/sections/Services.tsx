@@ -20,7 +20,7 @@ const services = [
       "Declaração de DMED",
       "Abertura de empresa médica",
     ],
-    href: "/medicos",
+    href: "/segmentos/contabilidade-para-medicos",
     color: "secondary",
   },
   {

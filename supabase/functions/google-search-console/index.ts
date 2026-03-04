@@ -469,6 +469,8 @@ serve(async (req) => {
         "/segmentos/contabilidade-para-exportacao-de-servicos",
         "/segmentos/contabilidade-para-prestadores-de-servico",
         "/segmentos/contabilidade-para-profissionais-pj",
+        "/segmentos/contabilidade-para-ecommerce",
+        "/segmentos/contabilidade-para-clinicas-e-consultorios",
         "/conteudo/calculadora-pj-clt",
         "/conteudo/comparativo-tributario",
         "/conteudo/gerador-rpa",

@@ -53,6 +53,8 @@ export const WHATSAPP_MESSAGES = {
   exportacaoServicos: "Olá! Trabalho com exportação de serviços e gostaria de saber mais sobre contabilidade especializada.",
   prestadoresServico: "Olá! Sou prestador de serviços e gostaria de saber mais sobre contabilidade especializada.",
   profissionaisPJ: "Olá! Sou profissional PJ e gostaria de saber mais sobre contabilidade especializada e planejamento tributário.",
+  ecommerce: "Olá! Tenho um e-commerce e gostaria de saber mais sobre contabilidade especializada para lojas online e marketplaces.",
+  clinicasConsultorios: "Olá! Tenho uma clínica/consultório e gostaria de saber mais sobre contabilidade especializada e equiparação hospitalar.",
 } as const;
 
 export type WhatsAppMessageKey = keyof typeof WHATSAPP_MESSAGES;

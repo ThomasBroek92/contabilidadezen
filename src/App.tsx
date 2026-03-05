@@ -28,6 +28,8 @@ const ContabilidadePrestadoresServico = lazy(() => import("./pages/segmentos/Con
 const ContabilidadeProfissionaisPJ = lazy(() => import("./pages/segmentos/ContabilidadeProfissionaisPJ"));
 const ContabilidadeEcommerce = lazy(() => import("./pages/segmentos/ContabilidadeEcommerce"));
 const ContabilidadeClinicasConsultorios = lazy(() => import("./pages/segmentos/ContabilidadeClinicasConsultorios"));
+const ContabilidadeYoutubersCreators = lazy(() => import("./pages/segmentos/ContabilidadeYoutubersCreators"));
+const ContabilidadeOutrosSegmentos = lazy(() => import("./pages/segmentos/ContabilidadeOutrosSegmentos"));
 const CalculadoraPJCLT = lazy(() => import("./pages/conteudo/CalculadoraPJCLT"));
 const ResultadoCalculadoraPJCLT = lazy(() => import("./pages/conteudo/ResultadoCalculadoraPJCLT"));
 const GeradorRPA = lazy(() => import("./pages/conteudo/GeradorRPA"));
@@ -91,6 +93,8 @@ const App = () => (
               <Route path="/segmentos/contabilidade-para-profissionais-pj" element={<ContabilidadeProfissionaisPJ />} />
               <Route path="/segmentos/contabilidade-para-ecommerce" element={<ContabilidadeEcommerce />} />
               <Route path="/segmentos/contabilidade-para-clinicas-e-consultorios" element={<ContabilidadeClinicasConsultorios />} />
+              <Route path="/segmentos/contabilidade-para-youtubers-e-creators" element={<ContabilidadeYoutubersCreators />} />
+              <Route path="/segmentos/contabilidade-para-outros-segmentos" element={<ContabilidadeOutrosSegmentos />} />
               <Route path="/conteudo/calculadora-pj-clt" element={<CalculadoraPJCLT />} />
               <Route path="/conteudo/calculadora-pj-clt/resultado" element={<ResultadoCalculadoraPJCLT />} />
               <Route path="/conteudo/gerador-rpa" element={<GeradorRPA />} />

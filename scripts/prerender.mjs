@@ -31,6 +31,8 @@ const STATIC_ROUTES = [
   '/segmentos/contabilidade-para-profissionais-pj',
   '/segmentos/contabilidade-para-ecommerce',
   '/segmentos/contabilidade-para-clinicas-e-consultorios',
+  '/segmentos/contabilidade-para-youtubers-e-creators',
+  '/segmentos/contabilidade-para-outros-segmentos',
   '/conteudo/calculadora-pj-clt',
   '/conteudo/gerador-rpa',
   '/conteudo/gerador-invoice',

@@ -1,77 +1,69 @@
 
 
-## Plano: Criar paginas de segmentos para E-commerce e Clinicas e Consultorios
+## Plano: Atualizar indexacao + Corrigir FAQ schema invalido
 
-Criar landing pages completas para **E-commerce** e **Clinicas e Consultorios**, seguindo o padrao de 8 componentes + pagina container ja estabelecido nos outros segmentos.
+### Problema 1: FAQ schema invalido (6 itens no Google)
 
-### Paleta de cores por segmento
+O banco armazena `faq_schema` como objeto FAQPage completo:
+```json
+{ "@type": "FAQPage", "mainEntity": [{ "@type": "Question", "name": "...", "acceptedAnswer": { "@type": "Answer", "text": "..." } }] }
+```
 
-| Segmento | Acento | Escuro | Fundo claro | Fundo medio | Fundo destaque |
-|----------|--------|--------|-------------|-------------|----------------|
-| E-commerce | #DB2777 | #BE185D | #FDF2F8 | #FCE7F3 | #FBCFE8 |
-| Clinicas e Consultorios | #059669 | #047857 | #ECFDF5 | #D1FAE5 | #A7F3D0 |
+`BlogPost.tsx` linha 229 passa `post.faq_schema?.mainEntity` para o SEOHead, que espera `{ question, answer }[]`. Mas o `mainEntity` tem `{ name, acceptedAnswer: { text } }`. O `generateFAQSchema` mapeia `faq.question` e `faq.answer`, que sao `undefined` — gerando schema sem `name` e `text`.
 
-### Imagens de fundo (ja existem em src/assets/)
-- E-commerce: `09-ecommerce-bg.webp`
-- Clinicas e Consultorios: `10-clinicas-consultorios-bg.webp`
+**Correcao**: Em `BlogPost.tsx`, transformar os dados antes de passar:
+```tsx
+faqs={post.faq_schema?.mainEntity?.map(item => ({
+  question: item.name || item.question,
+  answer: item.acceptedAnswer?.text || item.answer
+}))}
+```
 
-### Arquivos a criar (18 arquivos)
+Tambem corrigir no prerender Edge Function (linha 398-410) para aceitar o formato objeto (nao apenas array):
+```ts
+if (post.faq_schema) {
+  const mainEntity = Array.isArray(post.faq_schema) 
+    ? post.faq_schema 
+    : (post.faq_schema as any).mainEntity;
+  // ... gerar schema a partir de mainEntity
+}
+```
 
-**E-commerce (8 componentes + 1 pagina):**
-- `src/components/segmentos/ecommerce/EcommerceHero.tsx`
-- `src/components/segmentos/ecommerce/EcommerceLeadForm.tsx`
-- `src/components/segmentos/ecommerce/EcommerceBenefits.tsx`
-- `src/components/segmentos/ecommerce/EcommerceProblems.tsx`
-- `src/components/segmentos/ecommerce/EcommerceProcess.tsx`
-- `src/components/segmentos/ecommerce/EcommerceTestimonials.tsx`
-- `src/components/segmentos/ecommerce/EcommerceFAQ.tsx`
-- `src/components/segmentos/ecommerce/EcommerceCTA.tsx`
-- `src/pages/segmentos/ContabilidadeEcommerce.tsx`
+### Problema 2: index.html noscript faltando 9 segmentos
 
-**Clinicas e Consultorios (8 componentes + 1 pagina):**
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosHero.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosLeadForm.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosBenefits.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProblems.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProcess.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosTestimonials.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosFAQ.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosCTA.tsx`
-- `src/pages/segmentos/ContabilidadeClinicasConsultorios.tsx`
+Adicionar ao bloco `<noscript>` (linhas 80-86) e ao bloco `static-prerender` (linhas 127-133):
+- Produtores Digitais
+- Profissionais de TI
+- Exportacao de Servicos
+- Prestadores de Servico
+- Profissionais PJ
+- E-commerce
+- Clinicas e Consultorios
+- YouTubers e Creators
+- Outros Segmentos
 
-### Conteudo especifico por segmento
+### Problema 3: google-search-console staticPages faltando URLs
 
-**E-commerce:**
-- Mercado Livre, Shopee, Amazon, Magalu, Shopify
-- Estoque, CMV e controle fiscal
-- Dropshipping nacional e internacional
-- Substituicao tributaria (ICMS-ST)
-- Nota fiscal de venda e devoluções
-- Select: Loja propria / Marketplace / Dropshipping / Infoproduto + Fisico
+Adicionar ao array `staticPages` (ja tem youtubers e outros, mas faltam):
+- `/segmentos/contabilidade-para-youtubers-e-creators`
+- `/segmentos/contabilidade-para-outros-segmentos`
+- `/conteudo/gerador-invoice`
+- `/conteudo/tabela-simples-nacional`
+- `/conteudo/modelo-contrato-pj`
+- `/cidades-atendidas`
+- `/contabilidade-em-campinas`
+- `/conteudo/tabela-cnaes`
 
-**Clinicas e Consultorios:**
-- Equiparacao hospitalar (reducao de IR/CSLL)
-- Folha de pagamento de equipe medica
-- Gestao de convenios e glosas
-- Sociedade medica e holding
-- Alvara sanitario e obrigacoes ANVISA
-- Select: Clinica Medica / Consultorio Odontologico / Clinica de Estetica / Laboratorio
+### Arquivos a editar
 
-### Alteracoes em arquivos existentes
+| Arquivo | Alteracao |
+|---------|-----------|
+| `src/pages/BlogPost.tsx` | Transformar mainEntity para {question, answer} antes de passar ao SEOHead |
+| `supabase/functions/prerender/index.ts` | Aceitar faq_schema como objeto (nao apenas array) |
+| `index.html` | Adicionar 9 segmentos nos blocos noscript e static-prerender |
+| `supabase/functions/google-search-console/index.ts` | Adicionar URLs faltantes ao staticPages |
 
-1. **src/lib/whatsapp.ts** — Adicionar 2 novas mensagens: `ecommerce`, `clinicasConsultorios`
+### Acao pos-deploy
 
-2. **src/App.tsx** — Adicionar 2 lazy imports + 2 rotas:
-   - `/segmentos/contabilidade-para-ecommerce`
-   - `/segmentos/contabilidade-para-clinicas-e-consultorios`
-
-3. **src/components/sections/NichesCarousel.tsx** — Atualizar hrefs de E-commerce e Clinicas de `/contato` para as novas URLs
-
-4. **src/components/segmentos/shared/TaxComparisonCalculator.tsx** — Adicionar 2 novas profissoes
-
-5. **Sitemap e indexacao** — Migration SQL para page_metadata + atualizar google-search-console e prerender.mjs
-
-### Estrategia de implementacao
-
-Implementar em 2 lotes: primeiro E-commerce completo, depois Clinicas e Consultorios. Ao final, atualizar App.tsx, whatsapp.ts, NichesCarousel.tsx, sitemap e indexacao de uma vez.
+Acionar `queue-all-pages` para enviar todas as URLs a fila de indexacao imediatamente.
 

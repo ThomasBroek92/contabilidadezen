@@ -471,9 +471,17 @@ serve(async (req) => {
         "/segmentos/contabilidade-para-profissionais-pj",
         "/segmentos/contabilidade-para-ecommerce",
         "/segmentos/contabilidade-para-clinicas-e-consultorios",
+        "/segmentos/contabilidade-para-youtubers-e-creators",
+        "/segmentos/contabilidade-para-outros-segmentos",
         "/conteudo/calculadora-pj-clt",
         "/conteudo/comparativo-tributario",
         "/conteudo/gerador-rpa",
+        "/conteudo/gerador-invoice",
+        "/conteudo/tabela-simples-nacional",
+        "/conteudo/modelo-contrato-pj",
+        "/conteudo/tabela-cnaes",
+        "/cidades-atendidas",
+        "/contabilidade-em-campinas",
         "/politica-de-privacidade",
         "/termos"
       ];

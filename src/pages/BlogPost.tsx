@@ -226,7 +226,10 @@ export default function BlogPost() {
         featuredImage={post.featured_image_url || undefined}
         category={post.category}
         tags={post.meta_keywords || undefined}
-        faqs={post.faq_schema?.mainEntity}
+        faqs={post.faq_schema?.mainEntity?.map((item: any) => ({
+          question: item.name || item.question,
+          answer: item.acceptedAnswer?.text || item.answer
+        }))}
       />
 
       <Header />

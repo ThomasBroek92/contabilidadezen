@@ -395,16 +395,22 @@ serve(async (req: Request) => {
       ];
 
       // Add FAQ schema if available
-      if (post.faq_schema && Array.isArray(post.faq_schema)) {
-        const faqs = post.faq_schema as Array<{ question: string; answer: string }>;
-        if (faqs.length > 0) {
+      if (post.faq_schema) {
+        // Handle both array format [{question, answer}] and object format {mainEntity: [{name, acceptedAnswer: {text}}]}
+        let faqItems: Array<{ question?: string; answer?: string; name?: string; acceptedAnswer?: { text?: string } }> = [];
+        if (Array.isArray(post.faq_schema)) {
+          faqItems = post.faq_schema;
+        } else if ((post.faq_schema as any).mainEntity && Array.isArray((post.faq_schema as any).mainEntity)) {
+          faqItems = (post.faq_schema as any).mainEntity;
+        }
+        if (faqItems.length > 0) {
           schemas.push({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: faqs.map((f) => ({
+            mainEntity: faqItems.map((f: any) => ({
               "@type": "Question",
-              name: f.question,
-              acceptedAnswer: { "@type": "Answer", text: f.answer },
+              name: f.name || f.question,
+              acceptedAnswer: { "@type": "Answer", text: f.acceptedAnswer?.text || f.answer },
             })),
           });
         }

@@ -122,6 +122,60 @@ const STATIC_PAGES: Record<string, { title: string; description: string; h1: str
     h1: "Contabilidade para Representantes Comerciais",
     content: `<p>Contabilidade especializada para representantes comerciais. Aplicação do Fator R, Simples Nacional otimizado e gestão fiscal.</p>`,
   },
+  "/segmentos/contabilidade-para-produtores-digitais": {
+    title: "Contabilidade para Produtores Digitais | Infoprodutores e Afiliados",
+    description: "Contabilidade especializada para produtores digitais, infoprodutores e afiliados. Tributação otimizada para vendas online.",
+    h1: "Contabilidade para Produtores Digitais",
+    content: `<p>Contabilidade digital para infoprodutores, afiliados e criadores de conteúdo. Planejamento tributário para vendas em plataformas como Hotmart, Eduzz e Monetizze.</p>`,
+  },
+  "/segmentos/contabilidade-para-profissionais-de-ti": {
+    title: "Contabilidade para Profissionais de TI | Desenvolvedores e Consultores",
+    description: "Contabilidade para profissionais de TI, desenvolvedores e consultores. Planejamento fiscal para contratos CLT, PJ e internacionais.",
+    h1: "Contabilidade para Profissionais de TI",
+    content: `<p>Contabilidade especializada para desenvolvedores, consultores de TI e empresas de tecnologia. Foco em redução de impostos e contratos internacionais.</p>`,
+  },
+  "/segmentos/contabilidade-para-exportacao-de-servicos": {
+    title: "Contabilidade para Exportação de Serviços | Isenção de ISS",
+    description: "Contabilidade para exportação de serviços com isenção de ISS e planejamento cambial. Especialistas em receita do exterior.",
+    h1: "Contabilidade para Exportação de Serviços",
+    content: `<p>Contabilidade especializada para profissionais que exportam serviços. Isenção de ISS, planejamento cambial e tributação otimizada para receitas do exterior.</p>`,
+  },
+  "/segmentos/contabilidade-para-prestadores-de-servico": {
+    title: "Contabilidade para Prestadores de Serviço | Enquadramento Tributário",
+    description: "Contabilidade para prestadores de serviço com enquadramento tributário otimizado e gestão fiscal completa.",
+    h1: "Contabilidade para Prestadores de Serviço",
+    content: `<p>Contabilidade digital para prestadores de serviço. Enquadramento tributário ideal, emissão de notas e gestão fiscal completa.</p>`,
+  },
+  "/segmentos/contabilidade-para-profissionais-pj": {
+    title: "Contabilidade para Profissionais PJ | CLT para PJ",
+    description: "Contabilidade para profissionais PJ. Gestão contábil completa para quem migrou de CLT para PJ.",
+    h1: "Contabilidade para Profissionais PJ",
+    content: `<p>Contabilidade especializada para profissionais que atuam como PJ. Planejamento tributário, pró-labore otimizado e gestão fiscal.</p>`,
+  },
+  "/segmentos/contabilidade-para-ecommerce": {
+    title: "Contabilidade para E-commerce | Lojas Virtuais e Marketplaces",
+    description: "Contabilidade para e-commerce e lojas virtuais. CMV, gestão de estoque e tributação para vendas online.",
+    h1: "Contabilidade para E-commerce",
+    content: `<p>Contabilidade digital para e-commerce, lojas virtuais e vendedores em marketplaces. Gestão de estoque, CMV e tributação otimizada.</p>`,
+  },
+  "/segmentos/contabilidade-para-clinicas-e-consultorios": {
+    title: "Contabilidade para Clínicas e Consultórios | Equiparação Hospitalar",
+    description: "Contabilidade para clínicas e consultórios médicos. Equiparação hospitalar, gestão fiscal e redução de impostos.",
+    h1: "Contabilidade para Clínicas e Consultórios",
+    content: `<p>Contabilidade especializada para clínicas e consultórios. Equiparação hospitalar, planejamento tributário e gestão financeira completa.</p>`,
+  },
+  "/segmentos/contabilidade-para-youtubers-e-creators": {
+    title: "Contabilidade para YouTubers e Creators | AdSense e Patrocínios",
+    description: "Contabilidade para YouTubers e criadores de conteúdo. Tributação de AdSense, patrocínios e receitas de plataformas digitais.",
+    h1: "Contabilidade para YouTubers e Creators",
+    content: `<p>Contabilidade digital para YouTubers, streamers e criadores de conteúdo. Tributação otimizada para AdSense, patrocínios e plataformas digitais.</p>`,
+  },
+  "/segmentos/contabilidade-para-outros-segmentos": {
+    title: "Contabilidade para Outros Segmentos | Arquitetos, Designers, Coaches",
+    description: "Contabilidade para arquitetos, designers, coaches e outros profissionais. Atendimento personalizado e tributação otimizada.",
+    h1: "Contabilidade para Outros Segmentos",
+    content: `<p>Contabilidade digital para arquitetos, designers, coaches, consultores e outros profissionais. Cada segmento com atendimento especializado.</p>`,
+  },
   "/conteudo/calculadora-pj-clt": {
     title: "Calculadora PJ vs CLT | Compare Seus Ganhos | Contabilidade Zen",
     description: "Calcule quanto você ganha como PJ comparado com CLT. Simulação gratuita com impostos, benefícios e salário líquido.",
@@ -491,7 +545,7 @@ serve(async (req: Request) => {
         .select("title, slug, excerpt")
         .eq("status", "published")
         .order("published_at", { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (posts && posts.length > 0) {
         const listContent = posts

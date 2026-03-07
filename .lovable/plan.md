@@ -1,86 +1,77 @@
 
 
-## Diagnostico: Blog e Indexacao
+## Plano: Criar paginas de segmentos para E-commerce e Clinicas e Consultorios
 
-### Status atual das paginas do blog
+Criar landing pages completas para **E-commerce** e **Clinicas e Consultorios**, seguindo o padrao de 8 componentes + pagina container ja estabelecido nos outros segmentos.
 
-As paginas do blog sao **hibridas** — elas funcionam em 3 camadas:
+### Paleta de cores por segmento
 
-| Camada | Como funciona | Status |
-|--------|---------------|--------|
-| **SPA (React)** | Blog.tsx e BlogPost.tsx buscam dados do banco em tempo real | OK — funciona para usuarios |
-| **SSG (Puppeteer)** | prerender.mjs pre-renderiza posts durante deploy no GitHub Actions | OK — gera HTML estatico |
-| **Edge Function prerender** | Serve HTML completo para bots com conteudo do blog | OK — injeta posts na listagem |
-| **SEO4Ajax** | Cloudflare Worker serve HTML pre-renderizado para crawlers | Depende de configuracao externa |
+| Segmento | Acento | Escuro | Fundo claro | Fundo medio | Fundo destaque |
+|----------|--------|--------|-------------|-------------|----------------|
+| E-commerce | #DB2777 | #BE185D | #FDF2F8 | #FCE7F3 | #FBCFE8 |
+| Clinicas e Consultorios | #059669 | #047857 | #ECFDF5 | #D1FAE5 | #A7F3D0 |
 
-**Resposta direta:** as paginas do blog sao **dinamicas no cliente** (React SPA) mas possuem **3 camadas de pre-rendering** para crawlers.
+### Imagens de fundo (ja existem em src/assets/)
+- E-commerce: `09-ecommerce-bg.webp`
+- Clinicas e Consultorios: `10-clinicas-consultorios-bg.webp`
 
-### Problemas identificados que afetam indexacao
+### Arquivos a criar (18 arquivos)
 
-**1. URLs erradas no bloco noscript e static-prerender do index.html**
+**E-commerce (8 componentes + 1 pagina):**
+- `src/components/segmentos/ecommerce/EcommerceHero.tsx`
+- `src/components/segmentos/ecommerce/EcommerceLeadForm.tsx`
+- `src/components/segmentos/ecommerce/EcommerceBenefits.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProblems.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProcess.tsx`
+- `src/components/segmentos/ecommerce/EcommerceTestimonials.tsx`
+- `src/components/segmentos/ecommerce/EcommerceFAQ.tsx`
+- `src/components/segmentos/ecommerce/EcommerceCTA.tsx`
+- `src/pages/segmentos/ContabilidadeEcommerce.tsx`
 
-As ferramentas estao com URLs quebradas (sem o prefixo `/conteudo/`):
+**Clinicas e Consultorios (8 componentes + 1 pagina):**
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosHero.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosLeadForm.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosBenefits.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProblems.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProcess.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosTestimonials.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosFAQ.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosCTA.tsx`
+- `src/pages/segmentos/ContabilidadeClinicasConsultorios.tsx`
 
-```text
-ERRADO (atual):     /calculadora-pj-vs-clt
-CORRETO (real):     /conteudo/calculadora-pj-clt
-```
+### Conteudo especifico por segmento
 
-Isso afeta 7 links que crawlers sem JS usam para descobrir paginas. Links quebrados prejudicam o crawl budget.
+**E-commerce:**
+- Mercado Livre, Shopee, Amazon, Magalu, Shopify
+- Estoque, CMV e controle fiscal
+- Dropshipping nacional e internacional
+- Substituicao tributaria (ICMS-ST)
+- Nota fiscal de venda e devoluções
+- Select: Loja propria / Marketplace / Dropshipping / Infoproduto + Fisico
 
-**2. Edge Function prerender sem 9 segmentos novos**
+**Clinicas e Consultorios:**
+- Equiparacao hospitalar (reducao de IR/CSLL)
+- Folha de pagamento de equipe medica
+- Gestao de convenios e glosas
+- Sociedade medica e holding
+- Alvara sanitario e obrigacoes ANVISA
+- Select: Clinica Medica / Consultorio Odontologico / Clinica de Estetica / Laboratorio
 
-O objeto `STATIC_PAGES` no prerender tem apenas 4 segmentos originais. Faltam:
-- Produtores Digitais, Profissionais de TI, Exportacao, Prestadores, PJ, E-commerce, Clinicas, YouTubers, Outros
+### Alteracoes em arquivos existentes
 
-Quando o SEO4Ajax ou SSG falha, crawlers recebem 404 da Edge Function para essas paginas.
+1. **src/lib/whatsapp.ts** — Adicionar 2 novas mensagens: `ecommerce`, `clinicasConsultorios`
 
-**3. Nenhum link para posts do blog no index.html**
+2. **src/App.tsx** — Adicionar 2 lazy imports + 2 rotas:
+   - `/segmentos/contabilidade-para-ecommerce`
+   - `/segmentos/contabilidade-para-clinicas-e-consultorios`
 
-O bloco noscript/static-prerender tem `<a href="/blog">Blog</a>` mas nenhum link para posts individuais. Crawlers sem JS nao conseguem descobrir os posts.
+3. **src/components/sections/NichesCarousel.tsx** — Atualizar hrefs de E-commerce e Clinicas de `/contato` para as novas URLs
 
-**4. Blog listing depende de 3 camadas funcionando**
+4. **src/components/segmentos/shared/TaxComparisonCalculator.tsx** — Adicionar 2 novas profissoes
 
-Se SEO4Ajax, SSG e prerender Edge Function falharem simultaneamente, o Google ve uma pagina vazia (SPA sem dados). A listagem do blog nao tem fallback local.
+5. **Sitemap e indexacao** — Migration SQL para page_metadata + atualizar google-search-console e prerender.mjs
 
-### Plano de melhorias (4 acoes)
+### Estrategia de implementacao
 
-**Acao 1: Corrigir URLs do noscript e static-prerender**
-
-Arquivo: `index.html`
-- Corrigir 7 URLs de ferramentas adicionando prefixo `/conteudo/`
-- Impacto: crawlers param de seguir links quebrados
-
-**Acao 2: Adicionar 9 segmentos ao prerender Edge Function**
-
-Arquivo: `supabase/functions/prerender/index.ts`
-- Adicionar entradas ao `STATIC_PAGES` para os 9 segmentos novos
-- Cada entrada com title, description, h1 e content relevante
-- Impacto: crawlers recebem HTML completo mesmo sem SEO4Ajax
-
-**Acao 3: Adicionar links de blog posts ao index.html**
-
-Arquivo: `index.html`
-- Adicionar secao "Artigos Recentes" no bloco noscript com links para os posts publicados mais importantes
-- Isso cria links internos que crawlers sem JS podem seguir
-- Como os posts mudam, adicionar pelo menos 10-15 posts fixos + link para /blog
-
-**Acao 4: Melhorar internal linking do blog**
-
-Arquivo: `supabase/functions/prerender/index.ts`
-- Na pagina `/blog` do prerender, aumentar o limite de posts listados de 20 para 50
-- Adicionar links de categorias para facilitar crawling
-
-### Acoes complementares (sem codigo)
-
-1. **Verificar SEO4Ajax** — confirmar que o Cloudflare Worker esta ativo e servindo HTML para Googlebot. Testar com `curl -H "User-Agent: Googlebot"` no dominio de producao
-2. **Forcar reindexacao** — apos deploy, acionar `queue-all-pages` para enviar todos os blog posts a fila de indexacao
-3. **Google Search Console** — verificar se ha erros de cobertura especificos para URLs `/blog/*`
-
-### Resumo de arquivos
-
-| Arquivo | Alteracao |
-|---------|-----------|
-| `index.html` | Corrigir 7 URLs de ferramentas + adicionar links de blog posts |
-| `supabase/functions/prerender/index.ts` | Adicionar 9 segmentos ao STATIC_PAGES + aumentar limite de posts no /blog |
+Implementar em 2 lotes: primeiro E-commerce completo, depois Clinicas e Consultorios. Ao final, atualizar App.tsx, whatsapp.ts, NichesCarousel.tsx, sitemap e indexacao de uma vez.
 

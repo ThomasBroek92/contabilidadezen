@@ -420,14 +420,15 @@ serve(async (req) => {
       
       // For domain properties (sc-domain:...), the sitemap URL must be the actual HTTP URL
       // Domain properties don't have a URL prefix, so we need to construct the sitemap URL differently
-      // IMPORTANT: Use https:// WITHOUT www to match verified domain
+      // IMPORTANT: Use https://www. to match canonical domain
       let finalSitemapUrl: string;
       if (body.sitemapUrl) {
         finalSitemapUrl = body.sitemapUrl;
       } else if (siteUrl.startsWith('sc-domain:')) {
-        // Extract domain from sc-domain: format and use https:// (no www)
         const domain = siteUrl.replace('sc-domain:', '');
-        finalSitemapUrl = `https://${domain}/sitemap.xml`;
+        finalSitemapUrl = domain.startsWith('www.') 
+          ? `https://${domain}/sitemap.xml`
+          : `https://www.${domain}/sitemap.xml`;
       } else {
         // URL-prefix property: use the site URL directly
         const cleanSiteUrl = siteUrl.replace(/\/$/, '');

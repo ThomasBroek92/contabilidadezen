@@ -219,12 +219,13 @@ export default function CidadesAtendidas() {
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
                         {cities.map(city => (
-                          <span
+                          <Link
                             key={city.name}
-                            className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground"
+                            to={getCitySlug(city.name)}
+                            className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground hover:bg-secondary/20 hover:text-foreground transition-colors"
                           >
                             {city.name}
-                          </span>
+                          </Link>
                         ))}
                       </div>
                     </CardContent>

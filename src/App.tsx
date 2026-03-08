@@ -39,14 +39,12 @@ const TabelaSimplesNacional = lazy(() => import("./pages/conteudo/TabelaSimplesN
 const ModeloContratoPJ = lazy(() => import("./pages/conteudo/ModeloContratoPJ"));
 const AbrirEmpresa = lazy(() => import("./pages/AbrirEmpresa"));
 const CidadesAtendidas = lazy(() => import("./pages/CidadesAtendidas"));
-const CidadeLandingPage = lazy(() => import("./pages/cidades/CidadeLandingPage"));
 const IndiqueGanhe = lazy(() => import("./pages/IndiqueGanhe"));
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const PoliticaPrivacidade = lazy(() => import("./pages/PoliticaPrivacidade"));
 const Termos = lazy(() => import("./pages/Termos"));
-const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Lazy load componentes não-críticos
 const CookieConsent = lazy(() => 

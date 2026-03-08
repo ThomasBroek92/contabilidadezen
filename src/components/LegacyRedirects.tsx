@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+// Mapeamento de URLs legadas do WordPress para novas rotas
 
 // Mapeamento de URLs legadas do WordPress para novas rotas
 const legacyRedirects: Record<string, string> = {

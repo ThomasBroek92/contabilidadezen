@@ -10,7 +10,7 @@ import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { SkipLink } from "@/components/SkipLink";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
-import { LegacyRedirects } from "@/components/LegacyRedirects";
+const CatchAllHandler = lazy(() => import("@/components/CatchAllHandler"));
 
 // Lazy load all pages except Index (homepage) for code splitting
 const Sobre = lazy(() => import("./pages/Sobre"));
@@ -39,14 +39,12 @@ const TabelaSimplesNacional = lazy(() => import("./pages/conteudo/TabelaSimplesN
 const ModeloContratoPJ = lazy(() => import("./pages/conteudo/ModeloContratoPJ"));
 const AbrirEmpresa = lazy(() => import("./pages/AbrirEmpresa"));
 const CidadesAtendidas = lazy(() => import("./pages/CidadesAtendidas"));
-const CidadeLandingPage = lazy(() => import("./pages/cidades/CidadeLandingPage"));
 const IndiqueGanhe = lazy(() => import("./pages/IndiqueGanhe"));
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const PoliticaPrivacidade = lazy(() => import("./pages/PoliticaPrivacidade"));
 const Termos = lazy(() => import("./pages/Termos"));
-const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Lazy load componentes não-críticos
 const CookieConsent = lazy(() => 
@@ -104,7 +102,6 @@ const App = () => (
               <Route path="/conteudo/modelo-contrato-pj" element={<ModeloContratoPJ />} />
               <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
               <Route path="/cidades-atendidas" element={<CidadesAtendidas />} />
-              <Route path="/contabilidade-em-*" element={<CidadeLandingPage />} />
               <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />
               <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
               <Route path="/auth" element={<Auth />} />
@@ -112,9 +109,7 @@ const App = () => (
               <Route path="/admin/:tab" element={<Admin />} />
               <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
               <Route path="/termos" element={<Termos />} />
-              {/* Handler para URLs legadas do WordPress - deve vir antes do NotFound */}
-              <Route path="*" element={<LegacyRedirects />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<CatchAllHandler />} />
             </Routes>
           </Suspense>
           <ScrollToTop />

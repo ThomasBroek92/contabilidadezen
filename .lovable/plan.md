@@ -1,70 +1,77 @@
 
 
-## Diagnóstico Definitivo
+## Plano: Criar paginas de segmentos para E-commerce e Clinicas e Consultorios
 
-**Causa raiz confirmada**: React Router v6 converte `/contabilidade-em-*` para `/contabilidade-em-/*` (exige `/` antes de `*`). Isso significa que a rota só faz match em `/contabilidade-em-/americana` (com barra extra), **nunca** em `/contabilidade-em-americana`.
+Criar landing pages completas para **E-commerce** e **Clinicas e Consultorios**, seguindo o padrao de 8 componentes + pagina container ja estabelecido nos outros segmentos.
 
-O console log confirma:
-```
-Route path "/contabilidade-em-*" will be treated as if it were "/contabilidade-em-/*"
-```
+### Paleta de cores por segmento
 
-A abordagem anterior com `useLocation()` no componente CidadeLandingPage funciona para extrair o slug, **mas o componente nunca é montado** porque o React Router nunca faz match na rota.
+| Segmento | Acento | Escuro | Fundo claro | Fundo medio | Fundo destaque |
+|----------|--------|--------|-------------|-------------|----------------|
+| E-commerce | #DB2777 | #BE185D | #FDF2F8 | #FCE7F3 | #FBCFE8 |
+| Clinicas e Consultorios | #059669 | #047857 | #ECFDF5 | #D1FAE5 | #A7F3D0 |
 
-## Solução: Catch-All Inteligente
+### Imagens de fundo (ja existem em src/assets/)
+- E-commerce: `09-ecommerce-bg.webp`
+- Clinicas e Consultorios: `10-clinicas-consultorios-bg.webp`
 
-Remover a rota `/contabilidade-em-*` e mover a lógica para o catch-all `*`, criando um componente `CatchAllHandler` que decide entre: cidade, redirect legado, ou 404.
+### Arquivos a criar (18 arquivos)
 
-### Alteração 1: `src/App.tsx`
+**E-commerce (8 componentes + 1 pagina):**
+- `src/components/segmentos/ecommerce/EcommerceHero.tsx`
+- `src/components/segmentos/ecommerce/EcommerceLeadForm.tsx`
+- `src/components/segmentos/ecommerce/EcommerceBenefits.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProblems.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProcess.tsx`
+- `src/components/segmentos/ecommerce/EcommerceTestimonials.tsx`
+- `src/components/segmentos/ecommerce/EcommerceFAQ.tsx`
+- `src/components/segmentos/ecommerce/EcommerceCTA.tsx`
+- `src/pages/segmentos/ContabilidadeEcommerce.tsx`
 
-- Remover linha 107: `<Route path="/contabilidade-em-*" element={<CidadeLandingPage />} />`
-- Substituir as duas rotas catch-all (linhas 116-117) por uma única:
-```tsx
-<Route path="*" element={<CatchAllHandler />} />
-```
-- Criar/importar `CatchAllHandler` como lazy component
+**Clinicas e Consultorios (8 componentes + 1 pagina):**
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosHero.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosLeadForm.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosBenefits.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProblems.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProcess.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosTestimonials.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosFAQ.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosCTA.tsx`
+- `src/pages/segmentos/ContabilidadeClinicasConsultorios.tsx`
 
-### Alteração 2: Criar `src/components/CatchAllHandler.tsx`
+### Conteudo especifico por segmento
 
-Componente que usa `useLocation()` para decidir:
+**E-commerce:**
+- Mercado Livre, Shopee, Amazon, Magalu, Shopify
+- Estoque, CMV e controle fiscal
+- Dropshipping nacional e internacional
+- Substituicao tributaria (ICMS-ST)
+- Nota fiscal de venda e devoluções
+- Select: Loja propria / Marketplace / Dropshipping / Infoproduto + Fisico
 
-```tsx
-export default function CatchAllHandler() {
-  const location = useLocation();
-  const path = location.pathname;
+**Clinicas e Consultorios:**
+- Equiparacao hospitalar (reducao de IR/CSLL)
+- Folha de pagamento de equipe medica
+- Gestao de convenios e glosas
+- Sociedade medica e holding
+- Alvara sanitario e obrigacoes ANVISA
+- Select: Clinica Medica / Consultorio Odontologico / Clinica de Estetica / Laboratorio
 
-  // 1. Verifica se é rota de cidade
-  const cityMatch = path.match(/^\/contabilidade-em-(.+)$/);
-  if (cityMatch) {
-    const slug = cityMatch[1];
-    const city = citiesConfigMap[slug];
-    if (city) return <CidadeLandingPage />;
-  }
+### Alteracoes em arquivos existentes
 
-  // 2. Verifica se é redirect legado
-  const legacyTarget = getLegacyRedirect(path);
-  if (legacyTarget) return <Navigate to={legacyTarget} replace />;
+1. **src/lib/whatsapp.ts** — Adicionar 2 novas mensagens: `ecommerce`, `clinicasConsultorios`
 
-  // 3. Senão, 404
-  return <NotFound />;
-}
-```
+2. **src/App.tsx** — Adicionar 2 lazy imports + 2 rotas:
+   - `/segmentos/contabilidade-para-ecommerce`
+   - `/segmentos/contabilidade-para-clinicas-e-consultorios`
 
-### Alteração 3: `src/components/LegacyRedirects.tsx`
+3. **src/components/sections/NichesCarousel.tsx** — Atualizar hrefs de E-commerce e Clinicas de `/contato` para as novas URLs
 
-Exportar a função de lookup como `getLegacyRedirect(path): string | null` para ser usada pelo CatchAllHandler. O componente `LegacyRedirects` em si deixa de ser necessário como Route.
+4. **src/components/segmentos/shared/TaxComparisonCalculator.tsx** — Adicionar 2 novas profissoes
 
-### Arquivos alterados
-| Arquivo | O que muda |
-|---------|-----------|
-| `src/components/CatchAllHandler.tsx` | Novo componente |
-| `src/App.tsx` | Remove rota `contabilidade-em-*`, substitui 2 catch-alls por 1 |
-| `src/components/LegacyRedirects.tsx` | Exporta `getLegacyRedirect()` |
-| `src/pages/cidades/CidadeLandingPage.tsx` | Nenhuma mudança necessária (já usa `useLocation`) |
+5. **Sitemap e indexacao** — Migration SQL para page_metadata + atualizar google-search-console e prerender.mjs
 
-### Resultado esperado
-- `/contabilidade-em-americana` renderiza corretamente com Header, Form, FAQs, etc.
-- Redirects legados continuam funcionando
-- 404 continua funcionando para URLs inválidas
-- Zero impacto em SEO, sitemap ou prerender
+### Estrategia de implementacao
+
+Implementar em 2 lotes: primeiro E-commerce completo, depois Clinicas e Consultorios. Ao final, atualizar App.tsx, whatsapp.ts, NichesCarousel.tsx, sitemap e indexacao de uma vez.
 

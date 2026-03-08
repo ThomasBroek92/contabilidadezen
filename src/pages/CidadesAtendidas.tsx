@@ -261,9 +261,9 @@ export default function CidadesAtendidas() {
                     {outrasCities
                       .filter(c => ["Salvador", "Fortaleza", "Recife", "Natal", "João Pessoa", "Maceió", "Aracaju", "São Luís", "Teresina"].includes(c.name))
                       .map(city => (
-                        <span key={city.name} className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground">
+                        <Link key={city.name} to={getCitySlug(city.name)} className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground hover:bg-secondary/20 hover:text-foreground transition-colors">
                           {city.name}
-                        </span>
+                        </Link>
                       ))
                     }
                   </div>

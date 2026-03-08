@@ -1,77 +1,86 @@
 
 
-## Plano: Criar paginas de segmentos para E-commerce e Clinicas e Consultorios
+## Plano: Landing Pages Dinamicas para 88 Cidades (Opcao B)
 
-Criar landing pages completas para **E-commerce** e **Clinicas e Consultorios**, seguindo o padrao de 8 componentes + pagina container ja estabelecido nos outros segmentos.
+### Arquitetura
 
-### Paleta de cores por segmento
+Um template dinamico reutilizavel + config centralizada. Campinas migra para o template (Opcao B) — o arquivo `ContabilidadeCampinas.tsx` sera removido e substituido pela rota dinamica.
 
-| Segmento | Acento | Escuro | Fundo claro | Fundo medio | Fundo destaque |
-|----------|--------|--------|-------------|-------------|----------------|
-| E-commerce | #DB2777 | #BE185D | #FDF2F8 | #FCE7F3 | #FBCFE8 |
-| Clinicas e Consultorios | #059669 | #047857 | #ECFDF5 | #D1FAE5 | #A7F3D0 |
+```text
+src/
+  lib/
+    cities-config.ts          ← NOVO: config de 88 cidades (~2000 linhas)
+  pages/cidades/
+    CidadeLandingPage.tsx      ← NOVO: template dinamico (~400 linhas)
+    ContabilidadeCampinas.tsx   ← REMOVIDO (migrado para template)
+```
 
-### Imagens de fundo (ja existem em src/assets/)
-- E-commerce: `09-ecommerce-bg.webp`
-- Clinicas e Consultorios: `10-clinicas-consultorios-bg.webp`
+### Arquivo 1: `src/lib/cities-config.ts`
 
-### Arquivos a criar (18 arquivos)
+Interface `CityConfig` com todos os dados por cidade:
+- `name`, `slug`, `state`, `region`, `ddd`
+- `seoTitle`, `seoDescription`, `seoKeywords`
+- `highlights` (diferenciais locais, ex: "Inscrição Municipal em Americana")
+- `faqs` (6 perguntas unicas por cidade)
+- `aberturaInclusions` (lista de itens do card de abertura)
+- `sedeVirtual` (descricao da sede virtual — Holambra para RMC, "digital" para outras)
+- `whatsappMessage` (mensagem pre-preenchida com nome da cidade)
+- `leadSource` (ex: `landing_americana`)
+- `stats` (numeros locais: clientes na regiao, etc.)
 
-**E-commerce (8 componentes + 1 pagina):**
-- `src/components/segmentos/ecommerce/EcommerceHero.tsx`
-- `src/components/segmentos/ecommerce/EcommerceLeadForm.tsx`
-- `src/components/segmentos/ecommerce/EcommerceBenefits.tsx`
-- `src/components/segmentos/ecommerce/EcommerceProblems.tsx`
-- `src/components/segmentos/ecommerce/EcommerceProcess.tsx`
-- `src/components/segmentos/ecommerce/EcommerceTestimonials.tsx`
-- `src/components/segmentos/ecommerce/EcommerceFAQ.tsx`
-- `src/components/segmentos/ecommerce/EcommerceCTA.tsx`
-- `src/pages/segmentos/ContabilidadeEcommerce.tsx`
+**Conteudo por tier:**
 
-**Clinicas e Consultorios (8 componentes + 1 pagina):**
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosHero.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosLeadForm.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosBenefits.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProblems.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProcess.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosTestimonials.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosFAQ.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosCTA.tsx`
-- `src/pages/segmentos/ContabilidadeClinicasConsultorios.tsx`
+| Tier | Cidades | FAQs | Highlights |
+|------|---------|------|------------|
+| Primary (RMC) | 20 | Especificos (prefeitura local, Junta SP, sede Holambra) | Foco na RMC |
+| Secondary (Sul/Sudeste) | 48 | Regionais (estado, digital, Junta local) | 100% Digital + estado |
+| Tertiary (Nacional) | 20 | Genericos (contabilidade digital nacional) | Nacional digital |
 
-### Conteudo especifico por segmento
+Para evitar thin content, cada tier tera templates de FAQ com variacoes reais:
+- RMC: referencia prefeitura local, ISS municipal, Holambra
+- Sul/Sudeste: referencia Junta Comercial do estado, particularidades estaduais
+- Nacional: foco em contabilidade digital sem fronteiras
 
-**E-commerce:**
-- Mercado Livre, Shopee, Amazon, Magalu, Shopify
-- Estoque, CMV e controle fiscal
-- Dropshipping nacional e internacional
-- Substituicao tributaria (ICMS-ST)
-- Nota fiscal de venda e devoluções
-- Select: Loja propria / Marketplace / Dropshipping / Infoproduto + Fisico
+### Arquivo 2: `src/pages/cidades/CidadeLandingPage.tsx`
 
-**Clinicas e Consultorios:**
-- Equiparacao hospitalar (reducao de IR/CSLL)
-- Folha de pagamento de equipe medica
-- Gestao de convenios e glosas
-- Sociedade medica e holding
-- Alvara sanitario e obrigacoes ANVISA
-- Select: Clinica Medica / Consultorio Odontologico / Clinica de Estetica / Laboratorio
+Template identico ao Campinas atual (738 linhas), mas parametrizado:
+- `useParams()` para extrair `slug`
+- Busca config em `cities-config.ts`
+- Se slug nao encontrado → redirect para `/cidades-atendidas`
+- Todas as secoes do Campinas: Hero+Form, Benefits, Card Abertura/Migracao, CustomerJourney, RoutineCarousel, Testimonials, PJCalculator, FAQ, CTA
+- Textos dinamicos: titulo, FAQs, abertura inclusions, lead source, WhatsApp message, SEO
 
 ### Alteracoes em arquivos existentes
 
-1. **src/lib/whatsapp.ts** — Adicionar 2 novas mensagens: `ecommerce`, `clinicasConsultorios`
+| Arquivo | Alteracao |
+|---------|-----------|
+| `src/App.tsx` | Remover import/rota de Campinas. Adicionar rota dinamica: `<Route path="/contabilidade-em-:slug" element={<CidadeLandingPage />} />` |
+| `src/lib/whatsapp.ts` | Nao precisa mudar — cada cidade tera mensagem customizada no config |
+| `src/pages/CidadesAtendidas.tsx` | Transformar TODOS os chips de cidades em `<Link to={/contabilidade-em-${slug}}>` |
+| `src/pages/cidades/ContabilidadeCampinas.tsx` | Deletar (conteudo migrado para config + template) |
 
-2. **src/App.tsx** — Adicionar 2 lazy imports + 2 rotas:
-   - `/segmentos/contabilidade-para-ecommerce`
-   - `/segmentos/contabilidade-para-clinicas-e-consultorios`
+### SEO (Fase 2)
 
-3. **src/components/sections/NichesCarousel.tsx** — Atualizar hrefs de E-commerce e Clinicas de `/contato` para as novas URLs
+| Arquivo | Alteracao |
+|---------|-----------|
+| `supabase/functions/sitemap/index.ts` | Nenhuma — as 88 URLs serao inseridas na tabela `page_metadata` via migration SQL |
+| `supabase/functions/prerender/index.ts` | Adicionar logica para servir HTML das cidades via slug matching |
+| `supabase/functions/google-search-console/index.ts` | Adicionar 88 cidades ao `queue-all-pages` |
+| `index.html` | Adicionar links das cidades principais ao bloco noscript |
+| Migration SQL | INSERT 88 rows em `page_metadata` com path, priority, changefreq |
 
-4. **src/components/segmentos/shared/TaxComparisonCalculator.tsx** — Adicionar 2 novas profissoes
+### Execucao em fases
 
-5. **Sitemap e indexacao** — Migration SQL para page_metadata + atualizar google-search-console e prerender.mjs
+| Fase | Descricao | Arquivos |
+|------|-----------|----------|
+| 1 | Criar `cities-config.ts` + `CidadeLandingPage.tsx` | 2 novos |
+| 2 | Atualizar `App.tsx` (rota dinamica) + deletar `ContabilidadeCampinas.tsx` | 2 editados |
+| 3 | Atualizar `CidadesAtendidas.tsx` com links clicaveis | 1 editado |
+| 4 | SEO: migration `page_metadata`, prerender, noscript, indexing | 4 editados + 1 migration |
 
-### Estrategia de implementacao
+### Estimativa
 
-Implementar em 2 lotes: primeiro E-commerce completo, depois Clinicas e Consultorios. Ao final, atualizar App.tsx, whatsapp.ts, NichesCarousel.tsx, sitemap e indexacao de uma vez.
+- ~2.500 linhas de codigo novo total (maioria em `cities-config.ts`)
+- 88 URLs indexaveis: `/contabilidade-em-campinas`, `/contabilidade-em-americana`, etc.
+- Campinas mantem todo o conteudo atual, apenas servido pelo template dinamico
 

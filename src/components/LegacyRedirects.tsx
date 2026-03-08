@@ -137,25 +137,18 @@ const dynamicRedirects = [
 ];
 
 /**
- * Componente que detecta URLs legadas do WordPress e redireciona para as novas rotas.
- * Deve ser incluído no App.tsx para processar redirects antes do NotFound.
+ * Função que retorna o destino de redirect para URLs legadas, ou null se não for legada.
  */
-export const LegacyRedirects = () => {
-  const location = useLocation();
-  const path = location.pathname;
-  
-  // Verifica mapeamento estático primeiro
+export function getLegacyRedirect(path: string): string | null {
   if (legacyRedirects[path]) {
-    return <Navigate to={legacyRedirects[path]} replace />;
+    return legacyRedirects[path];
   }
-  
-  // Verifica padrões dinâmicos
+
   for (const { pattern, target } of dynamicRedirects) {
     if (pattern.test(path)) {
-      return <Navigate to={target} replace />;
+      return target;
     }
   }
-  
-  // Não é uma URL legada - retorna null para continuar para NotFound
+
   return null;
-};
+}

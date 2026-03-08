@@ -10,7 +10,7 @@ import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { SkipLink } from "@/components/SkipLink";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
-import { LegacyRedirects } from "@/components/LegacyRedirects";
+const CatchAllHandler = lazy(() => import("@/components/CatchAllHandler"));
 
 // Lazy load all pages except Index (homepage) for code splitting
 const Sobre = lazy(() => import("./pages/Sobre"));

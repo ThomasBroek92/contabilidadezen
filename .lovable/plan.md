@@ -1,81 +1,77 @@
 
 
-## Analise: Segmentos com e sem Landing Page Dedicada
+## Plano: Criar paginas de segmentos para E-commerce e Clinicas e Consultorios
 
-### Segmentos no NichesCarousel (14 nichos)
+Criar landing pages completas para **E-commerce** e **Clinicas e Consultorios**, seguindo o padrao de 8 componentes + pagina container ja estabelecido nos outros segmentos.
 
-| # | Segmento | Landing Page | Status |
-|---|----------|-------------|--------|
-| 1 | Medicos | `/segmentos/contabilidade-para-medicos` | OK |
-| 2 | Dentistas | `/segmentos/contabilidade-para-dentistas` | OK |
-| 3 | Psicologos | `/segmentos/contabilidade-para-psicologos` | OK |
-| 4 | **Advogados** | **Aponta para `/contato`** | **FALTANDO** |
-| 5 | Representantes Comerciais | `/segmentos/contabilidade-para-representantes-comerciais` | OK |
-| 6 | Produtores Digitais | `/segmentos/contabilidade-para-produtores-digitais` | OK |
-| 7 | Profissionais de TI | `/segmentos/contabilidade-para-profissionais-de-ti` | OK |
-| 8 | Exportacao de Servicos | `/segmentos/contabilidade-para-exportacao-de-servicos` | OK |
-| 9 | Prestadores de Servico | `/segmentos/contabilidade-para-prestadores-de-servico` | OK |
-| 10 | Profissionais PJ | `/segmentos/contabilidade-para-profissionais-pj` | OK |
-| 11 | E-commerce | `/segmentos/contabilidade-para-ecommerce` | OK |
-| 12 | Clinicas e Consultorios | `/segmentos/contabilidade-para-clinicas-e-consultorios` | OK |
-| 13 | YouTubers/Creators | `/segmentos/contabilidade-para-youtubers-e-creators` | OK |
-| 14 | Outros Segmentos | `/segmentos/contabilidade-para-outros-segmentos` | OK |
+### Paleta de cores por segmento
 
-### Resultado: **1 segmento faltando — Advogados**
+| Segmento | Acento | Escuro | Fundo claro | Fundo medio | Fundo destaque |
+|----------|--------|--------|-------------|-------------|----------------|
+| E-commerce | #DB2777 | #BE185D | #FDF2F8 | #FCE7F3 | #FBCFE8 |
+| Clinicas e Consultorios | #059669 | #047857 | #ECFDF5 | #D1FAE5 | #A7F3D0 |
 
-Os 13 outros nichos ja possuem landing page dedicada com a arquitetura padrao de 8 componentes (Hero, LeadForm, Benefits, Problems, Process, Testimonials, FAQ, CTA).
+### Imagens de fundo (ja existem em src/assets/)
+- E-commerce: `09-ecommerce-bg.webp`
+- Clinicas e Consultorios: `10-clinicas-consultorios-bg.webp`
 
----
+### Arquivos a criar (18 arquivos)
 
-## Plano de Acao: Criar Landing Page para Advogados
+**E-commerce (8 componentes + 1 pagina):**
+- `src/components/segmentos/ecommerce/EcommerceHero.tsx`
+- `src/components/segmentos/ecommerce/EcommerceLeadForm.tsx`
+- `src/components/segmentos/ecommerce/EcommerceBenefits.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProblems.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProcess.tsx`
+- `src/components/segmentos/ecommerce/EcommerceTestimonials.tsx`
+- `src/components/segmentos/ecommerce/EcommerceFAQ.tsx`
+- `src/components/segmentos/ecommerce/EcommerceCTA.tsx`
+- `src/pages/segmentos/ContabilidadeEcommerce.tsx`
 
-### Bloco 1 — Criar 8 componentes em `src/components/segmentos/advogados/`
+**Clinicas e Consultorios (8 componentes + 1 pagina):**
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosHero.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosLeadForm.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosBenefits.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProblems.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProcess.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosTestimonials.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosFAQ.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosCTA.tsx`
+- `src/pages/segmentos/ContabilidadeClinicasConsultorios.tsx`
 
-Seguindo o padrao existente (ex: dentistas, medicos), criar:
+### Conteudo especifico por segmento
 
-- `AdvogadosHero.tsx` — Hero com cor slate (#334155), imagem `02-advogados-bg.webp` (ja existe em assets), CTA WhatsApp
-- `AdvogadosLeadForm.tsx` — Formulario de lead com mascara de telefone e caixa de economia
-- `AdvogadosBenefits.tsx` — Beneficios em duas colunas (autoridade + accordion)
-- `AdvogadosProblems.tsx` — Dores especificas (OAB, sociedade de advogados, Simples vs Lucro Presumido)
-- `AdvogadosProcess.tsx` — Carrossel 8 etapas (4 cliente + 4 Zen)
-- `AdvogadosTestimonials.tsx` — Depoimentos dinamicos
-- `AdvogadosFAQ.tsx` — 6-8 FAQs especificas (exportar array `advogadosFaqs` para schema)
-- `AdvogadosCTA.tsx` — CTA final com gradiente slate
+**E-commerce:**
+- Mercado Livre, Shopee, Amazon, Magalu, Shopify
+- Estoque, CMV e controle fiscal
+- Dropshipping nacional e internacional
+- Substituicao tributaria (ICMS-ST)
+- Nota fiscal de venda e devoluções
+- Select: Loja propria / Marketplace / Dropshipping / Infoproduto + Fisico
 
-**Conteudo especifico do nicho:**
-- Simples Nacional vs Lucro Presumido para escritorios
-- Sociedade de advogados (registro OAB)
-- Honorarios e provisionamento
-- Distribuicao de lucros otimizada
-- Obrigacoes acessorias (ISS, IRPJ)
+**Clinicas e Consultorios:**
+- Equiparacao hospitalar (reducao de IR/CSLL)
+- Folha de pagamento de equipe medica
+- Gestao de convenios e glosas
+- Sociedade medica e holding
+- Alvara sanitario e obrigacoes ANVISA
+- Select: Clinica Medica / Consultorio Odontologico / Clinica de Estetica / Laboratorio
 
-### Bloco 2 — Criar pagina container `src/pages/segmentos/ContabilidadeAdvogados.tsx`
+### Alteracoes em arquivos existentes
 
-Seguindo o padrao dos outros segmentos: importar os 8 componentes + SEOHead + TaxComparisonCalculator com `accentColor="#334155"` e `profession="advogado"`.
+1. **src/lib/whatsapp.ts** — Adicionar 2 novas mensagens: `ecommerce`, `clinicasConsultorios`
 
-URL canonica: `/segmentos/contabilidade-para-advogados`
+2. **src/App.tsx** — Adicionar 2 lazy imports + 2 rotas:
+   - `/segmentos/contabilidade-para-ecommerce`
+   - `/segmentos/contabilidade-para-clinicas-e-consultorios`
 
-### Bloco 3 — Registrar rota no App.tsx
+3. **src/components/sections/NichesCarousel.tsx** — Atualizar hrefs de E-commerce e Clinicas de `/contato` para as novas URLs
 
-- Adicionar lazy import de `ContabilidadeAdvogados`
-- Adicionar `<Route path="/segmentos/contabilidade-para-advogados" ...>`
+4. **src/components/segmentos/shared/TaxComparisonCalculator.tsx** — Adicionar 2 novas profissoes
 
-### Bloco 4 — Atualizar NichesCarousel
+5. **Sitemap e indexacao** — Migration SQL para page_metadata + atualizar google-search-console e prerender.mjs
 
-Mudar o `href` de Advogados de `/contato` para `/segmentos/contabilidade-para-advogados`.
+### Estrategia de implementacao
 
-### Bloco 5 — SEO infra
-
-- Inserir `/segmentos/contabilidade-para-advogados` na tabela `page_metadata` (priority 0.8)
-- Adicionar ao bloco `<noscript>` do `index.html`
-- A edge function `queue-all-pages` pegara automaticamente do `page_metadata`
-
-### Cores do segmento
-
-Paleta: **Slate (#334155)** — ja usada no gradiente do carrossel (`from-slate-800 to-slate-700`). Accent color para calculadora e CTAs: `#334155`.
-
-### Estimativa
-
-- 8 componentes + 1 pagina + 3 atualizacoes (App.tsx, NichesCarousel, index.html) + 1 migration SQL
-- Total: ~12 arquivos criados/editados
+Implementar em 2 lotes: primeiro E-commerce completo, depois Clinicas e Consultorios. Ao final, atualizar App.tsx, whatsapp.ts, NichesCarousel.tsx, sitemap e indexacao de uma vez.
 

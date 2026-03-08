@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { citiesConfigMap } from "@/lib/cities-config";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/SEOHead";
@@ -83,6 +84,12 @@ const benefits = [
   { icon: Building2, title: "Sem Deslocamento", description: "Resolva pelo celular" }
 ];
 
+// Helper to find slug for a city name
+function getCitySlug(cityName: string): string {
+  const entry = Object.entries(citiesConfigMap).find(([, c]) => c.name === cityName);
+  return entry ? `/contabilidade-em-${entry[0]}` : "/contato";
+}
+
 const whatsappLink = getWhatsAppLink(WHATSAPP_MESSAGES.cidadesAtendidas);
 
 export default function CidadesAtendidas() {
@@ -156,24 +163,29 @@ export default function CidadesAtendidas() {
             
             <div className="bg-card rounded-2xl p-8 lg:p-12 shadow-lg border">
               <div className="flex flex-wrap justify-center gap-3 lg:gap-4">
-                {rmcCities.map((city, index) => (
-                  index === 0 ? (
+                {rmcCities.map((city, index) => {
+                  const slug = citiesConfigMap[city.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-")] 
+                    ? city.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-")
+                    : Object.keys(citiesConfigMap).find(s => citiesConfigMap[s].name === city.name);
+                  const linkTo = slug ? `/contabilidade-em-${slug}` : "/contato";
+                  return index === 0 ? (
                     <Link
                       key={city.name}
-                      to="/contabilidade-em-campinas"
+                      to={linkTo}
                       className="px-4 py-2 rounded-full transition-all bg-primary text-primary-foreground text-lg lg:text-xl font-bold shadow-md hover:bg-primary/90 hover:scale-105"
                     >
                       {city.name}
                     </Link>
                   ) : (
-                    <span
+                    <Link
                       key={city.name}
+                      to={linkTo}
                       className="px-4 py-2 rounded-full transition-all bg-secondary/20 text-foreground hover:bg-secondary/40 text-sm lg:text-base"
                     >
                       {city.name}
-                    </span>
-                  )
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -207,12 +219,13 @@ export default function CidadesAtendidas() {
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
                         {cities.map(city => (
-                          <span
+                          <Link
                             key={city.name}
-                            className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground"
+                            to={getCitySlug(city.name)}
+                            className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground hover:bg-secondary/20 hover:text-foreground transition-colors"
                           >
                             {city.name}
-                          </span>
+                          </Link>
                         ))}
                       </div>
                     </CardContent>
@@ -248,9 +261,9 @@ export default function CidadesAtendidas() {
                     {outrasCities
                       .filter(c => ["Salvador", "Fortaleza", "Recife", "Natal", "João Pessoa", "Maceió", "Aracaju", "São Luís", "Teresina"].includes(c.name))
                       .map(city => (
-                        <span key={city.name} className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground">
+                        <Link key={city.name} to={getCitySlug(city.name)} className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground hover:bg-secondary/20 hover:text-foreground transition-colors">
                           {city.name}
-                        </span>
+                        </Link>
                       ))
                     }
                   </div>
@@ -266,9 +279,9 @@ export default function CidadesAtendidas() {
                     {outrasCities
                       .filter(c => ["Brasília", "Goiânia", "Campo Grande", "Cuiabá"].includes(c.name))
                       .map(city => (
-                        <span key={city.name} className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground">
+                        <Link key={city.name} to={getCitySlug(city.name)} className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground hover:bg-secondary/20 hover:text-foreground transition-colors">
                           {city.name}
-                        </span>
+                        </Link>
                       ))
                     }
                   </div>
@@ -284,9 +297,9 @@ export default function CidadesAtendidas() {
                     {outrasCities
                       .filter(c => ["Manaus", "Belém"].includes(c.name))
                       .map(city => (
-                        <span key={city.name} className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground">
+                        <Link key={city.name} to={getCitySlug(city.name)} className="text-sm px-3 py-1 bg-muted rounded-full text-muted-foreground hover:bg-secondary/20 hover:text-foreground transition-colors">
                           {city.name}
-                        </span>
+                        </Link>
                       ))
                     }
                   </div>

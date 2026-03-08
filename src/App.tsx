@@ -39,7 +39,7 @@ const TabelaSimplesNacional = lazy(() => import("./pages/conteudo/TabelaSimplesN
 const ModeloContratoPJ = lazy(() => import("./pages/conteudo/ModeloContratoPJ"));
 const AbrirEmpresa = lazy(() => import("./pages/AbrirEmpresa"));
 const CidadesAtendidas = lazy(() => import("./pages/CidadesAtendidas"));
-const ContabilidadeCampinas = lazy(() => import("./pages/cidades/ContabilidadeCampinas"));
+const CidadeLandingPage = lazy(() => import("./pages/cidades/CidadeLandingPage"));
 const IndiqueGanhe = lazy(() => import("./pages/IndiqueGanhe"));
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -104,7 +104,7 @@ const App = () => (
               <Route path="/conteudo/modelo-contrato-pj" element={<ModeloContratoPJ />} />
               <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
               <Route path="/cidades-atendidas" element={<CidadesAtendidas />} />
-              <Route path="/contabilidade-em-campinas" element={<ContabilidadeCampinas />} />
+              <Route path="/contabilidade-em-:slug" element={<CidadeLandingPage />} />
               <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />
               <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
               <Route path="/auth" element={<Auth />} />

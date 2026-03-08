@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { Link, useParams, Navigate } from "react-router-dom";
+import { Link, useLocation, Navigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -77,8 +77,9 @@ const localBenefits = [
 ];
 
 export default function CidadeLandingPage() {
-  const { "*": splatSlug } = useParams();
-  const slug = splatSlug || "";
+  const location = useLocation();
+  const slugMatch = location.pathname.match(/^\/contabilidade-em-(.+)$/);
+  const slug = slugMatch ? slugMatch[1] : "";
   const city = slug ? citiesConfigMap[slug] : undefined;
 
   if (!city) {

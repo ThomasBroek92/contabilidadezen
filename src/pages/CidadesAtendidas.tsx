@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { citiesConfigMap } from "@/lib/cities-config";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/SEOHead";

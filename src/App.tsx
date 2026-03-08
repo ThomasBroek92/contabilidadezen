@@ -39,7 +39,7 @@ const TabelaSimplesNacional = lazy(() => import("./pages/conteudo/TabelaSimplesN
 const ModeloContratoPJ = lazy(() => import("./pages/conteudo/ModeloContratoPJ"));
 const AbrirEmpresa = lazy(() => import("./pages/AbrirEmpresa"));
 const CidadesAtendidas = lazy(() => import("./pages/CidadesAtendidas"));
-const ContabilidadeCampinas = lazy(() => import("./pages/cidades/ContabilidadeCampinas"));
+const CidadeLandingPage = lazy(() => import("./pages/cidades/CidadeLandingPage"));
 const IndiqueGanhe = lazy(() => import("./pages/IndiqueGanhe"));
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const Auth = lazy(() => import("./pages/Auth"));

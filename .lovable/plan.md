@@ -1,77 +1,82 @@
 
 
-## Plano: Criar paginas de segmentos para E-commerce e Clinicas e Consultorios
+## Diagnostico: Por que o blog nao indexa no Google
 
-Criar landing pages completas para **E-commerce** e **Clinicas e Consultorios**, seguindo o padrao de 8 componentes + pagina container ja estabelecido nos outros segmentos.
+### Resultados da inspecao (Google Search Console API)
 
-### Paleta de cores por segmento
+| URL | Status Google |
+|-----|---------------|
+| `/blog` | **Crawled - currently not indexed** (rastreado em 02/mar, mas nao indexado) |
+| `/blog/compliance-fiscal-...` | **Discovered - currently not indexed** (nunca rastreado) |
+| `/blog/reforma-tributaria-...` | **URL is unknown to Google** (Google nem sabe que existe) |
+| `/blog/malha-fina-...` | **Discovered - currently not indexed** (nunca rastreado) |
+| `/blog/lucro-presumido-...` | **URL is unknown to Google** |
 
-| Segmento | Acento | Escuro | Fundo claro | Fundo medio | Fundo destaque |
-|----------|--------|--------|-------------|-------------|----------------|
-| E-commerce | #DB2777 | #BE185D | #FDF2F8 | #FCE7F3 | #FBCFE8 |
-| Clinicas e Consultorios | #059669 | #047857 | #ECFDF5 | #D1FAE5 | #A7F3D0 |
+### Causa raiz: dominio errado na fila de indexacao
 
-### Imagens de fundo (ja existem em src/assets/)
-- E-commerce: `09-ecommerce-bg.webp`
-- Clinicas e Consultorios: `10-clinicas-consultorios-bg.webp`
+A Indexing API esta enviando URLs com o dominio **errado**. Verificacao:
 
-### Arquivos a criar (18 arquivos)
+```
+URLs na fila:   https://contabilidadezen.com.br/blog/...  (SEM www)
+URL canonica:   https://www.contabilidadezen.com.br/blog/... (COM www)
+```
 
-**E-commerce (8 componentes + 1 pagina):**
-- `src/components/segmentos/ecommerce/EcommerceHero.tsx`
-- `src/components/segmentos/ecommerce/EcommerceLeadForm.tsx`
-- `src/components/segmentos/ecommerce/EcommerceBenefits.tsx`
-- `src/components/segmentos/ecommerce/EcommerceProblems.tsx`
-- `src/components/segmentos/ecommerce/EcommerceProcess.tsx`
-- `src/components/segmentos/ecommerce/EcommerceTestimonials.tsx`
-- `src/components/segmentos/ecommerce/EcommerceFAQ.tsx`
-- `src/components/segmentos/ecommerce/EcommerceCTA.tsx`
-- `src/pages/segmentos/ContabilidadeEcommerce.tsx`
+O codigo em `google-search-console/index.ts` linhas 502-505 extrai o dominio de `sc-domain:contabilidadezen.com.br` e gera `https://contabilidadezen.com.br` — sem `www`. O Google recebe a notificacao para a URL sem www, mas a canonical aponta para www, entao o Google ignora.
 
-**Clinicas e Consultorios (8 componentes + 1 pagina):**
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosHero.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosLeadForm.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosBenefits.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProblems.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProcess.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosTestimonials.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosFAQ.tsx`
-- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosCTA.tsx`
-- `src/pages/segmentos/ContabilidadeClinicasConsultorios.tsx`
+### Causa secundaria: conteudo vazio para crawlers
 
-### Conteudo especifico por segmento
+Ao fazer fetch de um blog post, o resultado foi apenas o widget do WhatsApp — zero conteudo do artigo. Isso indica que o SEO4Ajax (Cloudflare Worker) nao esta interceptando corretamente, e sem ele o Google ve uma SPA vazia.
 
-**E-commerce:**
-- Mercado Livre, Shopee, Amazon, Magalu, Shopify
-- Estoque, CMV e controle fiscal
-- Dropshipping nacional e internacional
-- Substituicao tributaria (ICMS-ST)
-- Nota fiscal de venda e devoluções
-- Select: Loja propria / Marketplace / Dropshipping / Infoproduto + Fisico
+A Edge Function `prerender` JA tem logica para servir blog posts (linhas 396-470), mas ela so funciona quando chamada diretamente via `?path=/blog/slug`. O SSG via Puppeteer tambem gera HTML, mas apenas durante deploy no GitHub Actions.
 
-**Clinicas e Consultorios:**
-- Equiparacao hospitalar (reducao de IR/CSLL)
-- Folha de pagamento de equipe medica
-- Gestao de convenios e glosas
-- Sociedade medica e holding
-- Alvara sanitario e obrigacoes ANVISA
-- Select: Clinica Medica / Consultorio Odontologico / Clinica de Estetica / Laboratorio
+Se o Cloudflare Worker (SEO4Ajax) falhar para qualquer bot, o Google recebe HTML vazio.
 
-### Alteracoes em arquivos existentes
+### Plano de correcao (2 acoes)
 
-1. **src/lib/whatsapp.ts** — Adicionar 2 novas mensagens: `ecommerce`, `clinicasConsultorios`
+**Acao 1: Corrigir dominio nas URLs da fila de indexacao**
 
-2. **src/App.tsx** — Adicionar 2 lazy imports + 2 rotas:
-   - `/segmentos/contabilidade-para-ecommerce`
-   - `/segmentos/contabilidade-para-clinicas-e-consultorios`
+Arquivo: `supabase/functions/google-search-console/index.ts`
 
-3. **src/components/sections/NichesCarousel.tsx** — Atualizar hrefs de E-commerce e Clinicas de `/contato` para as novas URLs
+Nas linhas 500-508, forcar `www.` no baseUrl:
 
-4. **src/components/segmentos/shared/TaxComparisonCalculator.tsx** — Adicionar 2 novas profissoes
+```ts
+let baseUrl: string;
+if (siteUrl.startsWith('sc-domain:')) {
+  const domain = siteUrl.replace('sc-domain:', '');
+  // Always use www for canonical URLs
+  baseUrl = domain.startsWith('www.') 
+    ? `https://${domain}` 
+    : `https://www.${domain}`;
+} else {
+  baseUrl = siteUrl.replace(/\/$/, '');
+}
+```
 
-5. **Sitemap e indexacao** — Migration SQL para page_metadata + atualizar google-search-console e prerender.mjs
+Mesma correcao na logica de sitemap submission (linhas 427-431).
 
-### Estrategia de implementacao
+**Acao 2: Reprocessar toda a fila com URLs corretas**
 
-Implementar em 2 lotes: primeiro E-commerce completo, depois Clinicas e Consultorios. Ao final, atualizar App.tsx, whatsapp.ts, NichesCarousel.tsx, sitemap e indexacao de uma vez.
+Apos o deploy da correcao, acionar `queue-all-pages` para recriar a fila inteira com URLs `www.contabilidadezen.com.br`. Isso envia as URLs corretas para a Google Indexing API no proximo CRON.
+
+### Acao complementar recomendada (sem codigo)
+
+Verificar se o Cloudflare Worker (SEO4Ajax) esta ativo e funcionando — testar com:
+```
+curl -H "User-Agent: Googlebot" https://www.contabilidadezen.com.br/blog/malha-fina-20262027-para-profissionais-de-saude
+```
+Se retornar HTML vazio, o problema esta no Worker e precisa ser corrigido no painel do Cloudflare.
+
+### Resumo
+
+| Problema | Impacto | Correcao |
+|----------|---------|----------|
+| URLs sem `www` na Indexing API | Google ignora as notificacoes | Forcar www no baseUrl |
+| 352 URLs ja enviadas com dominio errado | Desperdicio de quota | Requeue com dominio correto |
+| SEO4Ajax possivelmente falhando | Google ve SPA vazia | Verificar Cloudflare Worker |
+
+### Arquivo a editar
+
+| Arquivo | Alteracao |
+|---------|-----------|
+| `supabase/functions/google-search-console/index.ts` | Forcar `www.` no baseUrl (linhas 500-508 e 427-431) |
 

@@ -157,24 +157,29 @@ export default function CidadesAtendidas() {
             
             <div className="bg-card rounded-2xl p-8 lg:p-12 shadow-lg border">
               <div className="flex flex-wrap justify-center gap-3 lg:gap-4">
-                {rmcCities.map((city, index) => (
-                  index === 0 ? (
+                {rmcCities.map((city, index) => {
+                  const slug = citiesConfigMap[city.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-")] 
+                    ? city.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-")
+                    : Object.keys(citiesConfigMap).find(s => citiesConfigMap[s].name === city.name);
+                  const linkTo = slug ? `/contabilidade-em-${slug}` : "/contato";
+                  return index === 0 ? (
                     <Link
                       key={city.name}
-                      to="/contabilidade-em-campinas"
+                      to={linkTo}
                       className="px-4 py-2 rounded-full transition-all bg-primary text-primary-foreground text-lg lg:text-xl font-bold shadow-md hover:bg-primary/90 hover:scale-105"
                     >
                       {city.name}
                     </Link>
                   ) : (
-                    <span
+                    <Link
                       key={city.name}
+                      to={linkTo}
                       className="px-4 py-2 rounded-full transition-all bg-secondary/20 text-foreground hover:bg-secondary/40 text-sm lg:text-base"
                     >
                       {city.name}
-                    </span>
-                  )
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>

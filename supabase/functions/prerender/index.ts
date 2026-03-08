@@ -491,7 +491,60 @@ serve(async (req: Request) => {
       });
     }
 
-    // 2) Check static pages
+    // 2) Check dynamic city pages
+    if (normalizedPath.startsWith("/contabilidade-em-")) {
+      const citySlug = normalizedPath.replace("/contabilidade-em-", "");
+      const cityData = CITIES_PRERENDER[citySlug];
+      if (cityData) {
+        const canonical = `${SITE_URL}${normalizedPath}`;
+        const faqHtml = cityData.faqs.map(f => 
+          `<details><summary><strong>${escapeHtml(f.q)}</strong></summary><p>${escapeHtml(f.a)}</p></details>`
+        ).join("\n");
+        const cityContent = `<p>${escapeHtml(cityData.desc)}</p>
+          <h2>Por que escolher a Contabilidade Zen em ${escapeHtml(cityData.name)}?</h2>
+          <ul>
+            <li>Contabilidade 100% digital — sem deslocamento</li>
+            <li>Planejamento tributário para reduzir até 50% em impostos</li>
+            <li>Abertura de empresa com suporte completo</li>
+            <li>Atendimento humanizado via WhatsApp</li>
+            <li>Especialistas em profissionais da saúde, TI e serviços</li>
+          </ul>
+          <h2>Perguntas Frequentes — Contabilidade em ${escapeHtml(cityData.name)}</h2>
+          ${faqHtml}
+          <h2>Fale Conosco</h2>
+          <p><a href="https://wa.me/5519971872235?text=${encodeURIComponent(cityData.wa)}">Falar no WhatsApp sobre Contabilidade em ${escapeHtml(cityData.name)}</a></p>`;
+        
+        const schemas: object[] = [
+          buildOrganizationSchema(),
+          buildLocalBusinessSchema(),
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+              { "@type": "ListItem", position: 2, name: "Cidades Atendidas", item: `${SITE_URL}/cidades-atendidas` },
+              { "@type": "ListItem", position: 3, name: `Contabilidade em ${cityData.name}`, item: canonical },
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: cityData.faqs.map(f => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          },
+        ];
+
+        const html = buildHTML(cityData.title, cityData.desc, canonical, `Contabilidade em ${cityData.name} – ${cityData.st}`, cityContent, schemas);
+        return new Response(html, {
+          headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600, s-maxage=86400" },
+        });
+      }
+    }
+
+    // 3) Check static pages
     const pageData = STATIC_PAGES[normalizedPath];
     if (!pageData) {
       return new Response(build404HTML(), {

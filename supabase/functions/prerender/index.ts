@@ -86,12 +86,7 @@ const STATIC_PAGES: Record<string, { title: string; description: string; h1: str
     h1: "Cidades Atendidas pela Contabilidade Zen",
     content: `<p>Atendimento 100% digital em todo o Brasil. São Paulo, Campinas, Belo Horizonte, Rio de Janeiro, Curitiba, Porto Alegre, Brasília e centenas de outras cidades.</p>`,
   },
-  "/contabilidade-em-campinas": {
-    title: "Contabilidade em Campinas | Contabilidade Zen",
-    description: "Contabilidade digital em Campinas-SP. Especializada em profissionais da saúde e prestadores de serviço na região de Campinas.",
-    h1: "Contabilidade em Campinas – SP",
-    content: `<p>Contabilidade digital especializada para empresas e profissionais em Campinas e região metropolitana.</p>`,
-  },
+  // Cities are handled dynamically below — removed static /contabilidade-em-campinas
   "/indique-e-ganhe": {
     title: "Indique e Ganhe | Programa de Indicação | Contabilidade Zen",
     description: "Indique amigos e ganhe comissões! Programa de indicação da Contabilidade Zen com comissões recorrentes.",

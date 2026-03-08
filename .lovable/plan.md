@@ -1,69 +1,77 @@
 
 
-## Plano de Acao: Ativar Landing Pages para Todas as 88 Cidades
+## Plano: Criar paginas de segmentos para E-commerce e Clinicas e Consultorios
 
-### Status Atual
-- **Template dinamico funciona** (CatchAllHandler + CidadeLandingPage + cities-config.ts)
-- **88 cidades** ja configuradas em `citiesConfig` com SEO, FAQs, WhatsApp, etc.
-- **Roteamento OK**: qualquer `/contabilidade-em-{slug}` com slug valido renderiza automaticamente
-- **O que falta**: SEO infra (sitemap, indexacao, noscript, page_metadata)
+Criar landing pages completas para **E-commerce** e **Clinicas e Consultorios**, seguindo o padrao de 8 componentes + pagina container ja estabelecido nos outros segmentos.
 
-### O template ja cobre todas as cidades automaticamente
+### Paleta de cores por segmento
 
-Como o CatchAllHandler faz lookup no `citiesConfigMap`, **todas as 88 cidades ja funcionam** — basta acessar `/contabilidade-em-americana`, `/contabilidade-em-salvador`, etc. Nao precisa criar componentes individuais.
+| Segmento | Acento | Escuro | Fundo claro | Fundo medio | Fundo destaque |
+|----------|--------|--------|-------------|-------------|----------------|
+| E-commerce | #DB2777 | #BE185D | #FDF2F8 | #FCE7F3 | #FBCFE8 |
+| Clinicas e Consultorios | #059669 | #047857 | #ECFDF5 | #D1FAE5 | #A7F3D0 |
 
-### O que precisa ser implementado (4 blocos)
+### Imagens de fundo (ja existem em src/assets/)
+- E-commerce: `09-ecommerce-bg.webp`
+- Clinicas e Consultorios: `10-clinicas-consultorios-bg.webp`
 
----
+### Arquivos a criar (18 arquivos)
 
-**Bloco 1 — Database: page_metadata para 88 cidades**
+**E-commerce (8 componentes + 1 pagina):**
+- `src/components/segmentos/ecommerce/EcommerceHero.tsx`
+- `src/components/segmentos/ecommerce/EcommerceLeadForm.tsx`
+- `src/components/segmentos/ecommerce/EcommerceBenefits.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProblems.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProcess.tsx`
+- `src/components/segmentos/ecommerce/EcommerceTestimonials.tsx`
+- `src/components/segmentos/ecommerce/EcommerceFAQ.tsx`
+- `src/components/segmentos/ecommerce/EcommerceCTA.tsx`
+- `src/pages/segmentos/ContabilidadeEcommerce.tsx`
 
-Criar uma migration SQL que insere as 88 cidades na tabela `page_metadata` com path, priority, changefreq e last_modified. Isso faz com que o sitemap automaticamente inclua todas as cidades.
+**Clinicas e Consultorios (8 componentes + 1 pagina):**
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosHero.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosLeadForm.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosBenefits.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProblems.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProcess.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosTestimonials.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosFAQ.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosCTA.tsx`
+- `src/pages/segmentos/ContabilidadeClinicasConsultorios.tsx`
 
-```sql
-INSERT INTO page_metadata (path, priority, changefreq, last_modified) VALUES
-('/contabilidade-em-campinas', 0.8, 'monthly', NOW()),
-('/contabilidade-em-americana', 0.7, 'monthly', NOW()),
--- ... todas as 88 cidades
-ON CONFLICT (path) DO NOTHING;
-```
+### Conteudo especifico por segmento
 
-Prioridades:
-- RMC (20 cidades): 0.8
-- Sudeste/Sul (48 cidades): 0.7
-- Nacional (20 cidades): 0.6
+**E-commerce:**
+- Mercado Livre, Shopee, Amazon, Magalu, Shopify
+- Estoque, CMV e controle fiscal
+- Dropshipping nacional e internacional
+- Substituicao tributaria (ICMS-ST)
+- Nota fiscal de venda e devoluções
+- Select: Loja propria / Marketplace / Dropshipping / Infoproduto + Fisico
 
----
+**Clinicas e Consultorios:**
+- Equiparacao hospitalar (reducao de IR/CSLL)
+- Folha de pagamento de equipe medica
+- Gestao de convenios e glosas
+- Sociedade medica e holding
+- Alvara sanitario e obrigacoes ANVISA
+- Select: Clinica Medica / Consultorio Odontologico / Clinica de Estetica / Laboratorio
 
-**Bloco 2 — index.html: noscript com todas as 88 cidades**
+### Alteracoes em arquivos existentes
 
-Atualizar o bloco `<noscript>` no `index.html` para incluir links para todas as 88 cidades (atualmente tem apenas 15). Essencial para crawlers que nao executam JavaScript.
+1. **src/lib/whatsapp.ts** — Adicionar 2 novas mensagens: `ecommerce`, `clinicasConsultorios`
 
----
+2. **src/App.tsx** — Adicionar 2 lazy imports + 2 rotas:
+   - `/segmentos/contabilidade-para-ecommerce`
+   - `/segmentos/contabilidade-para-clinicas-e-consultorios`
 
-**Bloco 3 — google-search-console: queue-all-pages com cidades**
+3. **src/components/sections/NichesCarousel.tsx** — Atualizar hrefs de E-commerce e Clinicas de `/contato` para as novas URLs
 
-Atualizar o array `staticPages` na edge function `google-search-console/index.ts` (action `queue-all-pages`) para incluir as 88 URLs de cidades. Isso garante que o CRON semanal enfileira todas para indexacao.
+4. **src/components/segmentos/shared/TaxComparisonCalculator.tsx** — Adicionar 2 novas profissoes
 
----
+5. **Sitemap e indexacao** — Migration SQL para page_metadata + atualizar google-search-console e prerender.mjs
 
-**Bloco 4 — Sitemap dinâmico: incluir cidades via cities-config**
+### Estrategia de implementacao
 
-Atualizar a edge function `sitemap/index.ts` para, alem de ler `page_metadata`, tambem gerar URLs de cidades dinamicamente a partir do array de slugs (importando ou hardcoding a lista). Isso serve como fallback caso alguma cidade nao esteja no `page_metadata`.
-
----
-
-### Resumo de entregas
-
-| Bloco | Arquivo(s) | Impacto |
-|-------|-----------|---------|
-| 1 | Migration SQL (page_metadata) | Sitemap automatico |
-| 2 | index.html (noscript) | Crawlers sem JS |
-| 3 | google-search-console/index.ts | Indexacao automatica |
-| 4 | sitemap/index.ts | Sitemap completo |
-
-### Ordem recomendada
-Bloco 1 → 4 → 2 → 3 (database primeiro, depois sitemap, depois crawler visibility, depois indexacao)
-
-Posso implementar todos os 4 blocos de uma vez. Quer que eu va em frente?
+Implementar em 2 lotes: primeiro E-commerce completo, depois Clinicas e Consultorios. Ao final, atualizar App.tsx, whatsapp.ts, NichesCarousel.tsx, sitemap e indexacao de uma vez.
 

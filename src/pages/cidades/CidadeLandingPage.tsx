@@ -77,7 +77,8 @@ const localBenefits = [
 ];
 
 export default function CidadeLandingPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const { "*": splatSlug } = useParams();
+  const slug = splatSlug || "";
   const city = slug ? citiesConfigMap[slug] : undefined;
 
   if (!city) {

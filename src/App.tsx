@@ -104,7 +104,6 @@ const App = () => (
               <Route path="/conteudo/modelo-contrato-pj" element={<ModeloContratoPJ />} />
               <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
               <Route path="/cidades-atendidas" element={<CidadesAtendidas />} />
-              <Route path="/contabilidade-em-*" element={<CidadeLandingPage />} />
               <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />
               <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
               <Route path="/auth" element={<Auth />} />
@@ -112,9 +111,7 @@ const App = () => (
               <Route path="/admin/:tab" element={<Admin />} />
               <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
               <Route path="/termos" element={<Termos />} />
-              {/* Handler para URLs legadas do WordPress - deve vir antes do NotFound */}
-              <Route path="*" element={<LegacyRedirects />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<CatchAllHandler />} />
             </Routes>
           </Suspense>
           <ScrollToTop />

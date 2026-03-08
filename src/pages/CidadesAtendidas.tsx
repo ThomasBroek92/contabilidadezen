@@ -84,6 +84,12 @@ const benefits = [
   { icon: Building2, title: "Sem Deslocamento", description: "Resolva pelo celular" }
 ];
 
+// Helper to find slug for a city name
+function getCitySlug(cityName: string): string {
+  const entry = Object.entries(citiesConfigMap).find(([, c]) => c.name === cityName);
+  return entry ? `/contabilidade-em-${entry[0]}` : "/contato";
+}
+
 const whatsappLink = getWhatsAppLink(WHATSAPP_MESSAGES.cidadesAtendidas);
 
 export default function CidadesAtendidas() {

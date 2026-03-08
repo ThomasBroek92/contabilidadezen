@@ -498,14 +498,15 @@ serve(async (req) => {
       }
 
       // Build full URLs - handle domain property format (sc-domain:)
-      // IMPORTANT: Use https:// WITHOUT www to match the domain verified in Google Search Console
+      // IMPORTANT: Use https://www. to match canonical domain
       let baseUrl: string;
       if (siteUrl.startsWith('sc-domain:')) {
-        // Extract domain from sc-domain: format and use https:// (no www)
         const domain = siteUrl.replace('sc-domain:', '');
-        baseUrl = `https://${domain}`;
+        baseUrl = domain.startsWith('www.') 
+          ? `https://${domain}` 
+          : `https://www.${domain}`;
       } else {
-        baseUrl = siteUrl.replace(/\/$/, ''); // Remove trailing slash
+        baseUrl = siteUrl.replace(/\/$/, '');
       }
       
       const allUrls: string[] = [];

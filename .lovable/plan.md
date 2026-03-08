@@ -1,66 +1,77 @@
 
 
-## Plano de Execução: 4 Tarefas Pendentes (em ordem)
+## Plano: Criar paginas de segmentos para E-commerce e Clinicas e Consultorios
 
-### Tarefa 1: Atualizar Edge Function `prerender` para cidades dinâmicas
+Criar landing pages completas para **E-commerce** e **Clinicas e Consultorios**, seguindo o padrao de 8 componentes + pagina container ja estabelecido nos outros segmentos.
 
-**Problema**: O `STATIC_PAGES` só tem `/contabilidade-em-campinas`. As outras 87 cidades retornam 404 para crawlers.
+### Paleta de cores por segmento
 
-**Solução**: Antes do check de `STATIC_PAGES`, adicionar lógica dinâmica para rotas `/contabilidade-em-*`:
+| Segmento | Acento | Escuro | Fundo claro | Fundo medio | Fundo destaque |
+|----------|--------|--------|-------------|-------------|----------------|
+| E-commerce | #DB2777 | #BE185D | #FDF2F8 | #FCE7F3 | #FBCFE8 |
+| Clinicas e Consultorios | #059669 | #047857 | #ECFDF5 | #D1FAE5 | #A7F3D0 |
 
-```ts
-// Between blog check (line 497) and static pages check (line 499)
-if (normalizedPath.startsWith("/contabilidade-em-")) {
-  const slug = normalizedPath.replace("/contabilidade-em-", "");
-  const cityData = CITIES_PRERENDER[slug]; // inline map with all 88 cities
-  if (cityData) {
-    // Build HTML with city-specific title, description, h1, FAQs, content
-    // Add FAQPage schema + LocalBusiness schema
-    // Return cached response
-  }
-}
-```
+### Imagens de fundo (ja existem em src/assets/)
+- E-commerce: `09-ecommerce-bg.webp`
+- Clinicas e Consultorios: `10-clinicas-consultorios-bg.webp`
 
-**Dados**: Criar um map `CITIES_PRERENDER` inline na Edge Function (não pode importar de `src/`) com as 88 cidades contendo: `name`, `state`, `seoTitle`, `seoDescription`, `faqs` (6 cada). Gerado programaticamente a partir dos 3 factory patterns (RMC/Regional/National).
+### Arquivos a criar (18 arquivos)
 
-**Schemas incluídos**: FAQPage + AccountingService (LocalBusiness) + BreadcrumbList + Organization.
+**E-commerce (8 componentes + 1 pagina):**
+- `src/components/segmentos/ecommerce/EcommerceHero.tsx`
+- `src/components/segmentos/ecommerce/EcommerceLeadForm.tsx`
+- `src/components/segmentos/ecommerce/EcommerceBenefits.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProblems.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProcess.tsx`
+- `src/components/segmentos/ecommerce/EcommerceTestimonials.tsx`
+- `src/components/segmentos/ecommerce/EcommerceFAQ.tsx`
+- `src/components/segmentos/ecommerce/EcommerceCTA.tsx`
+- `src/pages/segmentos/ContabilidadeEcommerce.tsx`
 
-**Arquivo**: `supabase/functions/prerender/index.ts`
-- Remover entrada estática `/contabilidade-em-campinas` do `STATIC_PAGES`
-- Adicionar bloco dinâmico de cidades entre blog e static pages check (~linhas 498-499)
-- Adicionar `CITIES_PRERENDER` map com dados das 88 cidades
+**Clinicas e Consultorios (8 componentes + 1 pagina):**
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosHero.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosLeadForm.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosBenefits.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProblems.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProcess.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosTestimonials.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosFAQ.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosCTA.tsx`
+- `src/pages/segmentos/ContabilidadeClinicasConsultorios.tsx`
 
-### Tarefa 2: Atualizar `index.html` noscript com links de cidades
+### Conteudo especifico por segmento
 
-**Arquivo**: `index.html`
+**E-commerce:**
+- Mercado Livre, Shopee, Amazon, Magalu, Shopify
+- Estoque, CMV e controle fiscal
+- Dropshipping nacional e internacional
+- Substituicao tributaria (ICMS-ST)
+- Nota fiscal de venda e devoluções
+- Select: Loja propria / Marketplace / Dropshipping / Infoproduto + Fisico
 
-Adicionar seção no bloco `<noscript>` (após "Ferramentas Gratuitas") e no `#root .static-prerender`:
+**Clinicas e Consultorios:**
+- Equiparacao hospitalar (reducao de IR/CSLL)
+- Folha de pagamento de equipe medica
+- Gestao de convenios e glosas
+- Sociedade medica e holding
+- Alvara sanitario e obrigacoes ANVISA
+- Select: Clinica Medica / Consultorio Odontologico / Clinica de Estetica / Laboratorio
 
-```html
-<h2>Contabilidade por Cidade</h2>
-<ul>
-  <li><a href="/contabilidade-em-campinas">Contabilidade em Campinas</a></li>
-  <li><a href="/contabilidade-em-sao-paulo">Contabilidade em São Paulo</a></li>
-  <!-- top 15 cidades -->
-</ul>
-```
+### Alteracoes em arquivos existentes
 
-Incluir as 15 cidades mais relevantes (Campinas, SP, Rio, BH, Curitiba, Porto Alegre, Brasília, Salvador, Fortaleza, Recife, Americana, Indaiatuba, Guarulhos, Santos, Sorocaba).
+1. **src/lib/whatsapp.ts** — Adicionar 2 novas mensagens: `ecommerce`, `clinicasConsultorios`
 
-### Tarefa 3: Atualizar `scripts/prerender.mjs` com rotas de cidades
+2. **src/App.tsx** — Adicionar 2 lazy imports + 2 rotas:
+   - `/segmentos/contabilidade-para-ecommerce`
+   - `/segmentos/contabilidade-para-clinicas-e-consultorios`
 
-Adicionar as 88 rotas `/contabilidade-em-*` ao array `STATIC_ROUTES` para que o SSG via Puppeteer gere HTML estático no deploy.
+3. **src/components/sections/NichesCarousel.tsx** — Atualizar hrefs de E-commerce e Clinicas de `/contato` para as novas URLs
 
-### Tarefa 4: Acionar `queue-all-pages`
+4. **src/components/segmentos/shared/TaxComparisonCalculator.tsx** — Adicionar 2 novas profissoes
 
-Chamar a Edge Function `google-search-console` com action `queue-all-pages` para popular a fila de indexação com todas as 88 novas URLs `www`.
+5. **Sitemap e indexacao** — Migration SQL para page_metadata + atualizar google-search-console e prerender.mjs
 
-### Ordem e estimativa
+### Estrategia de implementacao
 
-| # | Tarefa | Complexidade |
-|---|--------|-------------|
-| 1 | Prerender Edge Function (88 cidades) | Alta (~200 linhas) |
-| 2 | index.html noscript (15 cidades) | Baixa |
-| 3 | prerender.mjs (88 rotas) | Baixa |
-| 4 | queue-all-pages | Invoke only |
+Implementar em 2 lotes: primeiro E-commerce completo, depois Clinicas e Consultorios. Ao final, atualizar App.tsx, whatsapp.ts, NichesCarousel.tsx, sitemap e indexacao de uma vez.
 

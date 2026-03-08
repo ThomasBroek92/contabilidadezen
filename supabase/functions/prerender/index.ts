@@ -86,12 +86,7 @@ const STATIC_PAGES: Record<string, { title: string; description: string; h1: str
     h1: "Cidades Atendidas pela Contabilidade Zen",
     content: `<p>Atendimento 100% digital em todo o Brasil. São Paulo, Campinas, Belo Horizonte, Rio de Janeiro, Curitiba, Porto Alegre, Brasília e centenas de outras cidades.</p>`,
   },
-  "/contabilidade-em-campinas": {
-    title: "Contabilidade em Campinas | Contabilidade Zen",
-    description: "Contabilidade digital em Campinas-SP. Especializada em profissionais da saúde e prestadores de serviço na região de Campinas.",
-    h1: "Contabilidade em Campinas – SP",
-    content: `<p>Contabilidade digital especializada para empresas e profissionais em Campinas e região metropolitana.</p>`,
-  },
+  // Cities are handled dynamically below — removed static /contabilidade-em-campinas
   "/indique-e-ganhe": {
     title: "Indique e Ganhe | Programa de Indicação | Contabilidade Zen",
     description: "Indique amigos e ganhe comissões! Programa de indicação da Contabilidade Zen com comissões recorrentes.",
@@ -226,7 +221,114 @@ const STATIC_PAGES: Record<string, { title: string; description: string; h1: str
   },
 };
 
-// ─── JSON-LD Schemas ────────────────────────────────────────────────
+// ─── Dynamic city prerender data (88 cities) ────────────────────────
+interface CityPrerender { name: string; st: string; title: string; desc: string; wa: string; faqs: { q: string; a: string }[] }
+
+function rmcPR(name: string, slug: string): [string, CityPrerender] {
+  return [slug, {
+    name, st: "SP",
+    title: `Contabilidade em ${name} | Contador Digital Especializado`,
+    desc: `Contabilidade digital em ${name} para profissionais e empresas. Economize até 50% em impostos. 100% online, atendimento humanizado na RMC.`,
+    wa: `Olá! Vim pela página de Contabilidade em ${name} e gostaria de saber mais sobre os serviços.`,
+    faqs: [
+      { q: `Vocês atendem presencialmente em ${name}?`, a: `Nosso atendimento é 100% digital, via WhatsApp, e-mail e videoconferência. Você não precisa se deslocar. Foco em agilidade para profissionais e empresas de ${name} e região.` },
+      { q: `Como funciona a abertura de empresa em ${name}?`, a: `Cuidamos de todo o processo: análise de viabilidade na prefeitura de ${name}, registro na Junta Comercial de SP, CNPJ, Inscrição Municipal e alvarás. Prazo de 5 a 10 dias úteis.` },
+      { q: `A sede virtual é em ${name}?`, a: `Nossa sede virtual gratuita fica em Holambra (RMC). Para endereço em ${name}, temos opções com parceiros locais. Consulte-nos.` },
+      { q: `Qual o custo da contabilidade em ${name}?`, a: `Planos a partir de R$ 297,90/mês com contabilidade completa, planejamento tributário e suporte dedicado.` },
+      { q: `Posso migrar minha contabilidade em ${name}?`, a: `Sim! Migração gratuita. Cuidamos da comunicação com seu contador atual. Prazo médio de 15 dias.` },
+      { q: `Atendem Simples Nacional em ${name}?`, a: `Sim, atendemos Simples Nacional, Lucro Presumido e Lucro Real. Análise personalizada para sua empresa em ${name}.` },
+    ],
+  }];
+}
+
+function regPR(name: string, slug: string, st: string, junta: string): [string, CityPrerender] {
+  return [slug, {
+    name, st,
+    title: `Contabilidade em ${name} | Contador Digital 100% Online`,
+    desc: `Contabilidade digital em ${name} – ${st}. Abertura de empresa, planejamento tributário e suporte dedicado. 100% online.`,
+    wa: `Olá! Vim pela página de Contabilidade em ${name} e gostaria de saber mais sobre os serviços.`,
+    faqs: [
+      { q: `Como funciona a contabilidade digital em ${name}?`, a: `Atendemos ${name} 100% digital. Envie documentos por WhatsApp ou e-mail; cuidamos de impostos, folha, obrigações e planejamento tributário.` },
+      { q: `Vocês abrem empresa em ${name}?`, a: `Sim! Registro na ${junta}, CNPJ, Inscrição Municipal em ${name}, alvarás e certificado digital. Prazo de 7 a 15 dias úteis.` },
+      { q: `Qual o custo da contabilidade em ${name}?`, a: `Planos a partir de R$ 297,90/mês. O valor depende do porte e regime tributário da empresa.` },
+      { q: `Posso trocar de contador em ${name}?`, a: `Sim, migração 100% gratuita e digital. Prazo médio de 15 dias sem interrupção.` },
+      { q: `Quais regimes tributários atendem em ${name}?`, a: `Simples Nacional, Lucro Presumido e Lucro Real. Análise personalizada para identificar o melhor regime.` },
+      { q: `Por que escolher contabilidade digital em ${name}?`, a: `Mesma qualidade com mais agilidade: WhatsApp em até 2h, portal online, sem filas, preços competitivos.` },
+    ],
+  }];
+}
+
+function natPR(name: string, slug: string, st: string): [string, CityPrerender] {
+  return [slug, {
+    name, st,
+    title: `Contabilidade em ${name} | Contador Digital 100% Online`,
+    desc: `Contabilidade digital para empresas e profissionais em ${name} – ${st}. Abertura de empresa, impostos e suporte dedicado. 100% online.`,
+    wa: `Olá! Vim pela página de Contabilidade em ${name} e gostaria de saber mais sobre os serviços.`,
+    faqs: [
+      { q: `Como funciona a contabilidade digital em ${name}?`, a: `Atendemos ${name} 100% digital. Envie documentos por WhatsApp ou e-mail; nossa equipe cuida de impostos, folha e planejamento tributário.` },
+      { q: `Vocês abrem empresa em ${name}?`, a: `Sim! Abrimos empresas em ${name} e em todo o Brasil. Junta Comercial, CNPJ, Inscrição Municipal e registros. Prazo de 7 a 20 dias úteis.` },
+      { q: `Qual o custo da contabilidade online?`, a: `Planos a partir de R$ 297,90/mês. Solicite uma proposta personalizada.` },
+      { q: `Posso migrar minha contabilidade em ${name}?`, a: `Sim! Migração gratuita e digital. Prazo médio de 15 dias sem interrupção.` },
+      { q: `Por que escolher um contador digital?`, a: `Portal online, suporte via WhatsApp em até 2h, custos competitivos e qualidade superior a escritórios tradicionais.` },
+      { q: `Quais tipos de empresa atendem em ${name}?`, a: `MEI, ME e EPP nos regimes Simples Nacional, Lucro Presumido e Lucro Real. Especialistas em saúde, TI, digitais e e-commerce.` },
+    ],
+  }];
+}
+
+const CITIES_PRERENDER: Record<string, CityPrerender> = Object.fromEntries([
+  // RMC (20)
+  rmcPR("Campinas","campinas"), rmcPR("Americana","americana"), rmcPR("Indaiatuba","indaiatuba"),
+  rmcPR("Sumaré","sumare"), rmcPR("Hortolândia","hortolandia"), rmcPR("Valinhos","valinhos"),
+  rmcPR("Vinhedo","vinhedo"), rmcPR("Santa Bárbara d'Oeste","santa-barbara-doeste"),
+  rmcPR("Paulínia","paulinia"), rmcPR("Jaguariúna","jaguariuna"), rmcPR("Itatiba","itatiba"),
+  rmcPR("Pedreira","pedreira"), rmcPR("Monte Mor","monte-mor"), rmcPR("Nova Odessa","nova-odessa"),
+  rmcPR("Artur Nogueira","artur-nogueira"), rmcPR("Cosmópolis","cosmopolis"),
+  rmcPR("Engenheiro Coelho","engenheiro-coelho"), rmcPR("Holambra","holambra"),
+  rmcPR("Morungaba","morungaba"), rmcPR("Santo Antônio de Posse","santo-antonio-de-posse"),
+  // SP interior + capital (28)
+  regPR("São Paulo","sao-paulo","SP","JUCESP"), regPR("Guarulhos","guarulhos","SP","JUCESP"),
+  regPR("Santos","santos","SP","JUCESP"), regPR("São José dos Campos","sao-jose-dos-campos","SP","JUCESP"),
+  regPR("Sorocaba","sorocaba","SP","JUCESP"), regPR("Ribeirão Preto","ribeirao-preto","SP","JUCESP"),
+  regPR("São Bernardo do Campo","sao-bernardo-do-campo","SP","JUCESP"), regPR("Santo André","santo-andre","SP","JUCESP"),
+  regPR("Osasco","osasco","SP","JUCESP"), regPR("Mauá","maua","SP","JUCESP"),
+  regPR("Diadema","diadema","SP","JUCESP"), regPR("Barueri","barueri","SP","JUCESP"),
+  regPR("Piracicaba","piracicaba","SP","JUCESP"), regPR("Limeira","limeira","SP","JUCESP"),
+  regPR("Jundiaí","jundiai","SP","JUCESP"), regPR("Bauru","bauru","SP","JUCESP"),
+  regPR("São Caetano do Sul","sao-caetano-do-sul","SP","JUCESP"), regPR("Jacareí","jacarei","SP","JUCESP"),
+  regPR("Atibaia","atibaia","SP","JUCESP"), regPR("Cotia","cotia","SP","JUCESP"),
+  regPR("Embu das Artes","embu-das-artes","SP","JUCESP"), regPR("Marília","marilia","SP","JUCESP"),
+  regPR("Mogi das Cruzes","mogi-das-cruzes","SP","JUCESP"), regPR("São Carlos","sao-carlos","SP","JUCESP"),
+  regPR("Ibitinga","ibitinga","SP","JUCESP"), regPR("Santana de Parnaíba","santana-de-parnaiba","SP","JUCESP"),
+  regPR("Taboão da Serra","taboao-da-serra","SP","JUCESP"), regPR("São José do Rio Preto","sao-jose-do-rio-preto","SP","JUCESP"),
+  // RJ (4)
+  regPR("Rio de Janeiro","rio-de-janeiro","RJ","JUCERJA"), regPR("Duque de Caxias","duque-de-caxias","RJ","JUCERJA"),
+  regPR("Niterói","niteroi","RJ","JUCERJA"), regPR("Nova Iguaçu","nova-iguacu","RJ","JUCERJA"),
+  // MG (3)
+  regPR("Belo Horizonte","belo-horizonte","MG","JUCEMG"), regPR("Contagem","contagem","MG","JUCEMG"),
+  regPR("Uberlândia","uberlandia","MG","JUCEMG"),
+  // ES (1)
+  regPR("Vitória","vitoria","ES","JUCEES"),
+  // PR (4)
+  regPR("Curitiba","curitiba","PR","JUCEPAR"), regPR("Londrina","londrina","PR","JUCEPAR"),
+  regPR("Maringá","maringa","PR","JUCEPAR"), regPR("Pinhais","pinhais","PR","JUCEPAR"),
+  // SC (2)
+  regPR("Blumenau","blumenau","SC","JUCESC"), regPR("Florianópolis","florianopolis","SC","JUCESC"),
+  // RS (1)
+  regPR("Porto Alegre","porto-alegre","RS","JUCERGS"),
+  // Nordeste (9)
+  natPR("Salvador","salvador","BA"), natPR("Fortaleza","fortaleza","CE"),
+  natPR("Recife","recife","PE"), natPR("Natal","natal","RN"),
+  natPR("João Pessoa","joao-pessoa","PB"), natPR("Maceió","maceio","AL"),
+  natPR("Aracaju","aracaju","SE"), natPR("São Luís","sao-luis","MA"),
+  natPR("Teresina","teresina","PI"),
+  // Centro-Oeste (4)
+  natPR("Brasília","brasilia","DF"), natPR("Goiânia","goiania","GO"),
+  natPR("Campo Grande","campo-grande","MS"), natPR("Cuiabá","cuiaba","MT"),
+  // Norte (2)
+  natPR("Manaus","manaus","AM"), natPR("Belém","belem","PA"),
+]);
+
+
 function buildOrganizationSchema() {
   return {
     "@context": "https://schema.org",
@@ -496,7 +598,60 @@ serve(async (req: Request) => {
       });
     }
 
-    // 2) Check static pages
+    // 2) Check dynamic city pages
+    if (normalizedPath.startsWith("/contabilidade-em-")) {
+      const citySlug = normalizedPath.replace("/contabilidade-em-", "");
+      const cityData = CITIES_PRERENDER[citySlug];
+      if (cityData) {
+        const canonical = `${SITE_URL}${normalizedPath}`;
+        const faqHtml = cityData.faqs.map(f => 
+          `<details><summary><strong>${escapeHtml(f.q)}</strong></summary><p>${escapeHtml(f.a)}</p></details>`
+        ).join("\n");
+        const cityContent = `<p>${escapeHtml(cityData.desc)}</p>
+          <h2>Por que escolher a Contabilidade Zen em ${escapeHtml(cityData.name)}?</h2>
+          <ul>
+            <li>Contabilidade 100% digital — sem deslocamento</li>
+            <li>Planejamento tributário para reduzir até 50% em impostos</li>
+            <li>Abertura de empresa com suporte completo</li>
+            <li>Atendimento humanizado via WhatsApp</li>
+            <li>Especialistas em profissionais da saúde, TI e serviços</li>
+          </ul>
+          <h2>Perguntas Frequentes — Contabilidade em ${escapeHtml(cityData.name)}</h2>
+          ${faqHtml}
+          <h2>Fale Conosco</h2>
+          <p><a href="https://wa.me/5519971872235?text=${encodeURIComponent(cityData.wa)}">Falar no WhatsApp sobre Contabilidade em ${escapeHtml(cityData.name)}</a></p>`;
+        
+        const schemas: object[] = [
+          buildOrganizationSchema(),
+          buildLocalBusinessSchema(),
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+              { "@type": "ListItem", position: 2, name: "Cidades Atendidas", item: `${SITE_URL}/cidades-atendidas` },
+              { "@type": "ListItem", position: 3, name: `Contabilidade em ${cityData.name}`, item: canonical },
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: cityData.faqs.map(f => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          },
+        ];
+
+        const html = buildHTML(cityData.title, cityData.desc, canonical, `Contabilidade em ${cityData.name} – ${cityData.st}`, cityContent, schemas);
+        return new Response(html, {
+          headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600, s-maxage=86400" },
+        });
+      }
+    }
+
+    // 3) Check static pages
     const pageData = STATIC_PAGES[normalizedPath];
     if (!pageData) {
       return new Response(build404HTML(), {

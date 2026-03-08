@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from "react";
-import { Link, useParams, Navigate } from "react-router-dom";
+import { Link, useLocation, Navigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";

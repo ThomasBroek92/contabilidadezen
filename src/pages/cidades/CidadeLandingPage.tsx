@@ -77,8 +77,9 @@ const localBenefits = [
 ];
 
 export default function CidadeLandingPage() {
-  const { "*": splatSlug } = useParams();
-  const slug = splatSlug || "";
+  const location = useLocation();
+  const slugMatch = location.pathname.match(/^\/contabilidade-em-(.+)$/);
+  const slug = slugMatch ? slugMatch[1] : "";
   const city = slug ? citiesConfigMap[slug] : undefined;
 
   if (!city) {

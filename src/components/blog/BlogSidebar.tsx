@@ -55,7 +55,7 @@ export function BlogSidebar() {
 
         <Card className="border-primary/30 bg-primary/5">
           <CardContent className="pt-5 space-y-3">
-            <div className="flex items-center gap-2 text-green-700">
+            <div className="flex items-center gap-2 text-primary">
               <MessageCircle className="h-5 w-5" />
               <h3 className="font-semibold text-sm">Fale com um Contador</h3>
             </div>

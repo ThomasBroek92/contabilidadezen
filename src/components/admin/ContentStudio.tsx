@@ -46,6 +46,7 @@ import { PostEditorDialog } from './editorial/PostEditorDialog';
 import { TopicDialog } from './editorial/TopicDialog';
 import { BatchGenerationDialog } from './editorial/BatchGenerationDialog';
 import { RecurringSchedulesManager } from './editorial/RecurringSchedulesManager';
+import { BlogCopierTab } from './editorial/BlogCopierTab';
 import { ContentSettingsTab } from './editorial/ContentSettingsTab';
 import { useEditorialData, BlogPost, BlogTopic } from './editorial/useEditorialData';
 import { GEOAnalyticsDashboard } from './GEOAnalyticsDashboard';

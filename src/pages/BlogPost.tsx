@@ -340,8 +340,9 @@ export default function BlogPost() {
         )}
 
         {/* Article Content */}
-        <article className="py-12 lg:py-16">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <div className="py-12 lg:py-16">
+          <div className="container mx-auto px-4 flex gap-8">
+            <article className="flex-1 min-w-0 max-w-4xl">
             <MarkdownRenderer content={post.content} />
 
             {/* Mid-Content CTA */}

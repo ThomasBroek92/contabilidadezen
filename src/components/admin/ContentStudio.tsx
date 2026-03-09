@@ -46,6 +46,7 @@ import { PostEditorDialog } from './editorial/PostEditorDialog';
 import { TopicDialog } from './editorial/TopicDialog';
 import { BatchGenerationDialog } from './editorial/BatchGenerationDialog';
 import { RecurringSchedulesManager } from './editorial/RecurringSchedulesManager';
+import { BlogCopierTab } from './editorial/BlogCopierTab';
 import { ContentSettingsTab } from './editorial/ContentSettingsTab';
 import { useEditorialData, BlogPost, BlogTopic } from './editorial/useEditorialData';
 import { GEOAnalyticsDashboard } from './GEOAnalyticsDashboard';
@@ -73,7 +74,7 @@ export function ContentStudio() {
   const { posts, topics, loading, fetchPosts, fetchTopics, fetchAll } = useEditorialData();
   
   // Estados de UI
-  const [activeView, setActiveView] = useState<'overview' | 'create' | 'manage' | 'calendar' | 'analytics' | 'settings'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'create' | 'manage' | 'calendar' | 'analytics' | 'settings' | 'copier'>('overview');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
   const [topicDialogOpen, setTopicDialogOpen] = useState(false);
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);
@@ -422,7 +423,7 @@ export function ContentStudio() {
 
       {/* Navegação simplificada com ícones claros */}
       <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)}>
-        <TabsList className="grid w-full grid-cols-6 h-12">
+        <TabsList className="grid w-full grid-cols-7 h-12">
           <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Lightbulb className="h-4 w-4" />
             <span className="hidden md:inline">Visão Geral</span>
@@ -430,6 +431,10 @@ export function ContentStudio() {
           <TabsTrigger value="create" className="gap-2">
             <Sparkles className="h-4 w-4" />
             <span className="hidden md:inline">Gerar com IA</span>
+          </TabsTrigger>
+          <TabsTrigger value="copier" className="gap-2">
+            <Layers className="h-4 w-4" />
+            <span className="hidden md:inline">Copiar Blog</span>
           </TabsTrigger>
           <TabsTrigger value="manage" className="gap-2">
             <FileText className="h-4 w-4" />
@@ -974,6 +979,11 @@ export function ContentStudio() {
         {/* MÉTRICAS */}
         <TabsContent value="analytics" className="mt-6">
           <GEOAnalyticsDashboard posts={posts} stats={stats} getGEOScoreColor={getGEOScoreColor} getStatusBadge={getStatusBadge} />
+        </TabsContent>
+
+        {/* COPIAR BLOG */}
+        <TabsContent value="copier" className="mt-6">
+          <BlogCopierTab />
         </TabsContent>
 
         {/* CONFIGURAÇÕES */}

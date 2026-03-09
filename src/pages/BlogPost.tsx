@@ -14,6 +14,7 @@ import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
 import { BlogCTASection } from '@/components/blog/BlogCTASection';
+import { BlogSidebar } from '@/components/blog/BlogSidebar';
 
 interface ExpertQuote {
   quote: string;
@@ -339,8 +340,9 @@ export default function BlogPost() {
         )}
 
         {/* Article Content */}
-        <article className="py-12 lg:py-16">
-          <div className="container mx-auto px-4 max-w-4xl">
+        <div className="py-12 lg:py-16">
+          <div className="container mx-auto px-4 flex gap-8">
+            <article className="flex-1 min-w-0 max-w-4xl">
             <MarkdownRenderer content={post.content} />
 
             {/* Mid-Content CTA */}
@@ -437,8 +439,11 @@ export default function BlogPost() {
 
             {/* End-Content CTA */}
             <BlogCTASection position="end" postTitle={post.title} />
+            </article>
+
+            <BlogSidebar />
           </div>
-        </article>
+        </div>
 
         {/* Related Posts */}
         {relatedPosts.length > 0 && (

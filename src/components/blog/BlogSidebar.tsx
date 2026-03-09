@@ -53,7 +53,7 @@ export function BlogSidebar() {
           </CardContent>
         </Card>
 
-        <Card className="border-green-500/30 bg-green-500/5">
+        <Card className="border-primary/30 bg-primary/5">
           <CardContent className="pt-5 space-y-3">
             <div className="flex items-center gap-2 text-green-700">
               <MessageCircle className="h-5 w-5" />

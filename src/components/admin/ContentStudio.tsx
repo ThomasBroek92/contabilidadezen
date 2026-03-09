@@ -423,7 +423,7 @@ export function ContentStudio() {
 
       {/* Navegação simplificada com ícones claros */}
       <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)}>
-        <TabsList className="grid w-full grid-cols-6 h-12">
+        <TabsList className="grid w-full grid-cols-7 h-12">
           <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Lightbulb className="h-4 w-4" />
             <span className="hidden md:inline">Visão Geral</span>
@@ -431,6 +431,10 @@ export function ContentStudio() {
           <TabsTrigger value="create" className="gap-2">
             <Sparkles className="h-4 w-4" />
             <span className="hidden md:inline">Gerar com IA</span>
+          </TabsTrigger>
+          <TabsTrigger value="copier" className="gap-2">
+            <Layers className="h-4 w-4" />
+            <span className="hidden md:inline">Copiar Blog</span>
           </TabsTrigger>
           <TabsTrigger value="manage" className="gap-2">
             <FileText className="h-4 w-4" />

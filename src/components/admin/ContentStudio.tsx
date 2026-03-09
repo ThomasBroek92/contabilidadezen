@@ -74,7 +74,7 @@ export function ContentStudio() {
   const { posts, topics, loading, fetchPosts, fetchTopics, fetchAll } = useEditorialData();
   
   // Estados de UI
-  const [activeView, setActiveView] = useState<'overview' | 'create' | 'manage' | 'calendar' | 'analytics' | 'settings'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'create' | 'manage' | 'calendar' | 'analytics' | 'settings' | 'copier'>('overview');
   const [postDialogOpen, setPostDialogOpen] = useState(false);
   const [topicDialogOpen, setTopicDialogOpen] = useState(false);
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);

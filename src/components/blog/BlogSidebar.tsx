@@ -64,7 +64,7 @@ export function BlogSidebar() {
             </p>
             <Button asChild variant="zen" size="sm" className="w-full">
               <a
-                href={getWhatsAppUrl('blog')}
+                href={getWhatsAppLinkByKey('default')}
                 target="_blank"
                 rel="noopener noreferrer"
               >

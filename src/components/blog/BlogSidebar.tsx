@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Building2, Calculator, BarChart3, MessageCircle } from 'lucide-react';
-import { getWhatsAppUrl } from '@/lib/whatsapp';
+import { getWhatsAppLinkByKey } from '@/lib/whatsapp';
 
 export function BlogSidebar() {
   return (

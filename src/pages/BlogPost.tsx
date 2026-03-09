@@ -438,9 +438,11 @@ export default function BlogPost() {
             </div>
 
             {/* End-Content CTA */}
-            <BlogCTASection position="end" postTitle={post.title} />
+            </article>
+
+            <BlogSidebar />
           </div>
-        </article>
+        </div>
 
         {/* Related Posts */}
         {relatedPosts.length > 0 && (

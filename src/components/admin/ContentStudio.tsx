@@ -981,6 +981,11 @@ export function ContentStudio() {
           <GEOAnalyticsDashboard posts={posts} stats={stats} getGEOScoreColor={getGEOScoreColor} getStatusBadge={getStatusBadge} />
         </TabsContent>
 
+        {/* COPIAR BLOG */}
+        <TabsContent value="copier" className="mt-6">
+          <BlogCopierTab />
+        </TabsContent>
+
         {/* CONFIGURAÇÕES */}
         <TabsContent value="settings" className="mt-6">
           <ContentSettingsTab />

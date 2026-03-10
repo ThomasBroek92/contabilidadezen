@@ -250,13 +250,23 @@ export function BlogCopierTab() {
                         {previewIndex === index ? 'Fechar' : 'Preview'}
                       </Button>
                       <Button
+                        variant="outline"
                         size="sm"
-                        onClick={() => handleSaveAsDraft(index)}
+                        onClick={() => handleSave(index, false)}
                         disabled={savingIndex === index}
                         className="gap-1"
                       >
                         {savingIndex === index ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                        Salvar
+                        Rascunho
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleSave(index, true)}
+                        disabled={savingIndex === index}
+                        className="gap-1"
+                      >
+                        {savingIndex === index ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
+                        Publicar
                       </Button>
                     </div>
                   )}

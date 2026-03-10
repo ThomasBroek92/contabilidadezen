@@ -173,6 +173,7 @@ Responda APENAS com o JSON válido, sem markdown code blocks.`;
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
+        max_tokens: 8192,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -204,11 +205,27 @@ Responda APENAS com o JSON válido, sem markdown code blocks.`;
     // Parse JSON from response
     let parsed;
     try {
-      const jsonStr = rawContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      let jsonStr = rawContent.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      
+      // Find JSON boundaries
+      const jsonStart = jsonStr.indexOf('{');
+      const jsonEnd = jsonStr.lastIndexOf('}');
+      
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error('No JSON object found');
+      }
+      
+      jsonStr = jsonStr.substring(jsonStart, jsonEnd + 1);
+      
+      // Fix common issues
+      jsonStr = jsonStr
+        .replace(/,\s*}/g, '}')
+        .replace(/,\s*]/g, ']');
+      
       parsed = JSON.parse(jsonStr);
     } catch (e) {
       console.error('Failed to parse AI response:', rawContent.substring(0, 500));
-      return new Response(JSON.stringify({ error: 'Failed to parse AI response', rawContent: rawContent.substring(0, 1000) }), {
+      return new Response(JSON.stringify({ error: 'Failed to parse AI response. The content may have been truncated. Try again.', rawContent: rawContent.substring(0, 1000) }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }

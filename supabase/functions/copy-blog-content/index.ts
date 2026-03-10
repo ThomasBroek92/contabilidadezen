@@ -132,38 +132,33 @@ REGRAS OBRIGATÓRIAS:
 4. Escreva em PT-BR, tom profissional e acessível
 5. Foque em contabilidade para profissionais PJ no Brasil
 6. Use terminologia brasileira (Simples Nacional, Lucro Presumido, MEI, etc.)
+7. O artigo deve ter entre 800 e 1200 palavras (NÃO ultrapasse 1200 palavras)
 
 ${entityMapping.length > 0 ? `SUBSTITUIÇÕES DE ENTIDADES:\n${entityMapping.join('\n')}` : ''}
 
 FORMATO DE RESPOSTA (JSON):
 {
   "title": "Título SEO otimizado (max 60 chars)",
-  "excerpt": "Resumo do artigo em 1-2 frases (max 160 chars)",
-  "content": "Artigo completo em Markdown com H2, H3, listas, etc. Mínimo 1500 palavras.",
+  "excerpt": "Resumo em 1-2 frases (max 160 chars)",
+  "content": "Artigo em Markdown com H2, H3, listas. Entre 800-1200 palavras.",
   "meta_title": "Meta title SEO (max 60 chars)",
-  "meta_description": "Meta description persuasiva (max 155 chars)",
-  "meta_keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
-  "category": "Categoria do artigo (ex: Impostos, Gestão, MEI, Contabilidade)",
-  "faq_schema": {
-    "mainEntity": [
-      {"question": "Pergunta 1?", "answer": "Resposta concisa 1"},
-      {"question": "Pergunta 2?", "answer": "Resposta concisa 2"},
-      {"question": "Pergunta 3?", "answer": "Resposta concisa 3"}
-    ]
-  },
-  "expert_quotes": [
-    {"quote": "Citação relevante", "author": "${targetExpert || 'Thomas Broek'}", "title": "Contador, CEO da ${targetCompany || 'Contabilidade Zen'}"}
-  ]
-}`;
+  "meta_description": "Meta description (max 155 chars)",
+  "meta_keywords": ["keyword1", "keyword2", "keyword3"],
+  "category": "Categoria",
+  "faq_schema": {"mainEntity": [{"question": "?", "answer": "Resposta"}]},
+  "expert_quotes": [{"quote": "Citação", "author": "${targetExpert || 'Thomas Broek'}", "title": "Contador, CEO da ${targetCompany || 'Contabilidade Zen'}"}]
+}
 
-    const userPrompt = `Reescreva este artigo como INSPIRAÇÃO. Não copie — crie conteúdo original sobre o mesmo tema.
+IMPORTANTE: Responda SOMENTE com JSON válido. Sem markdown code blocks. Sem texto antes ou depois do JSON.`;
+
+    const userPrompt = `Reescreva este artigo como INSPIRAÇÃO. Não copie — crie conteúdo original sobre o mesmo tema. Mantenha entre 800-1200 palavras.
 
 TÍTULO ORIGINAL: ${originalTitle}
 
 CONTEÚDO ORIGINAL:
-${originalContent.substring(0, 12000)}
+${originalContent.substring(0, 8000)}
 
-Responda APENAS com o JSON válido, sem markdown code blocks.`;
+Responda APENAS com JSON válido.`;
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -173,7 +168,7 @@ Responda APENAS com o JSON válido, sem markdown code blocks.`;
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        max_tokens: 8192,
+        max_tokens: 16384,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -202,30 +197,44 @@ Responda APENAS com o JSON válido, sem markdown code blocks.`;
     const aiData = await aiResponse.json();
     const rawContent = aiData.choices?.[0]?.message?.content || '';
 
-    // Parse JSON from response
+    // Parse JSON from response with truncation repair
     let parsed;
     try {
       let jsonStr = rawContent.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
       
-      // Find JSON boundaries
       const jsonStart = jsonStr.indexOf('{');
-      const jsonEnd = jsonStr.lastIndexOf('}');
+      if (jsonStart === -1) throw new Error('No JSON object found');
+      jsonStr = jsonStr.substring(jsonStart);
       
-      if (jsonStart === -1 || jsonEnd === -1) {
-        throw new Error('No JSON object found');
+      // Check for truncation (unbalanced braces)
+      const openBraces = (jsonStr.match(/{/g) || []).length;
+      const closeBraces = (jsonStr.match(/}/g) || []).length;
+      
+      if (openBraces !== closeBraces) {
+        console.warn(`Truncated response detected (open: ${openBraces}, close: ${closeBraces}). Attempting repair...`);
+        // Try to find the last complete field and close the JSON
+        // Remove trailing incomplete string value
+        jsonStr = jsonStr.replace(/,\s*"[^"]*":\s*"[^"]*$/s, '');
+        jsonStr = jsonStr.replace(/,\s*"[^"]*":\s*\[[^\]]*$/s, '');
+        jsonStr = jsonStr.replace(/,\s*"[^"]*":\s*{[^}]*$/s, '');
+        // Close any remaining open structures
+        const remaining = (jsonStr.match(/{/g) || []).length - (jsonStr.match(/}/g) || []).length;
+        for (let i = 0; i < remaining; i++) jsonStr += '}';
       }
-      
-      jsonStr = jsonStr.substring(jsonStart, jsonEnd + 1);
       
       // Fix common issues
       jsonStr = jsonStr
         .replace(/,\s*}/g, '}')
-        .replace(/,\s*]/g, ']');
+        .replace(/,\s*]/g, ']')
+        .replace(/[\x00-\x1F\x7F]/g, (c) => c === '\n' || c === '\t' ? c : '');
+      
+      const jsonEnd = jsonStr.lastIndexOf('}');
+      if (jsonEnd !== -1) jsonStr = jsonStr.substring(0, jsonEnd + 1);
       
       parsed = JSON.parse(jsonStr);
     } catch (e) {
       console.error('Failed to parse AI response:', rawContent.substring(0, 500));
-      return new Response(JSON.stringify({ error: 'Failed to parse AI response. The content may have been truncated. Try again.', rawContent: rawContent.substring(0, 1000) }), {
+      return new Response(JSON.stringify({ error: 'Falha ao processar resposta da IA. Tente novamente.' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }

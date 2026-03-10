@@ -173,6 +173,7 @@ Responda APENAS com o JSON válido, sem markdown code blocks.`;
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
+        max_tokens: 8192,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },

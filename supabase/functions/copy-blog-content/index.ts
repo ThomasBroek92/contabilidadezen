@@ -123,6 +123,8 @@ serve(async (req) => {
       entityMapping.push(`- Substitua toda menção a "${sourceCompany}" por "${targetCompany}"`);
     }
 
+    const currentYear = new Date().getFullYear();
+
     const systemPrompt = `Você é um redator especialista em contabilidade e SEO no Brasil. Sua tarefa é REESCREVER artigos usando o conteúdo original apenas como INSPIRAÇÃO.
 
 REGRAS OBRIGATÓRIAS:
@@ -133,6 +135,7 @@ REGRAS OBRIGATÓRIAS:
 5. Foque em contabilidade para profissionais PJ no Brasil
 6. Use terminologia brasileira (Simples Nacional, Lucro Presumido, MEI, etc.)
 7. O artigo deve ter entre 800 e 1200 palavras (NÃO ultrapasse 1200 palavras)
+8. ATUALIZAÇÃO TEMPORAL: O ano atual é ${currentYear}. Substitua TODAS as referências a anos anteriores (2023, 2024, 2025 etc.) pelo ano corrente ${currentYear}. Dados, legislação e exemplos devem refletir o cenário atual de ${currentYear}.
 
 ${entityMapping.length > 0 ? `SUBSTITUIÇÕES DE ENTIDADES:\n${entityMapping.join('\n')}` : ''}
 
@@ -152,6 +155,8 @@ FORMATO DE RESPOSTA (JSON):
 IMPORTANTE: Responda SOMENTE com JSON válido. Sem markdown code blocks. Sem texto antes ou depois do JSON.`;
 
     const userPrompt = `Reescreva este artigo como INSPIRAÇÃO. Não copie — crie conteúdo original sobre o mesmo tema. Mantenha entre 800-1200 palavras.
+
+IMPORTANTE: Estamos em ${currentYear}. Atualize todas as referências temporais para o ano corrente.
 
 TÍTULO ORIGINAL: ${originalTitle}
 

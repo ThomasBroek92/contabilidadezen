@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { openWhatsAppForPhone } from '@/lib/whatsapp';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -294,7 +295,6 @@ export function LeadDetail({ leadId, onClose, onUpdate }: LeadDetailProps) {
 
   const openWhatsApp = () => {
     if (lead?.whatsapp) {
-      const { openWhatsAppForPhone } = require("@/lib/whatsapp");
       openWhatsAppForPhone(lead.whatsapp);
     }
   };

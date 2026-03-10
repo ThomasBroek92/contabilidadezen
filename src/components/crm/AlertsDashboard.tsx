@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getWhatsAppLinkForPhone } from '@/lib/whatsapp';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -170,7 +171,6 @@ export function AlertsDashboard({ onSelectLead }: AlertsDashboardProps) {
   };
 
   const openWhatsApp = (whatsapp: string) => {
-    const { getWhatsAppLinkForPhone } = require("@/lib/whatsapp");
     window.open(getWhatsAppLinkForPhone(whatsapp), '_blank');
   };
 

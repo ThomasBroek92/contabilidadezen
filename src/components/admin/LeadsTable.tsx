@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getWhatsAppLinkForPhone } from '@/lib/whatsapp';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -123,7 +124,6 @@ export function LeadsTable() {
   };
 
   const openWhatsApp = (whatsapp: string) => {
-    const { getWhatsAppLinkForPhone } = require("@/lib/whatsapp");
     window.open(getWhatsAppLinkForPhone(whatsapp), '_blank');
   };
 

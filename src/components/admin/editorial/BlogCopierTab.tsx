@@ -93,13 +93,13 @@ export function BlogCopierTab() {
     toast({ title: 'Processamento concluído!' });
   };
 
-  const handleSaveAsDraft = async (index: number) => {
+  const handleSave = async (index: number, publish: boolean) => {
     const post = results[index];
     if (!post || post.status !== 'done') return;
 
     setSavingIndex(index);
     try {
-      const { error } = await supabase.from('blog_posts').insert({
+      const insertData: any = {
         title: post.title,
         slug: post.slug,
         content: post.content,
@@ -110,12 +110,28 @@ export function BlogCopierTab() {
         category: post.category,
         faq_schema: post.faq_schema,
         expert_quotes: post.expert_quotes,
-        status: 'draft',
         geo_score: 75,
-      });
+        status: publish ? 'published' : 'draft',
+      };
+
+      if (publish) {
+        insertData.published_at = new Date().toISOString();
+      }
+
+      const { error } = await supabase.from('blog_posts').insert(insertData);
 
       if (error) throw error;
-      toast({ title: 'Post salvo como rascunho!' });
+
+      const action = publish ? 'publicado' : 'salvo como rascunho';
+      toast({ title: `Post ${action}!` });
+
+      if (publish) {
+        toast({
+          title: 'Post publicado com sucesso!',
+          description: `Acesse: /blog/${post.slug}`,
+        });
+      }
+
       setResults(prev => prev.map((r, idx) => idx === index ? { ...r, status: 'done' as const } : r));
     } catch (err: any) {
       toast({ title: 'Erro ao salvar', description: err.message, variant: 'destructive' });
@@ -234,13 +250,23 @@ export function BlogCopierTab() {
                         {previewIndex === index ? 'Fechar' : 'Preview'}
                       </Button>
                       <Button
+                        variant="outline"
                         size="sm"
-                        onClick={() => handleSaveAsDraft(index)}
+                        onClick={() => handleSave(index, false)}
                         disabled={savingIndex === index}
                         className="gap-1"
                       >
                         {savingIndex === index ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                        Salvar
+                        Rascunho
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleSave(index, true)}
+                        disabled={savingIndex === index}
+                        className="gap-1"
+                      >
+                        {savingIndex === index ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
+                        Publicar
                       </Button>
                     </div>
                   )}

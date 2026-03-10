@@ -173,7 +173,6 @@ export function LeadsTable({ onSelectLead }: LeadsTableProps) {
   };
 
   const openWhatsApp = (whatsapp: string) => {
-    const { openWhatsAppForPhone } = require("@/lib/whatsapp");
     openWhatsAppForPhone(whatsapp);
   };
 

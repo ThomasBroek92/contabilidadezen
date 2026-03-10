@@ -124,7 +124,6 @@ export function LeadsTable() {
   };
 
   const openWhatsApp = (whatsapp: string) => {
-    const { getWhatsAppLinkForPhone } = require("@/lib/whatsapp");
     window.open(getWhatsAppLinkForPhone(whatsapp), '_blank');
   };
 

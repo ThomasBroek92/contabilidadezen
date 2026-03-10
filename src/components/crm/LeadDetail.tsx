@@ -295,7 +295,6 @@ export function LeadDetail({ leadId, onClose, onUpdate }: LeadDetailProps) {
 
   const openWhatsApp = () => {
     if (lead?.whatsapp) {
-      const { openWhatsAppForPhone } = require("@/lib/whatsapp");
       openWhatsAppForPhone(lead.whatsapp);
     }
   };

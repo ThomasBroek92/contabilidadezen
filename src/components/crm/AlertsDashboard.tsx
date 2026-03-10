@@ -171,7 +171,6 @@ export function AlertsDashboard({ onSelectLead }: AlertsDashboardProps) {
   };
 
   const openWhatsApp = (whatsapp: string) => {
-    const { getWhatsAppLinkForPhone } = require("@/lib/whatsapp");
     window.open(getWhatsAppLinkForPhone(whatsapp), '_blank');
   };
 

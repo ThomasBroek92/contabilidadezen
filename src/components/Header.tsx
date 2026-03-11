@@ -38,13 +38,6 @@ const navLinks = [
   { name: "Abrir Empresa", href: "/abrir-empresa" },
 ];
 
-const solucoesLinks = [
-  { name: "Contabilidade para Médicos", href: "/segmentos/contabilidade-para-medicos" },
-  { name: "Contabilidade para Dentistas", href: "/segmentos/contabilidade-para-dentistas" },
-  { name: "Contabilidade para Psicólogos", href: "/segmentos/contabilidade-para-psicologos" },
-  { name: "Contabilidade para Representantes Comerciais", href: "/segmentos/contabilidade-para-representantes-comerciais" },
-  
-];
 
 const conteudoLinks = [
   { name: "Blog", href: "/blog" },
@@ -74,14 +67,12 @@ const socialLinks = [
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSolucoesOpen, setIsSolucoesOpen] = useState(false);
   const [isConteudoOpen, setIsConteudoOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
 
   const isActive = (href: string) => location.pathname === href;
-  const isSolucoesActive = () => solucoesLinks.some(link => location.pathname === link.href);
   const isConteudoActive = () => conteudoLinks.some(link => location.pathname === link.href);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -175,34 +166,6 @@ export function Header() {
                 {link.name}
               </Link>
             ))}
-
-            {/* Soluções Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button 
-                  className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary ${
-                    isSolucoesActive() ? "text-primary font-bold" : "text-foreground/80"
-                  }`}
-                >
-                  Soluções
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64 bg-card border-border z-[60]">
-                {solucoesLinks.map((link) => (
-                  <DropdownMenuItem key={link.href} asChild>
-                    <Link 
-                      to={link.href} 
-                      className={`w-full cursor-pointer ${
-                        isActive(link.href) ? "text-secondary" : ""
-                      }`}
-                    >
-                      {link.name}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
 
             {/* Conteúdos Dropdown */}
             <DropdownMenu>
@@ -350,35 +313,6 @@ export function Header() {
                   {link.name}
                 </Link>
               ))}
-
-              {/* Mobile Soluções Accordion */}
-              <div className="border-t border-border pt-2">
-                <button
-                  onClick={() => setIsSolucoesOpen(!isSolucoesOpen)}
-                  className={`flex items-center justify-between w-full text-base font-medium py-3 transition-colors ${
-                    isSolucoesActive() ? "text-secondary" : "text-foreground/80"
-                  }`}
-                >
-                  Soluções
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isSolucoesOpen ? "rotate-180" : ""}`} />
-                </button>
-                {isSolucoesOpen && (
-                  <div className="pl-4 space-y-1 pb-2">
-                    {solucoesLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        to={link.href}
-                        className={`block text-sm py-2 transition-colors ${
-                          isActive(link.href) ? "text-secondary" : "text-muted-foreground"
-                        }`}
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {link.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
 
               {/* Mobile Conteúdos Accordion */}
               <div className="border-t border-border pt-2">

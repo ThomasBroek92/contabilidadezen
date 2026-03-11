@@ -457,8 +457,8 @@ export default function GeradorInvoice() {
       const filename = generatePdfFilename(formData.invoiceCode, formData.clientName, formData.documentType);
       doc.save(filename);
       
-      // Salvar lead se aceitou marketing
-      if (formData.acceptMarketing && formData.providerEmail) {
+      // Salvar lead no CRM sempre que houver e-mail
+      if (formData.providerEmail) {
         await saveLead({
           nome: formData.providerName,
           email: formData.providerEmail,

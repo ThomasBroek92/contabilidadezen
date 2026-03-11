@@ -314,35 +314,6 @@ export function Header() {
                 </Link>
               ))}
 
-              {/* Mobile Soluções Accordion */}
-              <div className="border-t border-border pt-2">
-                <button
-                  onClick={() => setIsSolucoesOpen(!isSolucoesOpen)}
-                  className={`flex items-center justify-between w-full text-base font-medium py-3 transition-colors ${
-                    isSolucoesActive() ? "text-secondary" : "text-foreground/80"
-                  }`}
-                >
-                  Soluções
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isSolucoesOpen ? "rotate-180" : ""}`} />
-                </button>
-                {isSolucoesOpen && (
-                  <div className="pl-4 space-y-1 pb-2">
-                    {solucoesLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        to={link.href}
-                        className={`block text-sm py-2 transition-colors ${
-                          isActive(link.href) ? "text-secondary" : "text-muted-foreground"
-                        }`}
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {link.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {/* Mobile Conteúdos Accordion */}
               <div className="border-t border-border pt-2">
                 <button

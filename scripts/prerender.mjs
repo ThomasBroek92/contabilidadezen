@@ -195,6 +195,19 @@ async function prerenderRoute(browser, route) {
       { timeout: 15000 }
     );
 
+    // For /blog, wait specifically for post links to appear (async data)
+    if (route === '/blog') {
+      try {
+        await page.waitForFunction(
+          () => document.querySelectorAll('article a[href^="/blog/"]').length > 0,
+          { timeout: 10000 }
+        );
+        console.log(`   ✅ Blog posts loaded for /blog`);
+      } catch {
+        console.warn(`   ⚠️ Blog posts did not load in time for /blog`);
+      }
+    }
+
     // Small extra delay for async data to load
     await new Promise((r) => setTimeout(r, 2000));
 

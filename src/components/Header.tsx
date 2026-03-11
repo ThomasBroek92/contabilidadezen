@@ -73,7 +73,6 @@ export function Header() {
   const location = useLocation();
 
   const isActive = (href: string) => location.pathname === href;
-  const isSolucoesActive = () => solucoesLinks.some(link => location.pathname === link.href);
   const isConteudoActive = () => conteudoLinks.some(link => location.pathname === link.href);
 
   const handleSearch = (e: React.FormEvent) => {

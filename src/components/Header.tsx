@@ -67,7 +67,6 @@ const socialLinks = [
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSolucoesOpen, setIsSolucoesOpen] = useState(false);
   const [isConteudoOpen, setIsConteudoOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);

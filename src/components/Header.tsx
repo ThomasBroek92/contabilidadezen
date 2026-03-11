@@ -38,13 +38,6 @@ const navLinks = [
   { name: "Abrir Empresa", href: "/abrir-empresa" },
 ];
 
-const solucoesLinks = [
-  { name: "Contabilidade para Médicos", href: "/segmentos/contabilidade-para-medicos" },
-  { name: "Contabilidade para Dentistas", href: "/segmentos/contabilidade-para-dentistas" },
-  { name: "Contabilidade para Psicólogos", href: "/segmentos/contabilidade-para-psicologos" },
-  { name: "Contabilidade para Representantes Comerciais", href: "/segmentos/contabilidade-para-representantes-comerciais" },
-  
-];
 
 const conteudoLinks = [
   { name: "Blog", href: "/blog" },

@@ -140,24 +140,31 @@ export default function Contato() {
         whatsapp: formData.phone.trim(),
         segmento: formData.profession || "Contato Geral",
         fonte: `Formulário de Contato - ${formData.service || "Não especificado"}`,
+        observacoes: formData.message?.trim() || null,
+        consentimento_lgpd: true,
+        data_consentimento: new Date().toISOString(),
       });
 
       if (error) throw error;
 
-      // Track form submission
-      trackFormSubmit("contato-form", {
-        segmento: formData.profession || "Contato Geral",
-        fonte: `Formulário de Contato - ${formData.service || "Não especificado"}`,
-      });
+      // Fire-and-forget: analytics
+      try {
+        trackFormSubmit("contato-form", {
+          segmento: formData.profession || "Contato Geral",
+          fonte: `Formulário de Contato - ${formData.service || "Não especificado"}`,
+        });
+      } catch (_) { /* analytics should not block */ }
 
-      // Send WhatsApp notification
-      openWhatsAppNotification({
-        nome: formData.name,
-        whatsapp: formData.phone,
-        email: formData.email,
-        segmento: formData.profession || "Contato Geral",
-        fonte: `Formulário de Contato${formData.message ? ` - Msg: ${formData.message.substring(0, 50)}` : ""}`,
-      });
+      // Fire-and-forget: WhatsApp notification (may be blocked in iframe)
+      try {
+        openWhatsAppNotification({
+          nome: formData.name,
+          whatsapp: formData.phone,
+          email: formData.email,
+          segmento: formData.profession || "Contato Geral",
+          fonte: `Formulário de Contato${formData.message ? ` - Msg: ${formData.message.substring(0, 50)}` : ""}`,
+        });
+      } catch (_) { /* WhatsApp window may be blocked */ }
 
       toast({
         title: "Mensagem enviada com sucesso!",

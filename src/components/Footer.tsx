@@ -44,16 +44,40 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Soluções */}
+          {/* Soluções - Saúde */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Soluções</h3>
+            <h3 className="font-semibold text-lg mb-4">Saúde</h3>
             <ul className="space-y-3">
               {[
                 { name: "Para Médicos", href: "/segmentos/contabilidade-para-medicos" },
                 { name: "Para Dentistas", href: "/segmentos/contabilidade-para-dentistas" },
                 { name: "Para Psicólogos", href: "/segmentos/contabilidade-para-psicologos" },
-                { name: "Para Representantes", href: "/segmentos/contabilidade-para-representantes-comerciais" },
-                
+                { name: "Para Clínicas", href: "/segmentos/contabilidade-para-clinicas-e-consultorios" },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link
+                    to={link.href}
+                    className="text-primary-foreground/80 hover:text-secondary transition-colors text-sm"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <h3 className="font-semibold text-lg mb-4 mt-6">Outros Segmentos</h3>
+            <ul className="space-y-3">
+              {[
+                { name: "Advogados", href: "/segmentos/contabilidade-para-advogados" },
+                { name: "Representantes", href: "/segmentos/contabilidade-para-representantes-comerciais" },
+                { name: "Produtores Digitais", href: "/segmentos/contabilidade-para-produtores-digitais" },
+                { name: "Profissionais de TI", href: "/segmentos/contabilidade-para-profissionais-de-ti" },
+                { name: "Exportação de Serviços", href: "/segmentos/contabilidade-para-exportacao-de-servicos" },
+                { name: "Prestadores de Serviço", href: "/segmentos/contabilidade-para-prestadores-de-servico" },
+                { name: "Profissionais PJ", href: "/segmentos/contabilidade-para-profissionais-pj" },
+                { name: "E-commerce", href: "/segmentos/contabilidade-para-ecommerce" },
+                { name: "YouTubers & Creators", href: "/segmentos/contabilidade-para-youtubers-e-creators" },
+                { name: "Outros Segmentos", href: "/segmentos/contabilidade-para-outros-segmentos" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link

@@ -71,9 +71,10 @@ export default function Blog() {
 
   const filteredPosts = posts.filter((post) => {
     const matchesCategory = selectedCategory === "Todos" || post.category === selectedCategory;
+    const matchesFunnel = selectedFunnel === "Todos" || post.etapa_funil === selectedFunnel;
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.excerpt?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesFunnel && matchesSearch;
   });
 
   const featuredPost = filteredPosts[0];

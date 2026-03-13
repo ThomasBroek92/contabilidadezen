@@ -15,6 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
 import { BlogCTASection } from '@/components/blog/BlogCTASection';
 import { BlogSidebar } from '@/components/blog/BlogSidebar';
+import { TableOfContents } from '@/components/blog/TableOfContents';
+import { TopicClusterNav } from '@/components/blog/TopicClusterNav';
 
 interface ExpertQuote {
   quote: string;

@@ -59,6 +59,8 @@ interface BlogPostData {
   authority_citations: string[] | null;
   faq_schema: { mainEntity: FAQItem[] } | null;
   freshness_date: string | null;
+  cluster_id: string | null;
+  is_pillar: boolean;
 }
 
 interface RelatedPost {

@@ -15,6 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
 import { BlogCTASection } from '@/components/blog/BlogCTASection';
 import { BlogSidebar } from '@/components/blog/BlogSidebar';
+import { TableOfContents } from '@/components/blog/TableOfContents';
+import { TopicClusterNav } from '@/components/blog/TopicClusterNav';
 
 interface ExpertQuote {
   quote: string;
@@ -57,6 +59,8 @@ interface BlogPostData {
   authority_citations: string[] | null;
   faq_schema: { mainEntity: FAQItem[] } | null;
   freshness_date: string | null;
+  cluster_id: string | null;
+  is_pillar: boolean;
 }
 
 interface RelatedPost {
@@ -343,6 +347,25 @@ export default function BlogPost() {
         <div className="py-12 lg:py-16">
           <div className="container mx-auto px-4 flex gap-8">
             <article className="flex-1 min-w-0 max-w-4xl">
+            {/* Featured Image */}
+            {post.featured_image_url && (
+              <figure className="mb-8">
+                <img
+                  src={post.featured_image_url}
+                  alt={post.title}
+                  className="w-full rounded-xl shadow-md"
+                  loading="eager"
+                  decoding="async"
+                />
+              </figure>
+            )}
+
+            {/* Table of Contents */}
+            <TableOfContents content={post.content} />
+
+            {/* Topic Cluster Navigation */}
+            <TopicClusterNav postId={post.id} clusterId={post.cluster_id} isPillar={post.is_pillar} />
+
             <MarkdownRenderer content={post.content} />
 
             {/* Mid-Content CTA */}

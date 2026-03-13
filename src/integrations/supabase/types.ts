@@ -42,6 +42,7 @@ export type Database = {
           authority_citations: string[] | null
           auto_published: boolean | null
           category: string
+          cluster_id: string | null
           content: string
           created_at: string
           ctr: number | null
@@ -56,6 +57,7 @@ export type Database = {
           freshness_date: string | null
           geo_score: number | null
           id: string
+          is_pillar: boolean
           leads_gerados: number | null
           meta_description: string | null
           meta_keywords: string[] | null
@@ -82,6 +84,7 @@ export type Database = {
           authority_citations?: string[] | null
           auto_published?: boolean | null
           category?: string
+          cluster_id?: string | null
           content: string
           created_at?: string
           ctr?: number | null
@@ -96,6 +99,7 @@ export type Database = {
           freshness_date?: string | null
           geo_score?: number | null
           id?: string
+          is_pillar?: boolean
           leads_gerados?: number | null
           meta_description?: string | null
           meta_keywords?: string[] | null
@@ -122,6 +126,7 @@ export type Database = {
           authority_citations?: string[] | null
           auto_published?: boolean | null
           category?: string
+          cluster_id?: string | null
           content?: string
           created_at?: string
           ctr?: number | null
@@ -136,6 +141,7 @@ export type Database = {
           freshness_date?: string | null
           geo_score?: number | null
           id?: string
+          is_pillar?: boolean
           leads_gerados?: number | null
           meta_description?: string | null
           meta_keywords?: string[] | null
@@ -156,7 +162,22 @@ export type Database = {
           updated_at?: string
           views?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       blog_topics: {
         Row: {

@@ -160,7 +160,7 @@ export default function Blog() {
         {/* Filter & Search */}
         <section className="py-8 bg-muted/30">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+            <div className="flex flex-col lg:flex-row gap-4 justify-between items-start">
             <div className="flex flex-col gap-4">
               {/* Categories */}
               <div className="flex flex-wrap gap-2">

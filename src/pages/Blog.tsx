@@ -20,6 +20,7 @@ interface BlogPost {
   read_time_minutes: number | null;
   published_at: string | null;
   created_at: string;
+  etapa_funil: string | null;
 }
 
 const categories = [

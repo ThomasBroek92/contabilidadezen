@@ -20,6 +20,7 @@ interface BlogPost {
   read_time_minutes: number | null;
   published_at: string | null;
   created_at: string;
+  etapa_funil: string | null;
 }
 
 const categories = [
@@ -35,9 +36,17 @@ const categories = [
 
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [selectedFunnel, setSelectedFunnel] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const funnelStages = [
+    { value: "Todos", label: "Todos" },
+    { value: "topo", label: "📘 Educativo" },
+    { value: "meio", label: "🔍 Comparativo" },
+    { value: "fundo", label: "🎯 Decisão" },
+  ];
 
   useEffect(() => {
     fetchPosts();
@@ -47,7 +56,7 @@ export default function Blog() {
     try {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, category, read_time_minutes, published_at, created_at')
+        .select('id, title, slug, excerpt, category, read_time_minutes, published_at, created_at, etapa_funil')
         .eq('status', 'published')
         .order('published_at', { ascending: false });
 
@@ -62,9 +71,10 @@ export default function Blog() {
 
   const filteredPosts = posts.filter((post) => {
     const matchesCategory = selectedCategory === "Todos" || post.category === selectedCategory;
+    const matchesFunnel = selectedFunnel === "Todos" || post.etapa_funil === selectedFunnel;
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.excerpt?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesFunnel && matchesSearch;
   });
 
   const featuredPost = filteredPosts[0];
@@ -150,7 +160,8 @@ export default function Blog() {
         {/* Filter & Search */}
         <section className="py-8 bg-muted/30">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+            <div className="flex flex-col lg:flex-row gap-4 justify-between items-start">
+            <div className="flex flex-col gap-4">
               {/* Categories */}
               <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
@@ -167,6 +178,24 @@ export default function Blog() {
                   </button>
                 ))}
               </div>
+
+              {/* Funnel Stage Filter */}
+              <div className="flex flex-wrap gap-2">
+                {funnelStages.map((stage) => (
+                  <button
+                    key={stage.value}
+                    onClick={() => setSelectedFunnel(stage.value)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                      selectedFunnel === stage.value
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card text-muted-foreground border-border hover:bg-muted"
+                    }`}
+                  >
+                    {stage.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
               {/* Search */}
               <div className="relative w-full lg:w-72">

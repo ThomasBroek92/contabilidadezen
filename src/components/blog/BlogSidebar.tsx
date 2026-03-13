@@ -1,13 +1,61 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Building2, Calculator, BarChart3, MessageCircle } from 'lucide-react';
+import { Building2, Calculator, BarChart3, MessageCircle, TrendingUp } from 'lucide-react';
 import { getWhatsAppLinkByKey } from '@/lib/whatsapp';
+import { supabase } from '@/integrations/supabase/client';
+
+interface PopularPost {
+  title: string;
+  slug: string;
+  views: number | null;
+}
 
 export function BlogSidebar() {
+  const [popularPosts, setPopularPosts] = useState<PopularPost[]>([]);
+
+  useEffect(() => {
+    const fetchPopular = async () => {
+      const { data } = await supabase
+        .from('blog_posts')
+        .select('title, slug, views')
+        .eq('status', 'published')
+        .order('views', { ascending: false })
+        .limit(5);
+      if (data) setPopularPosts(data as PopularPost[]);
+    };
+    fetchPopular();
+  }, []);
+
   return (
     <aside className="hidden lg:block w-80 shrink-0">
       <div className="sticky top-24 space-y-4">
+        {/* Popular Posts */}
+        {popularPosts.length > 0 && (
+          <Card>
+            <CardContent className="pt-5 space-y-3">
+              <div className="flex items-center gap-2 text-foreground">
+                <TrendingUp className="h-5 w-5 text-secondary" />
+                <h3 className="font-semibold text-sm">Mais Lidos</h3>
+              </div>
+              <ul className="space-y-2">
+                {popularPosts.map((post, i) => (
+                  <li key={post.slug}>
+                    <Link
+                      to={`/blog/${post.slug}`}
+                      className="flex items-start gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
+                    >
+                      <span className="text-secondary font-bold shrink-0">{i + 1}.</span>
+                      <span className="line-clamp-2">{post.title}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="pt-5 space-y-3">
             <div className="flex items-center gap-2 text-primary">

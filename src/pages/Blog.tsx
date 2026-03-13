@@ -161,6 +161,7 @@ export default function Blog() {
         <section className="py-8 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+            <div className="flex flex-col gap-4">
               {/* Categories */}
               <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
@@ -177,6 +178,24 @@ export default function Blog() {
                   </button>
                 ))}
               </div>
+
+              {/* Funnel Stage Filter */}
+              <div className="flex flex-wrap gap-2">
+                {funnelStages.map((stage) => (
+                  <button
+                    key={stage.value}
+                    onClick={() => setSelectedFunnel(stage.value)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                      selectedFunnel === stage.value
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card text-muted-foreground border-border hover:bg-muted"
+                    }`}
+                  >
+                    {stage.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
               {/* Search */}
               <div className="relative w-full lg:w-72">

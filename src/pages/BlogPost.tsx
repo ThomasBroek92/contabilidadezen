@@ -347,6 +347,25 @@ export default function BlogPost() {
         <div className="py-12 lg:py-16">
           <div className="container mx-auto px-4 flex gap-8">
             <article className="flex-1 min-w-0 max-w-4xl">
+            {/* Featured Image */}
+            {post.featured_image_url && (
+              <figure className="mb-8">
+                <img
+                  src={post.featured_image_url}
+                  alt={post.title}
+                  className="w-full rounded-xl shadow-md"
+                  loading="eager"
+                  decoding="async"
+                />
+              </figure>
+            )}
+
+            {/* Table of Contents */}
+            <TableOfContents content={post.content} />
+
+            {/* Topic Cluster Navigation */}
+            <TopicClusterNav postId={post.id} clusterId={post.cluster_id} isPillar={post.is_pillar} />
+
             <MarkdownRenderer content={post.content} />
 
             {/* Mid-Content CTA */}

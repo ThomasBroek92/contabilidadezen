@@ -56,7 +56,7 @@ export default function Blog() {
     try {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, category, read_time_minutes, published_at, created_at')
+        .select('id, title, slug, excerpt, category, read_time_minutes, published_at, created_at, etapa_funil')
         .eq('status', 'published')
         .order('published_at', { ascending: false });
 

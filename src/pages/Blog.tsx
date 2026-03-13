@@ -36,9 +36,17 @@ const categories = [
 
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [selectedFunnel, setSelectedFunnel] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const funnelStages = [
+    { value: "Todos", label: "Todos" },
+    { value: "topo", label: "📘 Educativo" },
+    { value: "meio", label: "🔍 Comparativo" },
+    { value: "fundo", label: "🎯 Decisão" },
+  ];
 
   useEffect(() => {
     fetchPosts();

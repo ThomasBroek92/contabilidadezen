@@ -21,6 +21,8 @@ interface BlogPost {
   published_at: string | null;
   created_at: string;
   etapa_funil: string | null;
+  views: number | null;
+  featured_image_url: string | null;
 }
 
 const categories = [

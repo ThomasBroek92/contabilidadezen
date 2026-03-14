@@ -17,6 +17,7 @@ import { BlogCTASection } from '@/components/blog/BlogCTASection';
 import { BlogSidebar } from '@/components/blog/BlogSidebar';
 import { TableOfContents } from '@/components/blog/TableOfContents';
 import { TopicClusterNav } from '@/components/blog/TopicClusterNav';
+import { injectInternalLinks } from '@/lib/internal-links';
 
 interface ExpertQuote {
   quote: string;

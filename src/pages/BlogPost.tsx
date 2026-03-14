@@ -8,16 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, Loader2, Quote, BarChart2, ExternalLink, RefreshCw } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, ArrowRight, Loader2, Quote, BarChart2, ExternalLink, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useToast } from '@/hooks/use-toast';
+
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
 import { BlogCTASection } from '@/components/blog/BlogCTASection';
 import { BlogSidebar } from '@/components/blog/BlogSidebar';
 import { TableOfContents } from '@/components/blog/TableOfContents';
 import { TopicClusterNav } from '@/components/blog/TopicClusterNav';
 import { injectInternalLinks } from '@/lib/internal-links';
+import { ReadingProgressBar } from '@/components/blog/ReadingProgressBar';
+import { SocialShareButtons } from '@/components/blog/SocialShareButtons';
 
 interface ExpertQuote {
   quote: string;
@@ -76,7 +78,7 @@ interface RelatedPost {
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -139,6 +141,9 @@ export default function BlogPost() {
 
       setPost(data as unknown as BlogPostData);
 
+      // Increment view count (fire-and-forget)
+      supabase.rpc('increment_blog_views', { post_slug: postSlug }).then();
+
       // Fetch related posts
       const { data: related } = await supabase
         .from('blog_posts')
@@ -157,24 +162,6 @@ export default function BlogPost() {
     }
   };
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    const title = post?.title || 'Blog Contabilidade Zen';
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, url });
-      } catch (err) {
-        // User cancelled
-      }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast({
-        title: 'Link copiado!',
-        description: 'O link foi copiado para a área de transferência.',
-      });
-    }
-  };
 
 
 
@@ -238,6 +225,7 @@ export default function BlogPost() {
         }))}
       />
 
+      <ReadingProgressBar />
       <Header />
 
       <main>
@@ -310,10 +298,10 @@ export default function BlogPost() {
                 )}
               </div>
 
-              <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
-                <Share2 className="h-4 w-4" />
-                Compartilhar
-              </Button>
+              <SocialShareButtons 
+                url={`https://www.contabilidadezen.com.br/blog/${post.slug}`} 
+                title={post.title} 
+              />
             </div>
           </div>
         </header>
@@ -450,15 +438,23 @@ export default function BlogPost() {
               </div>
             )}
 
-            {/* Freshness Footer (GEO-friendly) */}
-            <div className="mt-12 pt-8 border-t border-border text-center">
-              <p className="text-sm text-muted-foreground">
-                <strong>Última atualização:</strong>{' '}
-                {format(new Date(post.freshness_date || post.published_at || post.created_at), "MMMM 'de' yyyy", { locale: ptBR })}
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Revisado por: <strong>Equipe Contabilidade Zen</strong>
-              </p>
+            {/* Freshness Footer + Social Share (GEO-friendly) */}
+            <div className="mt-12 pt-8 border-t border-border">
+              <div className="text-center mb-6">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Última atualização:</strong>{' '}
+                  {format(new Date(post.freshness_date || post.published_at || post.created_at), "MMMM 'de' yyyy", { locale: ptBR })}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Revisado por: <strong>Equipe Contabilidade Zen</strong>
+                </p>
+              </div>
+              <div className="flex justify-center">
+                <SocialShareButtons 
+                  url={`https://www.contabilidadezen.com.br/blog/${post.slug}`} 
+                  title={post.title} 
+                />
+              </div>
             </div>
 
             {/* End-Content CTA */}

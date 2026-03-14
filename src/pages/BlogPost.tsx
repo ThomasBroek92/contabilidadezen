@@ -366,8 +366,8 @@ export default function BlogPost() {
 
             {/* Topic Cluster Navigation */}
             <TopicClusterNav postId={post.id} clusterId={post.cluster_id} isPillar={post.is_pillar} />
-
-            <MarkdownRenderer content={post.content} />
+            {/* Content with auto internal links */}
+            <MarkdownRenderer content={injectInternalLinks(post.content)} />
 
             {/* Mid-Content CTA */}
             <BlogCTASection position="mid" postTitle={post.title} />

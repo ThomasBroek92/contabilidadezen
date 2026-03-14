@@ -240,6 +240,7 @@ export default function BlogPost() {
         }))}
       />
 
+      <ReadingProgressBar />
       <Header />
 
       <main>

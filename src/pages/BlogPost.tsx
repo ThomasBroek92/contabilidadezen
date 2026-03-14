@@ -453,15 +453,23 @@ export default function BlogPost() {
               </div>
             )}
 
-            {/* Freshness Footer (GEO-friendly) */}
-            <div className="mt-12 pt-8 border-t border-border text-center">
-              <p className="text-sm text-muted-foreground">
-                <strong>Última atualização:</strong>{' '}
-                {format(new Date(post.freshness_date || post.published_at || post.created_at), "MMMM 'de' yyyy", { locale: ptBR })}
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Revisado por: <strong>Equipe Contabilidade Zen</strong>
-              </p>
+            {/* Freshness Footer + Social Share (GEO-friendly) */}
+            <div className="mt-12 pt-8 border-t border-border">
+              <div className="text-center mb-6">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Última atualização:</strong>{' '}
+                  {format(new Date(post.freshness_date || post.published_at || post.created_at), "MMMM 'de' yyyy", { locale: ptBR })}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Revisado por: <strong>Equipe Contabilidade Zen</strong>
+                </p>
+              </div>
+              <div className="flex justify-center">
+                <SocialShareButtons 
+                  url={`https://www.contabilidadezen.com.br/blog/${post.slug}`} 
+                  title={post.title} 
+                />
+              </div>
             </div>
 
             {/* End-Content CTA */}

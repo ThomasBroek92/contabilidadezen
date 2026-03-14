@@ -159,6 +159,49 @@ export default function Blog() {
           </section>
         )}
 
+        {/* Popular Posts - Mais Lidos */}
+        {!loading && posts.length > 3 && (() => {
+          const popularPosts = [...posts]
+            .sort((a, b) => (b.views || 0) - (a.views || 0))
+            .slice(0, 4)
+            .filter(p => (p.views || 0) > 0);
+          
+          if (popularPosts.length === 0) return null;
+          
+          return (
+            <section className="py-10 bg-muted/20">
+              <div className="container mx-auto px-4">
+                <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Mais Lidos
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {popularPosts.map((post, index) => (
+                    <Link
+                      key={post.id}
+                      to={`/blog/${post.slug}`}
+                      className="group flex gap-3 p-4 bg-card rounded-xl border border-border hover:border-secondary/50 hover:shadow-card transition-all"
+                    >
+                      <span className="text-3xl font-bold text-primary/20 group-hover:text-primary/40 transition-colors">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-2">
+                          {post.title}
+                        </h3>
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                          <Eye className="h-3 w-3" />
+                          {post.views || 0} views
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        })()}
+
         {/* Filter & Search */}
         <section className="py-8 bg-muted/30">
           <div className="container mx-auto px-4">

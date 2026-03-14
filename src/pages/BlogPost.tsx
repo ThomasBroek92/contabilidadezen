@@ -313,10 +313,10 @@ export default function BlogPost() {
                 )}
               </div>
 
-              <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
-                <Share2 className="h-4 w-4" />
-                Compartilhar
-              </Button>
+              <SocialShareButtons 
+                url={`https://www.contabilidadezen.com.br/blog/${post.slug}`} 
+                title={post.title} 
+              />
             </div>
           </div>
         </header>

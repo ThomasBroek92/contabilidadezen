@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Calendar, Clock, ArrowRight, Search, Loader2 } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Search, Loader2, TrendingUp, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";

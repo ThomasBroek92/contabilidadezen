@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar, Clock, ArrowLeft, ArrowRight, Share2, Loader2, Quote, BarChart2, ExternalLink, RefreshCw } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, ArrowRight, Loader2, Quote, BarChart2, ExternalLink, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';

@@ -162,24 +162,6 @@ export default function BlogPost() {
     }
   };
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    const title = post?.title || 'Blog Contabilidade Zen';
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, url });
-      } catch (err) {
-        // User cancelled
-      }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast({
-        title: 'Link copiado!',
-        description: 'O link foi copiado para a área de transferência.',
-      });
-    }
-  };
 
 
 

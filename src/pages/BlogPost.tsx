@@ -18,6 +18,8 @@ import { BlogSidebar } from '@/components/blog/BlogSidebar';
 import { TableOfContents } from '@/components/blog/TableOfContents';
 import { TopicClusterNav } from '@/components/blog/TopicClusterNav';
 import { injectInternalLinks } from '@/lib/internal-links';
+import { ReadingProgressBar } from '@/components/blog/ReadingProgressBar';
+import { SocialShareButtons } from '@/components/blog/SocialShareButtons';
 
 interface ExpertQuote {
   quote: string;

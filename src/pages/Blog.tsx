@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Calendar, Clock, ArrowRight, Search, Loader2 } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Search, Loader2, TrendingUp, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,8 @@ interface BlogPost {
   published_at: string | null;
   created_at: string;
   etapa_funil: string | null;
+  views: number | null;
+  featured_image_url: string | null;
 }
 
 const categories = [
@@ -56,7 +58,7 @@ export default function Blog() {
     try {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, category, read_time_minutes, published_at, created_at, etapa_funil')
+        .select('id, title, slug, excerpt, category, read_time_minutes, published_at, created_at, etapa_funil, views, featured_image_url')
         .eq('status', 'published')
         .order('published_at', { ascending: false });
 
@@ -156,6 +158,49 @@ export default function Blog() {
             </div>
           </section>
         )}
+
+        {/* Popular Posts - Mais Lidos */}
+        {!loading && posts.length > 3 && (() => {
+          const popularPosts = [...posts]
+            .sort((a, b) => (b.views || 0) - (a.views || 0))
+            .slice(0, 4)
+            .filter(p => (p.views || 0) > 0);
+          
+          if (popularPosts.length === 0) return null;
+          
+          return (
+            <section className="py-10 bg-muted/20">
+              <div className="container mx-auto px-4">
+                <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Mais Lidos
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {popularPosts.map((post, index) => (
+                    <Link
+                      key={post.id}
+                      to={`/blog/${post.slug}`}
+                      className="group flex gap-3 p-4 bg-card rounded-xl border border-border hover:border-secondary/50 hover:shadow-card transition-all"
+                    >
+                      <span className="text-3xl font-bold text-primary/20 group-hover:text-primary/40 transition-colors">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-2">
+                          {post.title}
+                        </h3>
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                          <Eye className="h-3 w-3" />
+                          {post.views || 0} views
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* Filter & Search */}
         <section className="py-8 bg-muted/30">

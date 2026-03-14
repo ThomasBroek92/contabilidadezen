@@ -1236,6 +1236,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_blog_views: { Args: { post_slug: string }; Returns: undefined }
       publish_scheduled_posts: { Args: never; Returns: undefined }
     }
     Enums: {

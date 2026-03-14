@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Calendar, Clock, ArrowLeft, ArrowRight, Loader2, Quote, BarChart2, ExternalLink, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useToast } from '@/hooks/use-toast';
+
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer';
 import { BlogCTASection } from '@/components/blog/BlogCTASection';
 import { BlogSidebar } from '@/components/blog/BlogSidebar';

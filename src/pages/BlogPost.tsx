@@ -141,6 +141,9 @@ export default function BlogPost() {
 
       setPost(data as unknown as BlogPostData);
 
+      // Increment view count (fire-and-forget)
+      supabase.rpc('increment_blog_views', { post_slug: postSlug }).then();
+
       // Fetch related posts
       const { data: related } = await supabase
         .from('blog_posts')

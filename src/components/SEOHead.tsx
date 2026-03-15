@@ -371,6 +371,8 @@ export function BlogPostSEO({
       tags={tags}
       pageType="blog-post"
       faqs={faqs}
+      wordCount={wordCount}
+      readTimeMinutes={readTimeMinutes}
       breadcrumbs={[
         { name: "Home", url: SITE_URL },
         { name: "Blog", url: `${SITE_URL}/blog` },

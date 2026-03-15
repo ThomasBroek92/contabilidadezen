@@ -444,7 +444,29 @@ export default function BlogPost() {
               </div>
             )}
 
-            {/* Freshness Footer + Social Share (GEO-friendly) */}
+            {/* Visual FAQ Section */}
+            {post.faq_schema?.mainEntity && post.faq_schema.mainEntity.length > 0 && (
+              <div className="mt-12 pt-8 border-t border-border">
+                <h2 className="text-xl font-bold text-foreground mb-6">Perguntas Frequentes</h2>
+                <Accordion type="single" collapsible className="w-full">
+                  {post.faq_schema.mainEntity.map((faq: any, index: number) => (
+                    <AccordionItem key={index} value={`faq-${index}`}>
+                      <AccordionTrigger className="text-left text-foreground hover:text-primary">
+                        {faq.name || faq.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground leading-relaxed">
+                        {faq.acceptedAnswer?.text || faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+            )}
+
+            {/* Author Box (E-E-A-T) */}
+            <AuthorBox />
+
+            {/* Freshness Footer + Social Share */}
             <div className="mt-12 pt-8 border-t border-border">
               <div className="text-center mb-6">
                 <p className="text-sm text-muted-foreground">

@@ -150,10 +150,11 @@ export default function BlogPost() {
       // Fetch related posts
       const { data: related } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, category, read_time_minutes')
+        .select('id, title, slug, excerpt, category, read_time_minutes, featured_image_url')
         .eq('status', 'published')
         .eq('category', data.category)
         .neq('id', data.id)
+        .order('views', { ascending: false })
         .limit(3);
 
       setRelatedPosts((related as RelatedPost[]) || []);

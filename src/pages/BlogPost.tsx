@@ -20,6 +20,8 @@ import { TopicClusterNav } from '@/components/blog/TopicClusterNav';
 import { injectInternalLinks } from '@/lib/internal-links';
 import { ReadingProgressBar } from '@/components/blog/ReadingProgressBar';
 import { SocialShareButtons } from '@/components/blog/SocialShareButtons';
+import { AuthorBox } from '@/components/blog/AuthorBox';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface ExpertQuote {
   quote: string;

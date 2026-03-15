@@ -342,7 +342,9 @@ export function BlogPostSEO({
   featuredImage,
   category,
   tags,
-  faqs
+  faqs,
+  wordCount,
+  readTimeMinutes,
 }: {
   title: string;
   description: string;
@@ -353,6 +355,8 @@ export function BlogPostSEO({
   category?: string;
   tags?: string[];
   faqs?: Array<{ question: string; answer: string }>;
+  wordCount?: number;
+  readTimeMinutes?: number;
 }) {
   return (
     <SEOHead

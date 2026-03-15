@@ -20,6 +20,8 @@ import { TopicClusterNav } from '@/components/blog/TopicClusterNav';
 import { injectInternalLinks } from '@/lib/internal-links';
 import { ReadingProgressBar } from '@/components/blog/ReadingProgressBar';
 import { SocialShareButtons } from '@/components/blog/SocialShareButtons';
+import { AuthorBox } from '@/components/blog/AuthorBox';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface ExpertQuote {
   quote: string;
@@ -73,6 +75,7 @@ interface RelatedPost {
   excerpt: string | null;
   category: string;
   read_time_minutes: number | null;
+  featured_image_url: string | null;
 }
 
 export default function BlogPost() {
@@ -147,10 +150,11 @@ export default function BlogPost() {
       // Fetch related posts
       const { data: related } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, category, read_time_minutes')
+        .select('id, title, slug, excerpt, category, read_time_minutes, featured_image_url')
         .eq('status', 'published')
         .eq('category', data.category)
         .neq('id', data.id)
+        .order('views', { ascending: false })
         .limit(3);
 
       setRelatedPosts((related as RelatedPost[]) || []);
@@ -219,6 +223,8 @@ export default function BlogPost() {
         featuredImage={post.featured_image_url || undefined}
         category={post.category}
         tags={post.meta_keywords || undefined}
+        wordCount={post.content.split(/\s+/).length}
+        readTimeMinutes={post.read_time_minutes || 5}
         faqs={post.faq_schema?.mainEntity?.map((item: any) => ({
           question: item.name || item.question,
           answer: item.acceptedAnswer?.text || item.answer
@@ -438,7 +444,29 @@ export default function BlogPost() {
               </div>
             )}
 
-            {/* Freshness Footer + Social Share (GEO-friendly) */}
+            {/* Visual FAQ Section */}
+            {post.faq_schema?.mainEntity && post.faq_schema.mainEntity.length > 0 && (
+              <div className="mt-12 pt-8 border-t border-border">
+                <h2 className="text-xl font-bold text-foreground mb-6">Perguntas Frequentes</h2>
+                <Accordion type="single" collapsible className="w-full">
+                  {post.faq_schema.mainEntity.map((faq: any, index: number) => (
+                    <AccordionItem key={index} value={`faq-${index}`}>
+                      <AccordionTrigger className="text-left text-foreground hover:text-primary">
+                        {faq.name || faq.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground leading-relaxed">
+                        {faq.acceptedAnswer?.text || faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+            )}
+
+            {/* Author Box (E-E-A-T) */}
+            <AuthorBox />
+
+            {/* Freshness Footer + Social Share */}
             <div className="mt-12 pt-8 border-t border-border">
               <div className="text-center mb-6">
                 <p className="text-sm text-muted-foreground">
@@ -478,7 +506,19 @@ export default function BlogPost() {
                     key={related.id}
                     className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-secondary/50 hover:shadow-card transition-all"
                   >
-                    <div className="h-2 bg-gradient-to-r from-zen-teal to-zen-blue"></div>
+                    {related.featured_image_url ? (
+                      <Link to={`/blog/${related.slug}`}>
+                        <img
+                          src={related.featured_image_url}
+                          alt={related.title}
+                          className="w-full h-40 object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </Link>
+                    ) : (
+                      <div className="h-2 bg-gradient-to-r from-zen-teal to-zen-blue" />
+                    )}
                     <div className="p-6">
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                         <Badge variant="secondary" className="font-medium">

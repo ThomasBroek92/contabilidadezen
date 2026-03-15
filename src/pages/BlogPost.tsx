@@ -506,7 +506,19 @@ export default function BlogPost() {
                     key={related.id}
                     className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-secondary/50 hover:shadow-card transition-all"
                   >
-                    <div className="h-2 bg-gradient-to-r from-zen-teal to-zen-blue"></div>
+                    {related.featured_image_url ? (
+                      <Link to={`/blog/${related.slug}`}>
+                        <img
+                          src={related.featured_image_url}
+                          alt={related.title}
+                          className="w-full h-40 object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </Link>
+                    ) : (
+                      <div className="h-2 bg-gradient-to-r from-zen-teal to-zen-blue" />
+                    )}
                     <div className="p-6">
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                         <Badge variant="secondary" className="font-medium">

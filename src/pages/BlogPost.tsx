@@ -223,6 +223,8 @@ export default function BlogPost() {
         featuredImage={post.featured_image_url || undefined}
         category={post.category}
         tags={post.meta_keywords || undefined}
+        wordCount={post.content.split(/\s+/).length}
+        readTimeMinutes={post.read_time_minutes || 5}
         faqs={post.faq_schema?.mainEntity?.map((item: any) => ({
           question: item.name || item.question,
           answer: item.acceptedAnswer?.text || item.answer

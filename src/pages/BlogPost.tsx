@@ -75,6 +75,7 @@ interface RelatedPost {
   excerpt: string | null;
   category: string;
   read_time_minutes: number | null;
+  featured_image_url: string | null;
 }
 
 export default function BlogPost() {

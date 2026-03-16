@@ -154,17 +154,41 @@ export default function BlogPost() {
       // Increment view count (fire-and-forget)
       supabase.rpc('increment_blog_views', { post_slug: postSlug }).then();
 
-      // Fetch related posts
-      const { data: related } = await supabase
-        .from('blog_posts')
-        .select('id, title, slug, excerpt, category, read_time_minutes, featured_image_url')
-        .eq('status', 'published')
-        .eq('category', data.category)
-        .neq('id', data.id)
-        .order('views', { ascending: false })
-        .limit(3);
+      // Fetch related posts + prev/next in parallel
+      const publishedAt = data.published_at || data.created_at;
 
-      setRelatedPosts((related as RelatedPost[]) || []);
+      const [relatedRes, prevRes, nextRes] = await Promise.all([
+        supabase
+          .from('blog_posts')
+          .select('id, title, slug, excerpt, category, read_time_minutes, featured_image_url')
+          .eq('status', 'published')
+          .eq('category', data.category)
+          .neq('id', data.id)
+          .order('views', { ascending: false })
+          .limit(3),
+        supabase
+          .from('blog_posts')
+          .select('title, slug')
+          .eq('status', 'published')
+          .eq('category', data.category)
+          .lt('published_at', publishedAt)
+          .order('published_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('blog_posts')
+          .select('title, slug')
+          .eq('status', 'published')
+          .eq('category', data.category)
+          .gt('published_at', publishedAt)
+          .order('published_at', { ascending: true })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+
+      setRelatedPosts((relatedRes.data as RelatedPost[]) || []);
+      setPrevPost(prevRes.data as AdjacentPost | null);
+      setNextPost(nextRes.data as AdjacentPost | null);
     } catch (error) {
       console.error('Error fetching post:', error);
       setNotFound(true);

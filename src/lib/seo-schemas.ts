@@ -213,20 +213,30 @@ export const breadcrumbSchema = (items: Array<{ name: string; url: string }>) =>
 });
 
 // Blog listing schema (CollectionPage + ItemList)
-export const generateBlogListingSchema = (posts: Array<{ title: string; slug: string; excerpt?: string | null }>) => ({
+export const generateBlogListingSchema = (posts: Array<{ title: string; slug: string; excerpt?: string | null; featured_image_url?: string | null; published_at?: string | null; created_at?: string }>) => ({
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "name": "Blog Contabilidade Zen",
   "description": "Conteúdo especializado sobre contabilidade, impostos e gestão financeira para profissionais.",
   "url": `${SITE_URL}/blog`,
   "isPartOf": { "@id": `${SITE_URL}/#website` },
+  "publisher": { "@id": `${SITE_URL}/#organization` },
   "mainEntity": {
     "@type": "ItemList",
-    "itemListElement": posts.slice(0, 20).map((post, index) => ({
+    "numberOfItems": posts.length,
+    "itemListElement": posts.slice(0, 30).map((post, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "url": `${SITE_URL}/blog/${post.slug}`,
-      "name": post.title
+      "name": post.title,
+      "item": {
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "url": `${SITE_URL}/blog/${post.slug}`,
+        ...(post.excerpt && { "description": post.excerpt }),
+        ...(post.featured_image_url && { "image": post.featured_image_url }),
+        ...(post.published_at && { "datePublished": post.published_at }),
+      }
     }))
   }
 });

@@ -265,7 +265,19 @@ export default function Blog() {
                   key={post.id}
                   className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-secondary/50 hover:shadow-card transition-all"
                 >
-                  <div className="h-2 bg-gradient-to-r from-zen-teal to-zen-blue"></div>
+                  {post.featured_image_url ? (
+                    <Link to={`/blog/${post.slug}`}>
+                      <img
+                        src={post.featured_image_url}
+                        alt={post.title}
+                        className="w-full h-44 object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </Link>
+                  ) : (
+                    <div className="h-2 bg-gradient-to-r from-zen-teal to-zen-blue" />
+                  )}
                   
                   <div className="p-6">
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">

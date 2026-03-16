@@ -78,12 +78,19 @@ interface RelatedPost {
   featured_image_url: string | null;
 }
 
+interface AdjacentPost {
+  title: string;
+  slug: string;
+}
+
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
+  const [prevPost, setPrevPost] = useState<AdjacentPost | null>(null);
+  const [nextPost, setNextPost] = useState<AdjacentPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -147,17 +154,41 @@ export default function BlogPost() {
       // Increment view count (fire-and-forget)
       supabase.rpc('increment_blog_views', { post_slug: postSlug }).then();
 
-      // Fetch related posts
-      const { data: related } = await supabase
-        .from('blog_posts')
-        .select('id, title, slug, excerpt, category, read_time_minutes, featured_image_url')
-        .eq('status', 'published')
-        .eq('category', data.category)
-        .neq('id', data.id)
-        .order('views', { ascending: false })
-        .limit(3);
+      // Fetch related posts + prev/next in parallel
+      const publishedAt = data.published_at || data.created_at;
 
-      setRelatedPosts((related as RelatedPost[]) || []);
+      const [relatedRes, prevRes, nextRes] = await Promise.all([
+        supabase
+          .from('blog_posts')
+          .select('id, title, slug, excerpt, category, read_time_minutes, featured_image_url')
+          .eq('status', 'published')
+          .eq('category', data.category)
+          .neq('id', data.id)
+          .order('views', { ascending: false })
+          .limit(3),
+        supabase
+          .from('blog_posts')
+          .select('title, slug')
+          .eq('status', 'published')
+          .eq('category', data.category)
+          .lt('published_at', publishedAt)
+          .order('published_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('blog_posts')
+          .select('title, slug')
+          .eq('status', 'published')
+          .eq('category', data.category)
+          .gt('published_at', publishedAt)
+          .order('published_at', { ascending: true })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+
+      setRelatedPosts((relatedRes.data as RelatedPost[]) || []);
+      setPrevPost(prevRes.data as AdjacentPost | null);
+      setNextPost(nextRes.data as AdjacentPost | null);
     } catch (error) {
       console.error('Error fetching post:', error);
       setNotFound(true);
@@ -552,6 +583,44 @@ export default function BlogPost() {
               </div>
             </div>
           </section>
+        )}
+
+        {/* Prev/Next Navigation */}
+        {(prevPost || nextPost) && (
+          <nav className="py-8 bg-background border-t border-border" aria-label="Navegação entre artigos">
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {prevPost ? (
+                  <Link
+                    to={`/blog/${prevPost.slug}`}
+                    className="group flex items-center gap-3 p-4 rounded-xl border border-border hover:border-secondary/50 hover:shadow-card transition-all"
+                  >
+                    <ArrowLeft className="h-5 w-5 text-muted-foreground group-hover:text-secondary shrink-0" />
+                    <div className="min-w-0">
+                      <span className="text-xs text-muted-foreground">Artigo anterior</span>
+                      <p className="text-sm font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-1">
+                        {prevPost.title}
+                      </p>
+                    </div>
+                  </Link>
+                ) : <div />}
+                {nextPost && (
+                  <Link
+                    to={`/blog/${nextPost.slug}`}
+                    className="group flex items-center gap-3 p-4 rounded-xl border border-border hover:border-secondary/50 hover:shadow-card transition-all text-right md:justify-end"
+                  >
+                    <div className="min-w-0">
+                      <span className="text-xs text-muted-foreground">Próximo artigo</span>
+                      <p className="text-sm font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-1">
+                        {nextPost.title}
+                      </p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-secondary shrink-0" />
+                  </Link>
+                )}
+              </div>
+            </div>
+          </nav>
         )}
 
         {/* Back to Blog */}

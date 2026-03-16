@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { HeroMultiNiche } from "@/components/sections/HeroMultiNiche";
 import { ScrollAnimation } from "@/components/ui/scroll-animation";
-import { homeFAQs } from "@/lib/seo-schemas";
+import { homeFAQs, webSiteSchema, siteNavigationSchema } from "@/lib/seo-schemas";
 
 // Lazy load de componentes abaixo da dobra para reduzir bundle inicial
 const NichesCarousel = lazy(() => 

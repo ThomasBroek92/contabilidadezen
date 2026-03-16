@@ -3,10 +3,10 @@ import { generateBlogListingSchema } from "@/lib/seo-schemas";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Calendar, Clock, ArrowRight, Search, Loader2, TrendingUp, Eye } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Calendar, Clock, ArrowRight, Search, Loader2, TrendingUp, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -36,12 +36,18 @@ const categories = [
   "Legislação",
 ];
 
+const POSTS_PER_PAGE = 12;
+const SITE_URL = "https://www.contabilidadezen.com.br";
+
 export default function Blog() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [selectedFunnel, setSelectedFunnel] = useState("Todos");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get("q") || searchParams.get("search") || "");
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
   const funnelStages = [
     { value: "Todos", label: "Todos" },
@@ -53,6 +59,14 @@ export default function Blog() {
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  // Sync search param from URL on mount
+  useEffect(() => {
+    const q = searchParams.get("q") || searchParams.get("search") || "";
+    if (q && q !== searchTerm) {
+      setSearchTerm(q);
+    }
+  }, [searchParams]);
 
   const fetchPosts = async () => {
     try {
@@ -80,8 +94,58 @@ export default function Blog() {
   });
 
   const featuredPost = filteredPosts[0];
+  const remainingPosts = filteredPosts.slice(1);
 
-  const SITE_URL = "https://www.contabilidadezen.com.br";
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(remainingPosts.length / POSTS_PER_PAGE));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+  const paginatedPosts = remainingPosts.slice((safePage - 1) * POSTS_PER_PAGE, safePage * POSTS_PER_PAGE);
+
+  const goToPage = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    if (page <= 1) {
+      params.delete("page");
+    } else {
+      params.set("page", String(page));
+    }
+    setSearchParams(params, { replace: true });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set("q", value);
+    } else {
+      params.delete("q");
+    }
+    params.delete("page");
+    setSearchParams(params, { replace: true });
+  };
+
+  // Pagination SEO links
+  const canonicalBase = `${SITE_URL}/blog`;
+  const currentCanonical = safePage > 1 ? `${canonicalBase}?page=${safePage}` : canonicalBase;
+  const prevPageUrl = safePage > 1 ? (safePage === 2 ? canonicalBase : `${canonicalBase}?page=${safePage - 1}`) : undefined;
+  const nextPageUrl = safePage < totalPages ? `${canonicalBase}?page=${safePage + 1}` : undefined;
+
+  // Generate page numbers to display
+  const pageNumbers = useMemo(() => {
+    const pages: (number | "ellipsis")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safePage > 3) pages.push("ellipsis");
+      for (let i = Math.max(2, safePage - 1); i <= Math.min(totalPages - 1, safePage + 1); i++) {
+        pages.push(i);
+      }
+      if (safePage < totalPages - 2) pages.push("ellipsis");
+      pages.push(totalPages);
+    }
+    return pages;
+  }, [safePage, totalPages]);
 
   return (
     <>
@@ -89,8 +153,10 @@ export default function Blog() {
         title="Blog | Dicas de Contabilidade para Saúde"
         description="Blog com dicas de contabilidade, impostos e gestão financeira para médicos, dentistas e profissionais da saúde. Conteúdo especializado e atualizado."
         keywords="blog contabilidade, dicas impostos médicos, contabilidade saúde, tributação PJ, planejamento tributário"
-        canonical="/blog"
+        canonical={currentCanonical}
         pageType="blog"
+        prevPageUrl={prevPageUrl}
+        nextPageUrl={nextPageUrl}
         breadcrumbs={[
           { name: "Home", url: SITE_URL },
           { name: "Blog", url: `${SITE_URL}/blog` }
@@ -120,7 +186,7 @@ export default function Blog() {
           <div className="py-12 flex justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : featuredPost && (
+        ) : featuredPost && safePage === 1 && (
           <section className="py-12 bg-background">
             <div className="container mx-auto px-4">
               <div className="bg-card rounded-2xl overflow-hidden border border-border hover:shadow-card transition-all">
@@ -160,7 +226,7 @@ export default function Blog() {
         )}
 
         {/* Popular Posts - Mais Lidos */}
-        {!loading && posts.length > 3 && (() => {
+        {!loading && posts.length > 3 && safePage === 1 && (() => {
           const popularPosts = [...posts]
             .sort((a, b) => (b.views || 0) - (a.views || 0))
             .slice(0, 4)
@@ -212,7 +278,10 @@ export default function Blog() {
                 {categories.map((category) => (
                   <button
                     key={category}
-                    onClick={() => setSelectedCategory(category)}
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      goToPage(1);
+                    }}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       selectedCategory === category
                         ? "bg-secondary text-secondary-foreground"
@@ -229,7 +298,10 @@ export default function Blog() {
                 {funnelStages.map((stage) => (
                   <button
                     key={stage.value}
-                    onClick={() => setSelectedFunnel(stage.value)}
+                    onClick={() => {
+                      setSelectedFunnel(stage.value);
+                      goToPage(1);
+                    }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
                       selectedFunnel === stage.value
                         ? "bg-primary text-primary-foreground border-primary"
@@ -248,7 +320,7 @@ export default function Blog() {
                 <Input
                   placeholder="Buscar artigos..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -260,7 +332,7 @@ export default function Blog() {
         <section className="py-12 lg:py-16 bg-background">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {filteredPosts.slice(1).map((post) => (
+              {paginatedPosts.map((post) => (
                 <article
                   key={post.id}
                   className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-secondary/50 hover:shadow-card transition-all"
@@ -322,6 +394,50 @@ export default function Blog() {
               <div className="text-center py-12">
                 <p className="text-muted-foreground">Nenhum artigo encontrado.</p>
               </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <nav className="flex items-center justify-center gap-2 mt-12" aria-label="Paginação do blog">
+                <button
+                  onClick={() => goToPage(safePage - 1)}
+                  disabled={safePage <= 1}
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:pointer-events-none transition-all"
+                  aria-label="Página anterior"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Anterior</span>
+                </button>
+
+                {pageNumbers.map((page, i) =>
+                  page === "ellipsis" ? (
+                    <span key={`ellipsis-${i}`} className="px-2 text-muted-foreground">…</span>
+                  ) : (
+                    <button
+                      key={page}
+                      onClick={() => goToPage(page)}
+                      aria-current={page === safePage ? "page" : undefined}
+                      className={`min-w-[40px] h-10 rounded-lg text-sm font-medium transition-all ${
+                        page === safePage
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+
+                <button
+                  onClick={() => goToPage(safePage + 1)}
+                  disabled={safePage >= totalPages}
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:pointer-events-none transition-all"
+                  aria-label="Próxima página"
+                >
+                  <span className="hidden sm:inline">Próxima</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </nav>
             )}
           </div>
         </section>

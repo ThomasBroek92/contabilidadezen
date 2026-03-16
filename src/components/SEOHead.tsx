@@ -41,6 +41,13 @@ interface SEOHeadProps {
   // Page type for automatic optimizations
   pageType?: "home" | "service" | "blog" | "blog-post" | "contact" | "legal" | "tool";
   
+  // Pagination
+  prevPageUrl?: string;
+  nextPageUrl?: string;
+  
+  // Freshness
+  lastModified?: string;
+  
   // Additional
   noindex?: boolean;
   nofollow?: boolean;
@@ -51,7 +58,6 @@ function optimizeTitle(title: string, pageType?: string): string {
   const maxLength = 60;
   const brandSuffix = " | Contabilidade Zen";
   
-  // Home page doesn't need suffix
   if (pageType === "home") {
     return title.length <= maxLength ? title : title.substring(0, maxLength - 3) + "...";
   }
@@ -84,27 +90,23 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
   const schemas: object[] = [];
   const fullCanonicalUrl = props.canonical?.startsWith("http") ? props.canonical : `${SITE_URL}${props.canonical || ""}`;
   
-  // Organization schema for main pages
   if (props.includeOrganization || props.pageType === "home" || props.pageType === "contact") {
     schemas.push(organizationSchema);
   }
   
-  // LocalBusiness for service and home pages
   if (props.includeLocalBusiness || props.pageType === "home" || props.pageType === "service") {
     schemas.push(localBusinessSchema);
   }
   
-  // Breadcrumbs
   if (props.breadcrumbs && props.breadcrumbs.length > 0) {
     schemas.push(breadcrumbSchema(props.breadcrumbs));
   }
   
-  // FAQ schema
   if (props.faqs && props.faqs.length > 0) {
     schemas.push(generateFAQSchema(props.faqs));
   }
   
-  // Article schema for blog posts
+  // Article schema for blog posts with speakable
   if (props.pageType === "blog-post" && props.canonical) {
     schemas.push({
       "@context": "https://schema.org",
@@ -131,6 +133,11 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
         "@type": "WebPage",
         "@id": fullCanonicalUrl
       },
+      // Speakable schema for voice search / GEO
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": ["article h1", "article .excerpt", "article h2"]
+      },
       ...(props.section && { "articleSection": props.section }),
       ...(props.tags && { "keywords": props.tags.join(", ") }),
       ...(props.wordCount && { "wordCount": props.wordCount }),
@@ -138,7 +145,6 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
     });
   }
   
-  // Service schema for service pages
   if (props.pageType === "service" && props.canonical) {
     schemas.push({
       "@context": "https://schema.org",
@@ -158,7 +164,6 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
     });
   }
   
-  // WebApplication schema for tool pages
   if (props.pageType === "tool" && props.canonical) {
     schemas.push({
       "@context": "https://schema.org",
@@ -180,7 +185,6 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
       }
     });
     
-    // Auto-generate breadcrumbs for tools if not provided
     if (!props.breadcrumbs || props.breadcrumbs.length === 0) {
       schemas.push(breadcrumbSchema([
         { name: "Home", url: SITE_URL },
@@ -216,6 +220,9 @@ export function SEOHead(props: SEOHeadProps) {
     author,
     tags,
     pageType,
+    prevPageUrl,
+    nextPageUrl,
+    lastModified,
     noindex = false,
     nofollow = false,
   } = props;
@@ -225,7 +232,6 @@ export function SEOHead(props: SEOHeadProps) {
   const fullCanonical = canonical?.startsWith("http") ? canonical : `${SITE_URL}${canonical || ""}`;
   const schemas = generatePageSchemas(props);
   
-  // Robots directive
   const robotsContent = [
     noindex ? "noindex" : "index",
     nofollow ? "nofollow" : "follow"
@@ -242,6 +248,13 @@ export function SEOHead(props: SEOHeadProps) {
       
       {/* Canonical */}
       <link rel="canonical" href={fullCanonical} />
+      
+      {/* Pagination: rel prev/next */}
+      {prevPageUrl && <link rel="prev" href={prevPageUrl} />}
+      {nextPageUrl && <link rel="next" href={nextPageUrl} />}
+      
+      {/* Last-Modified freshness signal */}
+      {lastModified && <meta httpEquiv="last-modified" content={new Date(lastModified).toUTCString()} />}
       
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={ogType} />
@@ -345,6 +358,7 @@ export function BlogPostSEO({
   faqs,
   wordCount,
   readTimeMinutes,
+  lastModified,
 }: {
   title: string;
   description: string;
@@ -357,6 +371,7 @@ export function BlogPostSEO({
   faqs?: Array<{ question: string; answer: string }>;
   wordCount?: number;
   readTimeMinutes?: number;
+  lastModified?: string;
 }) {
   return (
     <SEOHead
@@ -373,6 +388,7 @@ export function BlogPostSEO({
       faqs={faqs}
       wordCount={wordCount}
       readTimeMinutes={readTimeMinutes}
+      lastModified={lastModified}
       breadcrumbs={[
         { name: "Home", url: SITE_URL },
         { name: "Blog", url: `${SITE_URL}/blog` },

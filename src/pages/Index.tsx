@@ -60,6 +60,7 @@ const Index = () => {
         includeOrganization
         includeLocalBusiness
         faqs={homeFAQs}
+        customSchema={[webSiteSchema, siteNavigationSchema]}
       />
       <div className="min-h-screen bg-background">
         <Header />

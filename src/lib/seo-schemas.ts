@@ -241,6 +241,46 @@ export const generateBlogListingSchema = (posts: Array<{ title: string; slug: st
   }
 });
 
+// WebSite schema with SearchAction (enables sitelinks search box in Google)
+export const webSiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
+  "name": "Contabilidade Zen",
+  "alternateName": "Zen Contabilidade",
+  "url": SITE_URL,
+  "publisher": { "@id": `${SITE_URL}/#organization` },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": `${SITE_URL}/blog?q={search_term_string}`
+    },
+    "query-input": "required name=search_term_string"
+  }
+};
+
+// SiteNavigationElement schema (helps Google generate rich sitelinks)
+export const siteNavigationSchema = {
+  "@context": "https://schema.org",
+  "@type": "SiteNavigationElement",
+  "name": "Menu Principal",
+  "hasPart": [
+    { "@type": "WebPage", "name": "Home", "url": SITE_URL },
+    { "@type": "WebPage", "name": "Abrir Empresa", "url": `${SITE_URL}/abrir-empresa` },
+    { "@type": "WebPage", "name": "Contabilidade para Médicos", "url": `${SITE_URL}/segmentos/contabilidade-para-medicos` },
+    { "@type": "WebPage", "name": "Contabilidade para Dentistas", "url": `${SITE_URL}/segmentos/contabilidade-para-dentistas` },
+    { "@type": "WebPage", "name": "Contabilidade para Psicólogos", "url": `${SITE_URL}/segmentos/contabilidade-para-psicologos` },
+    { "@type": "WebPage", "name": "Contabilidade para Advogados", "url": `${SITE_URL}/segmentos/contabilidade-para-advogados` },
+    { "@type": "WebPage", "name": "Contabilidade para TI", "url": `${SITE_URL}/segmentos/contabilidade-para-profissionais-ti` },
+    { "@type": "WebPage", "name": "Blog", "url": `${SITE_URL}/blog` },
+    { "@type": "WebPage", "name": "Calculadora PJ x CLT", "url": `${SITE_URL}/conteudo/calculadora-pj-clt` },
+    { "@type": "WebPage", "name": "Contato", "url": `${SITE_URL}/contato` },
+    { "@type": "WebPage", "name": "Sobre", "url": `${SITE_URL}/sobre` },
+    { "@type": "WebPage", "name": "Indique e Ganhe", "url": `${SITE_URL}/indique-e-ganhe` },
+  ]
+};
+
 // About page schema
 export const aboutPageSchema = {
   "@context": "https://schema.org",

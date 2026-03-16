@@ -78,6 +78,11 @@ interface RelatedPost {
   featured_image_url: string | null;
 }
 
+interface AdjacentPost {
+  title: string;
+  slug: string;
+}
+
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();

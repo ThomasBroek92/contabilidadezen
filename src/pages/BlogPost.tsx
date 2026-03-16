@@ -89,6 +89,8 @@ export default function BlogPost() {
   
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
+  const [prevPost, setPrevPost] = useState<AdjacentPost | null>(null);
+  const [nextPost, setNextPost] = useState<AdjacentPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 

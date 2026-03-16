@@ -256,6 +256,7 @@ export default function BlogPost() {
         tags={post.meta_keywords || undefined}
         wordCount={post.content.split(/\s+/).length}
         readTimeMinutes={post.read_time_minutes || 5}
+        lastModified={post.freshness_date || post.published_at || post.created_at}
         faqs={post.faq_schema?.mainEntity?.map((item: any) => ({
           question: item.name || item.question,
           answer: item.acceptedAnswer?.text || item.answer

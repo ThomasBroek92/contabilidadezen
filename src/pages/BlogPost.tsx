@@ -585,6 +585,44 @@ export default function BlogPost() {
           </section>
         )}
 
+        {/* Prev/Next Navigation */}
+        {(prevPost || nextPost) && (
+          <nav className="py-8 bg-background border-t border-border" aria-label="Navegação entre artigos">
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {prevPost ? (
+                  <Link
+                    to={`/blog/${prevPost.slug}`}
+                    className="group flex items-center gap-3 p-4 rounded-xl border border-border hover:border-secondary/50 hover:shadow-card transition-all"
+                  >
+                    <ArrowLeft className="h-5 w-5 text-muted-foreground group-hover:text-secondary shrink-0" />
+                    <div className="min-w-0">
+                      <span className="text-xs text-muted-foreground">Artigo anterior</span>
+                      <p className="text-sm font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-1">
+                        {prevPost.title}
+                      </p>
+                    </div>
+                  </Link>
+                ) : <div />}
+                {nextPost && (
+                  <Link
+                    to={`/blog/${nextPost.slug}`}
+                    className="group flex items-center gap-3 p-4 rounded-xl border border-border hover:border-secondary/50 hover:shadow-card transition-all text-right md:justify-end"
+                  >
+                    <div className="min-w-0">
+                      <span className="text-xs text-muted-foreground">Próximo artigo</span>
+                      <p className="text-sm font-semibold text-foreground group-hover:text-secondary transition-colors line-clamp-1">
+                        {nextPost.title}
+                      </p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-secondary shrink-0" />
+                  </Link>
+                )}
+              </div>
+            </div>
+          </nav>
+        )}
+
         {/* Back to Blog */}
         <section className="py-8 bg-background">
           <div className="container mx-auto px-4">

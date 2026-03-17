@@ -51,6 +51,7 @@ interface SEOHeadProps {
   // Additional
   noindex?: boolean;
   nofollow?: boolean;
+  priceRange?: string;
 }
 
 // Auto-generate optimized title (max 60 chars with brand)

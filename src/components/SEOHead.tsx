@@ -160,7 +160,18 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
         "@type": "Country",
         "name": "Brasil"
       },
-      "url": fullCanonicalUrl
+      "url": fullCanonicalUrl,
+      ...(props.priceRange && {
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "BRL",
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "priceCurrency": "BRL"
+          }
+        },
+        "priceRange": props.priceRange
+      })
     });
   }
   

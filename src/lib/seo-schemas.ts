@@ -291,6 +291,71 @@ export const aboutPageSchema = {
   "mainEntity": { "@id": `${SITE_URL}/#organization` }
 };
 
+// HowTo Schema for process/timeline pages (rich snippets)
+export const generateHowToSchema = (
+  name: string,
+  description: string,
+  steps: Array<{ name: string; text: string; url?: string; image?: string }>,
+  totalTime?: string // ISO 8601 duration, e.g. "P15D" for 15 days
+) => ({
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": name,
+  "description": description,
+  ...(totalTime && { "totalTime": totalTime }),
+  "step": steps.map((step, index) => ({
+    "@type": "HowToStep",
+    "position": index + 1,
+    "name": step.name,
+    "text": step.text,
+    ...(step.url && { "url": step.url }),
+    ...(step.image && { "image": step.image }),
+  })),
+  "tool": [],
+  "supply": []
+});
+
+// Review/AggregateRating Schema for testimonials on segment pages
+export const generateReviewSchema = (
+  itemName: string,
+  itemUrl: string,
+  reviews: Array<{ name: string; role?: string; content: string; rating: number }>,
+  overallRating?: number
+) => {
+  const avgRating = overallRating || (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": itemName,
+    "url": itemUrl,
+    "provider": {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": avgRating.toFixed(1),
+      "reviewCount": String(reviews.length),
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "review": reviews.map(r => ({
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": r.name,
+        ...(r.role && { "jobTitle": r.role })
+      },
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": String(r.rating),
+        "bestRating": "5"
+      },
+      "reviewBody": r.content
+    }))
+  };
+};
+
 // FAQ data for reuse across components and schema
 export const homeFAQs = [
   // BLOCO 1 - CONTABILIDADE DIGITAL

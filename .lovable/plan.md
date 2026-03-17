@@ -1,70 +1,77 @@
 
 
-# SEO Improvements -- Round 3 (Benchmark Conversion.com.br)
+## Plano: Criar paginas de segmentos para E-commerce e Clinicas e Consultorios
 
-Comparando as melhores praticas tecnicas do benchmark com o estado atual do site, identifiquei 5 melhorias de alto impacto ainda nao implementadas:
+Criar landing pages completas para **E-commerce** e **Clinicas e Consultorios**, seguindo o padrao de 8 componentes + pagina container ja estabelecido nos outros segmentos.
 
----
+### Paleta de cores por segmento
 
-## 1. HowTo Schema nas Paginas de Processo (Rich Snippets)
+| Segmento | Acento | Escuro | Fundo claro | Fundo medio | Fundo destaque |
+|----------|--------|--------|-------------|-------------|----------------|
+| E-commerce | #DB2777 | #BE185D | #FDF2F8 | #FCE7F3 | #FBCFE8 |
+| Clinicas e Consultorios | #059669 | #047857 | #ECFDF5 | #D1FAE5 | #A7F3D0 |
 
-As paginas de servico (Abrir Empresa, segmentos) possuem timelines de "como funciona" mas nao geram schema `HowTo`. O Google exibe rich results para HowTo, aumentando CTR significativamente.
+### Imagens de fundo (ja existem em src/assets/)
+- E-commerce: `09-ecommerce-bg.webp`
+- Clinicas e Consultorios: `10-clinicas-consultorios-bg.webp`
 
-**Implementacao:** Criar um `generateHowToSchema()` em `seo-schemas.ts` e aplica-lo em `AbrirEmpresa.tsx` (3 passos) e nas paginas de segmento que possuem componentes `Process`.
+### Arquivos a criar (18 arquivos)
 
-**Arquivos:** `src/lib/seo-schemas.ts`, `src/pages/AbrirEmpresa.tsx`, paginas de segmento selecionadas.
+**E-commerce (8 componentes + 1 pagina):**
+- `src/components/segmentos/ecommerce/EcommerceHero.tsx`
+- `src/components/segmentos/ecommerce/EcommerceLeadForm.tsx`
+- `src/components/segmentos/ecommerce/EcommerceBenefits.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProblems.tsx`
+- `src/components/segmentos/ecommerce/EcommerceProcess.tsx`
+- `src/components/segmentos/ecommerce/EcommerceTestimonials.tsx`
+- `src/components/segmentos/ecommerce/EcommerceFAQ.tsx`
+- `src/components/segmentos/ecommerce/EcommerceCTA.tsx`
+- `src/pages/segmentos/ContabilidadeEcommerce.tsx`
 
----
+**Clinicas e Consultorios (8 componentes + 1 pagina):**
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosHero.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosLeadForm.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosBenefits.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProblems.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosProcess.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosTestimonials.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosFAQ.tsx`
+- `src/components/segmentos/clinicas-consultorios/ClinicasConsultoriosCTA.tsx`
+- `src/pages/segmentos/ContabilidadeClinicasConsultorios.tsx`
 
-## 2. Breadcrumbs Visuais em Todas as Paginas Internas
+### Conteudo especifico por segmento
 
-O blog ja tem breadcrumbs visuais com microdata, mas as paginas de servico e segmentos so possuem o schema JSON-LD (invisivel). Adicionar breadcrumbs visuais melhora UX, reduz bounce rate e reforça a estrutura hierarquica para o Google.
+**E-commerce:**
+- Mercado Livre, Shopee, Amazon, Magalu, Shopify
+- Estoque, CMV e controle fiscal
+- Dropshipping nacional e internacional
+- Substituicao tributaria (ICMS-ST)
+- Nota fiscal de venda e devoluções
+- Select: Loja propria / Marketplace / Dropshipping / Infoproduto + Fisico
 
-**Implementacao:** Criar um componente `VisualBreadcrumb` reutilizavel (usando os componentes shadcn/ui `breadcrumb.tsx` ja existentes) e inclui-lo nas paginas de servico/segmento.
+**Clinicas e Consultorios:**
+- Equiparacao hospitalar (reducao de IR/CSLL)
+- Folha de pagamento de equipe medica
+- Gestao de convenios e glosas
+- Sociedade medica e holding
+- Alvara sanitario e obrigacoes ANVISA
+- Select: Clinica Medica / Consultorio Odontologico / Clinica de Estetica / Laboratorio
 
-**Arquivos:** Novo `src/components/VisualBreadcrumb.tsx`, paginas de segmento e servico.
+### Alteracoes em arquivos existentes
 
----
+1. **src/lib/whatsapp.ts** — Adicionar 2 novas mensagens: `ecommerce`, `clinicasConsultorios`
 
-## 3. Review/AggregateRating Schema nos Depoimentos de Segmento
+2. **src/App.tsx** — Adicionar 2 lazy imports + 2 rotas:
+   - `/segmentos/contabilidade-para-ecommerce`
+   - `/segmentos/contabilidade-para-clinicas-e-consultorios`
 
-O `localBusinessSchema` ja tem `aggregateRating`, mas as paginas de segmento com depoimentos especificos nao geram schema `Review` individual. Isso habilita estrelas nos resultados de busca para essas paginas.
+3. **src/components/sections/NichesCarousel.tsx** — Atualizar hrefs de E-commerce e Clinicas de `/contato` para as novas URLs
 
-**Implementacao:** Criar `generateReviewSchema()` em `seo-schemas.ts` que gera `AggregateRating` + array de `Review` a partir dos depoimentos. Aplica-lo nas paginas de segmento via `customSchema` no `SEOHead`.
+4. **src/components/segmentos/shared/TaxComparisonCalculator.tsx** — Adicionar 2 novas profissoes
 
-**Arquivos:** `src/lib/seo-schemas.ts`, componentes de testimonials dos segmentos.
+5. **Sitemap e indexacao** — Migration SQL para page_metadata + atualizar google-search-console e prerender.mjs
 
----
+### Estrategia de implementacao
 
-## 4. Service Schema Enriquecido com Offers nas Paginas de Segmento
-
-As paginas de segmento geram `Service` schema basico via `pageType="service"`, mas sem `Offer` com preco. O benchmark usa `Service` + `Offer` com `priceRange`. Adicionar isso habilita rich results de servico com faixa de preco.
-
-**Implementacao:** Estender a geracao automatica de `Service` schema no `SEOHead.tsx` para incluir `offers` com `priceRange` quando disponivel, e `hasOfferCatalog` linkando aos sub-servicos.
-
-**Arquivo:** `src/components/SEOHead.tsx`
-
----
-
-## 5. Meta Keywords Dinamicas no Blog + Open Graph Article Tags
-
-O benchmark usa tags OG de artigo e keywords de forma sistematica. O blog ja passa `meta_keywords` do banco, mas nao gera `article:tag` OG para cada keyword individualmente (so quando tags sao passadas explicitamente). Garantir que `meta_keywords` do post sejam automaticamente mapeadas para OG tags.
-
-**Implementacao:** No `BlogPost.tsx`, passar `meta_keywords` como prop `tags` para o `SEOHead`, garantindo geracao de `article:tag` OG.
-
-**Arquivo:** `src/pages/BlogPost.tsx`
-
----
-
-## Detalhes Tecnicos
-
-### Arquivos a editar:
-1. **`src/lib/seo-schemas.ts`** -- Adicionar `generateHowToSchema()` e `generateReviewSchema()`
-2. **`src/components/SEOHead.tsx`** -- Enriquecer Service schema com Offers/priceRange
-3. **`src/pages/AbrirEmpresa.tsx`** -- Incluir HowTo schema
-4. **Novo `src/components/VisualBreadcrumb.tsx`** -- Componente reutilizavel de breadcrumbs visuais
-5. **`src/pages/BlogPost.tsx`** -- Mapear meta_keywords para article:tag OG
-6. **3-4 paginas de segmento** -- Adicionar breadcrumbs visuais e Review schema
-
-### Estimativa: 1 arquivo novo, 5-8 arquivos editados.
+Implementar em 2 lotes: primeiro E-commerce completo, depois Clinicas e Consultorios. Ao final, atualizar App.tsx, whatsapp.ts, NichesCarousel.tsx, sitemap e indexacao de uma vez.
 

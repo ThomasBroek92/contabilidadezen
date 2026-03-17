@@ -53,6 +53,21 @@ export function useLeadCapture() {
 
       // Exit Intent interaction is now handled by database trigger
 
+      // Fire-and-forget: notify via email (don't block UX)
+      supabase.functions.invoke("notify-new-lead", {
+        body: {
+          nome: data.nome.trim(),
+          email: data.email.trim().toLowerCase(),
+          whatsapp: data.whatsapp.trim(),
+          segmento: data.segmento || "Geral",
+          fonte: data.fonte,
+          faturamento_mensal: data.faturamento_mensal,
+          economia_anual: data.economia_anual,
+          empresa: data.empresa,
+          cargo: data.cargo,
+        },
+      }).catch((err) => console.warn("Email notification failed:", err));
+
       setLeadSaved(true);
       return true;
     } catch (error) {

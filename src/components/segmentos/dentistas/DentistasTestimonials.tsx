@@ -52,7 +52,7 @@ export function DentistasTestimonials() {
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-4">Eles podem dizer melhor sobre nossos serviços do que nós!</h2>
           <p className="text-muted-foreground text-lg">{hasGMBReviews ? "Veja o que nossos clientes estão dizendo sobre a Contabilidade Zen no Google." : "Confira os resultados que nossos clientes dentistas estão tendo com nosso apoio"}</p>
           {gmbStats && (
-            <a href="https://g.page/r/CSe4RMezF61hEAI/review" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 mt-6 px-5 py-3 bg-card border border-border rounded-xl hover:border-[#10B981]/50 hover:shadow-card transition-all duration-300 group hover:-translate-y-0.5">
+            <a href="https://g.page/r/CSe4RMezF61hEAI/review" target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-3 mt-6 px-5 py-3 bg-card border border-border rounded-xl hover:border-[#10B981]/50 hover:shadow-card transition-all duration-300 group hover:-translate-y-0.5">
               <GoogleLogo className="h-6 w-6" />
               <div className="flex items-center gap-2"><div className="flex gap-0.5">{renderStars(Math.round(gmbStats.average_rating))}</div><span className="font-bold text-foreground text-lg">{gmbStats.average_rating.toFixed(1)}</span></div>
               <span className="text-muted-foreground">•</span><span className="text-muted-foreground">{gmbStats.total_reviews} avaliações</span>
@@ -96,7 +96,7 @@ export function DentistasTestimonials() {
         </Carousel>
         <div className="text-center mt-10">
           {hasGMBReviews ? (
-            <a href="https://g.page/r/CSe4RMezF61hEAI/review" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[#059669] hover:text-[#10B981] font-medium transition-colors">Ver todas as avaliações no Google<ExternalLink className="h-4 w-4" /></a>
+            <a href="https://g.page/r/CSe4RMezF61hEAI/review" target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-2 text-[#059669] hover:text-[#10B981] font-medium transition-colors">Ver todas as avaliações no Google<ExternalLink className="h-4 w-4" /></a>
           ) : (<Button size="lg" variant="outline" className="border-secondary text-secondary hover:bg-secondary/10" onClick={scrollToForm}>Fale com um especialista</Button>)}
         </div>
       </div>

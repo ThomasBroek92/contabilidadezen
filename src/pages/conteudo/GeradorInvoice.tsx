@@ -574,7 +574,7 @@ export default function GeradorInvoice() {
                   <a
                     href="https://g.page/r/CSe4RMezF61hEAI/review"
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener noreferrer nofollow"
                     className="inline-flex items-center gap-3 px-4 py-2.5 bg-card border border-border rounded-xl hover:border-secondary/50 hover:shadow-card transition-all duration-300 group"
                   >
                     <GoogleLogo className="h-6 w-6" />

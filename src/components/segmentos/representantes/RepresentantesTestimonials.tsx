@@ -145,7 +145,7 @@ export function RepresentantesTestimonials() {
             <a
               href="https://g.page/r/CSe4RMezF61hEAI/review"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
               className="inline-flex items-center gap-3 mt-6 px-5 py-3 bg-card border border-border rounded-xl hover:border-[#E87C1E]/50 hover:shadow-card transition-all duration-300 group hover:-translate-y-0.5"
             >
               <GoogleLogo className="h-6 w-6" />
@@ -226,7 +226,7 @@ export function RepresentantesTestimonials() {
             <a
               href="https://g.page/r/CSe4RMezF61hEAI/review"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
               className="inline-flex items-center gap-2 text-[#C4680F] hover:text-[#E87C1E] font-medium transition-colors"
             >
               Ver todas as avaliações no Google

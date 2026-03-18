@@ -84,7 +84,7 @@ function GoogleReviewsBadge() {
     <a
       href="https://g.page/r/CSe4RMezF61hEAI/review"
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener noreferrer nofollow"
       className="inline-flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 hover:shadow-card transition-all duration-300 group"
     >
       <div className="flex items-center gap-2">

@@ -67,7 +67,7 @@ export function ProdutoresDigitaisTestimonials() {
           <CarouselDots className="sm:hidden" />
         </Carousel>
         <div className="text-center mt-10">
-          {hasGMBReviews ? (<a href="https://g.page/r/CSe4RMezF61hEAI/review" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[#7E22CE] hover:text-[#9333EA] font-medium transition-colors">Ver todas as avaliações no Google<ExternalLink className="h-4 w-4" /></a>) : (<Button size="lg" variant="outline" className="border-secondary text-secondary hover:bg-secondary/10" onClick={scrollToForm}>Fale com um especialista</Button>)}
+          {hasGMBReviews ? (<a href="https://g.page/r/CSe4RMezF61hEAI/review" target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-2 text-[#7E22CE] hover:text-[#9333EA] font-medium transition-colors">Ver todas as avaliações no Google<ExternalLink className="h-4 w-4" /></a>) : (<Button size="lg" variant="outline" className="border-secondary text-secondary hover:bg-secondary/10" onClick={scrollToForm}>Fale com um especialista</Button>)}
         </div>
       </div>
     </section>

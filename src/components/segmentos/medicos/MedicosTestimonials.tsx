@@ -225,7 +225,7 @@ export function MedicosTestimonials() {
             <a
               href="https://g.page/r/CSe4RMezF61hEAI/review"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
               className="inline-flex items-center gap-2 text-[#005A8C] hover:text-[#0077B6] font-medium transition-colors"
             >
               Ver todas as avaliações no Google

@@ -337,7 +337,7 @@ export function NichesCarousel() {
                             asChild
                           >
                             <Link to={niche.href}>
-                              Saiba mais
+                              {`Contabilidade para ${niche.subtitle}`}
                               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                             </Link>
                           </Button>

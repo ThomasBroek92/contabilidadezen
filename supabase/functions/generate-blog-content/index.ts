@@ -540,7 +540,8 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
     
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const parsed = JSON.parse(cleanContent);
+      const repairedJSON = repairTruncatedJSON(cleanContent);
+      const parsed = JSON.parse(repairedJSON);
       return parsed.statistics || [];
     } catch {
       console.error('Failed to parse statistics JSON');

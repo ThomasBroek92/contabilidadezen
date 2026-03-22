@@ -755,11 +755,13 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown code blocks):
 
   const data: PerplexityResponse = await response.json();
   const rawContent = data.choices[0]?.message?.content || '';
-  const citations = data.citations || [];
+  // Support both new search_results and deprecated citations field
+  const citations = data.search_results?.map(r => r.url) || data.citations || [];
 
   try {
     const cleanContent = rawContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const parsed = JSON.parse(cleanContent);
+    const repairedJSON = repairTruncatedJSON(cleanContent);
+    const parsed = JSON.parse(repairedJSON);
     
     // Limitar FAQs ao número configurado
     const limitedFaqs = settings.auto_generate_faq 
@@ -780,7 +782,8 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown code blocks):
         ? citations.slice(0, settings.max_external_links)
         : []
     };
-  } catch {
+  } catch (parseError) {
+    console.error('Failed to parse blog content JSON:', parseError, 'Raw:', rawContent.substring(0, 300));
     return {
       parsedContent: {
         title: topic,

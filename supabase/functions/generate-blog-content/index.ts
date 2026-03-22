@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 // Rate limiting configuration
@@ -94,6 +94,38 @@ interface PerplexityResponse {
     };
   }>;
   citations?: string[];
+  search_results?: Array<{ title: string; url: string; date?: string; snippet?: string }>;
+}
+
+// Repair truncated JSON from AI responses
+function repairTruncatedJSON(jsonStr: string): string {
+  let str = jsonStr.trim();
+  
+  const jsonStart = str.indexOf('{');
+  if (jsonStart === -1) throw new Error('No JSON object found');
+  str = str.substring(jsonStart);
+  
+  const openBraces = (str.match(/{/g) || []).length;
+  const closeBraces = (str.match(/}/g) || []).length;
+  
+  if (openBraces !== closeBraces) {
+    console.warn(`Truncated JSON detected (open: ${openBraces}, close: ${closeBraces}). Repairing...`);
+    str = str.replace(/,\s*"[^"]*":\s*"[^"]*$/s, '');
+    str = str.replace(/,\s*"[^"]*":\s*\[[^\]]*$/s, '');
+    str = str.replace(/,\s*"[^"]*":\s*{[^}]*$/s, '');
+    const remaining = (str.match(/{/g) || []).length - (str.match(/}/g) || []).length;
+    for (let i = 0; i < remaining; i++) str += '}';
+  }
+  
+  str = str
+    .replace(/,\s*}/g, '}')
+    .replace(/,\s*]/g, ']')
+    .replace(/[\x00-\x1F\x7F]/g, (c) => c === '\n' || c === '\t' ? c : '');
+  
+  const jsonEnd = str.lastIndexOf('}');
+  if (jsonEnd !== -1) str = str.substring(0, jsonEnd + 1);
+  
+  return str;
 }
 
 interface ExpertQuote {
@@ -438,7 +470,8 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
     
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const parsed = JSON.parse(cleanContent);
+      const repairedJSON = repairTruncatedJSON(cleanContent);
+      const parsed = JSON.parse(repairedJSON);
       const quotes = parsed.expert_quotes || [];
       
       // Aplicar filtros adicionais
@@ -507,7 +540,8 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
     
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const parsed = JSON.parse(cleanContent);
+      const repairedJSON = repairTruncatedJSON(cleanContent);
+      const parsed = JSON.parse(repairedJSON);
       return parsed.statistics || [];
     } catch {
       console.error('Failed to parse statistics JSON');
@@ -575,7 +609,8 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
     
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const parsed = JSON.parse(cleanContent);
+      const repairedJSON = repairTruncatedJSON(cleanContent);
+      const parsed = JSON.parse(repairedJSON);
       
       return {
         quote: parsed.quote,
@@ -723,11 +758,13 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown code blocks):
 
   const data: PerplexityResponse = await response.json();
   const rawContent = data.choices[0]?.message?.content || '';
-  const citations = data.citations || [];
+  // Support both new search_results and deprecated citations field
+  const citations = data.search_results?.map(r => r.url) || data.citations || [];
 
   try {
     const cleanContent = rawContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const parsed = JSON.parse(cleanContent);
+    const repairedJSON = repairTruncatedJSON(cleanContent);
+    const parsed = JSON.parse(repairedJSON);
     
     // Limitar FAQs ao número configurado
     const limitedFaqs = settings.auto_generate_faq 
@@ -748,7 +785,8 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown code blocks):
         ? citations.slice(0, settings.max_external_links)
         : []
     };
-  } catch {
+  } catch (parseError) {
+    console.error('Failed to parse blog content JSON:', parseError, 'Raw:', rawContent.substring(0, 300));
     return {
       parsedContent: {
         title: topic,

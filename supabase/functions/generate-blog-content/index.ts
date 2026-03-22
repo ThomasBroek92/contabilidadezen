@@ -94,6 +94,38 @@ interface PerplexityResponse {
     };
   }>;
   citations?: string[];
+  search_results?: Array<{ title: string; url: string; date?: string; snippet?: string }>;
+}
+
+// Repair truncated JSON from AI responses
+function repairTruncatedJSON(jsonStr: string): string {
+  let str = jsonStr.trim();
+  
+  const jsonStart = str.indexOf('{');
+  if (jsonStart === -1) throw new Error('No JSON object found');
+  str = str.substring(jsonStart);
+  
+  const openBraces = (str.match(/{/g) || []).length;
+  const closeBraces = (str.match(/}/g) || []).length;
+  
+  if (openBraces !== closeBraces) {
+    console.warn(`Truncated JSON detected (open: ${openBraces}, close: ${closeBraces}). Repairing...`);
+    str = str.replace(/,\s*"[^"]*":\s*"[^"]*$/s, '');
+    str = str.replace(/,\s*"[^"]*":\s*\[[^\]]*$/s, '');
+    str = str.replace(/,\s*"[^"]*":\s*{[^}]*$/s, '');
+    const remaining = (str.match(/{/g) || []).length - (str.match(/}/g) || []).length;
+    for (let i = 0; i < remaining; i++) str += '}';
+  }
+  
+  str = str
+    .replace(/,\s*}/g, '}')
+    .replace(/,\s*]/g, ']')
+    .replace(/[\x00-\x1F\x7F]/g, (c) => c === '\n' || c === '\t' ? c : '');
+  
+  const jsonEnd = str.lastIndexOf('}');
+  if (jsonEnd !== -1) str = str.substring(0, jsonEnd + 1);
+  
+  return str;
 }
 
 interface ExpertQuote {

@@ -470,7 +470,8 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
     
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const parsed = JSON.parse(cleanContent);
+      const repairedJSON = repairTruncatedJSON(cleanContent);
+      const parsed = JSON.parse(repairedJSON);
       const quotes = parsed.expert_quotes || [];
       
       // Aplicar filtros adicionais

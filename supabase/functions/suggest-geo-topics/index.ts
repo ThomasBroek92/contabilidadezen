@@ -83,6 +83,7 @@ interface PerplexityResponse {
     };
   }>;
   citations?: string[];
+  search_results?: Array<{ title: string; url: string; date?: string; snippet?: string }>;
 }
 
 serve(async (req) => {

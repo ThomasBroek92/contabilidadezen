@@ -1,65 +1,59 @@
 
 
-# Correção do Gerador de Blog com IA
+# Criar 3 Artigos Pilares com Topic Clusters
 
-## Problemas Identificados
+## Estrategia
 
-Após análise do código e pesquisa na documentação da API Perplexity, encontrei **3 problemas críticos**:
-
-### 1. Campo `citations` Depreciado (Causa Principal de Falha)
-A Perplexity **removeu completamente** o campo `citations` da resposta da API. Agora usa `search_results` (array de objetos com `title`, `url`, `date`, `snippet`). A função atual acessa `data.citations` que retorna `undefined`, causando falhas silenciosas e citações vazias.
-
-### 2. CORS Headers Incompletos
-A `generate-blog-content` usa headers CORS antigos (`authorization, x-client-info, apikey, content-type`), enquanto a `copy-blog-content` (mais recente) inclui headers adicionais do Supabase SDK (`x-supabase-client-platform`, etc.). Isso pode causar erros 4xx em alguns cenários.
-
-### 3. Parsing de JSON Frágil (sem reparo de truncamento)
-A `copy-blog-content` implementa lógica de reparo de JSON truncado, mas a `generate-blog-content` não. Quando a IA gera respostas longas que excedem o limite de tokens, o JSON fica cortado e o `JSON.parse` falha silenciosamente, retornando conteúdo raw sem estrutura.
+Gerar 3 artigos pilares (1500+ palavras cada) via script com IA e inserir no banco, depois vincular posts existentes como clusters apontando para cada pilar.
 
 ---
 
-## Correções
+## Pilar 1: Contabilidade PJ para Profissionais da Saude
 
-### Arquivo: `supabase/functions/generate-blog-content/index.ts`
+**Titulo:** "Guia Completo de Contabilidade PJ para Profissionais da Saúde em 2026"
+**Cluster posts vinculados (cluster_id → ID do pilar):**
+- Contabilidade para médicos, dentistas e psicólogos PJ em 2026
+- Contabilidade para psicólogos e psiquiatras em 2026
+- Abra seu CNPJ: A Escolha Estratégica da Contabilidade Online
+- Pró-Labore Médico Sócio 2025: IR e Contabilidade
+- Pró-Labore Médicos Coworking: Tributação 2026
+- Planilha simples de impostos para médico, dentista e psicólogo 2026
+- Checklist Obrigações Fiscais Clínicas Psicologia 2025
+- Planejamento tributário 2026 para médicos e clínicas
+- Holding Médica 2025: Tributação e Planejamento Sucessório
 
-1. **Atualizar CORS headers** — Alinhar com o padrão atual incluindo headers do Supabase SDK
+## Pilar 2: Simples Nacional para Profissionais da Saude
 
-2. **Migrar de `citations` para `search_results`** — Alterar o tipo `PerplexityResponse` para incluir `search_results: Array<{title, url, date?, snippet?}>` e mapear as URLs de fontes a partir desse novo campo em vez de `data.citations`
+**Titulo:** "Simples Nacional para Profissionais da Saúde: Guia Definitivo 2026"
+**Cluster posts vinculados:**
+- Simples Nacional ou Lucro Presumido para médicos em 2025
+- Simples Nacional vs Lucro Presumido para Psicólogos 2026
+- Simples Nacional Psicólogos PJ 2026: Alíquotas e Limites
+- Lucro Presumido x Lucro Real para clínicas em 2026
+- Lucro Real vs Presumido: Dentistas 2025
+- Carga tributária efetiva para médicos PJ em 2026
+- CLT vs PJ Dentista Médico: Custos, Impostos e Contribuições 2025
+- Médico CLT ou PJ em 2025? Comparação tributária completa
+- como reduzir impostos médico pessoa jurídica
 
-3. **Adicionar reparo de JSON truncado** — Copiar a lógica de `copy-blog-content` que detecta chaves não balanceadas, remove campos incompletos e fecha estruturas abertas antes do parsing
+## Pilar 3: Como Abrir Empresa na Area da Saude
 
-4. **Atualizar prompts para não pedir JSON com markdown** — Reforçar nos prompts de expert quotes, statistics e conteúdo principal para retornar JSON limpo sem code blocks
+**Titulo:** "Como Abrir Empresa na Área da Saúde em 2026: Passo a Passo Completo"
+**Cluster posts vinculados:**
+- Como abrir empresa para médico, dentista e psicólogo em 2026
+- Médico Recém-Formado: Abra CNPJ 2025 Passo a Passo
+- Dicas para fisioterapeuta abrir empresa em 2026
+- Melhor CNAE para médico, dentista e psicólogo em 2026
+- Obrigações Acessórias 2025: Clínicas Médicas SP
+- NFS-e nacional para profissionais de saúde: regras 2026-2027
+- Tributação PJ médico 2025: Simples, Presumido ou Real?
 
 ---
 
-## Detalhes Técnicos
+## Execucao Tecnica
 
-### Mudança no tipo PerplexityResponse:
-```typescript
-// Antes
-interface PerplexityResponse {
-  choices: Array<{ message: { content: string } }>;
-  citations?: string[];
-}
-
-// Depois  
-interface PerplexityResponse {
-  choices: Array<{ message: { content: string } }>;
-  citations?: string[]; // deprecated, mantido para fallback
-  search_results?: Array<{ title: string; url: string; date?: string; snippet?: string }>;
-}
-```
-
-### Extração de citações:
-```typescript
-// Antes
-const citations = data.citations || [];
-
-// Depois
-const citations = data.search_results?.map(r => r.url) || data.citations || [];
-```
-
-### Função de reparo JSON (copiada de copy-blog-content):
-Detecta `{` sem `}` correspondente, remove o último campo incompleto, e fecha as estruturas abertas.
-
-**Arquivos:** 1 arquivo editado (`supabase/functions/generate-blog-content/index.ts`), redeploy automático.
+1. **Gerar conteudo via script** — Usar o AI Gateway (`lovable_ai.py`) para gerar cada artigo pilar com 1500+ palavras em markdown, incluindo FAQ schema, expert quotes, meta tags
+2. **Inserir os 3 pilares no banco** — INSERT na tabela `blog_posts` com `is_pillar = true`, `status = 'published'`, conteudo completo
+3. **Vincular clusters** — UPDATE dos posts existentes setando `cluster_id` = ID do pilar correspondente
+4. **Total:** 3 INSERTs + ~25 UPDATEs
 

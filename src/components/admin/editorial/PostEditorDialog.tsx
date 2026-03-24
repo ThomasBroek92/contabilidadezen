@@ -45,6 +45,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave, init
   const [uploadingImage, setUploadingImage] = useState(false);
   const [generatingAI, setGeneratingAI] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [aiProvider, setAiProvider] = useState<'perplexity' | 'claude'>('perplexity');
   const { toast } = useToast();
 
   // CORRIGIDO: Usar useEffect para inicializar o formulário quando editingPost mudar
@@ -151,6 +152,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave, init
           inline: true,
           topic: formData.title,
           category: formData.category,
+          ai_provider: aiProvider,
         },
       });
 
@@ -298,6 +300,15 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave, init
                   placeholder="Digite o título do post"
                   className="flex-1"
                 />
+                <Select value={aiProvider} onValueChange={(value: 'perplexity' | 'claude') => setAiProvider(value)}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="perplexity">Perplexity (Web)</SelectItem>
+                    <SelectItem value="claude">Claude (Premium)</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button
                   type="button"
                   variant="outline"

@@ -39,13 +39,11 @@ async function verifyAdminAuth(req: Request, supabaseUrl: string, supabaseServic
 
   const token = authHeader.replace('Bearer ', '');
   
-  // Check if this is a service role key (internal service-to-service call)
   if (token === supabaseServiceKey) {
     console.log('Service role key authentication - internal call');
     return { success: true, isServiceRole: true };
   }
   
-  // Otherwise, verify as user token
   const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
     global: { headers: { Authorization: authHeader } }
   });
@@ -55,7 +53,6 @@ async function verifyAdminAuth(req: Request, supabaseUrl: string, supabaseServic
     return { success: false, error: 'Invalid or expired token' };
   }
 
-  // Check if user has admin role
   const { data: userRoles } = await supabaseClient
     .from('user_roles')
     .select('role')
@@ -87,14 +84,99 @@ interface BlogPost {
   category: string;
 }
 
-interface PerplexityResponse {
-  choices: Array<{
-    message: {
-      content: string;
+// ===== DUAL PROVIDER ABSTRACTION =====
+type AIProvider = 'perplexity' | 'claude';
+
+interface AIResponse {
+  content: string;
+  citations: string[];
+}
+
+interface AIKeys {
+  perplexity?: string;
+  anthropic?: string;
+}
+
+async function callAI(
+  provider: AIProvider,
+  messages: Array<{ role: string; content: string }>,
+  apiKeys: AIKeys,
+  options?: {
+    search_recency_filter?: string;
+    search_domain_filter?: string[];
+    model?: string;
+  }
+): Promise<AIResponse> {
+  if (provider === 'claude') {
+    const apiKey = apiKeys.anthropic;
+    if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not configured');
+
+    // Claude uses separate system message
+    const systemMsg = messages.find(m => m.role === 'system');
+    const nonSystemMsgs = messages.filter(m => m.role !== 'system');
+
+    const body: Record<string, unknown> = {
+      model: options?.model || 'claude-sonnet-4-20250514',
+      max_tokens: 8192,
+      messages: nonSystemMsgs,
     };
-  }>;
-  citations?: string[];
-  search_results?: Array<{ title: string; url: string; date?: string; snippet?: string }>;
+    if (systemMsg) {
+      body.system = systemMsg.content;
+    }
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Claude API error:', response.status, errorText);
+      throw new Error(`Claude API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.content?.[0]?.text || '';
+    return { content, citations: [] };
+  }
+
+  // Default: Perplexity
+  const apiKey = apiKeys.perplexity;
+  if (!apiKey) throw new Error('PERPLEXITY_API_KEY is not configured');
+
+  const body: Record<string, unknown> = {
+    model: options?.model || 'sonar',
+    messages,
+  };
+  if (options?.search_recency_filter) body.search_recency_filter = options.search_recency_filter;
+  if (options?.search_domain_filter && options.search_domain_filter.length > 0) {
+    body.search_domain_filter = options.search_domain_filter;
+  }
+
+  const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Perplexity API error:', response.status, errorText);
+    throw new Error(`Perplexity API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  const citations = data.search_results?.map((r: { url: string }) => r.url) || data.citations || [];
+  return { content, citations };
 }
 
 // Repair truncated JSON from AI responses
@@ -149,45 +231,36 @@ interface FAQItem {
 }
 
 interface ContentSettings {
-  // Basic GEO settings
   min_geo_score_publish: number;
   brand_name: string;
   brand_authority_keywords: string[];
   target_personas: string[];
   brand_statistics: Statistic[];
-  // AI Configuration
   ai_tone: string;
   ai_custom_instructions: string;
   reading_level: string;
   content_length_min: number;
   content_length_max: number;
-  // FAQ Settings
   auto_generate_faq: boolean;
   faq_count: number;
-  // Internal Linking
   internal_linking_enabled: boolean;
   min_internal_links: number;
   max_internal_links: number;
-  // External Linking
   external_linking_enabled: boolean;
   min_external_links: number;
   max_external_links: number;
   preferred_citation_sources: string[];
-  // SEO Settings
   seo_meta_auto_generate: boolean;
   structured_data_enabled: boolean;
   freshness_signals_enabled: boolean;
-  // GEO Features
   answer_first_format: boolean;
   expert_quotes_enabled: boolean;
   statistics_citations_enabled: boolean;
-  // Expert Quote Settings
   auto_expert_quotes_enabled: boolean;
   expert_name: string;
   expert_title: string;
   expert_company: string;
   expert_bio: string;
-  // External Citation Filters
   exclude_competitor_quotes: boolean;
   excluded_citation_keywords: string[];
   allowed_external_sources: string[];
@@ -241,7 +314,6 @@ function calculateGEOScore(
 ): number {
   let score = 0;
 
-  // Answer-First (20 pontos) - Verifica se responde nas primeiras 50 palavras
   if (settings.answer_first_format) {
     const firstParagraph = content.split('\n\n')[0] || '';
     const firstWords = firstParagraph.split(/\s+/).slice(0, 50).join(' ');
@@ -249,23 +321,19 @@ function calculateGEOScore(
     if (hasAnswerFirst) score += 20;
   }
 
-  // Estatísticas (20 pontos, 4 pontos cada até 5)
   if (settings.statistics_citations_enabled) {
     score += Math.min(statistics.length * 4, 20);
   }
 
-  // Citações de Especialistas (20 pontos, 5 pontos cada até 4)
   if (settings.expert_quotes_enabled) {
     score += Math.min(expertQuotes.length * 5, 20);
   }
 
-  // FAQ com Schema (15 pontos)
   if (settings.auto_generate_faq && faqSchema) {
     if (faqSchema.length >= 5) score += 15;
     else if (faqSchema.length >= 3) score += 10;
   }
 
-  // Fontes Autoritativas (15 pontos)
   if (settings.external_linking_enabled) {
     const authorityDomains = ['gov.br', 'cfc.org', 'cfm.org', 'cro.org', 'crp.org', 'receita.fazenda'];
     const authoritySources = authorityCitations.filter(c => 
@@ -274,12 +342,10 @@ function calculateGEOScore(
     score += Math.min(authoritySources.length * 3, 15);
   }
 
-  // Links Internos (5 pontos extras)
   if (settings.internal_linking_enabled && internalLinks >= settings.min_internal_links) {
     score += 5;
   }
 
-  // Freshness - menção a 2025 ou data atual (5 pontos)
   if (settings.freshness_signals_enabled) {
     const currentYear = new Date().getFullYear().toString();
     if (content.includes(currentYear) || content.toLowerCase().includes('atualizado')) score += 5;
@@ -288,7 +354,6 @@ function calculateGEOScore(
   return Math.min(score, 100);
 }
 
-// Função para gerar JSON-LD FAQPage Schema
 function generateFAQSchema(faqs: FAQItem[]): object {
   return {
     "@context": "https://schema.org",
@@ -304,7 +369,6 @@ function generateFAQSchema(faqs: FAQItem[]): object {
   };
 }
 
-// Buscar posts existentes para links internos
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchExistingPosts(
   supabase: any,
@@ -321,7 +385,6 @@ async function fetchExistingPosts(
   return (posts as BlogPost[]) || [];
 }
 
-// Gerar links internos relevantes
 function generateInternalLinks(
   existingPosts: BlogPost[],
   topic: string,
@@ -332,7 +395,6 @@ function generateInternalLinks(
     return { markdown: '', count: 0 };
   }
 
-  // Selecionar posts relacionados (simplificado - por categoria ou keywords)
   const topicWords = topic.toLowerCase().split(/\s+/);
   const relevantPosts = existingPosts
     .filter(post => {
@@ -341,7 +403,6 @@ function generateInternalLinks(
     })
     .slice(0, maxLinks);
 
-  // Se não encontrou posts relacionados, pegar os mais recentes
   const postsToLink = relevantPosts.length >= minLinks 
     ? relevantPosts 
     : existingPosts.slice(0, minLinks);
@@ -360,7 +421,6 @@ function generateInternalLinks(
   };
 }
 
-// Filtrar citações baseado nas configurações de exclusão
 function filterExpertQuotes(
   quotes: ExpertQuote[],
   settings: ContentSettings
@@ -371,7 +431,6 @@ function filterExpertQuotes(
   const allowedSources = settings.allowed_external_sources || [];
   
   return quotes.filter(quote => {
-    // Verificar se a citação contém palavras-chave bloqueadas
     const quoteText = `${quote.quote} ${quote.author} ${quote.title}`.toLowerCase();
     const hasBlockedKeyword = excludedKeywords.some(keyword => 
       quoteText.includes(keyword.toLowerCase())
@@ -382,13 +441,11 @@ function filterExpertQuotes(
       return false;
     }
     
-    // Se tem URL, verificar se é de fonte permitida
     if (quote.source_url) {
       const isAllowedSource = allowedSources.some(source => 
         quote.source_url.toLowerCase().includes(source.toLowerCase())
       );
       
-      // Se não é de fonte permitida E contém termos de contabilidade, bloquear
       if (!isAllowedSource && (
         quoteText.includes('contador') || 
         quoteText.includes('contabilidade') ||
@@ -403,33 +460,27 @@ function filterExpertQuotes(
   });
 }
 
-// Buscar citações de especialistas via Perplexity
+// Buscar citações de especialistas
 async function fetchExpertQuotes(
   topic: string,
   personas: string[],
-  apiKey: string,
+  apiKeys: AIKeys,
+  provider: AIProvider,
   enabled: boolean,
   settings: ContentSettings
 ): Promise<ExpertQuote[]> {
   if (!enabled) return [];
   
-  console.log('Fetching expert quotes for:', topic);
+  console.log(`Fetching expert quotes for: ${topic} (provider: ${provider})`);
   
-  // Usar fontes permitidas para a pesquisa
   const allowedSources = settings.allowed_external_sources || [];
   
   try {
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'sonar',
-        messages: [{
-          role: 'user',
-          content: `Encontre 3-5 citações de especialistas brasileiros sobre o tema: "${topic}".
+    const { content } = await callAI(
+      provider,
+      [{
+        role: 'user',
+        content: `Encontre 3-5 citações de especialistas brasileiros sobre o tema: "${topic}".
 
 IMPORTANTE: Busque citações apenas de:
 - Órgãos governamentais (gov.br, Receita Federal)
@@ -454,27 +505,19 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
     }
   ]
 }`
-        }],
+      }],
+      apiKeys,
+      {
         search_recency_filter: 'year',
         search_domain_filter: allowedSources.length > 0 ? allowedSources : undefined,
-      }),
-    });
+      }
+    );
 
-    if (!response.ok) {
-      console.error('Expert quotes API error:', response.status);
-      return [];
-    }
-
-    const data: PerplexityResponse = await response.json();
-    const content = data.choices[0]?.message?.content || '';
-    
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const repairedJSON = repairTruncatedJSON(cleanContent);
       const parsed = JSON.parse(repairedJSON);
       const quotes = parsed.expert_quotes || [];
-      
-      // Aplicar filtros adicionais
       return filterExpertQuotes(quotes, settings);
     } catch {
       console.error('Failed to parse expert quotes JSON');
@@ -486,29 +529,24 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
   }
 }
 
-// Buscar estatísticas atualizadas via Perplexity
+// Buscar estatísticas atualizadas
 async function fetchStatistics(
   topic: string,
-  apiKey: string,
+  apiKeys: AIKeys,
+  provider: AIProvider,
   enabled: boolean,
   preferredSources: string[]
 ): Promise<Statistic[]> {
   if (!enabled) return [];
   
-  console.log('Fetching statistics for:', topic);
+  console.log(`Fetching statistics for: ${topic} (provider: ${provider})`);
   
   try {
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'sonar',
-        messages: [{
-          role: 'user',
-          content: `Encontre 3-5 estatísticas/dados quantitativos recentes (2024-2025) sobre: "${topic}" no contexto brasileiro.
+    const { content } = await callAI(
+      provider,
+      [{
+        role: 'user',
+        content: `Encontre 3-5 estatísticas/dados quantitativos recentes (2024-2025) sobre: "${topic}" no contexto brasileiro.
 
 Priorize dados de: IBGE, Receita Federal, CFM, CFC, CRO, CRP, pesquisas de mercado.
 
@@ -524,20 +562,14 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
     }
   ]
 }`
-        }],
+      }],
+      apiKeys,
+      {
         search_recency_filter: 'year',
-        search_domain_filter: preferredSources.length > 0 ? preferredSources : undefined
-      }),
-    });
+        search_domain_filter: preferredSources.length > 0 ? preferredSources : undefined,
+      }
+    );
 
-    if (!response.ok) {
-      console.error('Statistics API error:', response.status);
-      return [];
-    }
-
-    const data: PerplexityResponse = await response.json();
-    const content = data.choices[0]?.message?.content || '';
-    
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const repairedJSON = repairTruncatedJSON(cleanContent);
@@ -557,23 +589,18 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
 async function generateInternalExpertQuote(
   topic: string,
   settings: ContentSettings,
-  apiKey: string
+  apiKeys: AIKeys,
+  provider: AIProvider
 ): Promise<ExpertQuote | null> {
   if (!settings.auto_expert_quotes_enabled) return null;
   
-  console.log('Generating internal expert quote for:', topic);
-  console.log('Expert:', settings.expert_name, '-', settings.expert_title, 'at', settings.expert_company);
+  console.log(`Generating internal expert quote for: ${topic} (provider: ${provider})`);
   
   try {
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'sonar',
-        messages: [{
+    const { content } = await callAI(
+      provider,
+      [
+        {
           role: 'system',
           content: `Você é ${settings.expert_name}, ${settings.expert_title} da ${settings.expert_company}. 
 ${settings.expert_bio}
@@ -585,7 +612,8 @@ A citação deve:
 - Oferecer uma dica ou insight valioso
 - Ser concisa (2-3 frases)
 - Ter tom consultivo e empático`
-        }, {
+        },
+        {
           role: 'user',
           content: `Crie uma citação profissional sua sobre o tema: "${topic}"
 
@@ -595,18 +623,11 @@ RETORNE APENAS JSON válido neste formato (sem markdown):
 {
   "quote": "texto da citação aqui"
 }`
-        }],
-      }),
-    });
+        }
+      ],
+      apiKeys
+    );
 
-    if (!response.ok) {
-      console.error('Internal expert quote API error:', response.status);
-      return null;
-    }
-
-    const data: PerplexityResponse = await response.json();
-    const content = data.choices[0]?.message?.content || '';
-    
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const repairedJSON = repairTruncatedJSON(cleanContent);
@@ -637,7 +658,6 @@ interface ParsedContent {
   faqs: FAQItem[];
 }
 
-// Construir prompt do sistema baseado nas configurações
 function buildSystemPrompt(settings: ContentSettings): string {
   const currentDate = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   
@@ -665,7 +685,6 @@ REGRAS OBRIGATÓRIAS:`;
 3. Inclua citações de especialistas formatadas como blockquotes.`;
   }
 
-  // FAQ será adicionado programaticamente após a geração, não no conteúdo inline
   if (settings.auto_generate_faq) {
     prompt += `
 4. NÃO inclua seção FAQ no conteúdo. As ${settings.faq_count} perguntas frequentes serão retornadas separadamente no JSON.`;
@@ -693,39 +712,28 @@ async function generateGEOContent(
   expertQuotes: ExpertQuote[],
   statistics: Statistic[],
   settings: ContentSettings,
-  apiKey: string
+  apiKeys: AIKeys,
+  provider: AIProvider
 ): Promise<{ parsedContent: ParsedContent; faqs: FAQItem[]; citations: string[] }> {
-  console.log('Generating GEO-optimized content for:', topic);
-  console.log('Using settings - Tone:', settings.ai_tone, '| Reading level:', settings.reading_level);
+  console.log(`Generating GEO-optimized content for: ${topic} (provider: ${provider})`);
   
-  // Formatar estatísticas para o prompt
   const statsText = statistics.length > 0 
     ? statistics.map(s => `- ${s.value}: ${s.description} (${s.source}, ${s.year})`).join('\n')
     : '';
   
-  // Formatar citações para o prompt
   const quotesText = expertQuotes.length > 0
     ? expertQuotes.map(q => `- "${q.quote}" — ${q.author}, ${q.title}`).join('\n')
     : '';
 
   const systemPrompt = buildSystemPrompt(settings);
 
-  const response = await fetch('https://api.perplexity.ai/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'sonar-pro',
-      messages: [
-        {
-          role: 'system',
-          content: systemPrompt
-        },
-        {
-          role: 'user',
-          content: `Escreva um artigo completo sobre: "${topic}"
+  const { content: rawContent, citations: rawCitations } = await callAI(
+    provider,
+    [
+      { role: 'system', content: systemPrompt },
+      {
+        role: 'user',
+        content: `Escreva um artigo completo sobre: "${topic}"
 
 Categoria: ${category}
 
@@ -743,30 +751,25 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown code blocks):
     {"question": "Pergunta frequente?", "answer": "Resposta concisa e direta."}
   ]
 }`
-        }
-      ],
+      }
+    ],
+    apiKeys,
+    {
+      model: provider === 'perplexity' ? 'sonar-pro' : undefined,
       search_domain_filter: settings.preferred_citation_sources.length > 0 
         ? settings.preferred_citation_sources 
         : ['gov.br', 'receita.fazenda.gov.br', 'cfc.org.br', 'cfm.org.br', 'contabeis.com.br', 'planalto.gov.br'],
       search_recency_filter: 'year',
-    }),
-  });
+    }
+  );
 
-  if (!response.ok) {
-    throw new Error(`Perplexity API error: ${response.status}`);
-  }
-
-  const data: PerplexityResponse = await response.json();
-  const rawContent = data.choices[0]?.message?.content || '';
-  // Support both new search_results and deprecated citations field
-  const citations = data.search_results?.map(r => r.url) || data.citations || [];
+  const citations = rawCitations;
 
   try {
     const cleanContent = rawContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const repairedJSON = repairTruncatedJSON(cleanContent);
     const parsed = JSON.parse(repairedJSON);
     
-    // Limitar FAQs ao número configurado
     const limitedFaqs = settings.auto_generate_faq 
       ? (parsed.faqs || []).slice(0, settings.faq_count)
       : [];
@@ -809,11 +812,12 @@ serve(async (req) => {
 
   try {
     const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
+    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!PERPLEXITY_API_KEY) {
-      throw new Error('PERPLEXITY_API_KEY is not configured');
+    if (!PERPLEXITY_API_KEY && !ANTHROPIC_API_KEY) {
+      throw new Error('No AI provider configured. Set PERPLEXITY_API_KEY or ANTHROPIC_API_KEY.');
     }
 
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -883,6 +887,24 @@ serve(async (req) => {
     const inlineCategory = body?.category || 'Dicas';
     const enableGEO = body?.enable_geo !== false;
 
+    // Determine AI provider from request body, default to perplexity
+    const requestedProvider: AIProvider = body?.ai_provider === 'claude' ? 'claude' : 'perplexity';
+    
+    // Validate the requested provider has an API key
+    const aiKeys: AIKeys = { perplexity: PERPLEXITY_API_KEY, anthropic: ANTHROPIC_API_KEY };
+    
+    let provider: AIProvider = requestedProvider;
+    if (provider === 'claude' && !ANTHROPIC_API_KEY) {
+      console.warn('Claude requested but ANTHROPIC_API_KEY not set, falling back to Perplexity');
+      provider = 'perplexity';
+    }
+    if (provider === 'perplexity' && !PERPLEXITY_API_KEY) {
+      console.warn('Perplexity requested but PERPLEXITY_API_KEY not set, falling back to Claude');
+      provider = 'claude';
+    }
+
+    console.log(`Using AI provider: ${provider}`);
+
     // INLINE MODE com GEO
     if (inlineMode && inlineTopic) {
       console.log(`Inline GEO generation for topic: ${inlineTopic}`);
@@ -892,12 +914,11 @@ serve(async (req) => {
 
       if (enableGEO) {
         const [externalQuotes, statsData, internalQuote] = await Promise.all([
-          fetchExpertQuotes(inlineTopic, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled, settings),
-          fetchStatistics(inlineTopic, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources),
-          generateInternalExpertQuote(inlineTopic, settings, PERPLEXITY_API_KEY)
+          fetchExpertQuotes(inlineTopic, settings.target_personas, aiKeys, provider, settings.expert_quotes_enabled, settings),
+          fetchStatistics(inlineTopic, aiKeys, provider, settings.statistics_citations_enabled, settings.preferred_citation_sources),
+          generateInternalExpertQuote(inlineTopic, settings, aiKeys, provider)
         ]);
 
-        // Priorizar citação do especialista interno
         expertQuotes = internalQuote ? [internalQuote, ...externalQuotes] : externalQuotes;
         statistics = statsData;
 
@@ -912,13 +933,12 @@ serve(async (req) => {
         expertQuotes,
         statistics,
         settings,
-        PERPLEXITY_API_KEY
+        aiKeys,
+        provider
       );
 
-      // Montar conteúdo final
       let finalContent = parsedContent.content;
 
-      // Adicionar seção FAQ formatada
       if (settings.auto_generate_faq && faqs.length > 0) {
         finalContent += '\n\n---\n\n## Perguntas Frequentes (FAQ)\n\n';
         faqs.forEach((faq: FAQItem) => {
@@ -926,7 +946,6 @@ serve(async (req) => {
         });
       }
 
-      // Adicionar fontes
       if (settings.external_linking_enabled && citations.length > 0) {
         finalContent += '\n\n---\n\n## Fontes e Referências\n\n';
         citations.forEach((citation, index) => {
@@ -934,7 +953,6 @@ serve(async (req) => {
         });
       }
 
-      // Buscar e adicionar links internos
       let internalLinksCount = 0;
       if (settings.internal_linking_enabled) {
         const existingPosts = await fetchExistingPosts(supabase, inlineCategory, settings.max_internal_links);
@@ -950,7 +968,6 @@ serve(async (req) => {
         }
       }
 
-      // Calcular GEO Score
       const geoScore = calculateGEOScore(
         finalContent,
         expertQuotes,
@@ -981,7 +998,8 @@ serve(async (req) => {
           statistics,
           faq_schema: faqSchema,
           answer_first_validated: geoScore >= 20,
-          internal_links_count: internalLinksCount
+          internal_links_count: internalLinksCount,
+          ai_provider: provider
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -1018,9 +1036,8 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Processing ${topics.length} topic(s) with GEO optimization`);
+    console.log(`Processing ${topics.length} topic(s) with GEO optimization (provider: ${provider})`);
 
-    // Buscar posts existentes uma vez para links internos
     const existingPosts = settings.internal_linking_enabled 
       ? await fetchExistingPosts(supabase, '', settings.max_internal_links * 2)
       : [];
@@ -1045,32 +1062,28 @@ serve(async (req) => {
       try {
         const searchQuery = topic.search_query || topic.topic;
 
-        // Buscar citações, estatísticas e citação interna em paralelo
         const [externalQuotes, statistics, internalQuote] = await Promise.all([
-          fetchExpertQuotes(searchQuery, settings.target_personas, PERPLEXITY_API_KEY, settings.expert_quotes_enabled, settings),
-          fetchStatistics(searchQuery, PERPLEXITY_API_KEY, settings.statistics_citations_enabled, settings.preferred_citation_sources),
-          generateInternalExpertQuote(searchQuery, settings, PERPLEXITY_API_KEY)
+          fetchExpertQuotes(searchQuery, settings.target_personas, aiKeys, provider, settings.expert_quotes_enabled, settings),
+          fetchStatistics(searchQuery, aiKeys, provider, settings.statistics_citations_enabled, settings.preferred_citation_sources),
+          generateInternalExpertQuote(searchQuery, settings, aiKeys, provider)
         ]);
 
-        // Priorizar citação do especialista interno
         const expertQuotes = internalQuote ? [internalQuote, ...externalQuotes] : externalQuotes;
 
-        // Adicionar estatísticas da marca
         const allStatistics = settings.brand_statistics 
           ? [...settings.brand_statistics, ...statistics]
           : statistics;
 
-        // Gerar conteúdo otimizado para GEO
         const { parsedContent, faqs, citations } = await generateGEOContent(
           searchQuery,
           topic.category,
           expertQuotes,
           allStatistics,
           settings,
-          PERPLEXITY_API_KEY
+          aiKeys,
+          provider
         );
 
-        // Montar conteúdo final
         let finalContent = parsedContent.content;
 
         if (settings.auto_generate_faq && faqs.length > 0) {
@@ -1087,7 +1100,6 @@ serve(async (req) => {
           });
         }
 
-        // Adicionar links internos
         let internalLinksCount = 0;
         if (settings.internal_linking_enabled && existingPosts.length > 0) {
           const internalLinks = generateInternalLinks(
@@ -1102,7 +1114,6 @@ serve(async (req) => {
           }
         }
 
-        // Calcular GEO Score
         const geoScore = calculateGEOScore(
           finalContent,
           expertQuotes,
@@ -1117,25 +1128,22 @@ serve(async (req) => {
           ? generateFAQSchema(faqs) 
           : null;
 
-        // Determinar se deve auto-publicar
         const shouldAutoPublish = geoScore >= settings.min_geo_score_publish;
 
-        // Gerar slug SEO-friendly otimizado para Google
         const generateSEOSlug = (title: string): string => {
           return title
             .toLowerCase()
             .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-            .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
-            .replace(/\s+/g, '-') // Espaços para hífens
-            .replace(/-+/g, '-') // Remove hífens duplicados
-            .replace(/^-|-$/g, '') // Remove hífens no início/fim
-            .substring(0, 80); // Limite para URL amigável
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '')
+            .substring(0, 80);
         };
 
         let baseSlug = generateSEOSlug(parsedContent.title);
         
-        // Verificar se slug já existe e adicionar sufixo numérico se necessário
         const { data: existingSlug } = await supabase
           .from('blog_posts')
           .select('slug')
@@ -1144,7 +1152,6 @@ serve(async (req) => {
         
         let finalSlug = baseSlug;
         if (existingSlug && existingSlug.length > 0) {
-          // Encontrar o próximo número disponível
           const existingSlugs = existingSlug.map(p => p.slug);
           let counter = 2;
           while (existingSlugs.includes(finalSlug)) {
@@ -1231,6 +1238,7 @@ serve(async (req) => {
         processed: results.length,
         successful: successCount,
         autoPublished: autoPublishedCount,
+        ai_provider: provider,
         results
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

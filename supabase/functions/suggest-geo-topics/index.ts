@@ -7,8 +7,8 @@ const corsHeaders = {
 };
 
 // Rate limiting configuration
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 10;
 
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
@@ -29,7 +29,6 @@ function checkRateLimit(identifier: string): { allowed: boolean; remaining: numb
   return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count, resetIn: record.resetTime - now };
 }
 
-// Authentication helper - verify admin role or service role key
 async function verifyAdminAuth(req: Request, supabaseUrl: string, supabaseServiceKey: string): Promise<{ success: boolean; error?: string; userId?: string; isServiceRole?: boolean }> {
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
@@ -38,13 +37,11 @@ async function verifyAdminAuth(req: Request, supabaseUrl: string, supabaseServic
 
   const token = authHeader.replace('Bearer ', '');
   
-  // Check if this is a service role key (internal service-to-service call)
   if (token === supabaseServiceKey) {
     console.log('Service role key authentication - internal call');
     return { success: true, isServiceRole: true };
   }
   
-  // Otherwise, verify as user token
   const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
     global: { headers: { Authorization: authHeader } }
   });
@@ -68,22 +65,92 @@ async function verifyAdminAuth(req: Request, supabaseUrl: string, supabaseServic
   return { success: true, userId: user.id };
 }
 
+// ===== DUAL PROVIDER ABSTRACTION =====
+type AIProvider = 'perplexity' | 'claude';
+
+interface AIKeys {
+  perplexity?: string;
+  anthropic?: string;
+}
+
+async function callAI(
+  provider: AIProvider,
+  messages: Array<{ role: string; content: string }>,
+  apiKeys: AIKeys,
+  options?: {
+    search_recency_filter?: string;
+    model?: string;
+  }
+): Promise<{ content: string }> {
+  if (provider === 'claude') {
+    const apiKey = apiKeys.anthropic;
+    if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not configured');
+
+    const systemMsg = messages.find(m => m.role === 'system');
+    const nonSystemMsgs = messages.filter(m => m.role !== 'system');
+
+    const body: Record<string, unknown> = {
+      model: options?.model || 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      messages: nonSystemMsgs,
+    };
+    if (systemMsg) body.system = systemMsg.content;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Claude API error:', response.status, errorText);
+      throw new Error(`Claude API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { content: data.content?.[0]?.text || '' };
+  }
+
+  // Default: Perplexity
+  const apiKey = apiKeys.perplexity;
+  if (!apiKey) throw new Error('PERPLEXITY_API_KEY is not configured');
+
+  const body: Record<string, unknown> = {
+    model: options?.model || 'sonar-pro',
+    messages,
+  };
+  if (options?.search_recency_filter) body.search_recency_filter = options.search_recency_filter;
+
+  const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Perplexity API error:', response.status, errorText);
+    throw new Error(`Perplexity API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return { content: data.choices?.[0]?.message?.content || '' };
+}
+
 interface TopicSuggestion {
   topic: string;
   category: string;
   search_query: string;
   geo_potential: 'alto' | 'medio' | 'baixo';
   reasoning: string;
-}
-
-interface PerplexityResponse {
-  choices: Array<{
-    message: {
-      content: string;
-    };
-  }>;
-  citations?: string[];
-  search_results?: Array<{ title: string; url: string; date?: string; snippet?: string }>;
 }
 
 serve(async (req) => {
@@ -93,18 +160,18 @@ serve(async (req) => {
 
   try {
     const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
+    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!PERPLEXITY_API_KEY) {
-      throw new Error('PERPLEXITY_API_KEY is not configured');
+    if (!PERPLEXITY_API_KEY && !ANTHROPIC_API_KEY) {
+      throw new Error('No AI provider configured. Set PERPLEXITY_API_KEY or ANTHROPIC_API_KEY.');
     }
 
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error('Supabase credentials not configured');
     }
 
-    // Verify admin authentication
     const authResult = await verifyAdminAuth(req, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     if (!authResult.success) {
       return new Response(
@@ -114,7 +181,6 @@ serve(async (req) => {
     }
     console.log('Authenticated admin user:', authResult.userId);
 
-    // Check rate limit (skip for service role calls)
     if (!authResult.isServiceRole) {
       const rateLimitId = authResult.userId || 'anonymous';
       const rateLimit = checkRateLimit(`suggest-geo-topics:${rateLimitId}`);
@@ -139,7 +205,6 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Buscar configurações GEO
     const { data: geoSettings } = await supabase
       .from('geo_settings')
       .select('*')
@@ -155,9 +220,19 @@ serve(async (req) => {
     const numSuggestions = body?.num_suggestions || 10;
     const autoSchedule = body?.auto_schedule === true;
 
-    console.log(`Generating ${numSuggestions} GEO topic suggestions`);
+    // Determine AI provider
+    const aiKeys: AIKeys = { perplexity: PERPLEXITY_API_KEY, anthropic: ANTHROPIC_API_KEY };
+    let provider: AIProvider = body?.ai_provider === 'claude' ? 'claude' : 'perplexity';
+    
+    if (provider === 'claude' && !ANTHROPIC_API_KEY) {
+      provider = 'perplexity';
+    }
+    if (provider === 'perplexity' && !PERPLEXITY_API_KEY) {
+      provider = 'claude';
+    }
 
-    // Buscar tópicos existentes para evitar duplicatas
+    console.log(`Generating ${numSuggestions} GEO topic suggestions (provider: ${provider})`);
+
     const { data: existingTopics } = await supabase
       .from('blog_topics')
       .select('topic')
@@ -166,7 +241,6 @@ serve(async (req) => {
 
     const existingTopicsList = existingTopics?.map(t => t.topic.toLowerCase()) || [];
 
-    // Buscar títulos de posts existentes também
     const { data: existingPosts } = await supabase
       .from('blog_posts')
       .select('title')
@@ -178,17 +252,11 @@ serve(async (req) => {
     const personasText = settings.target_personas.join(', ');
     const keywordsText = settings.brand_authority_keywords.join(', ');
 
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'sonar-pro',
-        messages: [{
-          role: 'user',
-          content: `Você é um especialista em SEO e GEO (Generative Engine Optimization) para contabilidade de profissionais de saúde no Brasil.
+    const { content: rawContent } = await callAI(
+      provider,
+      [{
+        role: 'user',
+        content: `Você é um especialista em SEO e GEO (Generative Engine Optimization) para contabilidade de profissionais de saúde no Brasil.
 
 Analise as tendências atuais e sugira ${numSuggestions} tópicos de blog que têm ALTO POTENCIAL de serem citados por IAs como ChatGPT, Perplexity e Google AI Overview.
 
@@ -218,19 +286,10 @@ RETORNE APENAS JSON válido neste formato:
     }
   ]
 }`
-        }],
-        search_recency_filter: 'month',
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Perplexity API error:', response.status, errorText);
-      throw new Error(`Perplexity API error: ${response.status}`);
-    }
-
-    const data: PerplexityResponse = await response.json();
-    const rawContent = data.choices[0]?.message?.content || '';
+      }],
+      aiKeys,
+      { search_recency_filter: 'month' }
+    );
 
     let suggestions: TopicSuggestion[] = [];
     
@@ -250,7 +309,6 @@ RETORNE APENAS JSON válido neste formato:
       );
     }
 
-    // Filtrar tópicos que já existem
     const filteredSuggestions = suggestions.filter(s => {
       const topicLower = s.topic.toLowerCase();
       return !existingTopicsList.some(existing => 
@@ -262,7 +320,6 @@ RETORNE APENAS JSON válido neste formato:
 
     console.log(`Generated ${suggestions.length} suggestions, ${filteredSuggestions.length} after filtering`);
 
-    // Se auto_schedule estiver ativado, agendar os tópicos
     let scheduledCount = 0;
     if (autoSchedule && filteredSuggestions.length > 0) {
       const today = new Date();
@@ -270,7 +327,7 @@ RETORNE APENAS JSON válido neste formato:
       for (let i = 0; i < filteredSuggestions.length; i++) {
         const suggestion = filteredSuggestions[i];
         const scheduledDate = new Date(today);
-        scheduledDate.setDate(today.getDate() + i + 1); // Agendar 1 por dia começando amanhã
+        scheduledDate.setDate(today.getDate() + i + 1);
 
         const { error: insertError } = await supabase
           .from('blog_topics')
@@ -299,7 +356,8 @@ RETORNE APENAS JSON válido neste formato:
         total_generated: suggestions.length,
         total_after_filter: filteredSuggestions.length,
         scheduled_count: scheduledCount,
-        auto_scheduled: autoSchedule
+        auto_scheduled: autoSchedule,
+        ai_provider: provider
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

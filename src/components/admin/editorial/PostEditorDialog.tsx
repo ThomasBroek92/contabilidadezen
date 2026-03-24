@@ -45,6 +45,7 @@ export function PostEditorDialog({ open, onOpenChange, editingPost, onSave, init
   const [uploadingImage, setUploadingImage] = useState(false);
   const [generatingAI, setGeneratingAI] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [aiProvider, setAiProvider] = useState<'perplexity' | 'claude'>('perplexity');
   const { toast } = useToast();
 
   // CORRIGIDO: Usar useEffect para inicializar o formulário quando editingPost mudar

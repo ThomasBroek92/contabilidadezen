@@ -1,45 +1,87 @@
 
 
-# Limpar Testes + Otimizar e Publicar Drafts Prioritarios
+# Correcoes de SEO e Indexacao — Google Search Console
 
-## Escopo
+## Analise do Estado Atual
 
-### Acao 1: Deletar posts de teste (custo zero)
-Remover 2 posts publicados que prejudicam o SEO:
-- `teste` (id: `ab7ced98-...`, GEO 0)
-- `teste 2` (id: `f293140b-...`, GEO 0)
+Apos inspecionar o codigo, varias correcoes ja estao implementadas:
+- **CORRECAO 6 (posts de teste)**: Ja deletados na sessao anterior.
+- **CORRECAO 7 (noindex em Admin/Auth/Partner)**: Ja implementado nos 3 arquivos.
+- **Schema JSON-LD (CORRECAO 3)**: Os schemas `Organization`, `LocalBusiness`, `WebSite` e `SiteNavigation` ja estao corretos e completos em `seo-schemas.ts`. Nao ha `@type: null`.
 
-Executar via insert tool com DELETE.
+Restam **4 correcoes reais** a implementar:
 
-### Acao 2: Otimizar e publicar 4 drafts prioritarios
+---
 
-Os 4 posts que voce mencionou, todos com GEO 45 atualmente:
+## Correcao 1 — Atualizar `public/_redirects`
 
-| Post | Slug | GEO Atual |
-|------|------|-----------|
-| Tributacao Plantao Medico 2025 | `tributacao-plantao-medico-2025-rpa-vs-clt-vs-pj-vs-coop` | 45 |
-| Lucro Presumido vs Real para Dentistas 2026 | `lucro-presumido-vs-real-para-dentistas-2026-impostos` | 45 |
-| Tributacao Telemedicina Medicos PJ 2025 | `tributacao-telemedicina-medicos-pj-2025-brasil` | 45 |
-| Erros Contabeis em Saude 2025 | `erros-contabeis-em-saude-2025-multas-para-medicos-e-dentistas` | 45 |
+O arquivo existe mas falta a regra de trailing slash e o flag `!` (force).
 
-Para cada post:
-1. Chamar a edge function `optimize-content` para elevar o GEO score (meta: 70+)
-2. Atualizar status para `published` e `editorial_status` para `published`
-3. Definir `published_at` como agora
-4. Isso dispara automaticamente o trigger `queue_indexing_request` para indexacao no Google
+**De:**
+```
+https://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301
+http://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301
+```
 
-### Acao 3 (bonus): Publicar o melhor draft adicional
-- "Abrindo Seu CNPJ em 2026" ja tem GEO 75 — pronto para publicar sem otimizacao
+**Para:**
+```
+https://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301!
+http://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301!
+https://www.contabilidadezen.com.br/*/ https://www.contabilidadezen.com.br/:splat 301!
+```
 
-## Passos de implementacao
+---
 
-1. DELETE dos 2 posts de teste via insert tool
-2. Invocar `optimize-content` para cada um dos 4 posts prioritarios via edge function
-3. UPDATE status → published para os 4 posts otimizados + o post GEO 75
-4. Confirmar que os 5 posts aparecem na fila de indexacao
+## Correcao 2 — Melhorar `scripts/prerender.mjs`
 
-## Resultado esperado
-- 2 posts lixo removidos
-- 5 novos posts publicados (4 otimizados + 1 ja pronto)
-- Todos enviados automaticamente para indexacao no Google
+Tres alteracoes:
+1. **Timeout**: `goto` de 30s para 60s, `waitForFunction` de 15s para 20s
+2. **Retry 3x**: Loop com 3 tentativas por rota, com delay de 3s entre falhas
+3. **Validacao de conteudo**: Rejeitar HTML com menos de 500 chars de texto (indicativo de tela de loading)
+
+---
+
+## Correcao 3 — Reduzir Title da Homepage
+
+No `src/pages/Index.tsx`, o titulo atual tem 73 caracteres:
+```
+Contabilidade Zen | Economize até 50% em Impostos | Contabilidade Digital
+```
+
+Substituir por (52 chars):
+```
+Contabilidade Zen | Médicos, Dentistas e Psicólogos
+```
+
+---
+
+## Correcao 4 — Canonical sem trailing slash no `SEOHead.tsx`
+
+A linha 244 gera o canonical mas nao remove trailing slashes. Adicionar sanitizacao:
+
+```typescript
+// Antes:
+const fullCanonical = canonical?.startsWith("http") ? canonical : `${SITE_URL}${canonical || ""}`;
+
+// Depois:
+const rawCanonical = canonical?.startsWith("http") ? canonical : `${SITE_URL}${canonical || ""}`;
+const fullCanonical = rawCanonical === SITE_URL || rawCanonical === `${SITE_URL}/`
+  ? SITE_URL
+  : rawCanonical.replace(/\/+$/, "");
+```
+
+Isso garante que a homepage usa `https://www.contabilidadezen.com.br` (sem barra) e paginas internas nunca terminam com `/`.
+
+---
+
+## Arquivos Afetados
+
+| Arquivo | Acao |
+|---|---|
+| `public/_redirects` | Adicionar trailing slash rule + flag `!` |
+| `scripts/prerender.mjs` | Timeout 60s + retry 3x + validacao |
+| `src/pages/Index.tsx` | Reduzir title para 52 chars |
+| `src/components/SEOHead.tsx` | Sanitizar canonical (remover trailing slash) |
+
+4 arquivos editados. Nenhuma alteracao de banco de dados.
 

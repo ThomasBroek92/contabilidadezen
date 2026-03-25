@@ -1,61 +1,45 @@
 
 
-# Adicionar Anthropic (Claude) como Provider Alternativo
+# Limpar Testes + Otimizar e Publicar Drafts Prioritarios
 
-## Resumo
+## Escopo
 
-Manter Lovable AI (Perplexity) funcionando como esta. Adicionar Claude como provider adicional, configuravel. As Edge Functions que geram conteudo terao suporte dual: Perplexity (busca web + citacoes) OU Claude (qualidade de escrita), selecionavel via parametro.
+### Acao 1: Deletar posts de teste (custo zero)
+Remover 2 posts publicados que prejudicam o SEO:
+- `teste` (id: `ab7ced98-...`, GEO 0)
+- `teste 2` (id: `f293140b-...`, GEO 0)
 
----
+Executar via insert tool com DELETE.
 
-## O Que Muda
+### Acao 2: Otimizar e publicar 4 drafts prioritarios
 
-### 1. Adicionar secret ANTHROPIC_API_KEY
-Solicitar a chave via ferramenta de secrets. Voce ja tem a chave paga da Anthropic.
+Os 4 posts que voce mencionou, todos com GEO 45 atualmente:
 
-### 2. Atualizar `generate-blog-content/index.ts` — Provider Dual
+| Post | Slug | GEO Atual |
+|------|------|-----------|
+| Tributacao Plantao Medico 2025 | `tributacao-plantao-medico-2025-rpa-vs-clt-vs-pj-vs-coop` | 45 |
+| Lucro Presumido vs Real para Dentistas 2026 | `lucro-presumido-vs-real-para-dentistas-2026-impostos` | 45 |
+| Tributacao Telemedicina Medicos PJ 2025 | `tributacao-telemedicina-medicos-pj-2025-brasil` | 45 |
+| Erros Contabeis em Saude 2025 | `erros-contabeis-em-saude-2025-multas-para-medicos-e-dentistas` | 45 |
 
-Adicionar uma funcao `callAI()` que abstrai o provider:
+Para cada post:
+1. Chamar a edge function `optimize-content` para elevar o GEO score (meta: 70+)
+2. Atualizar status para `published` e `editorial_status` para `published`
+3. Definir `published_at` como agora
+4. Isso dispara automaticamente o trigger `queue_indexing_request` para indexacao no Google
 
-```text
-Body request recebe: { ai_provider: "perplexity" | "claude" }
-- Default: "perplexity" (mantém comportamento atual)
-- Se "claude": usa api.anthropic.com/v1/messages com claude-sonnet-4-20250514
-- Se "perplexity": mantém api.perplexity.ai (com search_results/citations)
-```
+### Acao 3 (bonus): Publicar o melhor draft adicional
+- "Abrindo Seu CNPJ em 2026" ja tem GEO 75 — pronto para publicar sem otimizacao
 
-Todas as 4 chamadas Perplexity (expert quotes, statistics, internal quotes, conteudo principal) passam a usar `callAI()`. Citacoes web so ficam disponiveis com Perplexity.
+## Passos de implementacao
 
-### 3. Atualizar `suggest-geo-topics/index.ts` — Mesmo padrao dual
+1. DELETE dos 2 posts de teste via insert tool
+2. Invocar `optimize-content` para cada um dos 4 posts prioritarios via edge function
+3. UPDATE status → published para os 4 posts otimizados + o post GEO 75
+4. Confirmar que os 5 posts aparecem na fila de indexacao
 
-A sugestao de topicos tambem ganha suporte a Claude como alternativa.
-
-### 4. Atualizar UI do Blog Manager — Seletor de Provider
-
-Adicionar um dropdown simples no painel de geracao de conteudo para escolher entre "Perplexity (com pesquisa web)" e "Claude (qualidade premium)".
-
----
-
-## Detalhes Tecnicos
-
-### Funcao abstrata de chamada AI:
-
-```typescript
-async function callAI(
-  provider: 'perplexity' | 'claude',
-  messages: Array<{role: string, content: string}>,
-  apiKeys: { perplexity?: string, anthropic?: string }
-): Promise<{ content: string; citations: string[] }>
-```
-
-- **Perplexity**: endpoint `api.perplexity.ai`, header `Authorization: Bearer`, resposta `choices[0].message.content`, citacoes de `search_results`
-- **Claude**: endpoint `api.anthropic.com/v1/messages`, headers `x-api-key` + `anthropic-version`, resposta `content[0].text`, citacoes vazias
-
-### Arquivos afetados:
-1. **`supabase/functions/generate-blog-content/index.ts`** — Adicionar `callAI()`, parametro `ai_provider` no body
-2. **`supabase/functions/suggest-geo-topics/index.ts`** — Mesmo padrao
-3. **`src/components/admin/editorial/PostEditorDialog.tsx`** ou componente de geracao — Dropdown de provider
-4. **1 secret novo**: `ANTHROPIC_API_KEY`
-
-### Estimativa: 3 arquivos editados, 1 secret adicionado.
+## Resultado esperado
+- 2 posts lixo removidos
+- 5 novos posts publicados (4 otimizados + 1 ja pronto)
+- Todos enviados automaticamente para indexacao no Google
 

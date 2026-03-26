@@ -1,3 +1,6 @@
-# Redirect non-www to www (301 permanent)
-https://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301
-http://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301
+# Redirect non-www para www (resolve duplicatas de conteúdo)
+https://contabilidadezen.com.br/*  https://www.contabilidadezen.com.br/:splat  301!
+http://contabilidadezen.com.br/*  https://www.contabilidadezen.com.br/:splat  301!
+
+# Remove trailing slash (resolve inconsistência de canonical)
+https://www.contabilidadezen.com.br/*/  https://www.contabilidadezen.com.br/:splat  301!

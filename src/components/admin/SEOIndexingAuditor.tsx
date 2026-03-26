@@ -206,7 +206,7 @@ export function SEOIndexingAuditor() {
   };
 
   const getAllPagesToAudit = async (): Promise<string[]> => {
-    const baseUrl = siteUrl || 'https://contabilidadezen.com.br';
+    const baseUrl = siteUrl || 'https://www.contabilidadezen.com.br';
     
     const staticPages = [
       '', '/sobre', '/servicos', '/contato', '/blog', '/indique-e-ganhe', '/abrir-empresa',
@@ -683,7 +683,7 @@ export function SEOIndexingAuditor() {
                         {item.status === 'pending' && <Clock className="h-5 w-5 text-amber-600" />}
                         {item.status === 'failed' && <XCircle className="h-5 w-5 text-red-600" />}
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate text-sm">{item.url.replace('https://contabilidadezen.com.br', '').replace('https://www.contabilidadezen.com.br', '')}</p>
+                          <p className="font-medium truncate text-sm">{item.url.replace('https://www.contabilidadezen.com.br', '').replace('https://contabilidadezen.com.br', '')}</p>
                           <p className="text-xs text-muted-foreground">
                             Criado: {new Date(item.created_at).toLocaleString('pt-BR')}
                             {item.processed_at && ` • Processado: ${new Date(item.processed_at).toLocaleString('pt-BR')}`}

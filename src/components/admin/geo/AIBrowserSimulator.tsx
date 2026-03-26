@@ -117,7 +117,7 @@ export function AIBrowserSimulator() {
         <CardContent className="space-y-4">
           <div className="flex gap-4">
             <Input
-              placeholder="https://contabilidadezen.com.br/servicos"
+              placeholder="https://www.contabilidadezen.com.br/servicos"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               className="flex-1"

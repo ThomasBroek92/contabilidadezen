@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
               'Authorization': `Bearer ${supabaseServiceKey}`,
             },
             body: JSON.stringify({ 
-              siteUrl: 'https://contabilidadezen.com.br'
+              siteUrl: 'https://www.contabilidadezen.com.br'
             }),
           })
           

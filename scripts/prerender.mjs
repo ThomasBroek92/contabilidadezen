@@ -183,8 +183,7 @@ async function prerenderRoute(browser, route) {
   const url = `http://localhost:${PORT}${route}`;
 
   try {
-    console.log(`🔄 Pre-rendering: ${route}`);
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
 
     // Wait for React to render content inside #root
     await page.waitForFunction(
@@ -192,8 +191,7 @@ async function prerenderRoute(browser, route) {
         const root = document.getElementById('root');
         return root && root.children.length > 0 && root.innerHTML.length > 100;
       },
-      { timeout: 15000 }
-    );
+      { timeout: 20000 }
 
     // For /blog, wait specifically for post links to appear (async data)
     if (route === '/blog') {
@@ -212,6 +210,12 @@ async function prerenderRoute(browser, route) {
     await new Promise((r) => setTimeout(r, 2000));
 
     const html = await page.content();
+
+    // Validação: garantir que o HTML tem conteúdo real (não é tela de loading)
+    const contentLength = html.replace(/<[^>]*>/g, '').trim().length;
+    if (contentLength < 500) {
+      throw new Error(`HTML com conteúdo insuficiente (${contentLength} chars) — possível falha de renderização`);
+    }
 
     // Determine output path
     const outputDir = route === '/'
@@ -260,7 +264,18 @@ async function main() {
   try {
     // Pre-render each route sequentially to avoid overwhelming the server
     for (const route of ROUTES) {
-      await prerenderRoute(browser, route);
+      let success = false;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          await prerenderRoute(browser, route);
+          success = true;
+          break;
+        } catch (err) {
+          console.warn(`⚠️ Tentativa ${attempt}/3 falhou para ${route}: ${err.message}`);
+          if (attempt < 3) await new Promise(r => setTimeout(r, 3000));
+        }
+      }
+      if (!success) console.error(`❌ Falha definitiva após 3 tentativas: ${route}`);
     }
 
     console.log(`\n🎉 Pre-rendering complete! ${ROUTES.length} routes processed.`);

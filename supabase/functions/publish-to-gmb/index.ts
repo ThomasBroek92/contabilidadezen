@@ -90,7 +90,7 @@ interface GMBLocalPost {
 }
 
 // Default logo URL - used for all GMB posts
-const DEFAULT_LOGO_URL = 'https://contabilidadezen.com.br/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png';
+const DEFAULT_LOGO_URL = 'https://www.contabilidadezen.com.br/lovable-uploads/b2fc5c22-7b5f-4b53-88e1-973d0983e249.png';
 
 // Get access token using service account
 async function getAccessToken(): Promise<string> {
@@ -293,7 +293,7 @@ Deno.serve(async (req) => {
 
     // Get request body for optional parameters
     let postId: string | null = null;
-    let siteUrl = 'https://contabilidadezen.com.br'; // Default site URL
+    let siteUrl = 'https://www.contabilidadezen.com.br'; // Default site URL
     let action: string | null = null;
     
     try {

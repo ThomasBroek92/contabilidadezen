@@ -413,7 +413,7 @@ export function IndexingHistoryReport() {
                   {item.status === 'failed' && <XCircle className="h-4 w-4 text-red-600" />}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
-                      {item.url.replace('https://contabilidadezen.com.br', '')}
+                      {item.url.replace('https://www.contabilidadezen.com.br', '').replace('https://contabilidadezen.com.br', '')}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {format(new Date(item.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}

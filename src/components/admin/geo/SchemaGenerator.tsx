@@ -40,7 +40,7 @@ export function SchemaGenerator() {
   const [orgData, setOrgData] = useState({
     name: 'Contabilidade Zen',
     description: '',
-    url: 'https://contabilidadezen.com.br',
+    url: 'https://www.contabilidadezen.com.br',
     logo: '',
     email: '',
     phone: '',
@@ -88,7 +88,7 @@ export function SchemaGenerator() {
         name: 'Contabilidade Zen',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://contabilidadezen.com.br/logo.png',
+          url: 'https://www.contabilidadezen.com.br/logo.png',
         },
       },
       image: articleData.image,

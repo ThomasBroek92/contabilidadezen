@@ -262,7 +262,7 @@ export function BlogGEODashboard() {
       const { data, error } = await supabase.functions.invoke('publish-to-gmb', {
         body: { 
           postId,
-          siteUrl: 'https://contabilidadezen.com.br'
+          siteUrl: 'https://www.contabilidadezen.com.br'
         }
       });
 

@@ -1,87 +1,64 @@
 
 
-# Correcoes de SEO e Indexacao — Google Search Console
+# Correcoes SEO: Redirects + Domain Canonicalization
 
-## Analise do Estado Atual
+## Resumo
 
-Apos inspecionar o codigo, varias correcoes ja estao implementadas:
-- **CORRECAO 6 (posts de teste)**: Ja deletados na sessao anterior.
-- **CORRECAO 7 (noindex em Admin/Auth/Partner)**: Ja implementado nos 3 arquivos.
-- **Schema JSON-LD (CORRECAO 3)**: Os schemas `Organization`, `LocalBusiness`, `WebSite` e `SiteNavigation` ja estao corretos e completos em `seo-schemas.ts`. Nao ha `@type: null`.
-
-Restam **4 correcoes reais** a implementar:
+Duas acoes: (1) atualizar `_redirects` com trailing slash rule e flag force, (2) substituir todas as ocorrencias de `https://contabilidadezen.com.br` (sem www) por `https://www.contabilidadezen.com.br` em 7 arquivos, e (3) aplicar as melhorias do prerender e canonical do plano anterior.
 
 ---
 
-## Correcao 1 — Atualizar `public/_redirects`
+## Arquivos a Editar
 
-O arquivo existe mas falta a regra de trailing slash e o flag `!` (force).
+### 1. `public/_redirects` — Atualizar regras
 
-**De:**
+Adicionar flag `!` (force) e regra de trailing slash:
 ```
-https://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301
-http://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301
-```
-
-**Para:**
-```
-https://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301!
-http://contabilidadezen.com.br/* https://www.contabilidadezen.com.br/:splat 301!
-https://www.contabilidadezen.com.br/*/ https://www.contabilidadezen.com.br/:splat 301!
+https://contabilidadezen.com.br/*  https://www.contabilidadezen.com.br/:splat  301!
+http://contabilidadezen.com.br/*  https://www.contabilidadezen.com.br/:splat  301!
+https://www.contabilidadezen.com.br/*/  https://www.contabilidadezen.com.br/:splat  301!
 ```
 
----
+### 2. Corrigir URLs sem www (7 arquivos)
 
-## Correcao 2 — Melhorar `scripts/prerender.mjs`
+| Arquivo | Linha | De | Para |
+|---|---|---|---|
+| `src/components/admin/geo/SchemaGenerator.tsx` | 43, 91 | `https://contabilidadezen.com.br` | `https://www.contabilidadezen.com.br` |
+| `src/components/admin/geo/BlogGEODashboard.tsx` | 265 | `https://contabilidadezen.com.br` | `https://www.contabilidadezen.com.br` |
+| `src/components/admin/SEOIndexingAuditor.tsx` | 209, 686 | `https://contabilidadezen.com.br` | `https://www.contabilidadezen.com.br` |
+| `src/components/admin/IndexingHistoryReport.tsx` | 416 | `https://contabilidadezen.com.br` | `https://www.contabilidadezen.com.br` |
+| `src/components/admin/geo/AIBrowserSimulator.tsx` | 120 | `https://contabilidadezen.com.br` | `https://www.contabilidadezen.com.br` |
+| `supabase/functions/publish-scheduled-posts/index.ts` | 151 | `https://contabilidadezen.com.br` | `https://www.contabilidadezen.com.br` |
+| `supabase/functions/publish-to-gmb/index.ts` | 93, 296 | `https://contabilidadezen.com.br` | `https://www.contabilidadezen.com.br` |
 
-Tres alteracoes:
-1. **Timeout**: `goto` de 30s para 60s, `waitForFunction` de 15s para 20s
-2. **Retry 3x**: Loop com 3 tentativas por rota, com delay de 3s entre falhas
-3. **Validacao de conteudo**: Rejeitar HTML com menos de 500 chars de texto (indicativo de tela de loading)
+### 3. `scripts/prerender.mjs` — Melhorias de robustez
 
----
+- Timeout `goto`: 30s → 60s
+- Timeout `waitForFunction`: 15s → 20s
+- Retry 3x com delay de 3s entre tentativas
+- Validacao de conteudo: rejeitar HTML com < 500 chars de texto
 
-## Correcao 3 — Reduzir Title da Homepage
+### 4. `src/components/SEOHead.tsx` — Canonical sem trailing slash
 
-No `src/pages/Index.tsx`, o titulo atual tem 73 caracteres:
-```
-Contabilidade Zen | Economize até 50% em Impostos | Contabilidade Digital
-```
-
-Substituir por (52 chars):
-```
-Contabilidade Zen | Médicos, Dentistas e Psicólogos
-```
-
----
-
-## Correcao 4 — Canonical sem trailing slash no `SEOHead.tsx`
-
-A linha 244 gera o canonical mas nao remove trailing slashes. Adicionar sanitizacao:
-
+Sanitizar canonical na linha 244:
 ```typescript
-// Antes:
-const fullCanonical = canonical?.startsWith("http") ? canonical : `${SITE_URL}${canonical || ""}`;
-
-// Depois:
 const rawCanonical = canonical?.startsWith("http") ? canonical : `${SITE_URL}${canonical || ""}`;
 const fullCanonical = rawCanonical === SITE_URL || rawCanonical === `${SITE_URL}/`
   ? SITE_URL
   : rawCanonical.replace(/\/+$/, "");
 ```
 
-Isso garante que a homepage usa `https://www.contabilidadezen.com.br` (sem barra) e paginas internas nunca terminam com `/`.
+### 5. `src/pages/Index.tsx` — Title mais curto
+
+De (73 chars): `Contabilidade Zen | Economize até 50% em Impostos | Contabilidade Digital`
+Para (52 chars): `Contabilidade Zen | Médicos, Dentistas e Psicólogos`
 
 ---
 
-## Arquivos Afetados
+## Resultado
 
-| Arquivo | Acao |
-|---|---|
-| `public/_redirects` | Adicionar trailing slash rule + flag `!` |
-| `scripts/prerender.mjs` | Timeout 60s + retry 3x + validacao |
-| `src/pages/Index.tsx` | Reduzir title para 52 chars |
-| `src/components/SEOHead.tsx` | Sanitizar canonical (remover trailing slash) |
-
-4 arquivos editados. Nenhuma alteracao de banco de dados.
+- 76 erros de redirect resolvidos (www + trailing slash)
+- Domain canonicalization consistente em todo o codigo
+- Prerender mais robusto (menos falhas de indexacao)
+- Canonical tags limpas em todas as paginas
 

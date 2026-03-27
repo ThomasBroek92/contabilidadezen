@@ -18,8 +18,12 @@ export const organizationSchema = {
     "height": 900
   },
   "image": LOGO_URL,
-  "description": "Contabilidade digital especializada para profissionais e empresas. Médicos, advogados, TI, produtores digitais, e-commerce e mais. Reduza sua carga tributária em até 50%.",
+  "description": "Contabilidade digital especializada para médicos, dentistas e psicólogos. Reduza sua carga tributária em até 50% com planejamento tributário especializado.",
   "email": "contato@contabilidadezen.com.br",
+  "areaServed": {
+    "@type": "Country",
+    "name": "BR"
+  },
   "telephone": "+55-19-97415-8342",
   "foundingDate": "2015",
   "numberOfEmployees": {

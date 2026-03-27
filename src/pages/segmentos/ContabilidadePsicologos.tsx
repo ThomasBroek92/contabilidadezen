@@ -17,8 +17,8 @@ export default function ContabilidadePsicologos() {
   return (
     <>
       <SEOHead
-        title="Contabilidade para Psicólogos e Clínicas de Psicologia | Reduza Impostos"
-        description="Contabilidade especializada para psicólogos e clínicas de psicologia. Reduza impostos, elimine burocracias e aumente seus lucros com planejamento tributário personalizado."
+        title="Contabilidade para Psicólogos"
+        description="Tributação otimizada para psicólogos PJ. Simples Nacional com Fator R, abertura de CNPJ e planejamento tributário especializado. 100% online. Orçamento grátis."
         keywords="contabilidade para psicólogos, contabilidade para clínicas de psicologia, psicólogo PJ contabilidade, planejamento tributário psicólogo, contabilidade online para psicólogos"
         canonical="/segmentos/contabilidade-para-psicologos"
         pageType="service"

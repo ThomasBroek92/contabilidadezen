@@ -52,8 +52,8 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="Contabilidade Zen | Médicos, Dentistas e Psicólogos"
-        description="Economize até 50% em impostos com contabilidade digital especializada. Médicos, advogados, TI, produtores digitais e mais. 100% online, 0% burocracia."
+        title="Contabilidade Zen | Especialistas em Médicos, Dentistas e Psicólogos"
+        description="Contabilidade digital especializada para profissionais da saúde. Reduza impostos com especialistas em Simples Nacional e Lucro Presumido. 100% online."
         keywords="contabilidade digital, redução de impostos, planejamento tributário, contabilidade online, abrir empresa, MEI, Simples Nacional, contabilidade para médicos, contabilidade para advogados"
         canonical="/"
         pageType="home"

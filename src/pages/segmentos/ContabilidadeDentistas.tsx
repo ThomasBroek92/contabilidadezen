@@ -29,8 +29,8 @@ export default function ContabilidadeDentistas() {
   return (
     <>
       <SEOHead
-        title="Contabilidade para Dentistas e Clínicas Odontológicas | Reduza Impostos"
-        description="Contabilidade especializada para dentistas e clínicas odontológicas. Reduza impostos, elimine burocracias e aumente seus lucros com planejamento tributário personalizado."
+        title="Contabilidade para Dentistas"
+        description="Abra seu CNPJ odontológico e reduza impostos com gestão fiscal especializada para dentistas PJ. Simples Nacional, Lucro Presumido e abertura de empresa. Orçamento grátis."
         keywords="contabilidade para dentistas, contabilidade para clínicas odontológicas, dentista PJ contabilidade, planejamento tributário dentista, contabilidade online para dentistas"
         canonical="/segmentos/contabilidade-para-dentistas"
         pageType="service"

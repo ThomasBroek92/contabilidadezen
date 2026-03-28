@@ -257,10 +257,13 @@ export default function BlogPost() {
         wordCount={post.content.split(/\s+/).length}
         readTimeMinutes={post.read_time_minutes || 5}
         lastModified={post.freshness_date || post.published_at || post.created_at}
-        faqs={post.faq_schema?.mainEntity?.map((item: any) => ({
-          question: item.name || item.question,
-          answer: item.acceptedAnswer?.text || item.answer
-        }))}
+        faqs={post.faq_schema?.mainEntity
+          ?.filter((item: any) => (item.name || item.question) && (item.acceptedAnswer?.text || item.answer))
+          .map((item: any) => ({
+            question: String(item.name || item.question),
+            answer: String(item.acceptedAnswer?.text || item.answer)
+          }))
+        }
       />
 
       <ReadingProgressBar />

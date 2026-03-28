@@ -195,14 +195,16 @@ export const servicesSchema = {
 export const generateFAQSchema = (faqs: Array<{ question: string; answer: string }>) => ({
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  "mainEntity": faqs.map(faq => ({
-    "@type": "Question",
-    "name": faq.question,
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": faq.answer
-    }
-  }))
+  "mainEntity": faqs
+    .filter(faq => faq.question && faq.answer)
+    .map(faq => ({
+      "@type": "Question",
+      "name": String(faq.question),
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": String(faq.answer)
+      }
+    }))
 });
 
 export const breadcrumbSchema = (items: Array<{ name: string; url: string }>) => ({

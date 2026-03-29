@@ -8,6 +8,12 @@ export interface CityFAQ {
   answer: string;
 }
 
+export interface CityHealthMarket {
+  heading: string;
+  paragraph: string;
+  faqs: CityFAQ[];
+}
+
 export interface CityConfig {
   name: string;
   slug: string;
@@ -29,6 +35,7 @@ export interface CityConfig {
   statsClientes: string;
   statsLabel: string;
   faqs: CityFAQ[];
+  healthMarket?: CityHealthMarket;
 }
 
 // ────────────────────────────────────────────────────────

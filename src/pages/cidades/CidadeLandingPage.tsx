@@ -35,6 +35,7 @@ import {
   Building2,
   Laptop,
   TrendingDown,
+  Stethoscope,
   Clock,
   Shield,
   CheckCircle2,
@@ -278,6 +279,71 @@ function CidadeContent({ city }: { city: CityConfig }) {
             </div>
           </div>
         </section>
+
+        {/* Health Market Section (only for cities with data) */}
+        {city.healthMarket && (
+          <section className="py-16 lg:py-24 bg-background">
+            <div className="container mx-auto px-4">
+              <ScrollAnimation>
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-secondary/10 rounded-full flex items-center justify-center">
+                      <Stethoscope className="w-5 h-5 text-secondary" />
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                      {city.healthMarket.heading}
+                    </h2>
+                  </div>
+
+                  <p className="text-muted-foreground leading-relaxed text-base md:text-lg mb-10">
+                    {city.healthMarket.paragraph}
+                  </p>
+
+                  {/* Health-specific FAQs */}
+                  <div className="mb-10">
+                    <h3 className="text-lg font-semibold text-foreground mb-4">
+                      Perguntas frequentes sobre saúde e tributação em {city.name}
+                    </h3>
+                    <Accordion type="single" collapsible className="space-y-3">
+                      {city.healthMarket.faqs.map((faq, index) => (
+                        <AccordionItem
+                          key={index}
+                          value={`health-${index}`}
+                          className="bg-card rounded-xl border border-border px-6 data-[state=open]:border-secondary/50 data-[state=open]:shadow-soft transition-all hover:border-secondary/30"
+                        >
+                          <AccordionTrigger className="text-left font-semibold hover:text-secondary py-5">
+                            {faq.question}
+                          </AccordionTrigger>
+                          <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                            {faq.answer}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-2xl p-6 lg:p-8 flex flex-col sm:flex-row items-center gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground text-lg mb-1">
+                        Fale com um especialista em {city.name}
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        Atendimento personalizado para profissionais de saúde.
+                      </p>
+                    </div>
+                    <Button variant="zen" size="lg" asChild>
+                      <Link to="/contato">
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Falar com especialista
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </ScrollAnimation>
+            </div>
+          </section>
+        )}
 
         {/* Abertura de Empresa - Card Dinâmico */}
         <section className="py-16 lg:py-24">

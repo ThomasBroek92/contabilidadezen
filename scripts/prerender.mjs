@@ -192,6 +192,7 @@ async function prerenderRoute(browser, route) {
         return root && root.children.length > 0 && root.innerHTML.length > 100;
       },
       { timeout: 20000 }
+    );
 
     // For /blog, wait specifically for post links to appear (async data)
     if (route === '/blog') {
@@ -261,8 +262,10 @@ async function main() {
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
   });
 
+  const failedRoutes = [];
+  let successCount = 0;
+
   try {
-    // Pre-render each route sequentially to avoid overwhelming the server
     for (const route of ROUTES) {
       let success = false;
       for (let attempt = 1; attempt <= 3; attempt++) {
@@ -275,10 +278,26 @@ async function main() {
           if (attempt < 3) await new Promise(r => setTimeout(r, 3000));
         }
       }
-      if (!success) console.error(`❌ Falha definitiva após 3 tentativas: ${route}`);
+      if (success) {
+        successCount++;
+      } else {
+        failedRoutes.push(route);
+        console.error(`❌ Falha definitiva após 3 tentativas: ${route}`);
+      }
     }
 
-    console.log(`\n🎉 Pre-rendering complete! ${ROUTES.length} routes processed.`);
+    // Final report
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`📊 RELATÓRIO FINAL DE PRE-RENDERING`);
+    console.log(`${'='.repeat(60)}`);
+    console.log(`📄 Total de rotas: ${ROUTES.length}`);
+    console.log(`✅ Sucesso: ${successCount}`);
+    console.log(`❌ Falhas: ${failedRoutes.length}`);
+    if (failedRoutes.length > 0) {
+      console.log(`\n🚨 URLs que falharam:`);
+      failedRoutes.forEach(r => console.log(`   - ${r}`));
+    }
+    console.log(`${'='.repeat(60)}\n`);
   } finally {
     await browser.close();
     server.close();

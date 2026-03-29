@@ -251,6 +251,15 @@ export const citiesConfig: CityConfig[] = [
   // ═══════════════ PRIMARY — RMC (20 cidades) ═══════════════
   rmcCity("Campinas", "campinas", "19", {
     statsClientes: "50+",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em Campinas",
+      paragraph: "Campinas é o principal polo de saúde do interior paulista, com mais de 4.500 estabelecimentos de saúde cadastrados no CNES e duas das maiores universidades médicas do país (Unicamp e PUC-Campinas). A cidade concentra clínicas de alta complexidade, laboratórios e consultórios que movimentam mais de R$ 3 bilhões ao ano. A alíquota de ISS para serviços médicos em Campinas é de 2% a 5%, dependendo do enquadramento, e o município exige inscrição no Cadastro Mobiliário para emissão de NFS-e. Profissionais PJ no Simples Nacional com Fator R podem reduzir a tributação efetiva para 6% sobre o faturamento.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em Campinas?", answer: "Em Campinas, a alíquota de ISS para serviços médicos varia de 2% a 5%, conforme a atividade e enquadramento fiscal. Profissionais no Simples Nacional pagam ISS embutido na guia DAS, com alíquota efetiva a partir de 2%." },
+        { question: "Como abrir CNPJ médico em Campinas?", answer: "O processo inclui registro na JUCESP, obtenção de CNPJ, inscrição no Cadastro Mobiliário de Campinas, alvará sanitário da Vigilância Sanitária e registro no CRM-SP. A Contabilidade Zen cuida de todas as etapas em 7 a 15 dias úteis." },
+        { question: "Qual o melhor regime tributário para dentistas em Campinas?", answer: "Para dentistas com faturamento até R$ 20 mil/mês, o Simples Nacional com Fator R (Anexo III) costuma ser a opção mais vantajosa, com tributação efetiva a partir de 6%. Acima disso, o Lucro Presumido com ISS de 2% pode ser mais econômico." },
+      ],
+    },
     faqs: [
       { question: "Vocês atendem presencialmente em Campinas?", answer: "Nosso atendimento é 100% digital, via WhatsApp, e-mail e videoconferência. Você não precisa se deslocar para nenhum escritório. Nosso foco é agilidade e praticidade para profissionais e empresas de Campinas e região." },
       { question: "Como funciona a abertura de empresa em Campinas?", answer: "Cuidamos de todo o processo: análise de viabilidade na prefeitura de Campinas, registro na Junta Comercial, CNPJ, Inscrição Municipal e alvarás necessários. Prazo médio de 5 a 10 dias úteis, dependendo do tipo de atividade." },

@@ -8,6 +8,12 @@ export interface CityFAQ {
   answer: string;
 }
 
+export interface CityHealthMarket {
+  heading: string;
+  paragraph: string;
+  faqs: CityFAQ[];
+}
+
 export interface CityConfig {
   name: string;
   slug: string;
@@ -29,6 +35,7 @@ export interface CityConfig {
   statsClientes: string;
   statsLabel: string;
   faqs: CityFAQ[];
+  healthMarket?: CityHealthMarket;
 }
 
 // ────────────────────────────────────────────────────────
@@ -244,6 +251,15 @@ export const citiesConfig: CityConfig[] = [
   // ═══════════════ PRIMARY — RMC (20 cidades) ═══════════════
   rmcCity("Campinas", "campinas", "19", {
     statsClientes: "50+",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em Campinas",
+      paragraph: "Campinas é o principal polo de saúde do interior paulista, com mais de 4.500 estabelecimentos de saúde cadastrados no CNES e duas das maiores universidades médicas do país (Unicamp e PUC-Campinas). A cidade concentra clínicas de alta complexidade, laboratórios e consultórios que movimentam mais de R$ 3 bilhões ao ano. A alíquota de ISS para serviços médicos em Campinas é de 2% a 5%, dependendo do enquadramento, e o município exige inscrição no Cadastro Mobiliário para emissão de NFS-e. Profissionais PJ no Simples Nacional com Fator R podem reduzir a tributação efetiva para 6% sobre o faturamento.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em Campinas?", answer: "Em Campinas, a alíquota de ISS para serviços médicos varia de 2% a 5%, conforme a atividade e enquadramento fiscal. Profissionais no Simples Nacional pagam ISS embutido na guia DAS, com alíquota efetiva a partir de 2%." },
+        { question: "Como abrir CNPJ médico em Campinas?", answer: "O processo inclui registro na JUCESP, obtenção de CNPJ, inscrição no Cadastro Mobiliário de Campinas, alvará sanitário da Vigilância Sanitária e registro no CRM-SP. A Contabilidade Zen cuida de todas as etapas em 7 a 15 dias úteis." },
+        { question: "Qual o melhor regime tributário para dentistas em Campinas?", answer: "Para dentistas com faturamento até R$ 20 mil/mês, o Simples Nacional com Fator R (Anexo III) costuma ser a opção mais vantajosa, com tributação efetiva a partir de 6%. Acima disso, o Lucro Presumido com ISS de 2% pode ser mais econômico." },
+      ],
+    },
     faqs: [
       { question: "Vocês atendem presencialmente em Campinas?", answer: "Nosso atendimento é 100% digital, via WhatsApp, e-mail e videoconferência. Você não precisa se deslocar para nenhum escritório. Nosso foco é agilidade e praticidade para profissionais e empresas de Campinas e região." },
       { question: "Como funciona a abertura de empresa em Campinas?", answer: "Cuidamos de todo o processo: análise de viabilidade na prefeitura de Campinas, registro na Junta Comercial, CNPJ, Inscrição Municipal e alvarás necessários. Prazo médio de 5 a 10 dias úteis, dependendo do tipo de atividade." },
@@ -283,7 +299,18 @@ export const citiesConfig: CityConfig[] = [
   rmcCity("Santo Antônio de Posse", "santo-antonio-de-posse", "19"),
 
   // ═══════════════ SECONDARY — São Paulo (capital + interior) ═══════════════
-  regionalCity("São Paulo", "sao-paulo", "São Paulo", "SP", "sudeste", "11", "Junta Comercial de São Paulo (JUCESP)", { statsClientes: "100+", statsLabel: "Clientes SP" }),
+  regionalCity("São Paulo", "sao-paulo", "São Paulo", "SP", "sudeste", "11", "Junta Comercial de São Paulo (JUCESP)", {
+    statsClientes: "100+", statsLabel: "Clientes SP",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em São Paulo",
+      paragraph: "São Paulo é o maior mercado de saúde da América Latina, com mais de 82 mil estabelecimentos de saúde registrados no CNES e cerca de 120 mil médicos ativos no CRM-SP. A capital concentra os principais hospitais, redes de clínicas e laboratórios do país, movimentando mais de R$ 90 bilhões ao ano no setor. A alíquota de ISS para serviços médicos na cidade de São Paulo é de 2% (mínima prevista na LC 175/2020), uma das mais baixas do estado. Para médicos PJ, o enquadramento no Simples Nacional com Fator R (folha ≥ 28% do faturamento) permite tributação efetiva a partir de 6%, enquanto o Lucro Presumido pode ser mais vantajoso para faturamentos acima de R$ 30 mil/mês.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em São Paulo?", answer: "Na cidade de São Paulo, a alíquota de ISS para serviços médicos é de 2%, conforme a legislação municipal (Lei 13.701/2003). No Simples Nacional, o ISS já vem embutido na guia DAS. No Lucro Presumido, o ISS de 2% é pago separadamente via DAS ou guia municipal." },
+        { question: "Quais documentos um médico precisa para abrir PJ em São Paulo?", answer: "É necessário: RG, CPF, comprovante de residência, CRM-SP ativo, certificado de residência médica (se especialista), e certificado digital e-CNPJ. A Contabilidade Zen cuida de JUCESP, CNPJ, inscrição municipal (CCM) e alvará da COVISA em 7 a 15 dias úteis." },
+        { question: "Vale mais a pena Simples Nacional ou Lucro Presumido para dentistas em São Paulo?", answer: "Para dentistas com faturamento até R$ 25 mil/mês e pró-labore adequado, o Simples Nacional (Anexo III via Fator R) resulta em tributação de 6%. Acima desse valor, o Lucro Presumido com ISS de 2% e IRPJ/CSLL sobre 32% da receita costuma gerar economia de 15% a 25% comparado ao Simples." },
+      ],
+    },
+  }),
   regionalCity("Guarulhos", "guarulhos", "São Paulo", "SP", "sudeste", "11", "JUCESP"),
   regionalCity("Santos", "santos", "São Paulo", "SP", "sudeste", "13", "JUCESP"),
   regionalCity("São José dos Campos", "sao-jose-dos-campos", "São Paulo", "SP", "sudeste", "12", "JUCESP"),
@@ -313,13 +340,35 @@ export const citiesConfig: CityConfig[] = [
   regionalCity("São José do Rio Preto", "sao-jose-do-rio-preto", "São Paulo", "SP", "sudeste", "17", "JUCESP"),
 
   // ═══════════════ SECONDARY — Rio de Janeiro ═══════════════
-  regionalCity("Rio de Janeiro", "rio-de-janeiro", "Rio de Janeiro", "RJ", "sudeste", "21", "Junta Comercial do Rio de Janeiro (JUCERJA)", { statsClientes: "50+", statsLabel: "Clientes RJ" }),
+  regionalCity("Rio de Janeiro", "rio-de-janeiro", "Rio de Janeiro", "RJ", "sudeste", "21", "Junta Comercial do Rio de Janeiro (JUCERJA)", {
+    statsClientes: "50+", statsLabel: "Clientes RJ",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde no Rio de Janeiro",
+      paragraph: "O Rio de Janeiro possui mais de 28 mil estabelecimentos de saúde e cerca de 75 mil médicos registrados no CREMERJ, sendo o segundo maior mercado de saúde do Brasil. A cidade é referência em especialidades como cardiologia, oncologia e cirurgia plástica, com hospitais de excelência como Sírio-Libanês RJ, Copa D'Or e Samaritano. A alíquota de ISS para serviços médicos no município do Rio de Janeiro é de 2% a 5%, com a maioria dos profissionais de saúde enquadrados em 3,5% (decreto municipal). O ISSQN no Simples Nacional já está embutido no DAS, mas profissionais com faturamento alto podem economizar significativamente no Lucro Presumido com planejamento tributário adequado.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos no Rio de Janeiro?", answer: "No município do Rio de Janeiro, a alíquota padrão de ISS para serviços de saúde é de 3,5%. No Simples Nacional, o ISS já vem incluído na guia DAS. Profissionais no Lucro Presumido pagam 3,5% separadamente via DARM-Rio. Sociedades simples de profissionais podem ter ISS fixo por profissional, dependendo do enquadramento." },
+        { question: "Como abrir CNPJ para psicólogo no Rio de Janeiro?", answer: "O processo exige CRP-05 ativo, registro na JUCERJA, CNPJ, inscrição municipal na Secretaria de Fazenda do RJ e, para consultórios, licença da Vigilância Sanitária (VISA-RJ). A Contabilidade Zen gerencia todas as etapas em 10 a 20 dias úteis." },
+        { question: "Médico PJ no Rio paga menos imposto que pessoa física?", answer: "Sim, significativamente. Um médico pessoa física com renda de R$ 20 mil/mês paga até 27,5% de IRPF. Como PJ no Simples Nacional com Fator R, a tributação total pode cair para 6% a 11%, uma economia que pode ultrapassar R$ 40 mil por ano." },
+      ],
+    },
+  }),
   regionalCity("Duque de Caxias", "duque-de-caxias", "Rio de Janeiro", "RJ", "sudeste", "21", "JUCERJA"),
   regionalCity("Niterói", "niteroi", "Rio de Janeiro", "RJ", "sudeste", "21", "JUCERJA"),
   regionalCity("Nova Iguaçu", "nova-iguacu", "Rio de Janeiro", "RJ", "sudeste", "21", "JUCERJA"),
 
   // ═══════════════ SECONDARY — Minas Gerais ═══════════════
-  regionalCity("Belo Horizonte", "belo-horizonte", "Minas Gerais", "MG", "sudeste", "31", "Junta Comercial de Minas Gerais (JUCEMG)", { statsClientes: "30+", statsLabel: "Clientes MG" }),
+  regionalCity("Belo Horizonte", "belo-horizonte", "Minas Gerais", "MG", "sudeste", "31", "Junta Comercial de Minas Gerais (JUCEMG)", {
+    statsClientes: "30+", statsLabel: "Clientes MG",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em Belo Horizonte",
+      paragraph: "Belo Horizonte é o terceiro maior polo de saúde do Brasil, com mais de 12 mil estabelecimentos de saúde e aproximadamente 45 mil médicos registrados no CRM-MG. A capital mineira é reconhecida nacionalmente pela excelência em ortopedia, oftalmologia e medicina reprodutiva, abrigando instituições como Hospital das Clínicas da UFMG e Rede Mater Dei. A alíquota de ISS para serviços médicos em BH é de 2% a 5%, sendo 3% a alíquota mais comum para profissionais autônomos e sociedades simples. O município permite que sociedades de profissionais liberais recolham ISS em valor fixo por sócio (ISS-SUP), o que pode representar economia expressiva para clínicas com múltiplos profissionais.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em Belo Horizonte?", answer: "Em Belo Horizonte, a alíquota de ISS para serviços médicos é de 3% na maioria dos casos. Sociedades de profissionais liberais (SCP) podem optar pelo ISS fixo por profissional (ISS-SUP), pagando um valor fixo trimestral por sócio em vez de percentual sobre o faturamento. No Simples Nacional, o ISS já está incluído no DAS." },
+        { question: "Qual o melhor regime tributário para dentistas em BH?", answer: "Para dentistas em BH com faturamento até R$ 15 mil/mês, o Simples Nacional (Anexo III com Fator R) oferece tributação a partir de 6%. Para clínicas maiores, o Lucro Presumido combinado com ISS-SUP (fixo por profissional) pode gerar economia de até 30% comparado ao Simples, especialmente em sociedades com 3 ou mais sócios." },
+        { question: "Como funciona a abertura de clínica médica em Belo Horizonte?", answer: "Além do registro na JUCEMG e CNPJ, clínicas em BH precisam de alvará de localização e funcionamento (PBH), licença sanitária da Vigilância Sanitária Municipal, registro no CRM-MG e inscrição no BH-ISSQN Digital para emissão de notas fiscais eletrônicas." },
+      ],
+    },
+  }),
   regionalCity("Contagem", "contagem", "Minas Gerais", "MG", "sudeste", "31", "JUCEMG"),
   regionalCity("Uberlândia", "uberlandia", "Minas Gerais", "MG", "sudeste", "34", "JUCEMG"),
 
@@ -327,7 +376,18 @@ export const citiesConfig: CityConfig[] = [
   regionalCity("Vitória", "vitoria", "Espírito Santo", "ES", "sudeste", "27", "Junta Comercial do Espírito Santo (JUCEES)"),
 
   // ═══════════════ SECONDARY — Paraná ═══════════════
-  regionalCity("Curitiba", "curitiba", "Paraná", "PR", "sul", "41", "Junta Comercial do Paraná (JUCEPAR)", { statsClientes: "40+", statsLabel: "Clientes PR" }),
+  regionalCity("Curitiba", "curitiba", "Paraná", "PR", "sul", "41", "Junta Comercial do Paraná (JUCEPAR)", {
+    statsClientes: "40+", statsLabel: "Clientes PR",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em Curitiba",
+      paragraph: "Curitiba é o maior polo de saúde do Sul do Brasil, com mais de 8 mil estabelecimentos de saúde e cerca de 30 mil médicos registrados no CRM-PR. A capital paranaense se destaca em especialidades como neurologia, cirurgia bariátrica e medicina diagnóstica, com referências nacionais como Hospital Pequeno Príncipe e INC (Instituto de Neurologia de Curitiba). A alíquota de ISS em Curitiba para serviços de saúde é de 2% a 5%, com alíquota predominante de 2,5% para a maioria das atividades médicas. O município utiliza o sistema ISS-Curitiba para emissão de NFS-e e oferece regime de sociedade de profissionais (SUP) com ISS fixo, muito vantajoso para clínicas com vários sócios.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em Curitiba?", answer: "Em Curitiba, a alíquota de ISS para serviços médicos é predominantemente 2,5%. Sociedades de profissionais podem optar pelo ISS fixo por profissional (SUP), pagando valor fixo em vez de percentual sobre faturamento. No Simples Nacional, o ISS está embutido na guia DAS com alíquota efetiva a partir de 2%." },
+        { question: "Quais as vantagens de abrir PJ médico em Curitiba?", answer: "Curitiba oferece ISS competitivo (2,5%), processo de abertura empresarial ágil via JUCEPAR Digital (média de 5 dias úteis) e regime SUP para sociedades. Um médico com renda de R$ 25 mil/mês pode economizar mais de R$ 50 mil por ano migrando de PF para PJ com planejamento tributário adequado." },
+        { question: "Como abrir consultório de psicologia em Curitiba?", answer: "É necessário CRP-08 ativo, registro na JUCEPAR, CNPJ, inscrição municipal no ISS-Curitiba, alvará de localização e, para atendimento presencial, licença da Vigilância Sanitária (VISA-PR). A Contabilidade Zen cuida de todas as etapas em 7 a 15 dias úteis." },
+      ],
+    },
+  }),
   regionalCity("Londrina", "londrina", "Paraná", "PR", "sul", "43", "JUCEPAR"),
   regionalCity("Maringá", "maringa", "Paraná", "PR", "sul", "44", "JUCEPAR"),
   regionalCity("Pinhais", "pinhais", "Paraná", "PR", "sul", "41", "JUCEPAR"),

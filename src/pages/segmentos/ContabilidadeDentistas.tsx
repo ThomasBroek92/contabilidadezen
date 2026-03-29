@@ -29,7 +29,7 @@ export default function ContabilidadeDentistas() {
   return (
     <>
       <SEOHead
-        title="Contabilidade para Dentistas"
+        title="Contabilidade para Dentistas | Contabilidade Zen"
         description="Abra seu CNPJ odontológico e reduza impostos com gestão fiscal especializada para dentistas PJ. Simples Nacional, Lucro Presumido e abertura de empresa. Orçamento grátis."
         keywords="contabilidade para dentistas, contabilidade para clínicas odontológicas, dentista PJ contabilidade, planejamento tributário dentista, contabilidade online para dentistas"
         canonical="/segmentos/contabilidade-para-dentistas"

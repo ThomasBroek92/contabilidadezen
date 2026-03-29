@@ -39,7 +39,7 @@ export default function ContabilidadeMedicos() {
   return (
     <>
       <SEOHead
-        title="Contabilidade para Médicos PJ"
+        title="Contabilidade para Médicos PJ | Contabilidade Zen"
         description="Abra seu CNPJ médico e pague até 50% menos impostos. Especialistas em Simples Nacional, Lucro Presumido e planejamento tributário. Orçamento grátis."
         keywords="contabilidade para médicos, contabilidade para clínicas médicas, médico PJ contabilidade, planejamento tributário médico, contabilidade online para médicos"
         canonical="/segmentos/contabilidade-para-medicos"

@@ -35,7 +35,7 @@ export default function AbrirEmpresa() {
   return (
     <>
       <SEOHead
-        title="Abrir Empresa Online"
+        title="Abrir Empresa Online | Contabilidade Zen"
         description="Abra seu CNPJ em até 5 dias úteis com processo 100% digital. Sede virtual grátis, contabilidade completa e suporte por WhatsApp. Orçamento grátis."
         keywords="abrir empresa, abertura de CNPJ, abrir MEI, contabilidade online, abertura de empresa"
         canonical="/abrir-empresa"

@@ -17,7 +17,7 @@ export default function ContabilidadePsicologos() {
   return (
     <>
       <SEOHead
-        title="Contabilidade para Psicólogos"
+        title="Contabilidade para Psicólogos | Contabilidade Zen"
         description="Tributação otimizada para psicólogos PJ. Simples Nacional com Fator R, abertura de CNPJ e planejamento tributário especializado. 100% online. Orçamento grátis."
         keywords="contabilidade para psicólogos, contabilidade para clínicas de psicologia, psicólogo PJ contabilidade, planejamento tributário psicólogo, contabilidade online para psicólogos"
         canonical="/segmentos/contabilidade-para-psicologos"

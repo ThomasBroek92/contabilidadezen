@@ -144,7 +144,7 @@ function CidadeContent({ city }: { city: CityConfig }) {
         canonical={`/contabilidade-em-${city.slug}`}
         pageType="service"
         includeLocalBusiness
-        faqs={city.faqs}
+        faqs={[...city.faqs, ...(city.healthMarket?.faqs || [])]}
         breadcrumbs={[
           { name: "Home", url: "https://www.contabilidadezen.com.br" },
           { name: "Cidades Atendidas", url: "https://www.contabilidadezen.com.br/cidades-atendidas" },

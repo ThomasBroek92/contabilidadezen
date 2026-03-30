@@ -397,12 +397,45 @@ export const citiesConfig: CityConfig[] = [
   regionalCity("Florianópolis", "florianopolis", "Santa Catarina", "SC", "sul", "48", "JUCESC"),
 
   // ═══════════════ SECONDARY — Rio Grande do Sul ═══════════════
-  regionalCity("Porto Alegre", "porto-alegre", "Rio Grande do Sul", "RS", "sul", "51", "Junta Comercial do Rio Grande do Sul (JUCERGS)"),
+  regionalCity("Porto Alegre", "porto-alegre", "Rio Grande do Sul", "RS", "sul", "51", "Junta Comercial do Rio Grande do Sul (JUCERGS)", {
+    statsClientes: "30+", statsLabel: "Clientes RS",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em Porto Alegre",
+      paragraph: "Porto Alegre concentra o maior polo médico do Rio Grande do Sul, com mais de 9 mil estabelecimentos de saúde cadastrados no CNES e aproximadamente 35 mil médicos ativos no CREMERS. A capital gaúcha é referência nacional em transplantes, oncologia e cardiologia, abrigando instituições como o Hospital de Clínicas, Santa Casa e Hospital Moinhos de Vento. A alíquota de ISS para serviços médicos em Porto Alegre é de 2% a 5%, sendo 3% a faixa predominante para a maioria das atividades de saúde (LC Municipal 7/1973 atualizada). Profissionais PJ no Simples Nacional com Fator R conseguem tributação efetiva a partir de 6%, enquanto sociedades no Lucro Presumido podem aproveitar o regime de ISS fixo por profissional (SUP), gerando economia expressiva para clínicas com múltiplos sócios.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em Porto Alegre?", answer: "Em Porto Alegre, a alíquota de ISS para serviços médicos é predominantemente 3%. Sociedades de profissionais liberais podem optar pelo ISS fixo por sócio (SUP), pagando um valor fixo trimestral. No Simples Nacional, o ISS já está embutido no DAS, com alíquota efetiva a partir de 2%." },
+        { question: "Como abrir CNPJ médico em Porto Alegre?", answer: "O processo inclui registro na JUCERGS, obtenção de CNPJ, inscrição municipal na Secretaria da Fazenda de Porto Alegre (ISSQN-POA), alvará sanitário da CGVS (Coordenadoria Geral de Vigilância em Saúde) e registro no CREMERS. Prazo médio de 10 a 20 dias úteis com a Contabilidade Zen." },
+        { question: "Lucro Presumido ou Simples Nacional para dentistas em Porto Alegre?", answer: "Para dentistas em Porto Alegre com faturamento até R$ 20 mil/mês e pró-labore adequado, o Simples Nacional (Anexo III com Fator R) resulta em 6% de tributação. Acima disso, o Lucro Presumido com ISS de 3% e regime SUP para sociedades pode ser até 25% mais econômico." },
+      ],
+    },
+  }),
 
   // ═══════════════ TERTIARY — Nordeste ═══════════════
   nationalCity("Salvador", "salvador", "Bahia", "BA", "71"),
-  nationalCity("Fortaleza", "fortaleza", "Ceará", "CE", "85"),
-  nationalCity("Recife", "recife", "Pernambuco", "PE", "81"),
+  nationalCity("Fortaleza", "fortaleza", "Ceará", "CE", "85", {
+    statsClientes: "20+", statsLabel: "Clientes CE",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em Fortaleza",
+      paragraph: "Fortaleza é o principal polo de saúde do Norte-Nordeste, com mais de 7 mil estabelecimentos de saúde cadastrados no CNES e cerca de 18 mil médicos registrados no CRM-CE. A capital cearense se destaca em especialidades como dermatologia, cirurgia plástica e medicina do esporte, sendo sede do IJF (Instituto Dr. José Frota) e da rede Hapvida, uma das maiores operadoras de saúde do Brasil. A alíquota de ISS para serviços médicos em Fortaleza é de 5% (alíquota máxima, conforme Código Tributário Municipal), a mais alta entre as grandes capitais. Por isso, o planejamento tributário é fundamental: profissionais PJ no Simples Nacional com Fator R pagam tributação efetiva a partir de 6% (com ISS já incluso no DAS), tornando-se a opção mais vantajosa para médicos e dentistas que faturam até R$ 25 mil/mês.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em Fortaleza?", answer: "Em Fortaleza, a alíquota de ISS para serviços de saúde é de 5%, a alíquota máxima permitida. No Simples Nacional, o ISS já está incluso na guia DAS. No Lucro Presumido, os 5% de ISS tornam o planejamento tributário essencial para evitar carga excessiva — por isso muitos profissionais de saúde em Fortaleza optam pelo Simples com Fator R." },
+        { question: "Como abrir clínica médica em Fortaleza?", answer: "É necessário registro na JUCEC (Junta Comercial do Ceará), CNPJ, inscrição no ISS-Fortaleza, alvará de localização (SEUMA), licença sanitária da Vigilância Sanitária Municipal e registro no CRM-CE. Para clínicas com procedimentos invasivos, é obrigatório alvará sanitário da VISA-CE. A Contabilidade Zen cuida de todas as etapas." },
+        { question: "Quanto um médico PJ economiza em Fortaleza comparado a PF?", answer: "Com ISS de 5% em Fortaleza, a economia ao migrar de PF para PJ é ainda mais significativa. Um médico com renda de R$ 20 mil/mês paga até R$ 4.500/mês como PF (27,5% IRPF). Como PJ no Simples com Fator R, a tributação total cai para cerca de R$ 1.200/mês (6%), uma economia de mais de R$ 39 mil por ano." },
+      ],
+    },
+  }),
+  nationalCity("Recife", "recife", "Pernambuco", "PE", "81", {
+    statsClientes: "20+", statsLabel: "Clientes PE",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em Recife",
+      paragraph: "Recife é o segundo maior polo médico do Nordeste, com mais de 6 mil estabelecimentos de saúde e aproximadamente 20 mil médicos ativos no CRM-PE. A capital pernambucana é referência em oftalmologia (HOPE – Hospital de Olhos de Pernambuco), cardiologia e medicina tropical, além de ser sede do IMIP (Instituto de Medicina Integral Professor Fernando Figueira), uma das maiores instituições de ensino médico do Norte-Nordeste. A alíquota de ISS para serviços de saúde em Recife é de 5% (LC Municipal 2/2017), igual a Fortaleza. O município exige inscrição no Sistema de ISS Eletrônico e emissão obrigatória de NFS-e para prestadores de serviços de saúde. Profissionais PJ no Simples Nacional com Fator R obtêm tributação efetiva de 6%, a opção mais econômica para a maioria dos médicos recifenses.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em Recife?", answer: "Em Recife, a alíquota de ISS para serviços médicos é de 5%, conforme a legislação municipal. No Simples Nacional, o ISS já vem embutido na guia DAS. Sociedades de profissionais podem verificar com a Secretaria de Finanças a possibilidade de enquadramento como Sociedade Uniprofissional (SUP) para ISS fixo." },
+        { question: "Como abrir CNPJ para dentista em Recife?", answer: "O processo exige registro na JUCEPE (Junta Comercial de Pernambuco), CNPJ, inscrição no ISS-Recife, alvará de localização da Prefeitura, licença sanitária da Vigilância Sanitária (APEVISA) e registro no CRO-PE. A Contabilidade Zen gerencia todas as etapas em 10 a 20 dias úteis." },
+        { question: "Simples Nacional ou Lucro Presumido para psicólogos em Recife?", answer: "Para psicólogos em Recife, o Simples Nacional com Fator R (Anexo III) é quase sempre a melhor opção, com tributação a partir de 6%. Como o ISS em Recife é de 5%, o Lucro Presumido só compensa para faturamentos muito altos (acima de R$ 40 mil/mês) onde a base de cálculo de 32% resulta em carga total menor." },
+      ],
+    },
+  }),
   nationalCity("Natal", "natal", "Rio Grande do Norte", "RN", "84"),
   nationalCity("João Pessoa", "joao-pessoa", "Paraíba", "PB", "83"),
   nationalCity("Maceió", "maceio", "Alagoas", "AL", "82"),
@@ -412,12 +445,34 @@ export const citiesConfig: CityConfig[] = [
 
   // ═══════════════ TERTIARY — Centro-Oeste ═══════════════
   nationalCity("Brasília", "brasilia", "Distrito Federal", "DF", "61"),
-  nationalCity("Goiânia", "goiania", "Goiás", "GO", "62"),
+  nationalCity("Goiânia", "goiania", "Goiás", "GO", "62", {
+    statsClientes: "15+", statsLabel: "Clientes GO",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em Goiânia",
+      paragraph: "Goiânia é o principal polo de saúde do Centro-Oeste, com mais de 5 mil estabelecimentos de saúde cadastrados no CNES e cerca de 15 mil médicos ativos no CRM-GO. A capital goiana se destaca nacionalmente em reprodução humana, ortopedia e cirurgia bariátrica, abrigando instituições como o Hospital Araújo Jorge (referência em oncologia) e a rede IGOA. A alíquota de ISS para serviços médicos em Goiânia é de 2% a 5%, sendo 2% a faixa mais comum para atividades de saúde (Código Tributário Municipal – Lei Complementar 344/2021). Essa alíquota competitiva, aliada ao custo de vida mais baixo que as capitais do Sudeste, torna Goiânia uma das cidades mais vantajosas para profissionais de saúde PJ, especialmente no Simples Nacional com Fator R (tributação efetiva a partir de 6%).",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em Goiânia?", answer: "Em Goiânia, a alíquota de ISS para serviços médicos é de 2% na maioria dos enquadramentos, uma das mais baixas entre as capitais brasileiras. No Simples Nacional, o ISS já está incluso no DAS. No Lucro Presumido, os 2% de ISS tornam essa opção especialmente vantajosa para faturamentos acima de R$ 30 mil/mês." },
+        { question: "Como abrir consultório médico em Goiânia?", answer: "É necessário registro na JUCEG (Junta Comercial do Estado de Goiás), CNPJ, inscrição no ISS-Goiânia (Sistema Nota Goiana), alvará de funcionamento (SEDEM), licença sanitária da Vigilância Sanitária Municipal e registro no CRM-GO. A Contabilidade Zen cuida de todo o processo em 7 a 15 dias úteis." },
+        { question: "Quanto um dentista PJ economiza em Goiânia?", answer: "Com ISS de apenas 2% em Goiânia, a economia é significativa. Um dentista com faturamento de R$ 15 mil/mês no Simples Nacional com Fator R paga cerca de R$ 900/mês de tributos (6%). Como pessoa física, pagaria até R$ 3.500/mês (27,5% IRPF + INSS). Economia anual superior a R$ 31 mil." },
+      ],
+    },
+  }),
   nationalCity("Campo Grande", "campo-grande", "Mato Grosso do Sul", "MS", "67"),
   nationalCity("Cuiabá", "cuiaba", "Mato Grosso", "MT", "65"),
 
   // ═══════════════ TERTIARY — Norte ═══════════════
-  nationalCity("Manaus", "manaus", "Amazonas", "AM", "92"),
+  nationalCity("Manaus", "manaus", "Amazonas", "AM", "92", {
+    statsClientes: "10+", statsLabel: "Clientes AM",
+    healthMarket: {
+      heading: "Contabilidade para Profissionais de Saúde em Manaus",
+      paragraph: "Manaus é o maior polo de saúde da Região Norte, com mais de 3.500 estabelecimentos de saúde cadastrados no CNES e cerca de 8 mil médicos registrados no CRM-AM. A capital amazonense enfrenta desafios únicos de logística e acesso, o que valoriza ainda mais os profissionais de saúde locais e torna a gestão tributária estratégica. A cidade é sede do Hospital Universitário Getúlio Vargas (HUGV), da Fundação de Medicina Tropical e de centros de referência em doenças tropicais. A alíquota de ISS para serviços médicos em Manaus é de 2% a 5%, sendo 2% a alíquota predominante para profissionais de saúde (Lei Municipal 254/2014). Manaus ainda oferece benefícios fiscais vinculados à Zona Franca, embora para serviços de saúde o principal benefício seja a alíquota reduzida de ISS combinada com Simples Nacional.",
+      faqs: [
+        { question: "Qual a alíquota de ISS para médicos em Manaus?", answer: "Em Manaus, a alíquota de ISS para serviços de saúde é de 2%, uma das mais baixas do país. No Simples Nacional, o ISS já está embutido na guia DAS. No Lucro Presumido, os 2% de ISS são pagos via DAM (Documento de Arrecadação Municipal). Essa alíquota competitiva torna Manaus vantajosa para profissionais PJ." },
+        { question: "Como abrir CNPJ médico em Manaus?", answer: "O processo exige registro na JUCEA (Junta Comercial do Estado do Amazonas), CNPJ, inscrição na SEMEF (Secretaria Municipal de Finanças), alvará de funcionamento, licença da Vigilância Sanitária (VISA-AM) e registro no CRM-AM. Apesar da distância, a Contabilidade Zen cuida de tudo 100% digitalmente em 10 a 20 dias úteis." },
+        { question: "A Zona Franca de Manaus beneficia médicos PJ?", answer: "Os benefícios fiscais da Zona Franca de Manaus (ZFM) focam principalmente em indústria e comércio, não se aplicando diretamente a serviços médicos. Porém, médicos PJ em Manaus se beneficiam da alíquota de ISS de 2% e do custo operacional competitivo. No Simples Nacional com Fator R, a tributação total fica a partir de 6%." },
+      ],
+    },
+  }),
   nationalCity("Belém", "belem", "Pará", "PA", "91"),
 ];
 

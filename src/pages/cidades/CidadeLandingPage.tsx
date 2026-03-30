@@ -295,8 +295,16 @@ function CidadeContent({ city }: { city: CityConfig }) {
                     </h2>
                   </div>
 
-                  <p className="text-muted-foreground leading-relaxed text-base md:text-lg mb-10">
+                  <p className="text-muted-foreground leading-relaxed text-base md:text-lg mb-6">
                     {city.healthMarket.paragraph}
+                  </p>
+
+                  <p className="text-muted-foreground leading-relaxed text-sm mb-10">
+                    Conheça nossos serviços especializados em{" "}
+                    <Link to="/segmentos/contabilidade-para-medicos" className="text-secondary hover:underline font-medium">
+                      contabilidade para médicos
+                    </Link>
+                    , incluindo abertura de CNPJ, planejamento tributário e gestão fiscal completa para profissionais de saúde.
                   </p>
 
                   {/* Health-specific FAQs */}

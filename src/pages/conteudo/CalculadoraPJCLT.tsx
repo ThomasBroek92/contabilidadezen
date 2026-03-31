@@ -393,21 +393,32 @@ export default function CalculadoraPJCLT() {
   return (
     <TooltipProvider>
       <SEOHead
-        title="Calculadora CLT x PJ | Compare e Economize"
-        description="Descubra quanto você pode ganhar a mais como PJ comparado ao CLT. Calculadora gratuita compara salário líquido, impostos e benefícios. Simule agora!"
-        keywords="calculadora clt pj, clt x pj, quanto ganha pj, vale a pena ser pj, comparar clt pj, simples nacional"
+        title="Calculadora CLT x PJ 2026 — Calcule Sua Economia"
+        description="Calcule grátis quanto você ganha a mais como PJ vs CLT em 2026. Compare salário líquido, impostos e benefícios com valores atualizados. Simule agora!"
+        keywords="calculadora CLT PJ 2026, clt x pj, quanto ganha pj, vale a pena ser pj, comparar clt pj, simples nacional 2026"
         canonical="/conteudo/calculadora-pj-clt"
         pageType="tool"
         breadcrumbs={[
           { name: "Home", url: "https://www.contabilidadezen.com.br" },
           { name: "Ferramentas", url: "https://www.contabilidadezen.com.br/conteudo" },
-          { name: "Calculadora CLT x PJ", url: "https://www.contabilidadezen.com.br/conteudo/calculadora-pj-clt" }
+          { name: "Calculadora CLT x PJ 2026", url: "https://www.contabilidadezen.com.br/conteudo/calculadora-pj-clt" }
         ]}
         faqs={[
           { question: "A calculadora CLT x PJ é precisa?", answer: "Sim, mas os valores são estimativas. Recomendamos consulta com contador para análise personalizada." },
           { question: "Posso ser CLT e PJ ao mesmo tempo?", answer: "Sim! Não há impedimento legal, desde que não haja conflito de interesses." },
           { question: "Quanto custa abrir um CNPJ?", answer: "Taxas variam de R$ 200 a R$ 800. Na Contabilidade Zen, a abertura é gratuita na contratação de 12 meses." }
         ]}
+        customSchema={{
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "Calculadora CLT x PJ 2026",
+          "description": "Ferramenta gratuita para comparar ganhos CLT vs PJ com valores atualizados 2026.",
+          "url": "https://www.contabilidadezen.com.br/conteudo/calculadora-pj-clt",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+          "provider": { "@type": "Organization", "name": "Contabilidade Zen", "url": "https://www.contabilidadezen.com.br" }
+        }}
       />
 
       <Header />

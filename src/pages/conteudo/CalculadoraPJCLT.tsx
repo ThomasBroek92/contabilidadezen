@@ -458,8 +458,8 @@ export default function CalculadoraPJCLT() {
                 </Badge>
 
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
-                  Calcule sua economia.{" "}
-                  <span className="text-gradient whitespace-nowrap">CLT x PJ</span> na prática.
+                  Calculadora CLT x PJ 2026:{" "}
+                  <span className="text-gradient whitespace-nowrap">Calcule Sua Economia</span>
                 </h1>
 
                 <p className="text-lg md:text-xl text-muted-foreground max-w-xl">

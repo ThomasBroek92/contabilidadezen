@@ -554,8 +554,8 @@ export default function GeradorInvoice() {
                   </Badge>
 
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
-                    Crie invoices profissionais.{" "}
-                    <span className="text-gradient whitespace-nowrap">A burocracia</span> é por nossa conta.
+                    Gerador de Invoice Online:{" "}
+                    <span className="text-gradient whitespace-nowrap">Crie Faturas Grátis</span>
                   </h1>
 
                   <p className="text-lg md:text-xl text-muted-foreground max-w-xl">

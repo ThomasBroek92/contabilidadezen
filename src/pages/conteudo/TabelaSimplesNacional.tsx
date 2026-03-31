@@ -94,8 +94,8 @@ const TabelaSimplesNacional = () => {
                 </Badge>
                 
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-                  Tabela Completa de CNAEs do{" "}
-                  <span className="text-secondary">Simples Nacional</span>
+                  Tabela Simples Nacional 2026:{" "}
+                  <span className="text-secondary">Anexos e Alíquotas por CNAE</span>
                 </h1>
                 
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

@@ -527,8 +527,8 @@ export default function GeradorInvoice() {
   return (
     <>
       <ToolPageSEO
-        title="Gerador de Invoice e Fatura Gratuito"
-        description="Crie invoices e faturas profissionais gratuitamente. Aceita 29 moedas, ideal para operações nacionais e internacionais. 100% online, download em PDF."
+        title="Gerador de Invoice 2026 — Crie Faturas Online Grátis"
+        description="Faça invoice online grátis em minutos. 29 moedas, bilíngue PT/EN, download PDF instantâneo. Gerador de invoice profissional para freelancers e empresas."
         canonical="/conteudo/gerador-invoice"
       />
       
@@ -554,8 +554,8 @@ export default function GeradorInvoice() {
                   </Badge>
 
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
-                    Crie invoices profissionais.{" "}
-                    <span className="text-gradient whitespace-nowrap">A burocracia</span> é por nossa conta.
+                    Gerador de Invoice Online:{" "}
+                    <span className="text-gradient whitespace-nowrap">Crie Faturas Grátis</span>
                   </h1>
 
                   <p className="text-lg md:text-xl text-muted-foreground max-w-xl">

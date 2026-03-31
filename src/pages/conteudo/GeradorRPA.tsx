@@ -410,15 +410,27 @@ export default function GeradorRPA() {
   return (
     <>
       <SEOHead
-        title="Gerador de RPA 2026 - Recibo de Pagamento a Autônomo"
-        description="Gere RPA (Recibo de Pagamento a Autônomo) com cálculo automático de INSS e IRRF. Ferramenta gratuita atualizada com a nova legislação tributária 2026, incluindo isenção para quem ganha até R$ 5.000."
+        title="Gerador de RPA 2026 — Gere Recibo com INSS e IRRF"
+        description="Gere seu RPA 2026 grátis com cálculo automático de INSS e IRRF atualizados. Tabela RPA 2026 com isenção até R$ 5.000. Download em PDF instantâneo."
+        keywords="gerador RPA 2026, tabela RPA 2026, recibo pagamento autônomo, calcular RPA, plantão RPA, INSS IRRF autônomo"
         canonical="/conteudo/gerador-rpa"
         pageType="tool"
         breadcrumbs={[
           { name: "Home", url: "https://www.contabilidadezen.com.br" },
           { name: "Ferramentas", url: "https://www.contabilidadezen.com.br/conteudo" },
-          { name: "Gerador de RPA", url: "https://www.contabilidadezen.com.br/conteudo/gerador-rpa" }
+          { name: "Gerador de RPA 2026", url: "https://www.contabilidadezen.com.br/conteudo/gerador-rpa" }
         ]}
+        customSchema={{
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "Gerador de RPA 2026",
+          "description": "Gere RPA com cálculo automático de INSS e IRRF atualizado para 2026.",
+          "url": "https://www.contabilidadezen.com.br/conteudo/gerador-rpa",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "Web",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+          "provider": { "@type": "Organization", "name": "Contabilidade Zen", "url": "https://www.contabilidadezen.com.br" }
+        }}
       />
 
       <Header />
@@ -432,7 +444,7 @@ export default function GeradorRPA() {
               Ferramenta Gratuita
             </Badge>
             <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-              Gerador de RPA 2026
+              Gere Seu RPA 2026 — Recibo de Pagamento a Autônomo
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Recibo de Pagamento a Autônomo com cálculo automático de impostos.

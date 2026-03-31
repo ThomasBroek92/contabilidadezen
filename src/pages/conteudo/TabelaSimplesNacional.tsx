@@ -56,17 +56,28 @@ const TabelaSimplesNacional = () => {
   return (
     <>
       <SEOHead
-        title="Tabela CNAE Simples Nacional 2026 | Consulte Anexos e Alíquotas"
-        description="Consulte a tabela completa de CNAEs do Simples Nacional 2026. Mais de 400 atividades com anexos, alíquotas e Fator R. Busca rápida por código ou descrição."
-        keywords="tabela CNAE simples nacional, anexos simples nacional 2026, alíquotas simples nacional, fator R, CNAE serviços, CNAE comércio"
+        title="Tabela Simples Nacional 2026 — Ver Anexos e Alíquotas"
+        description="Veja a tabela atualizada do Simples Nacional 2026 com todos os anexos, alíquotas e Fator R. Pesquise por CNAE e descubra seu enquadramento tributário. Grátis."
+        keywords="tabela simples nacional 2026, anexos simples nacional, alíquotas simples nacional 2026, fator R, CNAE simples nacional, tabela CNAE"
         canonical="/conteudo/tabela-simples-nacional"
         pageType="tool"
         faqs={faqs}
         breadcrumbs={[
           { name: "Home", url: "https://www.contabilidadezen.com.br" },
           { name: "Ferramentas", url: "https://www.contabilidadezen.com.br/conteudo" },
-          { name: "Tabela CNAE Simples Nacional", url: "https://www.contabilidadezen.com.br/conteudo/tabela-simples-nacional" }
+          { name: "Tabela Simples Nacional 2026", url: "https://www.contabilidadezen.com.br/conteudo/tabela-simples-nacional" }
         ]}
+        customSchema={{
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "Tabela Simples Nacional 2026",
+          "description": "Consulte anexos, alíquotas e Fator R do Simples Nacional 2026 por CNAE.",
+          "url": "https://www.contabilidadezen.com.br/conteudo/tabela-simples-nacional",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+          "provider": { "@type": "Organization", "name": "Contabilidade Zen", "url": "https://www.contabilidadezen.com.br" }
+        }}
       />
 
       <div className="min-h-screen bg-background">

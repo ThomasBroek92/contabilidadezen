@@ -37,6 +37,7 @@ const GeradorInvoice = lazy(() => import("./pages/conteudo/GeradorInvoice"));
 const ComparativoTributario = lazy(() => import("./pages/conteudo/ComparativoTributario"));
 const TabelaSimplesNacional = lazy(() => import("./pages/conteudo/TabelaSimplesNacional"));
 const ModeloContratoPJ = lazy(() => import("./pages/conteudo/ModeloContratoPJ"));
+const GuiaContabilidadeMedicos = lazy(() => import("./pages/guias/GuiaContabilidadeMedicos"));
 const AbrirEmpresa = lazy(() => import("./pages/AbrirEmpresa"));
 const CidadesAtendidas = lazy(() => import("./pages/CidadesAtendidas"));
 const IndiqueGanhe = lazy(() => import("./pages/IndiqueGanhe"));

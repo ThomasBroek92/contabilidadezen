@@ -37,6 +37,7 @@ const GeradorInvoice = lazy(() => import("./pages/conteudo/GeradorInvoice"));
 const ComparativoTributario = lazy(() => import("./pages/conteudo/ComparativoTributario"));
 const TabelaSimplesNacional = lazy(() => import("./pages/conteudo/TabelaSimplesNacional"));
 const ModeloContratoPJ = lazy(() => import("./pages/conteudo/ModeloContratoPJ"));
+const GuiaContabilidadeMedicos = lazy(() => import("./pages/guias/GuiaContabilidadeMedicos"));
 const AbrirEmpresa = lazy(() => import("./pages/AbrirEmpresa"));
 const CidadesAtendidas = lazy(() => import("./pages/CidadesAtendidas"));
 const IndiqueGanhe = lazy(() => import("./pages/IndiqueGanhe"));
@@ -100,6 +101,7 @@ const App = () => (
               <Route path="/conteudo/comparativo-tributario" element={<ComparativoTributario />} />
               <Route path="/conteudo/tabela-simples-nacional" element={<TabelaSimplesNacional />} />
               <Route path="/conteudo/modelo-contrato-pj" element={<ModeloContratoPJ />} />
+              <Route path="/guia-contabilidade-medicos" element={<GuiaContabilidadeMedicos />} />
               <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
               <Route path="/cidades-atendidas" element={<CidadesAtendidas />} />
               <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />

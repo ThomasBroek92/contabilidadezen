@@ -21,6 +21,7 @@ import { injectInternalLinks } from '@/lib/internal-links';
 import { ReadingProgressBar } from '@/components/blog/ReadingProgressBar';
 import { SocialShareButtons } from '@/components/blog/SocialShareButtons';
 import { AuthorBox } from '@/components/blog/AuthorBox';
+import { LeiaTambemMedicos } from '@/components/blog/LeiaTabemMedicos';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface ExpertQuote {
@@ -397,6 +398,11 @@ export default function BlogPost() {
             <TopicClusterNav postId={post.id} clusterId={post.cluster_id} isPillar={post.is_pillar} />
             {/* Content with auto internal links */}
             <MarkdownRenderer content={injectInternalLinks(post.content)} />
+
+            {/* "Leia também" for médicos category */}
+            {(post.category.toLowerCase().includes('médico') || post.category.toLowerCase().includes('medico') || post.category.toLowerCase().includes('saúde') || post.category.toLowerCase().includes('saude')) && (
+              <LeiaTambemMedicos />
+            )}
 
             {/* Mid-Content CTA */}
             <BlogCTASection position="mid" postTitle={post.title} />

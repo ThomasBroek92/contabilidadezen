@@ -40,6 +40,10 @@ export const internalLinksMap: InternalLink[] = [
   { keyword: "modelo de contrato PJ", url: "/conteudo/modelo-contrato-pj", title: "Modelo de Contrato PJ" },
   { keyword: "contrato PJ", url: "/conteudo/modelo-contrato-pj", title: "Modelo de Contrato PJ" },
   
+  // Pillar pages
+  { keyword: "guia contabilidade para médicos", url: "/guia-contabilidade-medicos", title: "Guia Completo de Contabilidade para Médicos" },
+  { keyword: "guia contabilidade médicos", url: "/guia-contabilidade-medicos", title: "Guia Completo de Contabilidade para Médicos" },
+  
   // Main pages
   { keyword: "abrir empresa", url: "/abrir-empresa", title: "Abrir Empresa" },
   { keyword: "abertura de empresa", url: "/abrir-empresa", title: "Abrir Empresa" },

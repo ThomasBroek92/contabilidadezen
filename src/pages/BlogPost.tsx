@@ -21,6 +21,7 @@ import { injectInternalLinks } from '@/lib/internal-links';
 import { ReadingProgressBar } from '@/components/blog/ReadingProgressBar';
 import { SocialShareButtons } from '@/components/blog/SocialShareButtons';
 import { AuthorBox } from '@/components/blog/AuthorBox';
+import { LeiaTambemMedicos } from '@/components/blog/LeiaTabemMedicos';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface ExpertQuote {

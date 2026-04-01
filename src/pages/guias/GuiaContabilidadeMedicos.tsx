@@ -109,7 +109,7 @@ export default function GuiaContabilidadeMedicos() {
         description="Tudo sobre contabilidade para médicos: abertura de CNPJ, Simples Nacional vs Lucro Presumido, economia de até 50% em impostos. Guia atualizado 2026."
         keywords="contabilidade para médicos, médico PJ, CNPJ médico, tributação médica, Simples Nacional médico, Lucro Presumido médico"
         canonical="/guia-contabilidade-medicos"
-        pageType="article"
+        pageType="service"
         includeLocalBusiness
         faqs={faqs}
         breadcrumbs={[

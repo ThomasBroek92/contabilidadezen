@@ -101,6 +101,7 @@ const App = () => (
               <Route path="/conteudo/comparativo-tributario" element={<ComparativoTributario />} />
               <Route path="/conteudo/tabela-simples-nacional" element={<TabelaSimplesNacional />} />
               <Route path="/conteudo/modelo-contrato-pj" element={<ModeloContratoPJ />} />
+              <Route path="/guia-contabilidade-medicos" element={<GuiaContabilidadeMedicos />} />
               <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
               <Route path="/cidades-atendidas" element={<CidadesAtendidas />} />
               <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />

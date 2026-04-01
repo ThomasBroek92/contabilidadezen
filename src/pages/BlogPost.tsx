@@ -398,6 +398,11 @@ export default function BlogPost() {
             {/* Content with auto internal links */}
             <MarkdownRenderer content={injectInternalLinks(post.content)} />
 
+            {/* "Leia também" for médicos category */}
+            {(post.category.toLowerCase().includes('médico') || post.category.toLowerCase().includes('medico') || post.category.toLowerCase().includes('saúde') || post.category.toLowerCase().includes('saude')) && (
+              <LeiaTambemMedicos />
+            )}
+
             {/* Mid-Content CTA */}
             <BlogCTASection position="mid" postTitle={post.title} />
 

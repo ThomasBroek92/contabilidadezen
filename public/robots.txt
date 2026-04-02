@@ -1,22 +1,14 @@
 # Contabilidade Zen - robots.txt
 # https://www.contabilidadezen.com.br
 
-# Regras globais (todos os bots)
 User-agent: *
 Allow: /
-Allow: /assets/
-Allow: /*.js$
-Allow: /*.css$
-Allow: /*.png$
-Allow: /*.jpg$
-Allow: /*.jpeg$
-Allow: /*.webp$
-Allow: /*.svg$
 Disallow: /admin
 Disallow: /admin/
 Disallow: /auth
 Disallow: /auth/
 Disallow: /parceiro/
+Disallow: /conteudo/calculadora-pj-clt/resultado
 Disallow: /lovable-uploads/
 Disallow: /*.json$
 Disallow: /*?*
@@ -39,22 +31,18 @@ Disallow: /gestor-de-trafego-pode-ser-mei/
 Disallow: /impostos-na-venda-de-e-books-2/
 Disallow: /sdsdsd/
 
-# Googlebot (crawl-delay especifico)
 User-agent: Googlebot
 Crawl-delay: 1
 
-# Bingbot (crawl-delay especifico)
 User-agent: Bingbot
 Crawl-delay: 2
 
-# Bots sociais (permitir explicitamente)
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
-# Bots de IA (permitir busca/indexacao)
 User-agent: GPTBot
 Allow: /
 
@@ -67,13 +55,9 @@ Allow: /
 User-agent: Anthropic-AI
 Allow: /
 
-# Bloquear treinamento de IA
 User-agent: Google-Extended
 Disallow: /
 
-# Sitemaps
-Sitemap: https://xqlkjoajrefbvbhkusdn.supabase.co/functions/v1/sitemap
 Sitemap: https://www.contabilidadezen.com.br/sitemap.xml
 
-# Host preferencial
 Host: https://www.contabilidadezen.com.br

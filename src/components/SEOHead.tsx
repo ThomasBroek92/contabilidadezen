@@ -10,6 +10,16 @@ const SITE_URL = "https://www.contabilidadezen.com.br";
 const SITE_NAME = "Contabilidade Zen";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
+/** Build a canonical URL: always https + www, no trailing slash (except root). */
+export function canonicalUrl(path: string): string {
+  if (!path || path === "/") return SITE_URL;
+  // Strip any existing origin so we work from path only
+  const clean = path.startsWith("http")
+    ? new URL(path).pathname
+    : path;
+  return `${SITE_URL}${clean.replace(/\/+$/, "")}`;
+}
+
 interface SEOHeadProps {
   // Basic SEO
   title: string;
@@ -241,10 +251,7 @@ export function SEOHead(props: SEOHeadProps) {
   
   const optimizedTitle = optimizeTitle(title, pageType);
   const optimizedDescription = optimizeDescription(description);
-  const rawCanonical = canonical?.startsWith("http") ? canonical : `${SITE_URL}${canonical || ""}`;
-  const fullCanonical = rawCanonical === SITE_URL || rawCanonical === `${SITE_URL}/`
-    ? SITE_URL
-    : rawCanonical.replace(/\/+$/, "");
+  const fullCanonical = canonicalUrl(canonical || "/");
   const schemas = generatePageSchemas(props);
   
   const robotsContent = [

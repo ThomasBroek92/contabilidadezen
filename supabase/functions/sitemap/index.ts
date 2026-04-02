@@ -8,13 +8,21 @@ const corsHeaders = {
 
 const SITE_URL = "https://www.contabilidadezen.com.br";
 
+// Paths that must never appear in the sitemap
+const EXCLUDED_PATHS = ["/admin", "/auth", "/parceiro", "/conteudo/calculadora-pj-clt/resultado"];
+
+function sanitizeUrl(path: string): string {
+  // Ensure no trailing slash (except root)
+  const clean = path === "/" ? "" : path.replace(/\/+$/, "");
+  return `${SITE_URL}${clean}`;
+}
+
 async function generateSitemapXml(supabase: any): Promise<{ xml: string; urlCount: number }> {
   // Fetch static pages from page_metadata
   const { data: staticPages, error: staticError } = await supabase
     .from("page_metadata")
     .select("path, last_modified, priority, changefreq")
     .order("priority", { ascending: false });
-
   if (staticError) {
     console.error("Error fetching page_metadata:", staticError);
   }
@@ -35,15 +43,17 @@ async function generateSitemapXml(supabase: any): Promise<{ xml: string; urlCoun
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
-  // Add static pages from database
+  // Add static pages from database (excluding restricted paths)
   if (staticPages && staticPages.length > 0) {
     for (const page of staticPages) {
+      if (EXCLUDED_PATHS.some(ep => page.path === ep || page.path.startsWith(ep + "/"))) continue;
+
       const lastmod = page.last_modified
         ? new Date(page.last_modified).toISOString().split("T")[0]
         : new Date().toISOString().split("T")[0];
 
       sitemap += `  <url>
-    <loc>${SITE_URL}${page.path}</loc>
+    <loc>${sanitizeUrl(page.path)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${page.changefreq || "monthly"}</changefreq>
     <priority>${page.priority || "0.5"}</priority>
@@ -52,7 +62,7 @@ async function generateSitemapXml(supabase: any): Promise<{ xml: string; urlCoun
     }
   }
 
-  // Add blog posts
+  // Add published blog posts only
   if (blogPosts && blogPosts.length > 0) {
     for (const post of blogPosts) {
       const lastmod = post.updated_at
@@ -62,7 +72,7 @@ async function generateSitemapXml(supabase: any): Promise<{ xml: string; urlCoun
           : new Date().toISOString().split("T")[0];
 
       sitemap += `  <url>
-    <loc>${SITE_URL}/blog/${post.slug}</loc>
+    <loc>${sanitizeUrl(`/blog/${post.slug}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

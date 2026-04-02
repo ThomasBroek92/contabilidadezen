@@ -8,13 +8,21 @@ const corsHeaders = {
 
 const SITE_URL = "https://www.contabilidadezen.com.br";
 
+// Paths that must never appear in the sitemap
+const EXCLUDED_PATHS = ["/admin", "/auth", "/parceiro", "/conteudo/calculadora-pj-clt/resultado"];
+
+function sanitizeUrl(path: string): string {
+  // Ensure no trailing slash (except root)
+  const clean = path === "/" ? "" : path.replace(/\/+$/, "");
+  return `${SITE_URL}${clean}`;
+}
+
 async function generateSitemapXml(supabase: any): Promise<{ xml: string; urlCount: number }> {
   // Fetch static pages from page_metadata
   const { data: staticPages, error: staticError } = await supabase
     .from("page_metadata")
     .select("path, last_modified, priority, changefreq")
     .order("priority", { ascending: false });
-
   if (staticError) {
     console.error("Error fetching page_metadata:", staticError);
   }

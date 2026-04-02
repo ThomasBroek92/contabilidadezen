@@ -251,10 +251,7 @@ export function SEOHead(props: SEOHeadProps) {
   
   const optimizedTitle = optimizeTitle(title, pageType);
   const optimizedDescription = optimizeDescription(description);
-  const rawCanonical = canonical?.startsWith("http") ? canonical : `${SITE_URL}${canonical || ""}`;
-  const fullCanonical = rawCanonical === SITE_URL || rawCanonical === `${SITE_URL}/`
-    ? SITE_URL
-    : rawCanonical.replace(/\/+$/, "");
+  const fullCanonical = canonicalUrl(canonical || "/");
   const schemas = generatePageSchemas(props);
   
   const robotsContent = [

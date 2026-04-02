@@ -10,6 +10,16 @@ const SITE_URL = "https://www.contabilidadezen.com.br";
 const SITE_NAME = "Contabilidade Zen";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
+/** Build a canonical URL: always https + www, no trailing slash (except root). */
+export function canonicalUrl(path: string): string {
+  if (!path || path === "/") return SITE_URL;
+  // Strip any existing origin so we work from path only
+  const clean = path.startsWith("http")
+    ? new URL(path).pathname
+    : path;
+  return `${SITE_URL}${clean.replace(/\/+$/, "")}`;
+}
+
 interface SEOHeadProps {
   // Basic SEO
   title: string;

@@ -1,67 +1,84 @@
 
 
-## Plano: Aprimorar Exit Intent Popup
+## Plano: 3 Novas Features (Mini-Questionário WhatsApp + Centro de Materiais + Dashboard Parceiro Gamificado)
 
-### Problemas atuais
+---
 
-1. **Muitos campos** -- 5 campos + 2 botoes criam fricção alta; usuario saindo tem pressa
-2. **Sem prova social** -- nenhum numero, depoimento ou urgência
-3. **Headline fraca** -- "Ficou com alguma dúvida?" é genérico
-4. **Sem proteção anti-bot** -- honeypot existe no projeto mas não é usado aqui
-5. **Mobile ruim** -- grid 2 colunas não funciona bem no viewport atual (432px)
-6. **Sem estado de sucesso** -- fecha direto após envio, perde oportunidade de CTA secundário
-7. **Imagem em JPG** -- deveria ser WebP (regra do projeto)
-8. **Dois botões de close** -- o custom X + o do DialogContent padrão
+### Feature 3: Mini-Questionário Qualificador antes do WhatsApp
 
-### Melhorias planejadas
+**O que faz**: Antes de abrir o WhatsApp, o usuario responde 3 perguntas rapidas (segmento, faturamento, necessidade). As respostas sao enviadas como mensagem pre-preenchida no WhatsApp e salvas como lead no CRM.
 
-**A. Reduzir fricção (mais conversão)**
-- Reduzir para 3 campos obrigatórios: Nome, WhatsApp, Email
-- Remover cidade e atividade do popup (coletar depois no contato)
-- CTA principal único: botão WhatsApp grande e destacado (verde)
-- CTA secundário menor: "Prefiro ligação"
+**Arquivos**:
+- `src/components/WhatsAppQualifier.tsx` (novo) -- Modal/drawer com 3 steps: segmento, faturamento mensal, necessidade principal. Usa `useLeadCapture` para salvar no CRM com `fonte: "qualificador_whatsapp"`. Apos salvar, abre WhatsApp com mensagem contendo as respostas.
+- `src/components/FloatingWhatsApp.tsx` -- Ao clicar no botao flutuante, abre o WhatsAppQualifier em vez de ir direto ao wa.me. Manter link direto como fallback (ex: long press ou se o usuario ja preencheu antes via sessionStorage).
+- `src/lib/whatsapp.ts` -- Adicionar template `qualificador` em WHATSAPP_MESSAGES com placeholders.
 
-**B. Copy persuasiva**
-- Headline: "Espere! Fale com um especialista agora"
-- Subtítulo com prova social: "Mais de 500 empresas já reduziram impostos com a Contabilidade Zen"
-- Adicionar badge/selo de confiança (ex: "Resposta em até 2h")
+**Campos salvos no CRM (tabela leads)**:
+- nome, whatsapp (obrigatorios no questionario)
+- segmento (resposta da pergunta 1)
+- faturamento_mensal (resposta da pergunta 2)
+- observacoes (necessidade principal -- pergunta 3)
+- fonte: `"qualificador_whatsapp"`
+- consentimento_lgpd: true, data_consentimento: now()
 
-**C. Layout mobile-first**
-- No mobile: layout single column, esconder imagem lateral
-- No desktop: manter grid 2 colunas com imagem
-- Botão WhatsApp full-width e mais alto
+**UX**: 3 telas progressivas (progress bar), mobile-first, botao "Pular e ir direto ao WhatsApp" sempre visivel.
 
-**D. Estado de sucesso**
-- Após envio, mostrar tela de confirmação com:
-  - Checkmark animado
-  - "Entraremos em contato em até 2 horas!"
-  - Botão "Falar agora no WhatsApp" (click-to-chat direto)
+---
 
-**E. Proteção e qualidade**
-- Integrar hook `useHoneypot` existente
-- Remover botão X duplicado (usar apenas o do DialogContent)
+### Feature 6: Centro de Materiais Ricos (Gated Content)
 
-**F. Detecção mobile**
-- No mobile, disparar popup após 30s de inatividade (scroll idle) em vez de mouseleave (que não existe em touch)
+**O que faz**: Pagina `/materiais` com cards de e-books, checklists e planilhas. Download exige preenchimento de nome + email + whatsapp (lead gating). Dados vao para o CRM.
 
-### Arquivo editado
+**Arquivos**:
+- `src/pages/Materiais.tsx` (novo) -- Pagina com SEOHead, Header, Footer. Grid de cards com titulo, descricao, thumbnail e badge (E-book, Checklist, Planilha). Ao clicar, abre modal de captura.
+- `src/components/materiais/MaterialCard.tsx` (novo) -- Card individual.
+- `src/components/materiais/MaterialGateForm.tsx` (novo) -- Modal com formulario de 3 campos (nome, email, whatsapp) + honeypot. Usa `useLeadCapture` com `fonte: "material_[slug]"`. Apos salvar, libera link de download (URL publica do Storage bucket ou link externo).
+- `src/App.tsx` -- Adicionar rota `/materiais`.
+- `supabase/functions/sitemap/index.ts` -- Adicionar `/materiais` ao sitemap.
 
-- `src/components/ExitIntentPopup.tsx` -- refactor completo
+**Materiais iniciais** (conteudo estatico, links configurados em array):
+1. "Checklist: Documentos para Abrir Empresa PJ" 
+2. "Guia: CLT x PJ -- Qual Compensa Mais?" 
+3. "Planilha: Controle Financeiro para PJ"
+4. "E-book: Tributação para Médicos 2026"
 
-### Estrutura do novo popup
+Os arquivos PDF/XLSX serao hospedados no bucket `blog-images` (publico) ou em URL externa. Os cards apontam para esses links apos captura.
 
-```text
-┌──────────────────────────────────────────┐
-│  DESKTOP (2 cols)        │  MOBILE (1 col)│
-│                          │                │
-│  [Imagem + prova social] │  [headline]    │
-│  "500+ empresas..."      │  [prova social]│
-│  ★★★★★ selo             │  [3 campos]    │
-│                          │  [CTA WhatsApp]│
-│  [Nome]  [WhatsApp]      │  [link ligação]│
-│  [Email]                 │                │
-│  [████ WHATSAPP ████]    │                │
-│  Prefiro ligação         │                │
-└──────────────────────────────────────────┘
-```
+**CRM**: Todos os downloads geram lead com `fonte: "material_[slug-do-material]"`, `segmento: "Geral"`, `observacoes: "Download: [nome do material]"`.
+
+**Database**: Nenhuma nova tabela necessaria -- usa tabela `leads` existente.
+
+---
+
+### Feature 10: Dashboard Gamificado para Parceiros
+
+**O que faz**: Aprimorar o `/parceiro` existente com elementos de gamificacao: niveis (Bronze/Prata/Ouro/Diamante), barra de progresso, conquistas desbloqueadas, e ranking visual.
+
+**Arquivos**:
+- `src/pages/PartnerDashboard.tsx` -- Adicionar secao de gamificacao acima da tabela de indicacoes:
+  - **Nivel atual**: Badge com icone (Bronze: 0-2 indicacoes, Prata: 3-5, Ouro: 6-10, Diamante: 11+). Calculado client-side a partir do count de referrals.
+  - **Barra de progresso**: "Faltam X indicacoes para o proximo nivel"
+  - **Conquistas**: Cards pequenos (primeira indicacao, 5 indicacoes, primeiro convertido, etc.) com estado locked/unlocked baseado nos dados existentes.
+  - **Comissao acumulada**: Card destacado com total de `commission_value` onde `status = 'convertida'` ou `'paga'`.
+
+**Database**: Nenhuma nova tabela -- usa `partner_referrals` existente. Niveis e conquistas sao logica client-side pura.
+
+**UX**: Cards com icones, cores por nivel (bronze=#CD7F32, prata=#C0C0C0, ouro=#FFD700, diamante=#B9F2FF), animacao sutil ao desbloquear conquista.
+
+---
+
+### Resumo de arquivos
+
+| Acao | Arquivo |
+|------|---------|
+| Criar | `src/components/WhatsAppQualifier.tsx` |
+| Criar | `src/pages/Materiais.tsx` |
+| Criar | `src/components/materiais/MaterialCard.tsx` |
+| Criar | `src/components/materiais/MaterialGateForm.tsx` |
+| Editar | `src/components/FloatingWhatsApp.tsx` |
+| Editar | `src/lib/whatsapp.ts` |
+| Editar | `src/pages/PartnerDashboard.tsx` |
+| Editar | `src/App.tsx` (2 novas rotas) |
+| Editar | `supabase/functions/sitemap/index.ts` |
+| Editar | `index.html` (noscript link para /materiais) |
 

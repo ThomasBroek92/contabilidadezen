@@ -132,7 +132,9 @@ export function FloatingWhatsApp() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={handleWhatsAppClick}
+                onClick={(e) => {
+                  handleWhatsAppClick(e);
+                }}
                 className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] text-white py-3 px-4 transition-colors text-sm font-semibold"
               >
                 <WhatsAppIcon className="h-4 w-4" fill="currentColor" />

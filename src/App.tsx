@@ -41,6 +41,7 @@ const GuiaContabilidadeMedicos = lazy(() => import("./pages/guias/GuiaContabilid
 const AbrirEmpresa = lazy(() => import("./pages/AbrirEmpresa"));
 const CidadesAtendidas = lazy(() => import("./pages/CidadesAtendidas"));
 const IndiqueGanhe = lazy(() => import("./pages/IndiqueGanhe"));
+const Materiais = lazy(() => import("./pages/Materiais"));
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));

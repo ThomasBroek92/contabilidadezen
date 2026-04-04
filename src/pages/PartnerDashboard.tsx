@@ -408,6 +408,75 @@ export default function PartnerDashboard() {
             </Card>
           </div>
 
+          {/* Gamification Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+            {/* Level Card */}
+            <Card className="lg:col-span-1">
+              <CardContent className="p-6 text-center">
+                <div
+                  className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-3 ${currentLevel.bg}`}
+                  style={{ borderColor: currentLevel.color, borderWidth: 3 }}
+                >
+                  <currentLevel.icon className="h-10 w-10" style={{ color: currentLevel.color }} />
+                </div>
+                <h3 className="text-xl font-bold text-foreground">{currentLevel.name}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {totalReferrals} indicaç{totalReferrals === 1 ? "ão" : "ões"}
+                </p>
+                {nextLevel ? (
+                  <>
+                    <Progress value={levelProgress} className="h-2 mb-2" />
+                    <p className="text-xs text-muted-foreground">
+                      Faltam <span className="font-semibold text-foreground">{nextLevel.min - totalReferrals}</span> para {nextLevel.name}
+                    </p>
+                  </>
+                ) : (
+                  <Badge className="bg-[#60A5FA]/10 text-[#2563eb]">Nível Máximo!</Badge>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Achievements */}
+            <Card className="lg:col-span-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-secondary" />
+                  Conquistas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {achievements.map(a => {
+                    const AIcon = a.icon;
+                    return (
+                      <div
+                        key={a.id}
+                        className={`flex items-center gap-2.5 p-3 rounded-lg border transition-colors ${
+                          a.unlocked
+                            ? "border-secondary/30 bg-secondary/5"
+                            : "border-border bg-muted/30 opacity-50"
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                          a.unlocked ? "bg-secondary/10" : "bg-muted"
+                        }`}>
+                          {a.unlocked ? (
+                            <AIcon className="h-4 w-4 text-secondary" />
+                          ) : (
+                            <Lock className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </div>
+                        <span className={`text-xs font-medium ${a.unlocked ? "text-foreground" : "text-muted-foreground"}`}>
+                          {a.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Referrals List */}
           <Card>
             <CardHeader>

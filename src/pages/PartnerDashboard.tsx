@@ -183,6 +183,39 @@ export default function PartnerDashboard() {
     .filter(r => r.status === "fechado")
     .reduce((sum, r) => sum + (r.commission_value || 0), 0);
 
+  // Gamification
+  const levels = [
+    { name: "Bronze", min: 0, max: 2, color: "#CD7F32", bg: "bg-[#CD7F32]/10", text: "text-[#CD7F32]", icon: Star },
+    { name: "Prata", min: 3, max: 5, color: "#C0C0C0", bg: "bg-[#C0C0C0]/20", text: "text-[#71717a]", icon: Award },
+    { name: "Ouro", min: 6, max: 10, color: "#FFD700", bg: "bg-[#FFD700]/10", text: "text-[#b8860b]", icon: Trophy },
+    { name: "Diamante", min: 11, max: Infinity, color: "#60A5FA", bg: "bg-[#60A5FA]/10", text: "text-[#2563eb]", icon: Zap },
+  ];
+
+  const currentLevel = useMemo(() => 
+    levels.find(l => totalReferrals >= l.min && totalReferrals <= l.max) || levels[0],
+  [totalReferrals]);
+
+  const nextLevel = useMemo(() => {
+    const idx = levels.indexOf(currentLevel);
+    return idx < levels.length - 1 ? levels[idx + 1] : null;
+  }, [currentLevel]);
+
+  const levelProgress = useMemo(() => {
+    if (!nextLevel) return 100;
+    const range = nextLevel.min - currentLevel.min;
+    const current = totalReferrals - currentLevel.min;
+    return Math.min(Math.round((current / range) * 100), 100);
+  }, [totalReferrals, currentLevel, nextLevel]);
+
+  const achievements = useMemo(() => [
+    { id: "first", label: "Primeira Indicação", icon: Target, unlocked: totalReferrals >= 1 },
+    { id: "five", label: "5 Indicações", icon: Users, unlocked: totalReferrals >= 5 },
+    { id: "converted", label: "Primeiro Convertido", icon: CheckCircle2, unlocked: closedReferrals >= 1 },
+    { id: "paid", label: "Primeiro Pagamento", icon: DollarSign, unlocked: paidReferrals >= 1 },
+    { id: "ten", label: "10 Indicações", icon: Trophy, unlocked: totalReferrals >= 10 },
+    { id: "five_converted", label: "5 Convertidos", icon: Zap, unlocked: closedReferrals >= 5 },
+  ], [totalReferrals, closedReferrals, paidReferrals]);
+
   if (isLoading) {
     return (
       <>

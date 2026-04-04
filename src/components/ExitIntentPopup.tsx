@@ -1,85 +1,88 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useState, useEffect, useCallback } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageCircle, Phone, X } from "lucide-react";
+import { MessageCircle, Phone, CheckCircle2, Star, Shield } from "lucide-react";
 import { useLeadCapture } from "@/hooks/use-lead-capture";
+import { useHoneypot } from "@/hooks/use-honeypot";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
-import supportImage from "@/assets/exit-intent-support.jpg";
 import { trackFormSubmit } from "@/hooks/use-analytics";
-
-const cidades = [
-  "São Paulo",
-  "Rio de Janeiro",
-  "Belo Horizonte",
-  "Brasília",
-  "Salvador",
-  "Curitiba",
-  "Fortaleza",
-  "Recife",
-  "Porto Alegre",
-  "Manaus",
-  "Goiânia",
-  "Belém",
-  "Campinas",
-  "Guarulhos",
-  "São Bernardo do Campo",
-  "Outra",
-];
+import { getWhatsAppLink } from "@/lib/whatsapp";
 
 export function ExitIntentPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasShown, setHasShown] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const { saveLead, isSaving } = useLeadCapture();
-  
+  const { isBot, honeypotProps } = useHoneypot();
+  const isMobile = useIsMobile();
+
   const [formData, setFormData] = useState({
     nome: "",
     celular: "",
     email: "",
-    cidade: "",
-    atividade: "",
-    preferencia_contato: "",
   });
 
+  const showPopup = useCallback(() => {
+    if (hasShown || sessionStorage.getItem("exitIntentShown")) return;
+    setIsOpen(true);
+    setHasShown(true);
+    sessionStorage.setItem("exitIntentShown", "true");
+  }, [hasShown]);
+
   useEffect(() => {
-    // Listen for custom event to force show popup (for testing)
-    const handleForceShow = () => {
-      setIsOpen(true);
-    };
+    const handleForceShow = () => setIsOpen(true);
+    window.addEventListener("force-exit-intent-popup", handleForceShow);
 
-    window.addEventListener('force-exit-intent-popup', handleForceShow);
-
-    // Check if popup was already shown in this session
     const alreadyShown = sessionStorage.getItem("exitIntentShown");
     if (alreadyShown) {
       setHasShown(true);
-      return () => {
-        window.removeEventListener('force-exit-intent-popup', handleForceShow);
-      };
+      return () => window.removeEventListener("force-exit-intent-popup", handleForceShow);
     }
 
-    const handleMouseLeave = (e: MouseEvent) => {
-      // Only trigger when mouse leaves through the top of the page
-      if (e.clientY <= 0 && !hasShown) {
-        setIsOpen(true);
-        setHasShown(true);
-        sessionStorage.setItem("exitIntentShown", "true");
-      }
-    };
+    let desktopCleanup: (() => void) | undefined;
+    let mobileTimeout: ReturnType<typeof setTimeout> | undefined;
+    let scrollTimer: ReturnType<typeof setTimeout> | undefined;
 
-    // Add delay before enabling exit intent
-    const timeout = setTimeout(() => {
-      document.addEventListener("mouseleave", handleMouseLeave);
+    const activationDelay = setTimeout(() => {
+      if (isMobile) {
+        // Mobile: trigger after 30s of scroll inactivity
+        let lastScroll = Date.now();
+        const onScroll = () => { lastScroll = Date.now(); };
+        window.addEventListener("scroll", onScroll, { passive: true });
+
+        const checkIdle = () => {
+          if (Date.now() - lastScroll > 30000) {
+            showPopup();
+          } else {
+            scrollTimer = setTimeout(checkIdle, 5000);
+          }
+        };
+        scrollTimer = setTimeout(checkIdle, 30000);
+
+        desktopCleanup = () => {
+          window.removeEventListener("scroll", onScroll);
+          if (scrollTimer) clearTimeout(scrollTimer);
+        };
+      } else {
+        // Desktop: trigger on mouse leaving top of viewport
+        const handleMouseLeave = (e: MouseEvent) => {
+          if (e.clientY <= 0) showPopup();
+        };
+        document.addEventListener("mouseleave", handleMouseLeave);
+        desktopCleanup = () => document.removeEventListener("mouseleave", handleMouseLeave);
+      }
     }, 5000);
 
     return () => {
-      clearTimeout(timeout);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-      window.removeEventListener('force-exit-intent-popup', handleForceShow);
+      clearTimeout(activationDelay);
+      if (mobileTimeout) clearTimeout(mobileTimeout);
+      desktopCleanup?.();
+      window.removeEventListener("force-exit-intent-popup", handleForceShow);
     };
-  }, [hasShown]);
+  }, [hasShown, isMobile, showPopup]);
 
   const formatPhone = (value: string) => {
     const numbers = value.replace(/\D/g, "");
@@ -89,161 +92,176 @@ export function ExitIntentPopup() {
   };
 
   const handleSubmit = async (preferencia: "whatsapp" | "ligacao") => {
+    if (isBot()) return;
+
     if (!formData.nome || !formData.celular || !formData.email) {
       toast.error("Preencha nome, celular e e-mail");
       return;
     }
 
-    const fonte = `Exit Intent - Preferência: ${preferencia === "whatsapp" ? "WhatsApp" : "Ligação"} - Cidade: ${formData.cidade}`;
+    const fonte = `Exit Intent - ${preferencia === "whatsapp" ? "WhatsApp" : "Ligação"}`;
 
     const success = await saveLead({
       nome: formData.nome,
       email: formData.email,
       whatsapp: formData.celular,
-      segmento: formData.atividade || "Geral",
+      segmento: "Geral",
       fonte,
     });
 
     if (success) {
-      // Track form submission
-      trackFormSubmit("exit-intent-popup", {
-        segmento: formData.atividade || "Geral",
-        fonte,
-      });
-
-      toast.success("Obrigado! Entraremos em contato em breve.");
-      setIsOpen(false);
+      try {
+        trackFormSubmit("exit-intent-popup", { fonte });
+      } catch { /* fire-and-forget */ }
+      setSubmitted(true);
     } else {
       toast.error("Erro ao enviar. Tente novamente.");
     }
   };
 
+  const whatsappUrl = getWhatsAppLink(
+    `Olá! Sou ${formData.nome || "interessado"} e gostaria de mais informações sobre contabilidade.`
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden">
-        <button
-          onClick={() => setIsOpen(false)}
-          className="absolute right-4 top-4 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100"
-          aria-label="Fechar popup"
-        >
-          <X className="h-5 w-5" />
-        </button>
-        
-        <div className="grid md:grid-cols-2">
-          {/* Left side */}
-          <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-8 flex flex-col justify-center relative overflow-hidden">
-            <h2 className="text-2xl font-bold text-primary mb-4">
-              Ficou com alguma dúvida?
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Preencha as informações ao lado que em breve entraremos em contato com você.
-            </p>
-            <div className="relative w-48 h-48 mx-auto">
-              <div className="absolute -inset-2 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full" />
-              <div className="absolute inset-0 rounded-full overflow-hidden border-4 border-primary/20">
-                <img 
-                  src={supportImage} 
-                  alt="Atendimento Contabilidade Zen"
-                  width={800}
-                  height={533}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover"
-                />
+      <DialogContent className="max-w-2xl p-0 overflow-hidden gap-0">
+        <DialogTitle className="sr-only">Fale com um especialista</DialogTitle>
+
+        {submitted ? (
+          /* ── Success State ── */
+          <div className="p-8 md:p-12 text-center space-y-6">
+            <div className="mx-auto w-16 h-16 rounded-full bg-[hsl(142_70%_30%)]/10 flex items-center justify-center animate-in zoom-in-50 duration-300">
+              <CheckCircle2 className="h-8 w-8 text-[hsl(142_70%_30%)]" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-foreground">Recebemos seu contato!</h2>
+              <p className="text-muted-foreground">Entraremos em contato em até <strong>2 horas</strong> em horário comercial.</p>
+            </div>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 w-full h-14 rounded-lg bg-[hsl(142_70%_30%)] text-primary-foreground font-semibold text-base hover:bg-[hsl(142_70%_25%)] transition-colors"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Falar agora no WhatsApp
+            </a>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        ) : (
+          /* ── Form State ── */
+          <div className="grid md:grid-cols-5">
+            {/* Left panel - desktop only */}
+            <div className="hidden md:flex md:col-span-2 bg-gradient-to-br from-primary/10 to-primary/5 p-8 flex-col justify-center items-center text-center gap-6">
+              <div className="space-y-3">
+                <h2 className="text-xl font-bold text-primary">Espere!</h2>
+                <p className="text-2xl font-bold text-foreground leading-tight">
+                  Fale com um especialista agora
+                </p>
+              </div>
+
+              <div className="flex items-center gap-1 text-amber-500">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-current" />
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground font-medium">
+                500+ empresas atendidas
+              </p>
+
+              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-background/60 rounded-full px-4 py-2">
+                <Shield className="h-3.5 w-3.5 text-primary" />
+                Resposta em até 2h
               </div>
             </div>
-          </div>
 
-          {/* Right side - Form */}
-          <div className="p-8">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            {/* Right panel - form */}
+            <div className="md:col-span-3 p-6 md:p-8 space-y-5">
+              {/* Mobile headline */}
+              <div className="md:hidden space-y-1 text-center">
+                <h2 className="text-xl font-bold text-foreground">
+                  Espere! Fale com um especialista
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  500+ empresas já reduziram impostos conosco
+                </p>
+              </div>
+
+              <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="nome">Nome</Label>
+                  <Label htmlFor="exit-nome">Nome</Label>
                   <Input
-                    id="nome"
-                    placeholder="Nome completo"
+                    id="exit-nome"
+                    placeholder="Seu nome"
                     value={formData.nome}
                     onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    autoComplete="name"
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="celular">Celular</Label>
+                  <Label htmlFor="exit-celular">WhatsApp</Label>
                   <Input
-                    id="celular"
+                    id="exit-celular"
                     placeholder="(DDD) 00000-0000"
                     value={formData.celular}
                     onChange={(e) => setFormData({ ...formData, celular: formatPhone(e.target.value) })}
                     maxLength={16}
+                    inputMode="tel"
+                    autoComplete="tel"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Qual é o seu e-mail?</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu_email@mail.com.br"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cidade">Em qual cidade sua empresa está situada?</Label>
-                <Select
-                  value={formData.cidade}
-                  onValueChange={(value) => setFormData({ ...formData, cidade: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Ex: São Paulo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cidades.map((cidade) => (
-                      <SelectItem key={cidade} value={cidade}>
-                        {cidade}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="atividade">Descrição da atividade que você exercerá na empresa</Label>
-                <Input
-                  id="atividade"
-                  placeholder="Ex.: programador, consultor de marketing"
-                  value={formData.atividade}
-                  onChange={(e) => setFormData({ ...formData, atividade: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Como prefere que entremos em contato com você?</Label>
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    onClick={() => handleSubmit("whatsapp")}
-                    disabled={isSaving}
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    VIA WHATSAPP
-                  </Button>
-                  <Button
-                    className="flex items-center gap-2"
-                    onClick={() => handleSubmit("ligacao")}
-                    disabled={isSaving}
-                  >
-                    <Phone className="h-4 w-4" />
-                    VIA LIGAÇÃO
-                  </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="exit-email">E-mail</Label>
+                  <Input
+                    id="exit-email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    autoComplete="email"
+                  />
                 </div>
+
+                {/* Honeypot */}
+                <input {...honeypotProps} />
               </div>
+
+              <div className="space-y-3 pt-1">
+                <Button
+                  variant="whatsapp"
+                  size="xl"
+                  className="w-full"
+                  onClick={() => handleSubmit("whatsapp")}
+                  disabled={isSaving}
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  QUERO FALAR NO WHATSAPP
+                </Button>
+
+                <button
+                  onClick={() => handleSubmit("ligacao")}
+                  disabled={isSaving}
+                  className="flex items-center justify-center gap-2 w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+                >
+                  <Phone className="h-4 w-4" />
+                  Prefiro receber uma ligação
+                </button>
+              </div>
+
+              <p className="text-[11px] text-muted-foreground/70 text-center">
+                Seus dados estão seguros. Não enviamos spam.
+              </p>
             </div>
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   );

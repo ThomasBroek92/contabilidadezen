@@ -41,6 +41,7 @@ const GuiaContabilidadeMedicos = lazy(() => import("./pages/guias/GuiaContabilid
 const AbrirEmpresa = lazy(() => import("./pages/AbrirEmpresa"));
 const CidadesAtendidas = lazy(() => import("./pages/CidadesAtendidas"));
 const IndiqueGanhe = lazy(() => import("./pages/IndiqueGanhe"));
+const Materiais = lazy(() => import("./pages/Materiais"));
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
@@ -105,6 +106,7 @@ const App = () => (
               <Route path="/abrir-empresa" element={<AbrirEmpresa />} />
               <Route path="/cidades-atendidas" element={<CidadesAtendidas />} />
               <Route path="/indique-e-ganhe" element={<IndiqueGanhe />} />
+              <Route path="/materiais" element={<Materiais />} />
               <Route path="/parceiro/dashboard" element={<PartnerDashboard />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin" element={<Admin />} />

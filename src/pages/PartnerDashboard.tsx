@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Gift, 
@@ -24,7 +25,13 @@ import {
   User,
   Phone,
   Mail,
-  Building
+  Building,
+  Trophy,
+  Star,
+  Target,
+  Zap,
+  Award,
+  Lock
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -175,6 +182,39 @@ export default function PartnerDashboard() {
   const pendingEarnings = referrals
     .filter(r => r.status === "fechado")
     .reduce((sum, r) => sum + (r.commission_value || 0), 0);
+
+  // Gamification
+  const levels = [
+    { name: "Bronze", min: 0, max: 2, color: "#CD7F32", bg: "bg-[#CD7F32]/10", text: "text-[#CD7F32]", icon: Star },
+    { name: "Prata", min: 3, max: 5, color: "#C0C0C0", bg: "bg-[#C0C0C0]/20", text: "text-[#71717a]", icon: Award },
+    { name: "Ouro", min: 6, max: 10, color: "#FFD700", bg: "bg-[#FFD700]/10", text: "text-[#b8860b]", icon: Trophy },
+    { name: "Diamante", min: 11, max: Infinity, color: "#60A5FA", bg: "bg-[#60A5FA]/10", text: "text-[#2563eb]", icon: Zap },
+  ];
+
+  const currentLevel = useMemo(() => 
+    levels.find(l => totalReferrals >= l.min && totalReferrals <= l.max) || levels[0],
+  [totalReferrals]);
+
+  const nextLevel = useMemo(() => {
+    const idx = levels.indexOf(currentLevel);
+    return idx < levels.length - 1 ? levels[idx + 1] : null;
+  }, [currentLevel]);
+
+  const levelProgress = useMemo(() => {
+    if (!nextLevel) return 100;
+    const range = nextLevel.min - currentLevel.min;
+    const current = totalReferrals - currentLevel.min;
+    return Math.min(Math.round((current / range) * 100), 100);
+  }, [totalReferrals, currentLevel, nextLevel]);
+
+  const achievements = useMemo(() => [
+    { id: "first", label: "Primeira Indicação", icon: Target, unlocked: totalReferrals >= 1 },
+    { id: "five", label: "5 Indicações", icon: Users, unlocked: totalReferrals >= 5 },
+    { id: "converted", label: "Primeiro Convertido", icon: CheckCircle2, unlocked: closedReferrals >= 1 },
+    { id: "paid", label: "Primeiro Pagamento", icon: DollarSign, unlocked: paidReferrals >= 1 },
+    { id: "ten", label: "10 Indicações", icon: Trophy, unlocked: totalReferrals >= 10 },
+    { id: "five_converted", label: "5 Convertidos", icon: Zap, unlocked: closedReferrals >= 5 },
+  ], [totalReferrals, closedReferrals, paidReferrals]);
 
   if (isLoading) {
     return (
@@ -363,6 +403,75 @@ export default function PartnerDashboard() {
                       R$ {pendingEarnings.toLocaleString("pt-BR")}
                     </p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Gamification Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+            {/* Level Card */}
+            <Card className="lg:col-span-1">
+              <CardContent className="p-6 text-center">
+                <div
+                  className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-3 ${currentLevel.bg}`}
+                  style={{ borderColor: currentLevel.color, borderWidth: 3 }}
+                >
+                  <currentLevel.icon className="h-10 w-10" style={{ color: currentLevel.color }} />
+                </div>
+                <h3 className="text-xl font-bold text-foreground">{currentLevel.name}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {totalReferrals} indicaç{totalReferrals === 1 ? "ão" : "ões"}
+                </p>
+                {nextLevel ? (
+                  <>
+                    <Progress value={levelProgress} className="h-2 mb-2" />
+                    <p className="text-xs text-muted-foreground">
+                      Faltam <span className="font-semibold text-foreground">{nextLevel.min - totalReferrals}</span> para {nextLevel.name}
+                    </p>
+                  </>
+                ) : (
+                  <Badge className="bg-[#60A5FA]/10 text-[#2563eb]">Nível Máximo!</Badge>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Achievements */}
+            <Card className="lg:col-span-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-secondary" />
+                  Conquistas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {achievements.map(a => {
+                    const AIcon = a.icon;
+                    return (
+                      <div
+                        key={a.id}
+                        className={`flex items-center gap-2.5 p-3 rounded-lg border transition-colors ${
+                          a.unlocked
+                            ? "border-secondary/30 bg-secondary/5"
+                            : "border-border bg-muted/30 opacity-50"
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                          a.unlocked ? "bg-secondary/10" : "bg-muted"
+                        }`}>
+                          {a.unlocked ? (
+                            <AIcon className="h-4 w-4 text-secondary" />
+                          ) : (
+                            <Lock className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </div>
+                        <span className={`text-xs font-medium ${a.unlocked ? "text-foreground" : "text-muted-foreground"}`}>
+                          {a.label}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

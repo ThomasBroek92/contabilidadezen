@@ -10,16 +10,30 @@ import { m, useAnimation, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { trackWhatsAppClick } from "@/hooks/use-analytics";
 import { WHATSAPP_NUMBER, WHATSAPP_MESSAGES, getWhatsAppLink } from "@/lib/whatsapp";
+import { WhatsAppQualifier } from "@/components/WhatsAppQualifier";
 
 export function FloatingWhatsApp() {
   const [isEmphasized, setIsEmphasized] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
   const [tooltipDismissed, setTooltipDismissed] = useState(false);
+  const [qualifierOpen, setQualifierOpen] = useState(false);
   const controls = useAnimation();
   const whatsappUrl = getWhatsAppLink(WHATSAPP_MESSAGES.default);
   
+  // Check if user already completed qualifier
+  const isAlreadyQualified = () => {
+    try { return sessionStorage.getItem("waq_done") === "1"; } catch { return false; }
+  };
+
   // Track WhatsApp click
-  const handleWhatsAppClick = () => {
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    if (!isAlreadyQualified()) {
+      e.preventDefault();
+      setShowTooltip(false);
+      setTooltipDismissed(true);
+      setQualifierOpen(true);
+      return;
+    }
     trackWhatsAppClick('floating_button', WHATSAPP_MESSAGES.default);
   };
 
@@ -118,7 +132,9 @@ export function FloatingWhatsApp() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={handleWhatsAppClick}
+                onClick={(e) => {
+                  handleWhatsAppClick(e);
+                }}
                 className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] text-white py-3 px-4 transition-colors text-sm font-semibold"
               >
                 <WhatsAppIcon className="h-4 w-4" fill="currentColor" />
@@ -137,7 +153,9 @@ export function FloatingWhatsApp() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={handleWhatsAppClick}
+        onClick={(e) => {
+          handleWhatsAppClick(e);
+        }}
         className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl hover:shadow-2xl transition-all duration-300"
         aria-label="Fale conosco pelo WhatsApp"
         data-gtm-category="Conversão"
@@ -165,6 +183,8 @@ export function FloatingWhatsApp() {
         {/* Icon */}
         <WhatsAppIcon className="h-7 w-7 relative z-10" fill="currentColor" />
       </m.a>
+
+      <WhatsAppQualifier open={qualifierOpen} onOpenChange={setQualifierOpen} />
     </div>
   );
 }

@@ -16,11 +16,24 @@ export function FloatingWhatsApp() {
   const [isEmphasized, setIsEmphasized] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
   const [tooltipDismissed, setTooltipDismissed] = useState(false);
+  const [qualifierOpen, setQualifierOpen] = useState(false);
   const controls = useAnimation();
   const whatsappUrl = getWhatsAppLink(WHATSAPP_MESSAGES.default);
   
+  // Check if user already completed qualifier
+  const isAlreadyQualified = () => {
+    try { return sessionStorage.getItem("waq_done") === "1"; } catch { return false; }
+  };
+
   // Track WhatsApp click
-  const handleWhatsAppClick = () => {
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    if (!isAlreadyQualified()) {
+      e.preventDefault();
+      setShowTooltip(false);
+      setTooltipDismissed(true);
+      setQualifierOpen(true);
+      return;
+    }
     trackWhatsAppClick('floating_button', WHATSAPP_MESSAGES.default);
   };
 

@@ -153,7 +153,9 @@ export function FloatingWhatsApp() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={handleWhatsAppClick}
+        onClick={(e) => {
+          handleWhatsAppClick(e);
+        }}
         className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl hover:shadow-2xl transition-all duration-300"
         aria-label="Fale conosco pelo WhatsApp"
         data-gtm-category="Conversão"

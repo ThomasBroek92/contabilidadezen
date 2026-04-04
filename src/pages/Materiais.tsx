@@ -59,7 +59,7 @@ export default function Materiais() {
       <SEOHead
         title="Materiais Gratuitos | E-books, Checklists e Planilhas | Contabilidade Zen"
         description="Baixe gratuitamente e-books, checklists e planilhas sobre contabilidade, abertura de empresa, tributação e planejamento financeiro para profissionais PJ."
-        canonicalUrl="https://www.contabilidadezen.com.br/materiais"
+        canonical="https://www.contabilidadezen.com.br/materiais"
       />
 
       <Header />

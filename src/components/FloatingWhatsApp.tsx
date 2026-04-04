@@ -10,6 +10,7 @@ import { m, useAnimation, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { trackWhatsAppClick } from "@/hooks/use-analytics";
 import { WHATSAPP_NUMBER, WHATSAPP_MESSAGES, getWhatsAppLink } from "@/lib/whatsapp";
+import { WhatsAppQualifier } from "@/components/WhatsAppQualifier";
 
 export function FloatingWhatsApp() {
   const [isEmphasized, setIsEmphasized] = useState(false);

@@ -183,6 +183,8 @@ export function FloatingWhatsApp() {
         {/* Icon */}
         <WhatsAppIcon className="h-7 w-7 relative z-10" fill="currentColor" />
       </m.a>
+
+      <WhatsAppQualifier open={qualifierOpen} onOpenChange={setQualifierOpen} />
     </div>
   );
 }

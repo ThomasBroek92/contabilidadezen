@@ -47,6 +47,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const PoliticaPrivacidade = lazy(() => import("./pages/PoliticaPrivacidade"));
 const Termos = lazy(() => import("./pages/Termos"));
+const AutorThomasBroek = lazy(() => import("./pages/AutorThomasBroek"));
 
 // Lazy load componentes não-críticos
 const CookieConsent = lazy(() => 
@@ -113,6 +114,7 @@ const App = () => (
               <Route path="/admin/:tab" element={<Admin />} />
               <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
               <Route path="/termos" element={<Termos />} />
+              <Route path="/autor/thomas-broek" element={<AutorThomasBroek />} />
               <Route path="*" element={<CatchAllHandler />} />
             </Routes>
           </Suspense>

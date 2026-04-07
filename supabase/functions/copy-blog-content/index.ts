@@ -231,7 +231,7 @@ Responda APENAS com JSON válido.`;
       jsonStr = jsonStr
         .replace(/,\s*}/g, '}')
         .replace(/,\s*]/g, ']')
-        .replace(/[\x00-\x1F\x7F]/g, (c) => c === '\n' || c === '\t' ? c : '');
+        .replace(/[\x00-\x1F\x7F]/g, (c: string) => c === '\n' || c === '\t' ? c : '');
       
       const jsonEnd = jsonStr.lastIndexOf('}');
       if (jsonEnd !== -1) jsonStr = jsonStr.substring(0, jsonEnd + 1);

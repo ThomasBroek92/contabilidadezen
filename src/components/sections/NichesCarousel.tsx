@@ -312,19 +312,19 @@ export function NichesCarousel() {
                           </div>
                         </div>
 
-                        {/* Content - at bottom for cards with background image */}
-                        <div className="relative z-10">
+                        {/* Content - at bottom */}
+                        <div className="relative z-10 min-w-0">
                           {/* Title */}
-                          <h3 className="text-lg font-bold text-white mb-1">{niche.title}</h3>
-                          <p className="text-white/80 text-sm mb-4">{niche.subtitle}</p>
+                          <h3 className="text-lg font-bold text-white mb-1 truncate">{niche.title}</h3>
+                          <p className="text-white/80 text-sm mb-4 truncate">{niche.subtitle}</p>
                           
                           {/* Features - only show if features exist */}
                           {niche.features.length > 0 && (
                             <ul className="space-y-2 mb-4">
                               {niche.features.map((feature, idx) => (
                                 <li key={idx} className="flex items-start gap-2 text-white/90 text-sm">
-                                  <span className="text-white/60">•</span>
-                                  <span>{feature}</span>
+                                  <span className="text-white/60 flex-shrink-0">•</span>
+                                  <span className="break-words">{feature}</span>
                                 </li>
                               ))}
                             </ul>
@@ -333,12 +333,12 @@ export function NichesCarousel() {
                           {/* CTA */}
                           <Button 
                             variant="secondary" 
-                            className="w-full bg-white/20 hover:bg-white/30 text-white border-white/20 group-hover:bg-white/30"
+                            className="w-full bg-white/20 hover:bg-white/30 text-white border-white/20 group-hover:bg-white/30 truncate"
                             asChild
                           >
-                            <Link to={niche.href}>
-                              {`Contabilidade para ${niche.subtitle}`}
-                              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            <Link to={niche.href} className="truncate">
+                              <span className="truncate">Saiba mais</span>
+                              <ArrowRight className="h-4 w-4 flex-shrink-0 group-hover:translate-x-1 transition-transform" />
                             </Link>
                           </Button>
                         </div>

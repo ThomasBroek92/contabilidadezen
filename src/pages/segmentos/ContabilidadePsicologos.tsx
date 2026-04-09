@@ -1,6 +1,9 @@
+import { Link } from "react-router-dom";
+import { BookOpen, ArrowRight } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Button } from "@/components/ui/button";
 import { PsicologosHero } from "@/components/segmentos/psicologos/PsicologosHero";
 import { PsicologosLeadForm } from "@/components/segmentos/psicologos/PsicologosLeadForm";
 import { PsicologosBenefits } from "@/components/segmentos/psicologos/PsicologosBenefits";
@@ -39,6 +42,28 @@ export default function ContabilidadePsicologos() {
         <TaxComparisonCalculator profession="psicólogo" accentColor="#8B5CF6" />
         <PsicologosProblems />
         <PsicologosBenefits />
+
+        {/* Card destaque: Guia Completo */}
+        <section className="py-12 lg:py-16 bg-background">
+          <div className="container mx-auto px-4 max-w-3xl">
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-8 lg:p-10 flex flex-col items-center text-center gap-4 shadow-sm">
+              <div className="rounded-full bg-primary/10 p-4">
+                <BookOpen className="h-8 w-8 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold text-foreground">Guia Completo para Psicólogos PJ</h2>
+              <p className="text-muted-foreground max-w-xl">
+                Tudo sobre CNAE, Simples Nacional, Fator R e credenciamento em planos de saúde.
+              </p>
+              <Button asChild size="lg" className="mt-2">
+                <Link to="/guia-contabilidade-psicologos">
+                  Ler guia completo
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
         <PsicologosProcess />
         <PsicologosTestimonials />
         <PsicologosFAQ />

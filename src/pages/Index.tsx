@@ -37,6 +37,9 @@ const FAQ = lazy(() =>
 const BlogPreview = lazy(() => 
   import("@/components/sections/BlogPreview").then(m => ({ default: m.BlogPreview }))
 );
+const GuidesSection = lazy(() => 
+  import("@/components/sections/GuidesSection").then(m => ({ default: m.GuidesSection }))
+);
 const FinalCTA = lazy(() => 
   import("@/components/sections/FinalCTA").then(m => ({ default: m.FinalCTA }))
 );
@@ -70,6 +73,12 @@ const Index = () => {
           <ScrollAnimation>
             <Suspense fallback={<SectionFallback />}>
               <NichesCarousel />
+            </Suspense>
+          </ScrollAnimation>
+
+          <ScrollAnimation delay={0.1}>
+            <Suspense fallback={<SectionFallback />}>
+              <GuidesSection />
             </Suspense>
           </ScrollAnimation>
           

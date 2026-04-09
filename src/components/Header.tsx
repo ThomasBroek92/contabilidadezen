@@ -46,6 +46,8 @@ const conteudoLinks = [
   { name: "Gerador de Invoice/Fatura", href: "/conteudo/gerador-invoice" },
   { name: "Modelo de Contrato PJ", href: "/conteudo/modelo-contrato-pj" },
   { name: "Tabela CNAEs Simples Nacional", href: "/conteudo/tabela-simples-nacional" },
+  { name: "Guia Médicos", href: "/guia-contabilidade-medicos" },
+  { name: "Guia Psicólogos", href: "/guia-contabilidade-psicologos" },
 ];
 
 // Contact info

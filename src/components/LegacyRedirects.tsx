@@ -82,8 +82,8 @@ const legacyRedirects: Record<string, string> = {
   '/ir-a-falencia-saiba-como-evitar/': '/blog',
   '/gestor-de-trafego-pode-ser-mei': '/blog',
   '/gestor-de-trafego-pode-ser-mei/': '/blog',
-  '/sede-virtual-gratuita': '/blog',
-  '/sede-virtual-gratuita/': '/blog',
+  '/sede-virtual-gratuita': '/abrir-empresa',
+  '/sede-virtual-gratuita/': '/abrir-empresa',
   '/impostos-na-venda-de-e-books-2': '/blog',
   '/impostos-na-venda-de-e-books-2/': '/blog',
   

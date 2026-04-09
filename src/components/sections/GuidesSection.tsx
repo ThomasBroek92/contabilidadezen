@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Stethoscope, Brain, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const guides = [
   {
@@ -19,33 +18,32 @@ const guides = [
 
 export const GuidesSection = () => {
   return (
-    <section className="py-16 lg:py-20 bg-muted/30">
+    <section className="py-10 lg:py-14 bg-muted/20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
             Guias Especializados por Profissão
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Conteúdo aprofundado e gratuito para profissionais de saúde que querem pagar menos impostos.
+          <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+            Conteúdo gratuito para profissionais de saúde que querem pagar menos impostos.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
           {guides.map((guide) => (
             <Link
               key={guide.href}
               to={guide.href}
-              className="group rounded-2xl border border-border bg-card p-8 flex flex-col items-center text-center gap-4 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+              className="group rounded-xl border border-border/60 bg-card px-5 py-5 flex items-center gap-4 transition-all duration-300 hover:border-primary/30 hover:shadow-sm"
             >
-              <div className="rounded-full bg-primary/10 p-4">
-                <guide.icon className="h-8 w-8 text-primary" />
+              <div className="rounded-full bg-primary/10 p-2.5 shrink-0">
+                <guide.icon className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="text-xl font-bold text-foreground">{guide.title}</h3>
-              <p className="text-muted-foreground">{guide.description}</p>
-              <Button variant="outline" size="sm" className="mt-auto" tabIndex={-1}>
-                Ler guia completo
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-foreground">{guide.title}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{guide.description}</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary shrink-0 ml-auto transition-colors" />
             </Link>
           ))}
         </div>

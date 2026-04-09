@@ -56,8 +56,8 @@ const TabelaSimplesNacional = () => {
   return (
     <>
       <SEOHead
-        title="Tabela Simples Nacional 2026 — Ver Anexos e Alíquotas"
-        description="Veja a tabela atualizada do Simples Nacional 2026 com todos os anexos, alíquotas e Fator R. Pesquise por CNAE e descubra seu enquadramento tributário. Grátis."
+        title="Tabela do Simples Nacional 2026: CNAEs, Anexos e Alíquotas Completa"
+        description="Tabela atualizada do Simples Nacional 2026 com todos os CNAEs permitidos, anexos I ao V, alíquotas por faixa de faturamento e fator R. Consulte grátis."
         keywords="tabela simples nacional 2026, anexos simples nacional, alíquotas simples nacional 2026, fator R, CNAE simples nacional, tabela CNAE"
         canonical="/conteudo/tabela-simples-nacional"
         pageType="tool"
@@ -94,8 +94,8 @@ const TabelaSimplesNacional = () => {
                 </Badge>
                 
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-                  Tabela Simples Nacional 2026:{" "}
-                  <span className="text-secondary">Anexos e Alíquotas por CNAE</span>
+                   Tabela Completa do Simples Nacional 2026:{" "}
+                   <span className="text-secondary">CNAEs, Anexos e Alíquotas</span>
                 </h1>
                 
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

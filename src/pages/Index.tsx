@@ -75,6 +75,12 @@ const Index = () => {
               <NichesCarousel />
             </Suspense>
           </ScrollAnimation>
+
+          <ScrollAnimation delay={0.1}>
+            <Suspense fallback={<SectionFallback />}>
+              <GuidesSection />
+            </Suspense>
+          </ScrollAnimation>
           
           <ScrollAnimation delay={0.1}>
             <Suspense fallback={<SectionFallback />}>

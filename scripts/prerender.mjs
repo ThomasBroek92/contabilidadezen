@@ -43,6 +43,8 @@ const STATIC_ROUTES = [
   '/cidades-atendidas',
   '/contabilidade-em-campinas',
   '/indique-e-ganhe',
+  '/guia-contabilidade-medicos',
+  '/guia-contabilidade-psicologos',
   '/politica-de-privacidade',
   '/termos',
   // Dynamic city landing pages (88 total)

@@ -481,6 +481,8 @@ serve(async (req) => {
         "/conteudo/modelo-contrato-pj",
         "/conteudo/tabela-cnaes",
         "/cidades-atendidas",
+        "/guia-contabilidade-medicos",
+        "/guia-contabilidade-psicologos",
         "/politica-de-privacidade",
         "/termos",
         // 88 city landing pages

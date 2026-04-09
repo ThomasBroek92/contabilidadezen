@@ -210,12 +210,25 @@ export const generateFAQSchema = (faqs: Array<{ question: string; answer: string
 export const breadcrumbSchema = (items: Array<{ name: string; url: string }>) => ({
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
-  "itemListElement": items.map((item, index) => ({
-    "@type": "ListItem",
-    "position": index + 1,
-    "name": item.name,
-    "item": item.url
-  }))
+  "itemListElement": items.map((item, index) => {
+    // Enforce canonical www domain on all URLs
+    let url = item.url;
+    if (url.startsWith("http")) {
+      url = url.replace("://contabilidadezen.com.br", "://www.contabilidadezen.com.br");
+    } else if (url.startsWith("/")) {
+      url = `${SITE_URL}${url}`;
+    }
+    // Remove trailing slash (except root)
+    if (url !== SITE_URL && url.endsWith("/")) {
+      url = url.replace(/\/+$/, "");
+    }
+    return {
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": item.name,
+      "item": url
+    };
+  })
 });
 
 // Blog listing schema (CollectionPage + ItemList)

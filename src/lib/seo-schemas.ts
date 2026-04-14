@@ -89,42 +89,12 @@ export const localBusinessSchema = {
       "opens": "09:00",
       "closes": "18:00"
     }
-  ],
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "reviewCount": "127",
-    "bestRating": "5",
-    "worstRating": "1"
-  },
-  "review": [
-    {
-      "@type": "Review",
-      "author": {
-        "@type": "Person",
-        "name": "Dr. Carlos Silva"
-      },
-      "reviewRating": {
-        "@type": "Rating",
-        "ratingValue": "5",
-        "bestRating": "5"
-      },
-      "reviewBody": "Excelente atendimento! Economizei mais de R$ 30 mil por ano com o planejamento tributário."
-    },
-    {
-      "@type": "Review",
-      "author": {
-        "@type": "Person",
-        "name": "Dra. Ana Souza"
-      },
-      "reviewRating": {
-        "@type": "Rating",
-        "ratingValue": "5",
-        "bestRating": "5"
-      },
-      "reviewBody": "Migrei de contador tradicional e foi a melhor decisão. Atendimento humanizado e especializado."
-    }
   ]
+  // Note: AggregateRating/Review removidos daqui. A política do Google exige
+  // que ratings exibidos em rich results sejam verificáveis e renderizados
+  // visivelmente na página. Reviews devem ser expostos via schema apenas
+  // quando renderizados no HTML (componente Testimonials), e idealmente
+  // puxados de fonte externa verificável (Google Business Profile).
 };
 
 export const servicesSchema = {

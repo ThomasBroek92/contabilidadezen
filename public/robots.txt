@@ -11,7 +11,13 @@ Disallow: /parceiro/
 Disallow: /conteudo/calculadora-pj-clt/resultado
 Disallow: /lovable-uploads/
 Disallow: /*.json$
-Disallow: /*?*
+# Block only tracking query strings — allow legitimate filters (e.g. /blog?category=...)
+Disallow: /*?utm_*
+Disallow: /*&utm_*
+Disallow: /*?fbclid=*
+Disallow: /*?gclid=*
+Disallow: /*?msclkid=*
+Disallow: /*?ref=*
 Disallow: /2019/
 Disallow: /2020/
 Disallow: /2021/

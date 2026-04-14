@@ -62,6 +62,10 @@ interface SEOHeadProps {
   noindex?: boolean;
   nofollow?: boolean;
   priceRange?: string;
+
+  // Performance: preload the LCP image for this route
+  preloadImage?: string;
+  preloadImageType?: string; // e.g. "image/webp"
 }
 
 // Auto-generate optimized title (max 60 chars with brand)
@@ -126,9 +130,10 @@ function generatePageSchemas(props: SEOHeadProps): object[] {
       "description": props.description,
       "image": props.ogImage || DEFAULT_IMAGE,
       "author": {
-        "@type": "Organization",
-        "name": SITE_NAME,
-        "url": SITE_URL
+        "@type": "Person",
+        "name": props.author || "Thomas Broek",
+        "url": `${SITE_URL}/autor/thomas-broek`,
+        "jobTitle": "Contador especialista em profissionais liberais e PJ"
       },
       "publisher": {
         "@type": "Organization",
@@ -247,6 +252,8 @@ export function SEOHead(props: SEOHeadProps) {
     lastModified,
     noindex = false,
     nofollow = false,
+    preloadImage,
+    preloadImageType = "image/webp",
   } = props;
   
   const optimizedTitle = optimizeTitle(title, pageType);
@@ -270,7 +277,22 @@ export function SEOHead(props: SEOHeadProps) {
       
       {/* Canonical */}
       <link rel="canonical" href={fullCanonical} />
-      
+
+      {/* hreflang (single-locale site: pt-BR + x-default) */}
+      <link rel="alternate" hrefLang="pt-BR" href={fullCanonical} />
+      <link rel="alternate" hrefLang="x-default" href={fullCanonical} />
+
+      {/* LCP image preload (optional, per-route) */}
+      {preloadImage && (
+        <link
+          rel="preload"
+          as="image"
+          href={preloadImage}
+          type={preloadImageType}
+          {...({ fetchpriority: "high" } as Record<string, string>)}
+        />
+      )}
+
       {/* Pagination: rel prev/next */}
       {prevPageUrl && <link rel="prev" href={prevPageUrl} />}
       {nextPageUrl && <link rel="next" href={nextPageUrl} />}
@@ -290,10 +312,13 @@ export function SEOHead(props: SEOHeadProps) {
       
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@contabilidadezen" />
+      <meta name="twitter:creator" content="@contabilidadezen" />
       <meta name="twitter:url" content={fullCanonical} />
       <meta name="twitter:title" content={optimizedTitle} />
       <meta name="twitter:description" content={optimizedDescription} />
       <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image:alt" content={ogImageAlt} />
       
       {/* Article specific (for blog posts) */}
       {ogType === "article" && publishedTime && (
@@ -336,6 +361,8 @@ export function HomePageSEO() {
       pageType="home"
       includeOrganization
       includeLocalBusiness
+      preloadImage="/images/hero-founder.webp"
+      preloadImageType="image/webp"
     />
   );
 }

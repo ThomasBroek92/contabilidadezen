@@ -292,9 +292,9 @@ export function NichesCarousel() {
                         {/* Background Image with Gradient Overlay from bottom */}
                         {niche.backgroundImage && (
                           <div className="absolute inset-0 overflow-hidden rounded-2xl">
-                            <img 
-                              src={niche.backgroundImage} 
-                              alt="" 
+                            <img
+                              src={niche.backgroundImage}
+                              alt={`Contabilidade para ${niche.title.toLowerCase()}`}
                               width={665}
                               height={735}
                               loading="lazy"

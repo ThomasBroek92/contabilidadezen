@@ -1,8 +1,92 @@
-# Redirect non-www para www (resolve duplicatas de conteúdo)
-https://contabilidadezen.com.br/*  https://www.contabilidadezen.com.br/:splat  301!
-http://contabilidadezen.com.br/*  https://www.contabilidadezen.com.br/:splat  301!
+# =====================================================================
+# LEGACY WORDPRESS → NOVOS SEGMENTOS
+# =====================================================================
+/contabilidade-para-medico              /segmentos/contabilidade-para-medicos               301!
+/contabilidade-para-medico/             /segmentos/contabilidade-para-medicos               301!
+/contabilidade-para-e-commerce          /segmentos/contabilidade-para-ecommerce             301!
+/contabilidade-para-e-commerce/         /segmentos/contabilidade-para-ecommerce             301!
+/contabilidade-para-desenvolvedor-ti    /segmentos/contabilidade-para-profissionais-de-ti   301!
+/contabilidade-para-desenvolvedor-ti/   /segmentos/contabilidade-para-profissionais-de-ti   301!
+/contabilidade-para-prestadores-de-servico   /segmentos/contabilidade-para-prestadores-de-servico  301!
+/contabilidade-para-prestadores-de-servico/  /segmentos/contabilidade-para-prestadores-de-servico  301!
+/contabilidade-para-gestor-de-trafego   /segmentos/contabilidade-para-produtores-digitais   301!
+/contabilidade-para-gestor-de-trafego/  /segmentos/contabilidade-para-produtores-digitais   301!
+/contabilidade-zen                      /sobre                                               301!
+/contabilidade-zen/                     /sobre                                               301!
 
-# Redirect http www para https www
+# =====================================================================
+# LEGACY TOOLS → /conteudo/*
+# =====================================================================
+/calculadora-pj-clt        /conteudo/calculadora-pj-clt        301!
+/calculadora-pj-vs-clt     /conteudo/calculadora-pj-clt        301!
+/calculadora-pj-vs-clt/    /conteudo/calculadora-pj-clt        301!
+/gerador-rpa               /conteudo/gerador-rpa               301!
+/gerador-rpa/              /conteudo/gerador-rpa               301!
+/gerador-invoice           /conteudo/gerador-invoice           301!
+/gerador-invoice/          /conteudo/gerador-invoice           301!
+/tabela-simples-nacional   /conteudo/tabela-simples-nacional   301!
+/tabela-simples-nacional/  /conteudo/tabela-simples-nacional   301!
+/tabela-cnaes              /conteudo/tabela-simples-nacional   301!
+/tabela-cnaes/             /conteudo/tabela-simples-nacional   301!
+/modelo-contrato-pj        /conteudo/modelo-contrato-pj        301!
+/modelo-contrato-pj/       /conteudo/modelo-contrato-pj        301!
+/comparativo-tributario    /conteudo/comparativo-tributario    301!
+/comparativo-tributario/   /conteudo/comparativo-tributario    301!
+/conteudo                  /                                   301!
+
+# =====================================================================
+# ALIAS DE SEGMENTO ANTIGO
+# =====================================================================
+/medicos       /segmentos/contabilidade-para-medicos   301!
+/medicos/      /segmentos/contabilidade-para-medicos   301!
+
+# =====================================================================
+# LEGACY BLOG / POSTS WORDPRESS → NOVA ESTRUTURA
+# =====================================================================
+/mei/                                                        /blog                                                        301!
+/limite-de-faturamento-mei/                                  /blog                                                        301!
+/programador-desenvolvedor-ser-mei/                          /segmentos/contabilidade-para-profissionais-de-ti            301!
+/empresa-de-copywriting-como-abrir/                          /abrir-empresa                                               301!
+/como-abrir-uma-empresa-de-social-media/                     /segmentos/contabilidade-para-produtores-digitais            301!
+/beneficios-de-contratar-uma-contabilidade-digital/          /sobre                                                       301!
+/vantagens-conta-pj-banco-digital/                           /blog                                                        301!
+/planos-de-contabilidade-online/                             /                                                            301!
+/seja-parceiro-cz/                                           /indique-e-ganhe                                             301!
+/seja-parceiro-cz-2/                                         /indique-e-ganhe                                             301!
+/seja-parceiro-cz                                            /indique-e-ganhe                                             301!
+/a-importancia-de-regularizar-ganhos-no-onlyfans/            /segmentos/contabilidade-para-produtores-digitais            301!
+/infoprodutor-deve-emitir-nota-fiscal/                       /segmentos/contabilidade-para-produtores-digitais            301!
+/infoprodutor-precisa-de-cnpj/                               /segmentos/contabilidade-para-produtores-digitais            301!
+/reducao-tributaria-para-e-book-saiba-como-fazer-da-maneira-correta/  /blog                                              301!
+/venda-sem-nota-fiscal-conheca-os-riscos-e-as-consequencias/ /blog                                                        301!
+/como-emitir-nota-fiscal-nas-vendas-internacionais-na-hotmart/  /segmentos/contabilidade-para-exportacao-de-servicos      301!
+/planilha-gestao-fluxo-de-caixa/                             /materiais                                                   301!
+/sistema-de-gestao-financeiro/                               /materiais                                                   301!
+/guia-completo-para-iniciantes/                              /blog                                                        301!
+/gerenciar-o-fluxo-de-caixa-sucesso-financeiro/              /blog                                                        301!
+/simples-nacional-com-novo-limite-de-faturamento-entenda/    /conteudo/tabela-simples-nacional                            301!
+/blog-impostos-para-infoprodutores-qual-o-melhor-regime-tributario/  /segmentos/contabilidade-para-produtores-digitais   301!
+/servicos-de-contabilidade-em-americana-sp/                  /contabilidade-em-americana                                  301!
+/gestor-de-trafego-pode-ser-mei/                             /segmentos/contabilidade-para-produtores-digitais            301!
+/impostos-na-venda-de-e-books-2/                             /blog                                                        301!
+/sdsdsd/                                                     /                                                            301!
+/2023/09/02/                                                 /blog                                                        301!
+
+# =====================================================================
+# POSTS DE TESTE — 410 Gone (sinaliza ao Google para remover do índice)
+# =====================================================================
+/blog/teste     /blog   410!
+/blog/teste-2   /blog   410!
+/blog/teste/    /blog   410!
+/blog/teste-2/  /blog   410!
+
+# =====================================================================
+# REDIRECT non-www → www (resolve duplicatas de conteúdo)
+# =====================================================================
+https://contabilidadezen.com.br/*  https://www.contabilidadezen.com.br/:splat  301!
+http://contabilidadezen.com.br/*   https://www.contabilidadezen.com.br/:splat  301!
+
+# Redirect http www → https www
 http://www.contabilidadezen.com.br/*  https://www.contabilidadezen.com.br/:splat  301!
 
 # Remove trailing slash (resolve inconsistência de canonical)

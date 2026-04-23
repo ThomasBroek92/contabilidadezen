@@ -3,15 +3,17 @@
 
 User-agent: *
 Allow: /
+# Private / admin areas
 Disallow: /admin
 Disallow: /admin/
 Disallow: /auth
 Disallow: /auth/
 Disallow: /parceiro/
-Disallow: /conteudo/calculadora-pj-clt/resultado
 Disallow: /lovable-uploads/
 Disallow: /*.json$
-Disallow: /*?*
+# Tool result pages (transient, low value)
+Disallow: /conteudo/calculadora-pj-clt/resultado
+# WordPress legacy paths (all now redirect via _redirects)
 Disallow: /2019/
 Disallow: /2020/
 Disallow: /2021/
@@ -19,6 +21,7 @@ Disallow: /2022/
 Disallow: /2023/
 Disallow: /2024/
 Disallow: /2025/
+# WordPress-specific paths (never existed in new site)
 Disallow: /tags/
 Disallow: /author/
 Disallow: /search/
@@ -26,10 +29,11 @@ Disallow: /wp-login.php
 Disallow: /cdn-cgi/
 Disallow: */feed/
 Disallow: */feed$
-Disallow: /sede-virtual-gratuita/
-Disallow: /gestor-de-trafego-pode-ser-mei/
-Disallow: /impostos-na-venda-de-e-books-2/
-Disallow: /sdsdsd/
+# Block only specific WP query params — NOT /*?* (that was blocking pagination)
+Disallow: /*?replytocom=
+Disallow: /*?preview=
+Disallow: /*?p=
+Disallow: /*?page_id=
 
 User-agent: Googlebot
 Crawl-delay: 1

@@ -9,7 +9,8 @@
  *
  * Env necessárias:
  *   - VITE_SUPABASE_URL
- *   - SUPABASE_SERVICE_ROLE_KEY  (não publishable!)
+ *   - VITE_SUPABASE_PUBLISHABLE_KEY  (anon key — RLS está desabilitado em blog_posts)
+ *   - SUPABASE_SERVICE_ROLE_KEY     (opcional, fallback)
  */
 
 import { readFileSync, readdirSync } from 'fs';
@@ -48,11 +49,13 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const BLOG_DIR = resolve(__dirname, '..', 'src', 'content', 'blog');
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_KEY =
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.warn('⚠️  SUPABASE_SERVICE_ROLE_KEY not set — skipping blog MD sync');
-  console.warn('    Add SUPABASE_SERVICE_ROLE_KEY to GitHub Secrets to enable sync.');
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.warn('⚠️  Supabase credentials not set — skipping blog MD sync');
+  console.warn('    Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in GitHub Secrets.');
   process.exit(0);
 }
 
@@ -117,8 +120,8 @@ async function upsertPost(row) {
   const res = await fetch(url, {
     method: 'POST',
     headers: {
-      apikey: SERVICE_KEY,
-      Authorization: `Bearer ${SERVICE_KEY}`,
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
       'Content-Type': 'application/json',
       Prefer: 'resolution=merge-duplicates,return=representation',
     },

@@ -105,6 +105,8 @@ function frontmatterToRow(fm, body) {
     etapa_funil: fm.etapa_funil || null,
     persona_alvo: fm.persona_alvo || null,
     is_pillar: fm.is_pillar === true,
+    author_name: fm.author || null,
+    cluster_id: fm.cluster_id || null,
     auto_published: true,
     editorial_status: 'published',
   };

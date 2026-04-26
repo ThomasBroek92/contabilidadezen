@@ -39,6 +39,7 @@ export type Database = {
         Row: {
           answer_first_validated: boolean | null
           author_id: string | null
+          author_name: string | null
           authority_citations: string[] | null
           auto_published: boolean | null
           category: string
@@ -81,6 +82,7 @@ export type Database = {
         Insert: {
           answer_first_validated?: boolean | null
           author_id?: string | null
+          author_name?: string | null
           authority_citations?: string[] | null
           auto_published?: boolean | null
           category?: string
@@ -123,6 +125,7 @@ export type Database = {
         Update: {
           answer_first_validated?: boolean | null
           author_id?: string | null
+          author_name?: string | null
           authority_citations?: string[] | null
           auto_published?: boolean | null
           category?: string
@@ -162,22 +165,7 @@ export type Database = {
           updated_at?: string
           views?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "blog_posts_cluster_id_fkey"
-            columns: ["cluster_id"]
-            isOneToOne: false
-            referencedRelation: "blog_posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_posts_cluster_id_fkey"
-            columns: ["cluster_id"]
-            isOneToOne: false
-            referencedRelation: "blog_posts_public"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       blog_topics: {
         Row: {

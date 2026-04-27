@@ -35,10 +35,28 @@ function isInternalLink(href: string | undefined): boolean {
   return false;
 }
 
+/**
+ * Strip elements that should not be visible in the rendered post:
+ * - <script> blocks (JSON-LD is handled by BlogPostSEO via Helmet)
+ * - Inline "Autor:" lines (AuthorBox component handles this already)
+ * - Trailing horizontal rules left after stripping
+ */
+function cleanContent(raw: string): string {
+  return raw
+    // Remove any <script>...</script> blocks (multiline)
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    // Remove standalone "Autor: ..." lines (bold or plain)
+    .replace(/^\*{0,2}Autor:.*\*{0,2}\s*$/gim, '')
+    // Collapse more than two consecutive blank lines
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
+  const sanitized = cleanContent(content);
   return (
     <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-secondary hover:prose-a:text-secondary/80 prose-strong:text-foreground prose-ul:text-muted-foreground prose-ol:text-muted-foreground prose-li:text-muted-foreground prose-blockquote:text-muted-foreground prose-blockquote:border-l-secondary prose-code:text-foreground prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-pre:bg-muted prose-pre:text-foreground prose-img:rounded-lg prose-img:shadow-md">
-      <ReactMarkdown 
+      <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children }) => (
@@ -126,7 +144,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
           hr: () => <hr className="my-8 border-border" />,
         }}
       >
-        {content}
+        {sanitized}
       </ReactMarkdown>
     </div>
   );
